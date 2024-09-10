@@ -51,30 +51,28 @@ public class Save {
      * @return true, if saved
      */
     public static boolean showSaveDialog(MainWindow window) {
-        final FileChooser fileChooser = new FileChooser();
+        var fileChooser = new FileChooser();
         fileChooser.setTitle("Save File - " + ProgramProperties.getProgramVersion());
-
-        final File currentFile = new File(window.getFileName());
-
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PhyloSketch", "*.psketch"),
-                TextFileFilter.getInstance());
+        var currentFile = new File(window.getFileName());
+        fileChooser.getExtensionFilters().addAll(PhyloSketchFileFilter.getInstance(), TextFileFilter.getInstance());
 
         if (!currentFile.isDirectory()) {
             fileChooser.setInitialDirectory(currentFile.getParentFile());
             fileChooser.setInitialFileName(currentFile.getName());
         } else {
-            final File tmp = new File(ProgramProperties.get("SaveFileDir", ""));
+            var tmp = new File(ProgramProperties.get("SaveFileDir", ""));
             if (tmp.isDirectory()) {
                 fileChooser.setInitialDirectory(tmp);
             }
         }
 
-        final File selectedFile = fileChooser.showSaveDialog(window.getStage());
+        var selectedFile = fileChooser.showSaveDialog(window.getStage());
 
         if (selectedFile != null) {
             Save.apply(selectedFile, window);
             ProgramProperties.put("SaveFileDir", selectedFile.getParent());
             RecentFilesManager.getInstance().insertRecentFile(selectedFile.getPath());
+			window.dirtyProperty().set(false);
             return true;
         } else
             return false;

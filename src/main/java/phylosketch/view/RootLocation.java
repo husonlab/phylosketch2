@@ -23,6 +23,9 @@ import javafx.geometry.Point2D;
 import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 public enum RootLocation {
 	Top, Bottom, Left, Right;
 
@@ -30,28 +33,26 @@ public enum RootLocation {
 		return this == Left || this == Right;
 	}
 
-	public static RootLocation compute(DrawPane drawPane) {
-		var graph=drawPane.getGraph();
-
+	public static RootLocation compute(Collection<Node> nodes) {
 		var averageRoot = new Point2D(0, 0);
 		var roots = 0;
 		var averageNode = new Point2D(0, 0);
-		var nodes = 0;
+		var count = 0;
 
-		for (Node v : graph.nodes()) {
-			final double x = DrawPane.getX(v);
-			final double y = DrawPane.getY(v);
-			if (v.getInDegree() == 0) {
+		for (Node w : nodes) {
+			final double x = DrawPane.getX(w);
+			final double y = DrawPane.getY(w);
+			if (w.getInDegree() == 0) {
 				averageRoot = new Point2D(averageRoot.getX() + x, averageRoot.getY() + y);
 				roots++;
 			}
 			averageNode = new Point2D(averageNode.getX() + x, averageNode.getY() + y);
-			nodes++;
+			count++;
 		}
 		if (roots > 0)
 			averageRoot = new Point2D(averageRoot.getX() / roots, averageRoot.getY() / roots);
-		if (nodes > 0)
-			averageNode = new Point2D(averageNode.getX() / nodes, averageNode.getY() / nodes);
+		if (count > 0)
+			averageNode = new Point2D(averageNode.getX() / count, averageNode.getY() / count);
 
 		final double angle = GeometryUtilsFX.computeAngle(averageRoot.subtract(averageNode));
 		if (angle >= 45 && angle <= 135)

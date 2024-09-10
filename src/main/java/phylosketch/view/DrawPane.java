@@ -26,11 +26,14 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
+import javafx.scene.shape.StrokeLineCap;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.graph.GraphFX;
 import jloda.fx.selection.SelectionModel;
@@ -38,9 +41,11 @@ import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.Icebergs;
 import jloda.fx.util.SelectionEffect;
+import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
+import jloda.graph.algorithms.ConnectedComponents;
 import jloda.graph.algorithms.IsDAG;
 import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
@@ -68,6 +73,13 @@ public class DrawPane extends Pane {
 	private final Group nodeLabelsGroup = new Group();
 	private final Group otherGroup = new Group();
 	private final Group world = new Group();
+
+	private final BooleanProperty editable=new SimpleBooleanProperty(this,"editable",true);
+	private final BooleanProperty moveable=new SimpleBooleanProperty(this,"moveable",true);
+
+	private final BooleanProperty arrowHeads=new SimpleBooleanProperty(this,"arrowHeads",false);
+
+	private final BooleanProperty outlineEdges =new SimpleBooleanProperty(this,"fatEdges",false);
 
 	private final DoubleProperty tolerance = new SimpleDoubleProperty(this, "tolerance", 5);
 
@@ -152,6 +164,32 @@ public class DrawPane extends Pane {
 		//setStyle("-fx-background-color: lightblue;");
 
 		MouseSelection.setupPaneSelection(this, nodeSelection, edgeSelection);
+
+		outlineEdges.addListener((v, o, n)->{
+			if(!n){
+				nodesGroup.setVisible(true);
+				for(var edge:edgesGroup.getChildren()) {
+					if(edge instanceof Path path) {
+						path.setStroke(null);
+						path.setStrokeWidth(1);
+						path.getStyleClass().add("graph-edge");
+						path.setStrokeLineCap(StrokeLineCap.ROUND);
+
+					}
+				}
+				edgesGroup.setEffect(null);
+			}
+			else {
+				nodesGroup.setVisible(false);
+				for(var edge:edgesGroup.getChildren()) {
+					if(edge instanceof Path path) {
+						path.setStrokeWidth(30);
+						path.setStroke(MainWindowManager.isUseDarkTheme()?Color.BLACK:Color.WHITE);
+					}
+				}
+				edgesGroup.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, MainWindowManager.isUseDarkTheme()?Color.WHITE:Color.BLACK, 0.5, 0.5, 0.0, 0.0));
+			}
+		});
 	}
 
 
@@ -332,6 +370,7 @@ public class DrawPane extends Pane {
 		label.translateXProperty().bind(shape.translateXProperty());
 		label.translateYProperty().bind(shape.translateYProperty());
 		nodeLabelsGroup.getChildren().add(label);
+		label.applyCss();
 
 		label.setOnMouseClicked(e -> {
 			if (!e.isShiftDown() && PhyloSketch.isDesktop()) {
@@ -340,9 +379,25 @@ public class DrawPane extends Pane {
 			}
 			getNodeSelection().toggleSelection(v);
 		});
-		label.setLayoutX(10);
-		label.setLayoutY(-5);
-		LabelUtils.makeDraggable(v, label, this);
+		switch (RootLocation.compute(ConnectedComponents.component(v))) {
+			case Top -> {
+				label.setLayoutX(-10);
+				label.setLayoutY(5);
+			}
+			case Bottom -> {
+				label.setLayoutX(-10);
+				label.setLayoutY(+5);
+			}
+			case Right -> {
+				label.setLayoutX(label.getWidth()+10);
+				label.setLayoutY(-5);
+			}
+			default /*case Left */ -> {
+				label.setLayoutX(10);
+				label.setLayoutY(-5);
+			}
+		}
+		LabelUtils.makeDraggable(label, moveableProperty(),this);
 		return label;
 	}
 
@@ -394,5 +449,41 @@ public class DrawPane extends Pane {
 			getLabel(v).setText(RichTextLabel.getRawText(text));
 			graph.setLabel(v, text);
 		}
+	}
+
+	public boolean getOutlineEdges() {
+		return outlineEdges.get();
+	}
+
+	public BooleanProperty outlineEdgesProperty() {
+		return outlineEdges;
+	}
+
+	public void setOutlineEdges(boolean outlineEdges) {
+		this.outlineEdges.set(outlineEdges);
+	}
+
+	public boolean isEditable() {
+		return editable.get();
+	}
+
+	public BooleanProperty editableProperty() {
+		return editable;
+	}
+
+	public boolean isMoveable() {
+		return moveable.get();
+	}
+
+	public BooleanProperty moveableProperty() {
+		return moveable;
+	}
+
+	public boolean isArrowHeads() {
+		return arrowHeads.get();
+	}
+
+	public BooleanProperty arrowHeadsProperty() {
+		return arrowHeads;
 	}
 }

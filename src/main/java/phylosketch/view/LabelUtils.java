@@ -19,6 +19,8 @@
 
 package phylosketch.view;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.geometry.Point2D;
 
 public class LabelUtils {
@@ -28,7 +30,7 @@ public class LabelUtils {
 	private static double mouseY;
 	private static boolean wasDragged;
 
-	public static void makeDraggable(jloda.graph.Node v, javafx.scene.Node label, DrawPane drawPane) {
+	public static void makeDraggable(javafx.scene.Node label, ReadOnlyBooleanProperty allow, DrawPane drawPane) {
 		label.setOnMousePressed(e -> {
 			mouseDownX = e.getScreenX();
 			mouseDownY = e.getScreenY();
@@ -39,15 +41,17 @@ public class LabelUtils {
 
 		});
 		label.setOnMouseDragged(e -> {
-			var previous = drawPane.screenToLocal(mouseX, mouseY);
-			var current = drawPane.screenToLocal(e.getScreenX(), e.getScreenY());
-			var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());
-			label.setLayoutX(label.getLayoutX() + delta.getX());
-			label.setLayoutY(label.getLayoutY() + delta.getY());
-			wasDragged = true;
-			mouseX = e.getScreenX();
-			mouseY = e.getScreenY();
-			e.consume();
+			if(allow.get()) {
+				var previous = drawPane.screenToLocal(mouseX, mouseY);
+				var current = drawPane.screenToLocal(e.getScreenX(), e.getScreenY());
+				var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());
+				label.setLayoutX(label.getLayoutX() + delta.getX());
+				label.setLayoutY(label.getLayoutY() + delta.getY());
+				wasDragged = true;
+				mouseX = e.getScreenX();
+				mouseY = e.getScreenY();
+				e.consume();
+			}
 		});
 		label.setOnMouseReleased(e -> {
 			if (wasDragged) {
