@@ -39,6 +39,17 @@ public class SetupSelection {
 		var nodeSelection = view.getNodeSelection();
 		var edgeSelection = view.getEdgeSelection();
 
+		controller.getSelectButton().setOnAction(e->{
+			if(nodeSelection.size()<graph.getNumberOfNodes() || edgeSelection.size()<graph.getNumberOfEdges()) {
+				graph.nodes().forEach(nodeSelection::select);
+				graph.edges().forEach(edgeSelection::select);
+			} else {
+				nodeSelection.clearSelection();
+				edgeSelection.clearSelection();
+			}
+		});
+		controller.getSelectAllMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
 		controller.getSelectAllMenuItem().setOnAction(e -> {
 			graph.nodes().forEach(nodeSelection::select);
 			graph.edges().forEach(edgeSelection::select);

@@ -36,7 +36,7 @@ import phylosketch.view.DrawUtils;
 import java.io.*;
 import java.util.List;
 
-import static phylosketch.view.DrawPane.INTERPOLATE_STEP;
+import static phylosketch.view.MouseInteraction.INTERPOLATE_STEP;
 
 
 /**
@@ -171,7 +171,7 @@ public class InputOutput {
 					}
 				}
 				case "label" -> {
-					graph.setLabel(v, value);
+					graph.setLabel(v, RichTextLabel.getRawText(value));
 					drawPane.createLabel(v, value);
 				}
 				case "label_stroke" -> {

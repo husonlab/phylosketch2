@@ -1,5 +1,5 @@
 /*
- *  SelectionManager.java Copyright (C) 2024 Daniel H. Huson
+ *  MouseSelection.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -19,24 +19,38 @@
 
 package phylosketch.window;
 
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
+import jloda.fx.graph.GraphTraversals;
 import jloda.fx.selection.SelectionModel;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import phylosketch.main.PhyloSketch;
 
-public class SelectionManager {
+public class MouseSelection {
+
 	public static void setupNodeSelection(Node v, Shape shape, SelectionModel<Node> nodeSelectionModel, SelectionModel<Edge> edgeSelectionModel) {
+
 		shape.setOnMouseClicked(me -> {
-			if (me.getClickCount() == 1 && me.isStillSincePress()) {
-				if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
-					nodeSelectionModel.clearSelection();
-					edgeSelectionModel.clearSelection();
+			if(me.isStillSincePress()) {
+				if (me.getClickCount() == 1) {
+					if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+						nodeSelectionModel.clearSelection();
+						edgeSelectionModel.clearSelection();
+					}
+					nodeSelectionModel.toggleSelection(v);
+					me.consume();
+				} else if(me.getClickCount()==2) {
+					Platform.runLater(()-> {
+						GraphTraversals.traverseReachable(v, e -> true, w -> {
+							nodeSelectionModel.select(w);
+							for (var e : w.outEdges())
+								edgeSelectionModel.select(e);
+						});
+					});
 				}
-				nodeSelectionModel.toggleSelection(v);
-				me.consume();
 			}
 		});
 	}

@@ -20,27 +20,33 @@
 package phylosketch.window;
 
 import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
+import javafx.collections.SetChangeListener;
+import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.shape.Shape;
 import jloda.fx.control.CopyableLabel;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.util.BasicFX;
+import jloda.fx.util.ClipboardUtils;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.WindowGeometry;
+import jloda.graph.NodeIntArray;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.StringUtils;
 import phylosketch.io.InputOutput;
 import phylosketch.io.Save;
 import phylosketch.io.SaveBeforeClosingDialog;
-import phylosketch.view.ChangeNodeLabelsCommand;
-import phylosketch.view.DeleteNodesEdgesCommand;
-import phylosketch.view.LabelLeaves;
-import phylosketch.view.SetupSelection;
+import phylosketch.view.*;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * setup all control bindings
@@ -50,7 +56,7 @@ public class MainWindowPresenter {
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
 		var view = window.getDrawPane();
-		var network = view.getGraph();
+		var graph = view.getGraph();
 		var undoManager = view.getUndoManager();
 
 		window.dirtyProperty().bind(view.getUndoManager().undoableProperty());
@@ -67,6 +73,34 @@ public class MainWindowPresenter {
 				final MainWindow aWindow = (MainWindow) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);
 				if (SaveBeforeClosingDialog.apply(aWindow) == SaveBeforeClosingDialog.Result.cancel || !MainWindowManager.getInstance().closeMainWindow(aWindow))
 					break;
+			}
+		});
+
+		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>)e->{
+			while(e.next()) {
+				for(var node : e.getAddedSubList()) {
+					if(node instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
+						shape.setOnContextMenuRequested(cm->{
+							var setLabel = new MenuItem("Edit Label");
+							setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
+							new ContextMenu(setLabel).show(window.getStage(), cm.getScreenX(), cm.getScreenY());
+						});
+					}
+				}
+			}
+		});
+		view.getNodeLabelsGroup().getChildren().addListener((ListChangeListener<? super Node>)e->{
+			while(e.next()) {
+				for(var node : e.getAddedSubList()) {
+					if(node instanceof RichTextLabel richTextLabel && richTextLabel.getUserData() instanceof Integer nodeId) {
+						richTextLabel.setOnContextMenuRequested(cm->{
+							var v=view.getGraph().findNodeById(nodeId);
+							var setLabel = new MenuItem("Edit Label");
+							setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
+							new ContextMenu(setLabel).show(window.getStage(), cm.getScreenX(), cm.getScreenY());
+						});
+					}
+				}
 			}
 		});
 
@@ -124,25 +158,11 @@ public class MainWindowPresenter {
 			controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1);
 		});
 
-
-		controller.getCopyMenuItem().setOnAction(e -> {
-			if (view.getNodeSelection().size() > 0) {
-				var labels = network.nodeStream().map(view::getLabel).map(RichTextLabel::getText).filter(text -> !text.isEmpty()).toList();
-				var clipboardContent = new ClipboardContent();
-				clipboardContent.putString(StringUtils.toString(labels, "\n"));
-				Clipboard.getSystemClipboard().setContent(clipboardContent);
-			} else if (network.getNumberOfNodes() > 0) {
-				var snapshot = view.snapshot(null, null);
-				var clipboardContent = new ClipboardContent();
-				clipboardContent.putString(view.toBracketString(false));
-				clipboardContent.putImage(snapshot);
-				Clipboard.getSystemClipboard().setContent(clipboardContent);
-			}
-		});
+		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString(false)+"\n"));
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getCopyExportMenuItem().setOnAction(controller.getCopyMenuItem().getOnAction());
-		controller.getCopyExportMenuItem().disableProperty().bind(controller.getCopyMenuItem().disableProperty());
+		controller.getCopyImageMenuItem().setOnAction(e -> ClipboardUtils.putImage(view.snapshot(null, null)));
+		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getLabelLeavesABCMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelLeavesABC(view))));
 		controller.getLabelLeavesABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
@@ -159,12 +179,20 @@ public class MainWindowPresenter {
 		controller.getLabelInternal123MenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelInternal123(view))));
 		controller.getLabelInternal123MenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
+		controller.getClearLabelsMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view,  LabelLeaves.clear(view))));
+		controller.getClearLabelsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getNodeLabelsGroup().getChildren()));
+
+
 		controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
 		BasicFX.setupFullScreenMenuSupport(window.getStage(), controller.getFullScreenMenuItem());
 
 		var infoLabel=new CopyableLabel();
 		view.getGraphFX().lastUpdateProperty().addListener(e->{
-			infoLabel.setText(RootedNetworkProperties.computeInfoString(view.getGraph()));
+			try(var componentMap=view.getGraph().newNodeIntArray()) {
+				var components = view.getGraph().computeConnectedComponents(componentMap);
+				var roots=view.getGraph().nodeStream().filter(v->v.getInDegree()==0).count();
+				infoLabel.setText("comps="+components+" roots="+roots+" "+RootedNetworkProperties.computeInfoString(view.getGraph()));
+			}
 		});
 		controller.getBottomFlowPane().getChildren().add(infoLabel);
 

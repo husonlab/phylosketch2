@@ -27,7 +27,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
@@ -36,6 +35,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -53,8 +53,7 @@
                                     <children>
                                         <ToolBar fx:id="mainToolBar" minHeight="-Infinity" prefHeight="32.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <items>
-                                                <ToggleButton fx:id="settingsButton" mnemonicParsing="false" text="Sidebar" />
-                                                <MenuButton fx:id="fileMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Recent">
+                                                <MenuButton fx:id="fileMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Files">
                                                     <tooltip>
                                                         <Tooltip text="Open a recent file" />
                                                     </tooltip>
@@ -62,14 +61,24 @@
                                                         <MenuItem fx:id="newRecentFileMenuItem" mnemonicParsing="false" text="New..." />
                                                         <MenuItem fx:id="openRecentFileMenuItem" mnemonicParsing="false" text="Open..." />
                                                         <SeparatorMenuItem mnemonicParsing="false" />
+                                                        <MenuItem fx:id="deleteRecentFilesMenuItem" mnemonicParsing="false" text="Delete" />
                                                     </items>
                                                 </MenuButton>
                                                 <Button fx:id="importButton" mnemonicParsing="false" text="Import">
                                                     <tooltip>
-                                                        <Tooltip text="Paste a catalytic reaction system into a new document" />
+                                                        <Tooltip text="Import a tree or network into a new document" />
                                                     </tooltip>
                                                 </Button>
-
+                                                <MenuButton fx:id="selectMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Select">
+                                                    <tooltip>
+                                                        <Tooltip text="Select nodes and edges" />
+                                                    </tooltip>
+                                                </MenuButton>
+                                                <MenuButton fx:id="labelMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Label">
+                                                    <tooltip>
+                                                        <Tooltip text="Label nodes" />
+                                                    </tooltip>
+                                                </MenuButton>
                                             </items>
                                         </ToolBar>
                                         <HBox alignment="CENTER" spacing="5.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="5.0">
@@ -77,16 +86,22 @@
                                                 <Button fx:id="undoButton" mnemonicParsing="false" text="Undo" />
                                                 <Button fx:id="redoButton" mnemonicParsing="false" text="Redo" />
 
-                                                <Separator orientation="VERTICAL" />
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
                                                 <Button fx:id="zoomInButton" mnemonicParsing="false" text="Zoom In" />
                                                 <Button fx:id="zoomOutButton" mnemonicParsing="false" text="Zoom Out" />
-                                                <Separator orientation="VERTICAL" />
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
                                                 <ToggleButton fx:id="findButton" mnemonicParsing="false" text="Find" HBox.hgrow="NEVER" />
-                                                <Separator orientation="VERTICAL" />
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
+                                                <Button fx:id="selectButton" mnemonicParsing="false" text="Select" HBox.hgrow="NEVER" />
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
                                                 <MenuButton fx:id="exportMenuButton" mnemonicParsing="false" text="Export">
                                                     <items>
                                                         <MenuItem fx:id="copyExportMenuItem" mnemonicParsing="false" text="Copy" />
-                                                        <MenuItem fx:id="exportExportMenuItem" mnemonicParsing="false" text="Export..." />
+                                                        <MenuItem fx:id="copyImageExportMenuItem" mnemonicParsing="false" text="Copy Image" />
+                                                        <MenuItem fx:id="exportExportMenuItem" mnemonicParsing="false" text="Export data..." />
+                                                        <SeparatorMenuItem/>
+                                                        <CheckMenuItem fx:id="showQRCodeExportMenuItem" mnemonicParsing="false" text="Show QR Code" />
+
                                                     </items>
                                                 </MenuButton>
                                             </children>
@@ -139,12 +154,9 @@
                                 </MenuItem>
                                 <Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
                                     <items>
-                                        <MenuItem fx:id="exportSelectedNodesMenuItem" mnemonicParsing="false" text="Selected Nodes..." />
-                                        <MenuItem fx:id="exportListOfReactionsMenuItem" mnemonicParsing="false" text="List of Reactions..." />
-                                        <SeparatorMenuItem mnemonicParsing="false" />
-                                        <MenuItem fx:id="exportGraphGMLMenuItem" mnemonicParsing="false" text="Graph in GML Format..." />
-                                        <SeparatorMenuItem mnemonicParsing="false" />
-                                    </items>
+                                        <MenuItem fx:id="exportImageMenuItem" mnemonicParsing="false" text="Image" /> </items>
+                                    <MenuItem fx:id="exportTreesMenuItem" mnemonicParsing="false" text="Newick/Nexus" />
+                                        <MenuItem fx:id="exportGMLMenuItem" mnemonicParsing="false" text="GML" />
                                 </Menu>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Save...">
@@ -189,6 +201,11 @@
                                 <MenuItem fx:id="copyMenuItem" mnemonicParsing="false" text="Copy">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="C" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="copyImageMenuItem" mnemonicParsing="false" text="Copy Image">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="DOWN" shift="DOWN" shortcut="UP" />
                                     </accelerator>
                                 </MenuItem>
                                 <MenuItem fx:id="pasteMenuItem" mnemonicParsing="false" text="Paste">
@@ -290,7 +307,7 @@
                                 </MenuItem>
                             </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" text="Options">
+                        <Menu fx:id="optionsMenu" mnemonicParsing="false" text="Options">
                         <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..." />
                         <MenuItem fx:id="labelLeaves123MenuItem" text="Label Leaves t1,t2,t3..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
@@ -302,6 +319,8 @@
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="labelInternalABCMenuItem" text="Label Internal Nodes A,B,C..." />
                         <MenuItem fx:id="labelInternal123MenuItem" text="Label Internal Nodes t1,t2,t3..." />
+                            <SeparatorMenuItem mnemonicParsing="false" />
+                            <MenuItem fx:id="clearLabelsMenuItem" text="Clear Labels" />
                         </Menu>
 
                         <Menu mnemonicParsing="false" text="View">

@@ -27,9 +27,11 @@ import jloda.graph.Edge;
 import jloda.graph.Graph;
 import jloda.graph.Node;
 import jloda.util.IteratorUtils;
+import org.apache.commons.numbers.gamma.RegularizedGamma;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public class DrawUtils {
