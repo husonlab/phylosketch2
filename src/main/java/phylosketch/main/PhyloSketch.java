@@ -42,7 +42,7 @@ import java.io.StringReader;
 import java.time.Duration;
 
 /**
- * runs the phylsketch program
+ * runs the phylosketch program
  * Daniel Huson, 9.2024
  */
 public class PhyloSketch extends Application {

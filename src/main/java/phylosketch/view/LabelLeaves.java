@@ -22,13 +22,11 @@ package phylosketch.view;
 import javafx.stage.Stage;
 import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
+import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +41,7 @@ public class LabelLeaves {
         final Set<String> seen = new HashSet<>();
         graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
 
-        return sortLeaves(editor).stream().filter(v -> editor.getLabel(v).getRawText().length() == 0).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
+        return sortLeaves(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
     }
 
     public static List<ChangeNodeLabelsCommand.Data> labelInternalABC(DrawPane editor) {
@@ -51,7 +49,7 @@ public class LabelLeaves {
 
         final Set<String> seen = new HashSet<>();
         graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
-        return sortInternal(editor).stream().filter(v -> editor.getLabel(v).getRawText().length() == 0).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
+        return sortInternal(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
     }
 
     public static List<ChangeNodeLabelsCommand.Data> labelLeaves123(DrawPane editor) {
@@ -59,7 +57,7 @@ public class LabelLeaves {
 
         final Set<String> seen = new HashSet<>();
         graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
-        return sortLeaves(editor).stream().filter(v -> editor.getLabel(v).getRawText().length() == 0).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
+        return sortLeaves(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
     }
 
     public static List<ChangeNodeLabelsCommand.Data> labelInternal123(DrawPane editor) {
@@ -67,16 +65,26 @@ public class LabelLeaves {
 
         final Set<String> seen = new HashSet<>();
         graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
-        return sortInternal(editor).stream().filter(v -> editor.getLabel(v).getRawText().length() == 0).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
+        return sortInternal(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
     }
 
-    public static void labelLeaves(Stage owner, DrawPane editor) {
-        final List<Node> leaves = sortLeaves(editor);
+    public static List<ChangeNodeLabelsCommand.Data> clear(DrawPane editor) {
+        var nodes=(editor.getNodeSelection().size()>0?
+           editor.getNodeSelection().getSelectedItems():editor.getGraph().getNodesAsList());
+        return nodes.stream().map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), "")).collect(Collectors.toList());
+    }
 
-        for (Node v : leaves) {
-            editor.getNodeSelection().clearSelection();
-            editor.getNodeSelection().select(v);
-            if (!NodeLabelDialog.apply(owner, editor, v))
+    public static void labelLeaves(Stage owner, DrawPane drawPane) {
+        final List<Node> leaves = sortLeaves(drawPane);
+
+        if(drawPane.getNodeSelection().size()>0) {
+			leaves.removeIf(v -> !drawPane.getNodeSelection().isSelected(v));
+        }
+
+        for (var v : leaves) {
+            drawPane.getNodeSelection().clearSelection();
+            drawPane.getNodeSelection().select(v);
+            if (!NodeLabelDialog.apply(owner, drawPane, v))
                 break;
         }
     }
@@ -120,14 +128,13 @@ public class LabelLeaves {
 
     public static String getNextLabel123(Set<String> seen) {
         int id = 1;
-        String label = "" + id;
+        String label = "t" + id;
         while (seen.contains(label)) {
             id++;
-            label = "" + id;
+            label = "t" + id;
 
         }
         seen.add(label);
         return label;
     }
-
 }

@@ -6,6 +6,7 @@ module catrenet {
 	requires transitive javafx.controls;
     requires transitive javafx.fxml;
 	requires transitive javafx.web;
+	requires org.apache.commons.numbers.gamma;
 
 	opens phylosketch.main;
 	//opens phylosketch.view;

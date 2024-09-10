@@ -20,7 +20,6 @@
 package phylosketch.window;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
@@ -58,7 +57,19 @@ public class MainWindowController {
 	private MenuItem copyExportMenuItem;
 
 	@FXML
+	private MenuItem copyImageExportMenuItem;
+
+	@FXML
+	private CheckMenuItem showQRCodeExportMenuItem;
+
+	@FXML
+	private MenuItem exportExportMenuItem;
+
+	@FXML
 	private MenuItem copyMenuItem;
+
+	@FXML
+	private MenuItem copyImageMenuItem;
 
 	@FXML
 	private MenuItem cutMenuItem;
@@ -73,22 +84,19 @@ public class MainWindowController {
 	private Menu editMenu;
 
 	@FXML
-	private MenuItem exportExportMenuItem;
-
-	@FXML
-	private MenuItem exportGraphGMLMenuItem;
-
-	@FXML
-	private MenuItem exportListOfReactionsMenuItem;
-
-	@FXML
 	private Menu exportMenu;
 
 	@FXML
 	private MenuButton exportMenuButton;
 
 	@FXML
-	private MenuItem exportSelectedNodesMenuItem;
+	private MenuItem exportTreesMenuItem;
+
+	@FXML
+	private MenuItem exportGMLMenuItem;
+
+	@FXML
+	private MenuItem exportImageMenuItem;
 
 	@FXML
 	private Menu fileMenu;
@@ -143,6 +151,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem openRecentFileMenuItem;
+
+	@FXML
+	private MenuItem deleteRecentFilesMenuItem;
 
 	@FXML
 	private MenuItem pageSetupMenuItem;
@@ -225,6 +236,8 @@ public class MainWindowController {
 	private MenuItem selectFromPreviousMenuItem;
 
 	@FXML
+	private Menu optionsMenu;
+	@FXML
 	private MenuItem labelLeavesABCMenuItem;
 
 	@FXML
@@ -240,7 +253,7 @@ public class MainWindowController {
 	private MenuItem labelInternal123MenuItem;
 
 	@FXML
-	private ToggleButton settingsButton;
+	private MenuItem clearLabelsMenuItem;
 
 	@FXML
 	private VBox topVBox;
@@ -270,6 +283,15 @@ public class MainWindowController {
 	private Button redoButton;
 
 	@FXML
+	private Button selectButton;
+
+	@FXML
+	private MenuButton selectMenuButton;
+
+	@FXML
+	private MenuButton labelMenuButton;
+
+	@FXML
 	private StackPane centerPane;
 
 	@FXML
@@ -288,8 +310,11 @@ public class MainWindowController {
 		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
 		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
 
-		MaterialIcons.setIcon(settingsButton, MaterialIcons.settings);
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
+		MaterialIcons.setIcon(selectButton, "select_all");
+
+		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
+		MaterialIcons.setIcon(labelMenuButton,MaterialIcons.label);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -335,6 +360,7 @@ public class MainWindowController {
 		{
 			newRecentFileMenuItem.setOnAction(e -> newMenuItem.getOnAction().handle(e));
 			openRecentFileMenuItem.setOnAction(e -> openMenuItem.getOnAction().handle(e));
+			deleteRecentFilesMenuItem.setOnAction(e-> deleteMenuItem.getOnAction().handle(e));
 
 			recentFilesMenu.getItems().addListener((InvalidationListener) e -> {
 				fileMenuButton.getItems().addAll(BasicFX.copyMenu(recentFilesMenu.getItems()));
@@ -358,6 +384,15 @@ public class MainWindowController {
 		scrollPane.setPannable(true);
 		scrollPane.setLockAspectRatio(true);
 		scrollPane.setRequireShiftOrControlToZoom(true);
+
+		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
+		labelMenuButton.getItems().addAll(BasicFX.copyMenu(optionsMenu.getItems()));
+
+		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
+		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
+
+		copyImageExportMenuItem.setOnAction(e->copyImageMenuItem.getOnAction().handle(e));
+		copyImageExportMenuItem.disableProperty().bind(copyImageMenuItem.disableProperty());
 
 		centerPane.getChildren().add(scrollPane);
 	}
@@ -386,12 +421,21 @@ public class MainWindowController {
 		return closeMenuItem;
 	}
 
-	public MenuItem getCopyExportMenuItem() {
-		return copyExportMenuItem;
+
+	public CheckMenuItem getShowQRCodeExportMenuItem() {
+		return showQRCodeExportMenuItem;
+	}
+
+	public MenuItem getExportExportMenuItem() {
+		return exportExportMenuItem;
 	}
 
 	public MenuItem getCopyMenuItem() {
 		return copyMenuItem;
+	}
+
+	public MenuItem getCopyImageMenuItem() {
+		return copyImageMenuItem;
 	}
 
 	public MenuItem getCutMenuItem() {
@@ -410,18 +454,6 @@ public class MainWindowController {
 		return editMenu;
 	}
 
-	public MenuItem getExportExportMenuItem() {
-		return exportExportMenuItem;
-	}
-
-	public MenuItem getExportGraphGMLMenuItem() {
-		return exportGraphGMLMenuItem;
-	}
-
-	public MenuItem getExportListOfReactionsMenuItem() {
-		return exportListOfReactionsMenuItem;
-	}
-
 	public Menu getExportMenu() {
 		return exportMenu;
 	}
@@ -430,8 +462,16 @@ public class MainWindowController {
 		return exportMenuButton;
 	}
 
-	public MenuItem getExportSelectedNodesMenuItem() {
-		return exportSelectedNodesMenuItem;
+	public MenuItem getExportTreesMenuItem() {
+		return exportTreesMenuItem;
+	}
+
+	public MenuItem getExportGMLMenuItem() {
+		return exportGMLMenuItem;
+	}
+
+	public MenuItem getExportImageMenuItem() {
+		return exportImageMenuItem;
 	}
 
 	public Menu getFileMenu() {
@@ -558,10 +598,6 @@ public class MainWindowController {
 		return selectNoneMenuItem;
 	}
 
-	public ToggleButton getSettingsButton() {
-		return settingsButton;
-	}
-
 	public VBox getTopVBox() {
 		return topVBox;
 	}
@@ -614,6 +650,10 @@ public class MainWindowController {
 		return labelInternal123MenuItem;
 	}
 
+	public MenuItem getClearLabelsMenuItem() {
+		return clearLabelsMenuItem;
+	}
+
 	public MenuItem getSelectTreeEdgesMenuItem() {
 		return selectTreeEdgesMenuItem;
 	}
@@ -664,5 +704,9 @@ public class MainWindowController {
 
 	public MenuItem getSelectInvertMenuItem() {
 		return selectInvertMenuItem;
+	}
+
+	public Button getSelectButton() {
+		return selectButton;
 	}
 }
