@@ -23,9 +23,9 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
-import jloda.fx.graph.GraphTraversals;
 import jloda.fx.selection.SelectionModel;
 import jloda.graph.Edge;
+import jloda.graph.GraphTraversals;
 import jloda.graph.Node;
 import phylosketch.main.PhyloSketch;
 

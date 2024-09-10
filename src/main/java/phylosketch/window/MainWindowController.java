@@ -120,6 +120,9 @@ public class MainWindowController {
 	private Button importButton;
 
 	@FXML
+	private Button modeButton;
+
+	@FXML
 	private MenuItem importMenuItem;
 
 	@FXML
@@ -237,6 +240,13 @@ public class MainWindowController {
 
 	@FXML
 	private Menu optionsMenu;
+
+	@FXML
+	private CheckMenuItem arrowsMenuItem;
+
+	@FXML
+	private CheckMenuItem outlineEdgesMenuItem;
+
 	@FXML
 	private MenuItem labelLeavesABCMenuItem;
 
@@ -301,6 +311,7 @@ public class MainWindowController {
 	private void initialize() {
 		MaterialIcons.setIcon(fileMenuButton, MaterialIcons.file_open);
 		MaterialIcons.setIcon(importButton, MaterialIcons.download);
+		MaterialIcons.setIcon(modeButton,MaterialIcons.edit);
 
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 
@@ -359,8 +370,11 @@ public class MainWindowController {
 
 		{
 			newRecentFileMenuItem.setOnAction(e -> newMenuItem.getOnAction().handle(e));
+			newRecentFileMenuItem.disableProperty().bind(newMenuItem.disableProperty());
 			openRecentFileMenuItem.setOnAction(e -> openMenuItem.getOnAction().handle(e));
+			openRecentFileMenuItem.disableProperty().bind(openMenuItem.disableProperty());
 			deleteRecentFilesMenuItem.setOnAction(e-> deleteMenuItem.getOnAction().handle(e));
+			deleteRecentFilesMenuItem.disableProperty().bind(deleteMenuItem.disableProperty());
 
 			recentFilesMenu.getItems().addListener((InvalidationListener) e -> {
 				fileMenuButton.getItems().addAll(BasicFX.copyMenu(recentFilesMenu.getItems()));
@@ -500,6 +514,10 @@ public class MainWindowController {
 
 	public Button getImportButton() {
 		return importButton;
+	}
+
+	public Button getModeButton() {
+		return modeButton;
 	}
 
 	public MenuItem getImportMenuItem() {
@@ -708,5 +726,13 @@ public class MainWindowController {
 
 	public Button getSelectButton() {
 		return selectButton;
+	}
+
+	public CheckMenuItem getArrowsMenuItem() {
+		return arrowsMenuItem;
+	}
+
+	public CheckMenuItem getOutlineEdgesMenuItem() {
+		return outlineEdgesMenuItem;
 	}
 }

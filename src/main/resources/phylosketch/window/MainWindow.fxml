@@ -69,6 +69,9 @@
                                                         <Tooltip text="Import a tree or network into a new document" />
                                                     </tooltip>
                                                 </Button>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
+                                                <Button fx:id="modeButton" mnemonicParsing="false" text="Mode"/>
+
                                                 <MenuButton fx:id="selectMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Select">
                                                     <tooltip>
                                                         <Tooltip text="Select nodes and edges" />
@@ -215,15 +218,12 @@
                                 </MenuItem>
                            <MenuItem fx:id="deleteMenuItem" mnemonicParsing="false" text="Delete">
                               <accelerator>
-                                 <KeyCodeCombination alt="UP" code="V" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                  <KeyCodeCombination alt="UP" code="BACK_SPACE" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                               </accelerator>
                            </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" text="Clear">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="BACK_SPACE" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
-                                    </accelerator>
-                                </MenuItem>
+                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="findMenuItem" mnemonicParsing="false" text="Find...">
                                     <accelerator>
@@ -308,7 +308,10 @@
                             </items>
                         </Menu>
                         <Menu fx:id="optionsMenu" mnemonicParsing="false" text="Options">
-                        <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..." />
+                            <CheckMenuItem fx:id="arrowsMenuItem" text="Arrows"/>
+                            <CheckMenuItem fx:id="outlineEdgesMenuItem" text="Outlines"/>
+                            <SeparatorMenuItem mnemonicParsing="false" />
+                            <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..." />
                         <MenuItem fx:id="labelLeaves123MenuItem" text="Label Leaves t1,t2,t3..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="labelLeavesMenuItem" text="Label Leaves...">

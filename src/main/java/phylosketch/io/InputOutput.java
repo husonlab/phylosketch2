@@ -58,7 +58,6 @@ public class InputOutput {
 	 */
 	public static void save(Writer w, DrawPane drawPane) throws IOException {
 		var graph = drawPane.getGraph();
-
 		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_color", "label_dx", "label_dy");
 		var edgeKeyNames = List.of("path", "stroke", "stroke_width");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
@@ -102,7 +101,15 @@ public class InputOutput {
 				}, edgeKeyNames, (key, e) -> {
 					var path = (Path) e.getData();
 					var value = String.valueOf(switch (key) {
-						case "path" -> pathToString(path);
+						case "path" -> {
+							if(drawPane.isArrowHeads()) {
+								var other=stringToPath(pathToString(path));
+								DrawUtils.removeArrowHead(other);
+								yield pathToString(other);
+							}
+							else
+								yield pathToString(path);
+						}
 						case "stroke" ->
 								(path.getStroke()!=null
 								 && !(!MainWindowManager.isUseDarkTheme() && path.getStroke() == Color.BLACK)
@@ -112,6 +119,19 @@ public class InputOutput {
 					});
 					return (value.isBlank() ? null : value);
 				});
+	}
+
+	/**
+	 * open a file and load it into the draw pane
+	 * @param file file
+	 * @param drawPane draw pane
+	 * @throws IOException
+	 */
+	public static void open(String file,DrawPane drawPane) throws IOException {
+		 try(var r=new InputStreamReader(FileUtils.getInputStreamPossiblyZIPorGZIP(file))) {
+			 load(r,drawPane);
+			 drawPane.getUndoManager().clear();
+		 }
 	}
 
 	/**

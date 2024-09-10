@@ -21,6 +21,7 @@ package phylosketch.view;
 
 import javafx.stage.Stage;
 import jloda.graph.Node;
+import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import jloda.util.Pair;
@@ -92,11 +93,13 @@ public class LabelLeaves {
     private static List<Node> sortLeaves(DrawPane drawPane) {
         var graph = drawPane.getGraph();
 
-        final List<Pair<Node, Double>> list;
-        if (RootLocation.compute(drawPane).isHorizontal())
-            list = graph.nodeStream().filter(v -> v.getOutDegree() == 0).map(v -> new Pair<>(v,DrawPane.getY(v))).collect(Collectors.toList());
-        else
-            list = graph.nodeStream().filter(v -> v.getOutDegree() == 0).map(v -> new Pair<>(v, DrawPane.getX(v))).collect(Collectors.toList());
+        var list=new ArrayList<Pair<Node, Double>>();
+       for(var component: ConnectedComponents.components(graph)) {
+           if (RootLocation.compute(component).isHorizontal())
+               list.addAll(component.stream().filter(v -> v.getOutDegree() == 0).map(v -> new Pair<>(v, DrawPane.getY(v))).toList());
+           else
+               list.addAll(component.stream().filter(v -> v.getOutDegree() == 0).map(v -> new Pair<>(v, DrawPane.getX(v))).toList());
+       }
 
         return list.stream().sorted(Comparator.comparingDouble(Pair::getSecond)).map(Pair::getFirst).collect(Collectors.toList());
     }
@@ -104,12 +107,13 @@ public class LabelLeaves {
     private static List<Node> sortInternal(DrawPane drawPane) {
         var graph = drawPane.getGraph();
 
-        final List<Pair<Node, Double>> list;
-        if (RootLocation.compute(drawPane).isHorizontal())
-            list = graph.nodeStream().filter(v -> v.getOutDegree() > 0).map(v -> new Pair<>(v, DrawPane.getY(v))).collect(Collectors.toList());
-        else
-            list = graph.nodeStream().filter(v -> v.getOutDegree() > 0).map(v -> new Pair<>(v, DrawPane.getX(v))).collect(Collectors.toList());
-
+        var list=new ArrayList<Pair<Node, Double>>();
+        for(var component: ConnectedComponents.components(graph)) {
+            if (RootLocation.compute(component).isHorizontal())
+                list.addAll(component.stream().filter(v -> v.getOutDegree() > 0).map(v -> new Pair<>(v, DrawPane.getY(v))).toList());
+            else
+                list.addAll(component.stream().filter(v -> v.getOutDegree() > 0).map(v -> new Pair<>(v, DrawPane.getX(v))).toList());
+        }
         return list.stream().sorted(Comparator.comparingDouble(Pair::getSecond)).map(Pair::getFirst).collect(Collectors.toList());
     }
 

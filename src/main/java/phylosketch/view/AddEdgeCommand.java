@@ -24,6 +24,8 @@ import javafx.scene.shape.*;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
+import jloda.graph.algorithms.IsDAG;
+import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import jloda.util.Triplet;
 
@@ -91,14 +93,16 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		// 3. does end lie on existing node?
 		{
 			var v = DrawUtils.snapToExistingNode(end, nodesGroup, tolerance).getKey();
-			if (v != null)
+			var source=drawPane.getGraph().findNodeById(sourceNodeId);
+			if (v != null && source!=null && staysDAG(source,v,drawPane.getGraph()))
 				targetNodeId = v.getId();
 		}
 
 		// 2. does end lie on some existing edge?
 		if (targetNodeId == -1) {
 			var e = DrawUtils.snapToExistingEdge(end, edgesGroup, tolerance).getKey();
-			if (e != null) {
+			var source=drawPane.getGraph().findNodeById(sourceNodeId);
+			if (e != null && source!=null && staysDAG(source,e.getTarget(),drawPane.getGraph())) {
 				targetEdgeId = e.getId();
 				targetEdgeSourceId = e.getSource().getId();
 				targetEdgeTargetId = e.getTarget().getId();
@@ -251,6 +255,15 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		};
 	}
 
+	private boolean staysDAG(Node v, Node w, PhyloTree graph) {
+			var e = graph.newEdge(v, w);
+			try {
+				return IsDAG.apply(graph);
+			} finally {
+				graph.deleteEdge(e);
+			}
+	}
+
 	private Triplet<Node, Edge, Edge> splitExistingEdge(Point2D point, Edge edge, Path path, DrawPane drawPane) {
 		var index = DrawUtils.hitPathElement(point, path, drawPane.getTolerance());
 		if (index != -1) {
@@ -268,6 +281,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 						path1.getElements().add(new LineTo(other.getX(), other.getY()));
 				}
 			}
+
 			var path2 = new Path();
 			path2.getStyleClass().add("graph-edge");
 
@@ -287,6 +301,11 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			{
 				shape.setTranslateX(point.getX());
 				shape.setTranslateY(point.getY());
+			}
+
+			if(drawPane.isArrowHeads()) {
+				DrawUtils.addArrowHead(path1);
+				DrawUtils.addArrowHead(path2);
 			}
 
 			Edge edge1;

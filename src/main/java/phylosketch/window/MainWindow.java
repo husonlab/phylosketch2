@@ -35,6 +35,8 @@ import jloda.fx.util.*;
 import jloda.fx.window.IMainWindow;
 import jloda.fx.window.MainWindowManager;
 import jloda.util.FileUtils;
+import phylosketch.io.FileOpener;
+import phylosketch.io.PhyloSketchFileFilter;
 import phylosketch.main.PhyloSketch;
 import phylosketch.view.DrawPane;
 
@@ -57,8 +59,6 @@ public class MainWindow implements IMainWindow {
     private MainWindowPresenter presenter;
 
     private final FlowPane statusPane;
-
-    private final UndoManager undoManager = new UndoManager();
 
     private final StringProperty fileName = new SimpleStringProperty("Untitled");
     private final BooleanProperty dirty = new SimpleBooleanProperty(false);
@@ -90,8 +90,8 @@ public class MainWindow implements IMainWindow {
         }
 
 
-       // FileOpenManager.setExtensions(Collections.singletonList(CRSFileFilter.getInstance()));
-        // FileOpenManager.setFileOpener(new FileOpener());
+        FileOpenManager.setExtensions(Collections.singletonList(PhyloSketchFileFilter.getInstance()));
+        FileOpenManager.setFileOpener(new FileOpener());
 
         final InvalidationListener listener = (e -> {
             name.set(getFileName() == null ? "Untitled" : FileUtils.getFileNameWithoutPathOrSuffix(getFileName()));
@@ -137,7 +137,7 @@ public class MainWindow implements IMainWindow {
 
         stage.show();
 
-        // empty.bind();
+        empty.bind(drawPane.getGraphFX().emptyProperty());
     }
 
     @Override
@@ -150,9 +150,6 @@ public class MainWindow implements IMainWindow {
         stage.hide();
     }
 
-    public UndoManager getUndoManager() {
-        return undoManager;
-    }
 
     public MainWindowController getController() {
         return controller;

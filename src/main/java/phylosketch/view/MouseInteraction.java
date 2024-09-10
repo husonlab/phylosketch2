@@ -28,9 +28,7 @@ import javafx.scene.shape.*;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.util.GrayOutlineEffect;
 import jloda.fx.util.RunAfterAWhile;
-import jloda.graph.Edge;
-import jloda.graph.Node;
-import jloda.phylo.PhyloTree;
+
 
 import java.util.ArrayList;
 
@@ -98,7 +96,7 @@ public class MouseInteraction {
 		view.setOnMouseDragged(e -> {
 			var previous = view.screenToLocal(mouseX, mouseY);
 
-			if (inDragSelected) {
+			if (view.isMoveable() && inDragSelected) {
 				var location = view.screenToLocal(e.getScreenX(), e.getScreenY());
 				var delta = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
 				if (!DrawUtils.hasCollisions(graph, nodeSelection.getSelectedItems(), delta.getX(), delta.getY())) {
@@ -116,95 +114,97 @@ public class MouseInteraction {
 				return;
 			}
 
-			var nodePointPair = DrawUtils.snapToExistingNode(previous, nodesGroup, tolerance);
+			if(view.isEditable()) {
+				var nodePointPair = DrawUtils.snapToExistingNode(previous, nodesGroup, tolerance);
 
-			if (nodePointPair.getKey() != null) {
-				if (hitShape != null) {
-					hitShape.setEffect(null);
+				if (nodePointPair.getKey() != null) {
+					if (hitShape != null) {
+						hitShape.setEffect(null);
+					}
+					hitShape = (Shape) nodePointPair.getKey().getData();
+					hitShape.setEffect(GrayOutlineEffect.getInstance());
+				} else {
+					var paths = edgesGroup.getChildren().stream().filter(n -> n instanceof Path).map(n -> (Path) n).toList();
+					var pointOnPath = PathUtils.pointOnPath(previous, paths, tolerance);
+					if (pointOnPath != null) {
+						if (hitPath != null)
+							hitPath.setEffect(null);
+						hitPath = pointOnPath.getFirst();
+						hitPath.setEffect(GrayOutlineEffect.getInstance());
+					}
 				}
-				hitShape = (Shape) nodePointPair.getKey().getData();
-				hitShape.setEffect(GrayOutlineEffect.getInstance());
-			} else {
-				var paths = edgesGroup.getChildren().stream().filter(n -> n instanceof Path).map(n -> (Path) n).toList();
-				var pointOnPath = PathUtils.pointOnPath(previous, paths, tolerance);
-				if (pointOnPath != null) {
-					if (hitPath != null)
-						hitPath.setEffect(null);
-					hitPath = pointOnPath.getFirst();
-					hitPath.setEffect(GrayOutlineEffect.getInstance());
+
+				if (path == null) {
+					path = new Path();
+					path.getStyleClass().add("graph-edge");
+
+					previous = snapToExisting(previous, tolerance, nodesGroup, edgesGroup);
+					pathStart = previous;
+
+					path.getElements().add(new MoveTo(previous.getX(), previous.getY()));
 				}
-			}
+				var point = view.screenToLocal(e.getScreenX(), e.getScreenY());
+				//point=snapToExisting(point,pane,path,tolerance.doubleValue());
 
-			if (path == null) {
-				path = new Path();
-				path.getStyleClass().add("graph-edge");
+				if (point.distance(previous) > tolerance) {
+					var pathStarting = path.getElements().size() == 1;
+					var next = new LineTo(point.getX(), point.getY());
+					var start = path.getElements().get(path.getElements().size() - 1);
+					path.getElements().addAll(DrawUtils.interpolate(start, next, INTERPOLATE_STEP));
+					path.getElements().add(next);
+					if (pathStarting) {
+						// previous = snapToExisting(previous, tolerance.get());
+						// var start = new Circle(previous.getX(), previous.getY(), 3);
+						var end = new Circle(3);
+						path.getElements().addListener((InvalidationListener) a -> {
+							if (!path.getElements().isEmpty() && path.getElements().get(path.getElements().size() - 1) instanceof LineTo lineTo) {
+								end.setCenterX(lineTo.getX());
+								end.setCenterY(lineTo.getY());
+							}
+						});
+						edgesGroup.getChildren().add(path);
+					}
+					mouseX = e.getScreenX();
+					mouseY = e.getScreenY();
+				}
 
-				previous = snapToExisting(previous, tolerance, nodesGroup, edgesGroup);
-				pathStart = previous;
-
-				path.getElements().add(new MoveTo(previous.getX(), previous.getY()));
-			}
-			var point = view.screenToLocal(e.getScreenX(), e.getScreenY());
-			//point=snapToExisting(point,pane,path,tolerance.doubleValue());
-
-			if (point.distance(previous) > tolerance) {
-				var pathStarting=path.getElements().size()==1;
-				var next=new LineTo(point.getX(), point.getY());
-				var start=path.getElements().get(path.getElements().size()-1);
-				path.getElements().addAll(DrawUtils.interpolate(start,next,INTERPOLATE_STEP));
-				path.getElements().add(next);
-				if (pathStarting) {
-					// previous = snapToExisting(previous, tolerance.get());
-					// var start = new Circle(previous.getX(), previous.getY(), 3);
-					var end = new Circle(3);
-					path.getElements().addListener((InvalidationListener) a -> {
-						if (!path.getElements().isEmpty() && path.getElements().get(path.getElements().size() - 1) instanceof LineTo lineTo) {
-							end.setCenterX(lineTo.getX());
-							end.setCenterY(lineTo.getY());
+				RunAfterAWhile.apply(path, () -> Platform.runLater(() -> {
+					if (path != null) {
+						var first = path.getElements().get(0);
+						var last = path.getElements().get(path.getElements().size() - 1);
+						var middle = DrawUtils.asRectangular(path);
+						internalElements.clear();
+						for (var element : path.getElements()) {
+							if (element != first && element != last) {
+								internalElements.add(element);
+							}
 						}
-					});
-					edgesGroup.getChildren().add(path);
-				}
-				mouseX = e.getScreenX();
-				mouseY = e.getScreenY();
-			}
+						if (middle != null) {
+							var points = new ArrayList<PathElement>();
+							points.add(first);
+							points.addAll(DrawUtils.interpolate(first, middle, INTERPOLATE_STEP));
+							points.add(middle);
+							points.addAll(DrawUtils.interpolate(middle, last, INTERPOLATE_STEP));
+							points.add(last);
+							path.getElements().setAll(points);
+						} else {
+							var points = new ArrayList<PathElement>();
+							points.add(first);
+							points.addAll(DrawUtils.interpolate(first, last, INTERPOLATE_STEP));
+							points.add(last);
+							path.getElements().setAll(points);
+						}
+					}
+				}), 1000);
 
-			RunAfterAWhile.apply(path, () -> Platform.runLater(() -> {
-				if (path != null) {
-					var first = path.getElements().get(0);
-					var last = path.getElements().get(path.getElements().size() - 1);
-					var middle = DrawUtils.asRectangular(path);
+				if (!internalElements.isEmpty()) {
+					var first = (MoveTo) path.getElements().get(0);
+					var last = (LineTo) path.getElements().get(path.getElements().size() - 1);
+					path.getElements().setAll(first);
+					path.getElements().addAll(internalElements);
+					path.getElements().add(last);
 					internalElements.clear();
-					for (var element : path.getElements()) {
-						if (element != first && element != last) {
-							internalElements.add(element);
-						}
-					}
-					if (middle != null) {
-						var points=new ArrayList<PathElement>();
-						points.add(first);
-						points.addAll(DrawUtils.interpolate(first,middle,INTERPOLATE_STEP));
-						points.add(middle);
-						points.addAll(DrawUtils.interpolate(middle,last,INTERPOLATE_STEP));
-						points.add(last);
-						path.getElements().setAll(points);
-					} else {
-						var points=new ArrayList<PathElement>();
-						points.add(first);
-						points.addAll(DrawUtils.interpolate(first,last,INTERPOLATE_STEP));
-						points.add(last);
-						path.getElements().setAll(points);
-					}
 				}
-			}), 1000);
-
-			if (!internalElements.isEmpty()) {
-				var first = (MoveTo) path.getElements().get(0);
-				var last = (LineTo) path.getElements().get(path.getElements().size() - 1);
-				path.getElements().setAll(first);
-				path.getElements().addAll(internalElements);
-				path.getElements().add(last);
-				internalElements.clear();
 			}
 			e.consume();
 		});
@@ -240,6 +240,9 @@ public class MouseInteraction {
 
 					pathEnd = snapToExisting(pathEnd, tolerance, nodesGroup, edgesGroup);
 					path.getElements().add(new LineTo(pathEnd.getX(), pathEnd.getY()));
+					if(view.isArrowHeads()) {
+						DrawUtils.addArrowHead(path);
+					}
 
 					if (path != null && !path.getElements().isEmpty()) {
 						if (pathStart.distance(pathEnd) >= tolerance) {
