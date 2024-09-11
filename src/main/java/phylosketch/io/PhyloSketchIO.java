@@ -1,5 +1,5 @@
 /*
- *  InputOutput.java Copyright (C) 2024 Daniel H. Huson
+ *  PhyloSketchIO.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -43,7 +43,7 @@ import static phylosketch.view.MouseInteraction.INTERPOLATE_STEP;
  * input and output of created network
  * Daniel Huson, 9.2024
  */
-public class InputOutput {
+public class PhyloSketchIO {
 	public static void save (File file, DrawPane drawPane)  throws IOException {
 		try(var w= FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {
 			save(w,drawPane);

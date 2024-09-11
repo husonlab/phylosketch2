@@ -50,15 +50,18 @@ public class FileOpener implements Consumer<String> {
 		var firstLine = Objects.requireNonNull(FileUtils.getFirstLineFromFile(new File(fileName))).trim().toLowerCase();
 		try {
 			if(firstLine.startsWith("graph")) {
-				InputOutput.open(fileName,window.getDrawPane());
+				PhyloSketchIO.open(fileName, window.getDrawPane());
 			}
 			else if (firstLine.startsWith("#nexus")) {
 				NotificationManager.showWarning("Nexus: not implemented");
 			}
 			else if (firstLine.startsWith("<nex:nexml") || firstLine.startsWith("<?xml version="))
 				NotificationManager.showWarning("NEXML: not implemented");
-			else if(firstLine.startsWith("(") || firstLine.contains(")"))
-				NotificationManager.showWarning("NEWICK: not implemented");
+			else if (firstLine.startsWith("(") || firstLine.contains(")")) {
+				ImportNewick.apply(fileName, window.getDrawPane());
+				window.dirtyProperty().set(true);
+			}
+
 			RecentFilesManager.getInstance().insertRecentFile(fileName);
 		} catch (IOException e) {
 			NotificationManager.showError("Open file failed: " + e.getMessage());

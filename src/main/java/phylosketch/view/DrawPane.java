@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
@@ -210,8 +211,16 @@ public class DrawPane extends Pane {
 				if (root.isPresent()) {
 					tree.setRoot(root.get());
 					tree.edgeStream().forEach(f -> {
+						var weight = 0.0;
 						var reticulate = (f.getTarget().getInDegree() > 1);
-						tree.setWeight(f, reticulate ? 0 : 1);
+						if (!reticulate) {
+							if (showWeights) {
+								var aPt = new Point2D(DrawPane.getX(f.getSource()), DrawPane.getY(f.getSource()));
+								var bPt = new Point2D(DrawPane.getX(f.getTarget()), DrawPane.getY(f.getTarget()));
+								weight = ((int) aPt.distance(bPt)) / 100.0;
+							} else weight = 1.0;
+						}
+						tree.setWeight(f, weight);
 						tree.setReticulate(f, reticulate);
 					});
 					buf.append(tree.toBracketString(showWeights)).append(";\n");
