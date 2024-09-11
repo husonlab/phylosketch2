@@ -33,13 +33,15 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.control.CopyableLabel;
 import jloda.fx.control.RichTextLabel;
+import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.WindowGeometry;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
-import phylosketch.io.InputOutput;
+import phylosketch.io.ExportNewick;
+import phylosketch.io.PhyloSketchIO;
 import phylosketch.io.Save;
 import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.NewWindow;
@@ -147,7 +149,7 @@ public class MainWindowPresenter {
 			if (view.getGraph().getNumberOfNodes() > 0) {
 				var w = new StringWriter();
 				try {
-					InputOutput.save(w, view);
+					PhyloSketchIO.save(w, view);
 					ProgramProperties.put("Last", w.toString());
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);
@@ -214,8 +216,24 @@ public class MainWindowPresenter {
 			}
 		});
 
-		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString(false) + "\n"));
+		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString(true) + "\n"));
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getExportImageMenuItem().setOnAction(e -> {
+			if (view.getOutlineEdges())
+				view.setOutlineEdges(false);
+			try {
+				ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawPane());
+			} finally {
+				view.setOutlineEdges(controller.getOutlineEdgesMenuItem().isSelected());
+			}
+		});
+		controller.getExportImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getExportNewickMenuItem().setOnAction(e -> {
+			ExportNewick.apply(window);
+		});
+		controller.getExportNewickMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getCopyImageMenuItem().setOnAction(e -> {
 			var params = new SnapshotParameters();

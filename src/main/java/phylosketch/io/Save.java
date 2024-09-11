@@ -39,7 +39,7 @@ public class Save {
 	 */
     public static void apply(File file, MainWindow window) {
 		try {
-			InputOutput.save(file, window.getDrawPane());
+			PhyloSketchIO.save(file, window.getDrawPane());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

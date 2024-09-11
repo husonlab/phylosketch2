@@ -24,7 +24,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import jloda.fx.control.ZoomableScrollPane;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
@@ -90,10 +93,7 @@ public class MainWindowController {
 	private MenuButton exportMenuButton;
 
 	@FXML
-	private MenuItem exportTreesMenuItem;
-
-	@FXML
-	private MenuItem exportGMLMenuItem;
+	private MenuItem exportNewickMenuItem;
 
 	@FXML
 	private MenuItem exportImageMenuItem;
@@ -299,7 +299,7 @@ public class MainWindowController {
 	private MenuButton selectMenuButton;
 
 	@FXML
-	private MenuButton labelMenuButton;
+	private MenuButton settingsMenuButton;
 
 	@FXML
 	private StackPane centerPane;
@@ -325,7 +325,7 @@ public class MainWindowController {
 		MaterialIcons.setIcon(selectButton, "select_all");
 
 		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
-		MaterialIcons.setIcon(labelMenuButton,MaterialIcons.label);
+		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.settings);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -400,7 +400,7 @@ public class MainWindowController {
 		scrollPane.setRequireShiftOrControlToZoom(true);
 
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
-		labelMenuButton.getItems().addAll(BasicFX.copyMenu(optionsMenu.getItems()));
+		settingsMenuButton.getItems().addAll(BasicFX.copyMenu(optionsMenu.getItems()));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -476,12 +476,8 @@ public class MainWindowController {
 		return exportMenuButton;
 	}
 
-	public MenuItem getExportTreesMenuItem() {
-		return exportTreesMenuItem;
-	}
-
-	public MenuItem getExportGMLMenuItem() {
-		return exportGMLMenuItem;
+	public MenuItem getExportNewickMenuItem() {
+		return exportNewickMenuItem;
 	}
 
 	public MenuItem getExportImageMenuItem() {

@@ -20,26 +20,9 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckMenuItem?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
 <AnchorPane fx:id="rootPane" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="phylosketch.window.MainWindowController">
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <center>
@@ -55,13 +38,14 @@
                                             <items>
                                                 <MenuButton fx:id="fileMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Files">
                                                     <tooltip>
-                                                        <Tooltip text="Open a recent file" />
+                                                        <Tooltip text="File items"/>
                                                     </tooltip>
                                                     <items>
                                                         <MenuItem fx:id="newRecentFileMenuItem" mnemonicParsing="false" text="New..." />
                                                         <MenuItem fx:id="openRecentFileMenuItem" mnemonicParsing="false" text="Open..." />
                                                         <SeparatorMenuItem mnemonicParsing="false" />
                                                         <MenuItem fx:id="deleteRecentFilesMenuItem" mnemonicParsing="false" text="Delete" />
+                                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                                     </items>
                                                 </MenuButton>
                                                 <Button fx:id="importButton" mnemonicParsing="false" text="Import">
@@ -77,9 +61,11 @@
                                                         <Tooltip text="Select nodes and edges" />
                                                     </tooltip>
                                                 </MenuButton>
-                                                <MenuButton fx:id="labelMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Label">
+                                                <MenuButton fx:id="settingsMenuButton" maxHeight="-Infinity"
+                                                            maxWidth="-Infinity" minHeight="-Infinity"
+                                                            minWidth="-Infinity" mnemonicParsing="false" text="Options">
                                                     <tooltip>
-                                                        <Tooltip text="Label nodes" />
+                                                        <Tooltip text="Options"/>
                                                     </tooltip>
                                                 </MenuButton>
                                             </items>
@@ -157,9 +143,9 @@
                                 </MenuItem>
                                 <Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
                                     <items>
-                                        <MenuItem fx:id="exportImageMenuItem" mnemonicParsing="false" text="Image" /> </items>
-                                    <MenuItem fx:id="exportTreesMenuItem" mnemonicParsing="false" text="Newick/Nexus" />
-                                        <MenuItem fx:id="exportGMLMenuItem" mnemonicParsing="false" text="GML" />
+                                        <MenuItem fx:id="exportImageMenuItem" mnemonicParsing="false" text="Image..."/>
+                                    </items>
+                                    <MenuItem fx:id="exportNewickMenuItem" mnemonicParsing="false" text="Newick..."/>
                                 </Menu>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Save...">

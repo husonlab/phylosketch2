@@ -23,9 +23,7 @@ import javafx.stage.Stage;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
-import jloda.util.CollectionUtils;
 import jloda.util.Pair;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,43 +34,43 @@ import java.util.stream.Collectors;
  */
 public class LabelLeaves {
 
-    public static List<ChangeNodeLabelsCommand.Data> labelLeavesABC(DrawPane editor) {
-        final PhyloTree graph = editor.getGraph();
+    public static List<ChangeNodeLabelsCommand.Data> labelLeavesABC(DrawPane view) {
+        final PhyloTree graph = view.getGraph();
 
         final Set<String> seen = new HashSet<>();
-        graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
+        graph.nodeStream().filter(v -> graph.getLabel(v) != null && (view.getNodeSelection().size() == 0 || view.getNodeSelection().isSelected(v))).forEach(v -> seen.add(graph.getLabel(v)));
 
-        return sortLeaves(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
+        return sortLeaves(view).stream().filter(v -> view.getNodeSelection().isSelected(v) || view.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), view.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
     }
 
-    public static List<ChangeNodeLabelsCommand.Data> labelInternalABC(DrawPane editor) {
-        final PhyloTree graph = editor.getGraph();
+    public static List<ChangeNodeLabelsCommand.Data> labelInternalABC(DrawPane view) {
+        final PhyloTree graph = view.getGraph();
 
         final Set<String> seen = new HashSet<>();
-        graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
-        return sortInternal(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
+        graph.nodeStream().filter(v -> graph.getLabel(v) != null && (view.getNodeSelection().size() == 0 || view.getNodeSelection().isSelected(v))).forEach(v -> seen.add(graph.getLabel(v)));
+        return sortInternal(view).stream().filter(v -> view.getNodeSelection().isSelected(v) || view.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), view.getLabel(v).getText(), getNextLabelABC(seen))).collect(Collectors.toList());
     }
 
-    public static List<ChangeNodeLabelsCommand.Data> labelLeaves123(DrawPane editor) {
-        final PhyloTree graph = editor.getGraph();
+    public static List<ChangeNodeLabelsCommand.Data> labelLeaves123(DrawPane view) {
+        final PhyloTree graph = view.getGraph();
 
         final Set<String> seen = new HashSet<>();
-        graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
-        return sortLeaves(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
+        graph.nodeStream().filter(v -> graph.getLabel(v) != null && (view.getNodeSelection().size() == 0 || view.getNodeSelection().isSelected(v))).forEach(v -> seen.add(graph.getLabel(v)));
+        return sortLeaves(view).stream().filter(v -> view.getNodeSelection().isSelected(v) || view.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), view.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
     }
 
-    public static List<ChangeNodeLabelsCommand.Data> labelInternal123(DrawPane editor) {
-        final PhyloTree graph = editor.getGraph();
+    public static List<ChangeNodeLabelsCommand.Data> labelInternal123(DrawPane view) {
+        final PhyloTree graph = view.getGraph();
 
         final Set<String> seen = new HashSet<>();
-        graph.nodeStream().filter(v -> graph.getLabel(v) != null).forEach(v -> seen.add(graph.getLabel(v)));
-        return sortInternal(editor).stream().filter(v -> editor.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
+        graph.nodeStream().filter(v -> graph.getLabel(v) != null && (view.getNodeSelection().size() == 0 || view.getNodeSelection().isSelected(v))).forEach(v -> seen.add(graph.getLabel(v)));
+        return sortInternal(view).stream().filter(v -> view.getNodeSelection().isSelected(v) || view.getLabel(v).getRawText().isEmpty()).map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), view.getLabel(v).getText(), getNextLabel123(seen))).collect(Collectors.toList());
     }
 
-    public static List<ChangeNodeLabelsCommand.Data> clear(DrawPane editor) {
-        var nodes=(editor.getNodeSelection().size()>0?
-           editor.getNodeSelection().getSelectedItems():editor.getGraph().getNodesAsList());
-        return nodes.stream().map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), editor.getLabel(v).getText(), "")).collect(Collectors.toList());
+    public static List<ChangeNodeLabelsCommand.Data> clear(DrawPane view) {
+        var nodes = (view.getNodeSelection().size() > 0 ?
+                view.getNodeSelection().getSelectedItems() : view.getGraph().getNodesAsList());
+        return nodes.stream().map(v -> new ChangeNodeLabelsCommand.Data(v.getId(), view.getLabel(v).getText(), "")).collect(Collectors.toList());
     }
 
     public static void labelLeaves(Stage owner, DrawPane drawPane) {

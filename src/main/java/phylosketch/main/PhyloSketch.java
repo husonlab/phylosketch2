@@ -22,9 +22,10 @@ package phylosketch.main;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import jloda.fx.util.*;
+import jloda.fx.util.ArgsOptions;
+import jloda.fx.util.FileOpenManager;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.fx.window.SplashScreen;
@@ -33,7 +34,7 @@ import jloda.util.Basic;
 import jloda.util.CanceledException;
 import jloda.util.ProgramExecutorService;
 import jloda.util.UsageException;
-import phylosketch.io.InputOutput;
+import phylosketch.io.PhyloSketchIO;
 import phylosketch.window.MainWindow;
 
 import java.io.File;
@@ -145,7 +146,7 @@ public class PhyloSketch extends Application {
                 if(!last.isBlank()) {
                     Platform.runLater(()->{
 						try {
-							InputOutput.load(new StringReader(last),mainWindow.getDrawPane());
+							PhyloSketchIO.load(new StringReader(last), mainWindow.getDrawPane());
 						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
