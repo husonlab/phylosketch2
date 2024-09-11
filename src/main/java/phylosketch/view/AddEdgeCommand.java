@@ -23,7 +23,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.*;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
+import jloda.graph.Graph;
 import jloda.graph.Node;
+import jloda.graph.NodeArray;
+import jloda.graph.algorithms.ConnectedComponents;
 import jloda.graph.algorithms.IsDAG;
 import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
@@ -75,8 +78,9 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		// 1. does start lie on some existing node?
 		{
 			var v = DrawUtils.snapToExistingNode(start, nodesGroup, tolerance).getKey();
-			if (v != null)
+			if (v != null) {
 				sourceNodeId = v.getId();
+			}
 		}
 
 		// 2. does start lie on some existing edge?
@@ -93,16 +97,14 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		// 3. does end lie on existing node?
 		{
 			var v = DrawUtils.snapToExistingNode(end, nodesGroup, tolerance).getKey();
-			var source=drawPane.getGraph().findNodeById(sourceNodeId);
-			if (v != null && source!=null && staysDAG(source,v,drawPane.getGraph()))
+			if (v != null)
 				targetNodeId = v.getId();
 		}
 
 		// 2. does end lie on some existing edge?
 		if (targetNodeId == -1) {
 			var e = DrawUtils.snapToExistingEdge(end, edgesGroup, tolerance).getKey();
-			var source=drawPane.getGraph().findNodeById(sourceNodeId);
-			if (e != null && source!=null && staysDAG(source,e.getTarget(),drawPane.getGraph())) {
+			if (e != null) {
 				targetEdgeId = e.getId();
 				targetEdgeSourceId = e.getSource().getId();
 				targetEdgeTargetId = e.getTarget().getId();
@@ -256,12 +258,29 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 	}
 
 	private boolean staysDAG(Node v, Node w, PhyloTree graph) {
-			var e = graph.newEdge(v, w);
-			try {
-				return IsDAG.apply(graph);
-			} finally {
-				graph.deleteEdge(e);
+		if (v == null)
+			return true;
+
+		if (v.getCommonEdge(w) != null)
+			return false;
+
+		var component = ConnectedComponents.component(v);
+		if (!component.contains(w)) {
+			component.addAll(ConnectedComponents.component(w));
+		}
+		var subgraph = new Graph();
+		try (NodeArray<Node> srcTarMap = graph.newNodeArray()) {
+			for (var a : component) {
+				srcTarMap.put(a, subgraph.newNode());
 			}
+			for (var f : graph.edges()) {
+				if (component.contains(f.getSource()) && component.contains(f.getTarget())) {
+					subgraph.newEdge(srcTarMap.get(f.getSource()), srcTarMap.get(f.getTarget()));
+				}
+			}
+			subgraph.newEdge(srcTarMap.get(v), srcTarMap.get(w));
+		}
+		return IsDAG.apply(subgraph);
 	}
 
 	private Triplet<Node, Edge, Edge> splitExistingEdge(Point2D point, Edge edge, Path path, DrawPane drawPane) {
@@ -303,7 +322,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 				shape.setTranslateY(point.getY());
 			}
 
-			if(drawPane.isArrowHeads()) {
+			if (drawPane.isArrowHeads()) {
 				DrawUtils.addArrowHead(path1);
 				DrawUtils.addArrowHead(path2);
 			}
