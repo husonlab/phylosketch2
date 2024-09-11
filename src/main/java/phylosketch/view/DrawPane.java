@@ -455,8 +455,8 @@ public class DrawPane extends Pane {
 	public void setLabel(int nodeId, String text) {
 		var v = graph.findNodeById(nodeId);
 		if (v != null) {
-			getLabel(v).setText(RichTextLabel.getRawText(text));
-			graph.setLabel(v, text);
+			getLabel(v).setText(text);
+			graph.setLabel(v, RichTextLabel.getRawText(text));
 		}
 	}
 

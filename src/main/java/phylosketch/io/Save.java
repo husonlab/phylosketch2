@@ -72,6 +72,7 @@ public class Save {
             Save.apply(selectedFile, window);
             ProgramProperties.put("SaveFileDir", selectedFile.getParent());
             RecentFilesManager.getInstance().insertRecentFile(selectedFile.getPath());
+			window.fileNameProperty().set(selectedFile.getPath());
 			window.dirtyProperty().set(false);
             return true;
         } else
