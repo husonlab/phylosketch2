@@ -51,6 +51,7 @@ public class FileOpener implements Consumer<String> {
 		try {
 			if(firstLine.startsWith("graph")) {
 				PhyloSketchIO.open(fileName, window.getDrawPane());
+				window.fileNameProperty().set(fileName);
 			}
 			else if (firstLine.startsWith("#nexus")) {
 				NotificationManager.showWarning("Nexus: not implemented");

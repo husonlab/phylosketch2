@@ -89,9 +89,9 @@ public class PhyloSketchIO {
 						case "x" -> StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateX());
 						case "y" ->  StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateY());
 						case "label" -> {
-							//graph.getLabel(v) != null ? graph.getLabel(v) : "";
+							// graph.getLabel(v) != null ? graph.getLabel(v) : "";
 							if (v.getInfo() instanceof RichTextLabel richTextLabel) {
-								yield "\"" + richTextLabel.getText() + "\"";
+								yield richTextLabel.getText();
 							} else yield "";
 						}
 						case "label_stroke" ->
@@ -195,14 +195,7 @@ public class PhyloSketchIO {
 						shape.setTranslateY(NumberUtils.parseDouble(value));
 					}
 				}
-				case "label" -> {
-					System.err.println("before: " + value);
-					value = StringUtils.stripSurroundingQuotesIfAny(value);
-					if (value.contains("file : "))
-						value = value.replaceAll("file : ", "file:");
-					System.err.println("after:  " + value);
-					drawPane.createLabel(v, value);
-				}
+				case "label" -> drawPane.createLabel(v, value);
 				case "label_stroke" -> {
 					if (v.getInfo() instanceof RichTextLabel label && ColorUtilsFX.isColor(value)) {
 						label.setTextFill(ColorUtilsFX.parseColor(value));
