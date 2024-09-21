@@ -31,10 +31,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
-        <javafx.version>21.0.2</javafx.version>
+        <javafx.version>22.0.2</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <main.class>phylosketch.main.PhyloSketch</main.class>
     </properties>
