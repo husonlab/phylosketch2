@@ -89,6 +89,8 @@ public class DrawPane extends Pane {
 	private final UndoManager undoManager = new UndoManager();
 
 	public DrawPane() {
+		setPadding(new javafx.geometry.Insets(20));
+
 		Icebergs.setEnabled(true);
 		var shapeIcebergMap = new HashMap<Shape, Shape>();
 
@@ -169,21 +171,26 @@ public class DrawPane extends Pane {
 		outlineEdges.addListener((v, o, n)->{
 			if(!n){
 				nodesGroup.setVisible(true);
-				for(var edge:edgesGroup.getChildren()) {
-					if(edge instanceof Path path) {
+				for (var item : edgesGroup.getChildren()) {
+					if (item instanceof Path path) {
 						path.setStroke(null);
 						path.setStrokeWidth(1);
-						path.getStyleClass().add("graph-edge");
 						path.setStrokeLineCap(StrokeLineCap.ROUND);
-
+						path.getStyleClass().add("graph-edge");
 					}
 				}
 				edgesGroup.setEffect(null);
 			}
 			else {
 				nodesGroup.setVisible(false);
-				for(var edge:edgesGroup.getChildren()) {
-					if(edge instanceof Path path) {
+				for (var item : edgesGroup.getChildren()) {
+					if (item instanceof Path path) {
+						if (item.getUserData() instanceof Edge e) {
+							if (e.getSource().getDegree() == 1 || e.getTarget().getDegree() == 1)
+								path.setStrokeLineCap(StrokeLineCap.SQUARE);
+							else
+								path.setStrokeLineCap(StrokeLineCap.ROUND);
+						}
 						path.setStrokeWidth(30);
 						path.setStroke(MainWindowManager.isUseDarkTheme()?Color.BLACK:Color.WHITE);
 					}
