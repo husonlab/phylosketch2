@@ -53,8 +53,12 @@
                                                         <Tooltip text="Import a tree or network into a new document" />
                                                     </tooltip>
                                                 </Button>
-                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
-                                                <Button fx:id="modeButton" mnemonicParsing="false" text="Mode"/>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
+                                                <ToggleButton fx:id="editModeToggleButton" layoutX="191.0" layoutY="8.0"
+                                                              mnemonicParsing="false" text="Edit Mode"/>
+                                                <ToggleButton fx:id="resizeModeToggleButton" mnemonicParsing="false"
+                                                              text="Resize"/>
 
                                                 <MenuButton fx:id="selectMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Select">
                                                     <tooltip>
@@ -63,9 +67,17 @@
                                                 </MenuButton>
                                                 <MenuButton fx:id="settingsMenuButton" maxHeight="-Infinity"
                                                             maxWidth="-Infinity" minHeight="-Infinity"
-                                                            minWidth="-Infinity" mnemonicParsing="false" text="Options">
+                                                            minWidth="-Infinity" mnemonicParsing="false"
+                                                            text="Labeling">
                                                     <tooltip>
                                                         <Tooltip text="Options"/>
+                                                    </tooltip>
+                                                </MenuButton>
+                                                <MenuButton fx:id="layoutMenuButton" maxHeight="-Infinity"
+                                                            maxWidth="-Infinity" minHeight="-Infinity"
+                                                            minWidth="-Infinity" mnemonicParsing="false" text="Layout">
+                                                    <tooltip>
+                                                        <Tooltip text="Edge layout"/>
                                                     </tooltip>
                                                 </MenuButton>
                                             </items>
@@ -75,14 +87,23 @@
                                                 <Button fx:id="undoButton" mnemonicParsing="false" text="Undo" />
                                                 <Button fx:id="redoButton" mnemonicParsing="false" text="Redo" />
 
-                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
                                                 <Button fx:id="zoomInButton" mnemonicParsing="false" text="Zoom In" />
                                                 <Button fx:id="zoomOutButton" mnemonicParsing="false" text="Zoom Out" />
-                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
                                                 <ToggleButton fx:id="findButton" mnemonicParsing="false" text="Find" HBox.hgrow="NEVER" />
-                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
-                                                <Button fx:id="selectButton" mnemonicParsing="false" text="Select" HBox.hgrow="NEVER" />
-                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0" HBox.hgrow="NEVER"/>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
+                                                <Button fx:id="selectButton" mnemonicParsing="false" text="Select"
+                                                        HBox.hgrow="NEVER">
+                                                    <tooltip>
+                                                        <Tooltip text="Select more nodes"/>
+                                                    </tooltip>
+                                                </Button>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
                                                 <MenuButton fx:id="exportMenuButton" mnemonicParsing="false" text="Export">
                                                     <items>
                                                         <MenuItem fx:id="copyExportMenuItem" mnemonicParsing="false" text="Copy" />
@@ -113,7 +134,7 @@
                         </AnchorPane>
                     </bottom>
                   <center>
-                     <StackPane fx:id="centerPane" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                      <StackPane fx:id="centerPane" BorderPane.alignment="CENTER"/>
                   </center>
                 </BorderPane>
             </children>
@@ -180,7 +201,12 @@
                                         <KeyCodeCombination alt="UP" code="Z" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="redoMenuItem" mnemonicParsing="false" text="Redo" />
+                                <MenuItem fx:id="redoMenuItem" mnemonicParsing="false" text="Redo">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="Z" control="UP" meta="DOWN" shift="DOWN"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="cutMenuItem" mnemonicParsing="false" text="Cut">
                                     <accelerator>
@@ -210,6 +236,10 @@
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" text="Clear">
                                  </MenuItem>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="removeThruNodesMenuItem" mnemonicParsing="false"
+                                          text="Remove Thru Nodes">
+                                </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="findMenuItem" mnemonicParsing="false" text="Find...">
                                     <accelerator>
@@ -221,6 +251,15 @@
                                         <KeyCodeCombination alt="UP" code="G" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                     </accelerator>
                                 </MenuItem>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                            </items>
+                        </Menu>
+                        <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
+                            <items>
+                                <CheckMenuItem fx:id="editModeCheckMenuItem" mnemonicParsing="false" text="Edit Mode"/>
+                                <CheckMenuItem fx:id="moveModeCheckMenuItem" mnemonicParsing="false" text="Move Mode"/>
+                                <CheckMenuItem fx:id="resizeModeCheckMenuItem" mnemonicParsing="false"
+                                               text="Resize Mode"/>
                             </items>
                         </Menu>
                         <Menu fx:id="selectMenu" mnemonicParsing="false" text="Select">
@@ -268,6 +307,7 @@
                                         <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="selectThruNodesMenuItem" text="Thru Nodes"/>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="selectVisibleNodesMenuItem" text="Visible Nodes" />
                                 <MenuItem fx:id="selectVisibleReticulationsMenuItem" text="Visible Reticulations" />
@@ -293,10 +333,7 @@
                                 </MenuItem>
                             </items>
                         </Menu>
-                        <Menu fx:id="optionsMenu" mnemonicParsing="false" text="Options">
-                            <CheckMenuItem fx:id="arrowsMenuItem" text="Arrows"/>
-                            <CheckMenuItem fx:id="outlineEdgesMenuItem" text="Outlines"/>
-                            <SeparatorMenuItem mnemonicParsing="false" />
+                        <Menu fx:id="labelsMenu" mnemonicParsing="false" text="Labels">
                             <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..." />
                         <MenuItem fx:id="labelLeaves123MenuItem" text="Label Leaves t1,t2,t3..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
@@ -310,6 +347,20 @@
                         <MenuItem fx:id="labelInternal123MenuItem" text="Label Internal Nodes t1,t2,t3..." />
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem fx:id="clearLabelsMenuItem" text="Clear Labels" />
+                        </Menu>
+
+                        <Menu fx:id="layoutMenu" mnemonicParsing="false" text="Layout">
+                            <CheckMenuItem fx:id="arrowsMenuItem" text="Arrows"/>
+                            <CheckMenuItem fx:id="outlineEdgesMenuItem" text="Outlines"/>
+                            <SeparatorMenuItem mnemonicParsing="false"/>
+                            <MenuItem fx:id="smoothMenuItem" text="Smooth">
+                                <accelerator>
+                                    <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP" shift="UP"
+                                                        shortcut="DOWN"/>
+                                </accelerator>
+                            </MenuItem>
+                            <MenuItem fx:id="straightenMenuItem" text="Straighten"/>
+                            <MenuItem fx:id="rectangularMenuItem" text="Rectangular"/>
                         </Menu>
 
                         <Menu mnemonicParsing="false" text="View">

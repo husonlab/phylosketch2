@@ -77,17 +77,6 @@
             <artifactId>install4j-runtime</artifactId>
             <version>10.0.5</version>
         </dependency>
-        <dependency>
-            <groupId>org.husonlab</groupId>
-            <artifactId>SplitsTree</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.husonlab</groupId>
-                    <artifactId>jloda-connect</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <build>

@@ -1,5 +1,5 @@
 /*
- *  DeleteNodesEdgesCommand.java Copyright (C) 2024 Daniel H. Huson
+ * DeleteNodesEdgesCommand.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -15,9 +15,10 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package phylosketch.view;
+package phylosketch.commands;
 
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
@@ -26,6 +27,7 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.IteratorUtils;
+import phylosketch.view.DrawPane;
 
 import java.util.ArrayList;
 import java.util.Collection;

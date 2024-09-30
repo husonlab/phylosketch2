@@ -1,5 +1,5 @@
 /*
- *  DrawUtils.java Copyright (C) 2024 Daniel H. Huson
+ * DrawUtils.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -15,9 +15,10 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package phylosketch.view;
+package phylosketch.paths;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -78,16 +79,6 @@ public class DrawUtils {
 			}
 		}
 		return null;
-	}
-
-	public static Point2D getCoordinates(PathElement pathElement) {
-		if (pathElement instanceof MoveTo moveTo) {
-			return new Point2D(moveTo.getX(), moveTo.getY());
-		} else if (pathElement instanceof LineTo lineTo) {
-			return new Point2D(lineTo.getX(), lineTo.getY());
-		} else {
-			return new Point2D(0, 0);
-		}
 	}
 
 	public static Point2D snapToShape(Point2D point, Shape shape, double tolerance) {
@@ -168,20 +159,9 @@ public class DrawUtils {
 		return false;
 	}
 
-	public static Path createPath(Point2D a, Point2D b, int step) {
-		var path = new Path();
-		path.getStyleClass().add("graph-edge");
-		var start = new MoveTo(a.getX(), a.getY());
-		var end = new LineTo(b.getX(), b.getY());
-		path.getElements().add(start);
-		interpolate(start, end, step);
-		path.getElements().add(end);
-		return path;
-	}
-
 	public static Collection<? extends PathElement> interpolate(PathElement first, PathElement last, double tolerance) {
-		var start = getCoordinates(first);
-		var end = getCoordinates(last);
+		var start = PathUtils.getCoordinates(first);
+		var end = PathUtils.getCoordinates(last);
 		var distance = start.distance(end);
 		var n = Math.floor(distance / tolerance) - 1.0;
 		var result = new ArrayList<PathElement>();
@@ -194,10 +174,10 @@ public class DrawUtils {
 
 	public static void addArrowHead(Path path) {
 			if (path.getElements().size() >= 2) {
-				var q = getCoordinates(path.getElements().get(path.getElements().size() - 1));
+				var q = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
 				Point2D p = null;
 				for (var i = path.getElements().size() - 2; i >= 0; i--) {
-					var a = getCoordinates(path.getElements().get(i));
+					var a = PathUtils.getCoordinates(path.getElements().get(i));
 					if (a.distance(q) > 0.001) {
 						p = a;
 						break;

@@ -20,7 +20,6 @@
 package phylosketch.view;
 
 import javafx.beans.binding.Bindings;
-import jloda.fx.control.ItemSelectionModel;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.phylo.algorithms.RootedNetworkProperties;
@@ -34,12 +33,26 @@ import java.util.Queue;
  * Daniel Huson, 9.2024
  */
 public class SetupSelection {
-	public static void setupSelect(DrawPane view, MainWindowController controller) {
+	public static void apply(DrawPane view, MainWindowController controller) {
 		var graph = view.getGraph();
 		var nodeSelection = view.getNodeSelection();
 		var edgeSelection = view.getEdgeSelection();
 
-		controller.getSelectButton().setOnAction(e->{
+		controller.getSelectButton().setOnAction(a -> {
+
+			for (var e : graph.edges()) {
+				if (nodeSelection.isSelected(e.getSource()) && !nodeSelection.isSelected(e.getTarget())) {
+					controller.getSelectAllBelowMenuItem().fire();
+					return;
+				}
+			}
+			for (var e : graph.edges()) {
+				if (!nodeSelection.isSelected(e.getSource()) && nodeSelection.isSelected(e.getTarget())) {
+					controller.getSelectAllAboveMenuItem().fire();
+					return;
+				}
+			}
+
 			if(nodeSelection.size()<graph.getNumberOfNodes() || edgeSelection.size()<graph.getNumberOfEdges()) {
 				graph.nodes().forEach(nodeSelection::select);
 				graph.edges().forEach(edgeSelection::select);
@@ -131,6 +144,10 @@ public class SetupSelection {
 
 		controller.getSelectReticulateEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(edgeSelection::select));
 		controller.getSelectReticulateEdgesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getSelectThruNodesMenuItem().setOnAction(c -> graph.nodeStream().filter(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()).forEach(nodeSelection::select));
+		controller.getSelectThruNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
 	}
 
 }

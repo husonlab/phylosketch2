@@ -20,7 +20,11 @@
 package phylosketch.window;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
@@ -40,11 +44,13 @@ import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.WindowGeometry;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
+import phylosketch.commands.*;
 import phylosketch.io.ExportNewick;
 import phylosketch.io.PhyloSketchIO;
 import phylosketch.io.Save;
 import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.NewWindow;
+import phylosketch.paths.DrawUtils;
 import phylosketch.view.*;
 
 import java.io.IOException;
@@ -57,14 +63,16 @@ import java.util.List;
  * Daniel Huson, 9.2024
  */
 public class MainWindowPresenter {
+	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
+	private final BooleanProperty allowRemoveSuperfluous = new SimpleBooleanProperty(this, "allowRemoveSuperfluous", false);
 
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
 		var view = window.getDrawPane();
 		var undoManager = view.getUndoManager();
 
-		view.getUndoManager().undoStackSizeProperty().addListener((v,o,n)->{
-			window.dirtyProperty().set(n.intValue()>0);
+		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> {
+			window.dirtyProperty().set(n.intValue() > 0);
 		});
 
 		view.minWidthProperty().bind(Bindings.createDoubleBinding(() ->
@@ -82,26 +90,58 @@ public class MainWindowPresenter {
 			}
 		});
 
+		controller.getPasteMenuItem().setOnAction(e -> {
+			view.getUndoManager().doAndAdd(new PasteCommand(view));
+			allowResize.set(true);
+		});
+
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
-		controller.getModeButton().setOnAction(e -> {
-			if (view.isEditable()) {
-				view.editableProperty().set(false);
-				view.moveableProperty().set(true);
-				controller.getModeButton().setTooltip(new Tooltip("Move mode"));
-				MaterialIcons.setIcon(controller.getModeButton(), MaterialIcons.open_with);
-			} else if (view.isMoveable()) {
-				view.editableProperty().set(false);
-				view.moveableProperty().set(false);
-				controller.getModeButton().setTooltip(new Tooltip("Locked mode"));
-				MaterialIcons.setIcon(controller.getModeButton(), MaterialIcons.lock);
+		ChangeListener<DrawPane.Mode> listener = (v, o, n) -> {
+			if (n == DrawPane.Mode.Edit) {
+				controller.getEditModeToggleButton().setSelected(true);
+				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.edit);
+				controller.getEditModeCheckMenuItem().setSelected(true);
+				controller.getMoveModeCheckMenuItem().setSelected(false);
+				controller.getEditModeToggleButton().setTooltip(new Tooltip("Edit mode on, allows interactive creation of new nodes and edges"));
+			} else if (n == DrawPane.Mode.Move) {
+				controller.getEditModeToggleButton().setSelected(true);
+				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.vertical_align_bottom);
+				controller.getEditModeCheckMenuItem().setSelected(false);
+				controller.getMoveModeCheckMenuItem().setSelected(true);
+				controller.getEditModeToggleButton().setTooltip(new Tooltip("Move mode on, allows interactive relocation of nodes and reshaping of edges"));
 			} else {
-				view.editableProperty().set(true);
-				view.moveableProperty().set(true);
-				controller.getModeButton().setTooltip(new Tooltip("Edit mode"));
-				MaterialIcons.setIcon(controller.getModeButton(), MaterialIcons.edit);
+				controller.getEditModeToggleButton().setSelected(false);
+				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.edit_off);
+				controller.getEditModeCheckMenuItem().setSelected(false);
+				controller.getMoveModeCheckMenuItem().setSelected(false);
+				controller.getEditModeToggleButton().setTooltip(new Tooltip("Edit mode off"));
 			}
+		};
+
+		view.modeProperty().addListener(listener);
+
+		listener.changed(view.modeProperty(), null, view.getMode());
+
+		controller.getEditModeToggleButton().setOnAction(e -> {
+			if (view.getMode() == DrawPane.Mode.Edit)
+				view.setMode(DrawPane.Mode.Move);
+			else if (view.getMode() == DrawPane.Mode.Move)
+				view.setMode(DrawPane.Mode.View);
+			else view.setMode(DrawPane.Mode.Edit);
+		});
+
+		controller.getEditModeCheckMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				view.setMode(DrawPane.Mode.Edit);
+			else view.setMode(DrawPane.Mode.View);
+		});
+
+		controller.getMoveModeCheckMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				view.setMode(DrawPane.Mode.Move);
+			else view.setMode(DrawPane.Mode.View);
 		});
 
 		view.arrowHeadsProperty().addListener((v, o, n) -> {
@@ -183,13 +223,13 @@ public class MainWindowPresenter {
 					view.getEdgeSelection().getSelectedItems()));
 		});
 		controller.getDeleteMenuItem().disableProperty().bind((view.getNodeSelection().sizeProperty().isEqualTo(0)
-				.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.editableProperty().not()));
+				.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
 
 		controller.getClearMenuItem().setOnAction(e -> {
 			view.getUndoManager().doAndAdd(new DeleteNodesEdgesCommand(view, view.getGraph().getNodesAsList(),
 					Collections.emptyList()));
 		});
-		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.editableProperty().not()));
+		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
 
 		controller.getZoomInMenuItem().setOnAction(e -> {
 			controller.getScrollPane().zoomBy(1.1, 1.1);
@@ -209,10 +249,10 @@ public class MainWindowPresenter {
 				controller.getArrowsMenuItem().setSelected(false);
 		});
 
-		MainWindowManager.useDarkThemeProperty().addListener(e->{
-			if(view.getOutlineEdges()) { // need to trigger recomputation
-				Platform.runLater(()->view.setOutlineEdges(false));
-				RunAfterAWhile.applyInFXThread(controller.getOutlineEdgesMenuItem(),()->view.setOutlineEdges(true));
+		MainWindowManager.useDarkThemeProperty().addListener(e -> {
+			if (view.getOutlineEdges()) { // need to trigger recomputation
+				Platform.runLater(() -> view.setOutlineEdges(false));
+				RunAfterAWhile.applyInFXThread(controller.getOutlineEdgesMenuItem(), () -> view.setOutlineEdges(true));
 			}
 		});
 
@@ -237,13 +277,29 @@ public class MainWindowPresenter {
 
 		controller.getCopyImageMenuItem().setOnAction(e -> {
 			var params = new SnapshotParameters();
-			params.setFill(MainWindowManager.isUseDarkTheme()?Color.BLACK:Color.WHITE);
+			params.setFill(MainWindowManager.isUseDarkTheme() ? Color.BLACK : Color.WHITE);
 			params.setTransform(javafx.scene.transform.Transform.scale(2.0, 2.0));
 			var writableImage = new WritableImage((int) (view.getWidth() * 2), (int) (view.getHeight() * 2));
 			var snapshot = view.snapshot(params, writableImage);
 			ClipboardUtils.putImage(snapshot);
 		});
 		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+
+		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e ->
+				RunAfterAWhile.applyInFXThread(allowRemoveSuperfluous, () -> {
+					for (var v : view.getNodeSelection().getSelectedItems()) {
+						if (v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()) {
+							allowRemoveSuperfluous.set(true);
+							return;
+						}
+					}
+					allowRemoveSuperfluous.set(false);
+				})
+		);
+
+		controller.getRemoveThruNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RemoveThruNodesCommand(view)));
+		controller.getRemoveThruNodesMenuItem().disableProperty().bind(allowRemoveSuperfluous.not());
 
 		controller.getLabelLeavesABCMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelLeavesABC(view))));
 		controller.getLabelLeavesABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
@@ -263,9 +319,30 @@ public class MainWindowPresenter {
 		controller.getClearLabelsMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.clear(view))));
 		controller.getClearLabelsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getNodeLabelsGroup().getChildren()));
 
-
 		controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
 		BasicFX.setupFullScreenMenuSupport(window.getStage(), controller.getFullScreenMenuItem());
+
+		controller.getSmoothMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new SmoothCommand(view.getGraph(), view.getSelectedOrAllEdges())));
+		controller.getSmoothMenuItem().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
+
+		controller.getStraightenMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new StraightenCommand(view.getGraph(), view.getSelectedOrAllEdges())));
+		controller.getStraightenMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
+
+		controller.getRectangularMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new RectangularCommand(view.getGraph(), view.getSelectedOrAllEdges())));
+		controller.getRectangularMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
+
+		controller.getImportButton().setOnAction(e -> openString(ClipboardUtils.getTextFilesContentOrString()));
+		controller.getImportButton().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
+
+
+		/*
+		{
+			else if(n==controller.getResizeRadioMenuItem()) {
+			controller.getModeButton().setTooltip(new Tooltip("Setup mode, press to change"));
+			MaterialIcons.setIcon(controller.getModeButton(), MaterialIcons.format_shapes);
+			view.setMode(DrawPane.Mode.Resize);
+		}
+		*/
 
 		var infoLabel = new CopyableLabel();
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
@@ -277,10 +354,19 @@ public class MainWindowPresenter {
 		});
 		controller.getBottomFlowPane().getChildren().add(infoLabel);
 
-		SetupSelection.setupSelect(view, controller);
+		controller.getResizeModeToggleButton().selectedProperty().bindBidirectional(allowResize);
+		controller.getResizeModeToggleButton().setTooltip(new Tooltip("Allow moving and resizing of selected nodes"));
 
-		controller.getImportButton().setOnAction(e -> openString(ClipboardUtils.getTextFilesContentOrString()));
-		controller.getImportButton().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
+		controller.getResizeModeCheckMenuItem().selectedProperty().bindBidirectional(allowResize);
+		allowResize.addListener((v, o, n) -> {
+			if (n && view.getNodeSelection().size() == 0) {
+				view.getNodeSelection().selectAll(view.getGraph().getNodesAsList());
+				view.getEdgeSelection().selectAll(view.getGraph().getEdgesAsList());
+			}
+		});
+
+		SetupSelection.apply(view, controller);
+		SetupResize.apply(view, allowResize);
 	}
 
 	public static void openString(String string) {

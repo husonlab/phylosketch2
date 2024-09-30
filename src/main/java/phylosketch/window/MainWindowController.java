@@ -35,9 +35,9 @@ import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainWindowController {
-
 	@FXML
 	private MenuItem aboutMenuItem;
 
@@ -52,6 +52,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem clearMenuItem;
+
+	@FXML
+	private MenuItem removeThruNodesMenuItem;
 
 	@FXML
 	private MenuItem closeMenuItem;
@@ -118,9 +121,6 @@ public class MainWindowController {
 
 	@FXML
 	private Button importButton;
-
-	@FXML
-	private Button modeButton;
 
 	@FXML
 	private MenuItem importMenuItem;
@@ -206,6 +206,9 @@ public class MainWindowController {
 	private MenuItem selectReticulateEdgesMenuItem;
 
 	@FXML
+	private MenuItem selectThruNodesMenuItem;
+
+	@FXML
 	private MenuItem selectRootsMenuItem;
 
 	@FXML
@@ -239,13 +242,8 @@ public class MainWindowController {
 	private MenuItem selectFromPreviousMenuItem;
 
 	@FXML
-	private Menu optionsMenu;
+	private Menu labelsMenu;
 
-	@FXML
-	private CheckMenuItem arrowsMenuItem;
-
-	@FXML
-	private CheckMenuItem outlineEdgesMenuItem;
 
 	@FXML
 	private MenuItem labelLeavesABCMenuItem;
@@ -302,7 +300,47 @@ public class MainWindowController {
 	private MenuButton settingsMenuButton;
 
 	@FXML
+	private MenuButton layoutMenuButton;
+
+	@FXML
+	private Menu layoutMenu;
+
+	@FXML
+	private CheckMenuItem arrowsMenuItem;
+
+	@FXML
+	private CheckMenuItem outlineEdgesMenuItem;
+
+	@FXML
+	private MenuItem smoothMenuItem;
+
+	@FXML
+	private MenuItem straightenMenuItem;
+
+	@FXML
+	private MenuItem rectangularMenuItem;
+
+	@FXML
 	private StackPane centerPane;
+
+	@FXML
+	private Menu modeMenu;
+
+	@FXML
+	private CheckMenuItem editModeCheckMenuItem;
+
+	@FXML
+	private CheckMenuItem moveModeCheckMenuItem;
+
+	@FXML
+	private CheckMenuItem resizeModeCheckMenuItem;
+
+	@FXML
+	private ToggleButton editModeToggleButton;
+
+	@FXML
+	private ToggleButton resizeModeToggleButton;
+
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -311,7 +349,8 @@ public class MainWindowController {
 	private void initialize() {
 		MaterialIcons.setIcon(fileMenuButton, MaterialIcons.file_open);
 		MaterialIcons.setIcon(importButton, MaterialIcons.download);
-		MaterialIcons.setIcon(modeButton,MaterialIcons.edit);
+		MaterialIcons.setIcon(editModeToggleButton, MaterialIcons.edit_off);
+		MaterialIcons.setIcon(resizeModeToggleButton, MaterialIcons.open_in_full, "-fx-rotate: 90;", true);
 
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 
@@ -322,10 +361,11 @@ public class MainWindowController {
 		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
 
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
-		MaterialIcons.setIcon(selectButton, "select_all");
+		MaterialIcons.setIcon(selectButton, MaterialIcons.select_all);
 
 		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
-		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.settings);
+		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
+		MaterialIcons.setIcon(layoutMenuButton, MaterialIcons.shape_line);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -396,11 +436,16 @@ public class MainWindowController {
 		scrollPane.setFitToWidth(true);
 		scrollPane.setFitToHeight(true);
 		scrollPane.setPannable(true);
+		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 		scrollPane.setLockAspectRatio(true);
 		scrollPane.setRequireShiftOrControlToZoom(true);
 
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
-		settingsMenuButton.getItems().addAll(BasicFX.copyMenu(optionsMenu.getItems()));
+		settingsMenuButton.getItems().addAll(BasicFX.copyMenu(labelsMenu.getItems()));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
+		layoutMenuButton.getItems().add(new SeparatorMenuItem());
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -510,10 +555,6 @@ public class MainWindowController {
 
 	public Button getImportButton() {
 		return importButton;
-	}
-
-	public Button getModeButton() {
-		return modeButton;
 	}
 
 	public MenuItem getImportMenuItem() {
@@ -676,6 +717,10 @@ public class MainWindowController {
 		return selectReticulateEdgesMenuItem;
 	}
 
+	public MenuItem getSelectThruNodesMenuItem() {
+		return selectThruNodesMenuItem;
+	}
+
 	public MenuItem getSelectRootsMenuItem() {
 		return selectRootsMenuItem;
 	}
@@ -730,5 +775,41 @@ public class MainWindowController {
 
 	public CheckMenuItem getOutlineEdgesMenuItem() {
 		return outlineEdgesMenuItem;
+	}
+
+	public MenuItem getSmoothMenuItem() {
+		return smoothMenuItem;
+	}
+
+	public MenuItem getStraightenMenuItem() {
+		return straightenMenuItem;
+	}
+
+	public MenuItem getRectangularMenuItem() {
+		return rectangularMenuItem;
+	}
+
+	public CheckMenuItem getEditModeCheckMenuItem() {
+		return editModeCheckMenuItem;
+	}
+
+	public CheckMenuItem getMoveModeCheckMenuItem() {
+		return moveModeCheckMenuItem;
+	}
+
+	public CheckMenuItem getResizeModeCheckMenuItem() {
+		return resizeModeCheckMenuItem;
+	}
+
+	public ToggleButton getEditModeToggleButton() {
+		return editModeToggleButton;
+	}
+
+	public ToggleButton getResizeModeToggleButton() {
+		return resizeModeToggleButton;
+	}
+
+	public MenuItem getRemoveThruNodesMenuItem() {
+		return removeThruNodesMenuItem;
 	}
 }

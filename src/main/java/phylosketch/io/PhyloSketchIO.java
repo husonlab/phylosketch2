@@ -30,13 +30,12 @@ import jloda.util.Basic;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
+import phylosketch.paths.DrawUtils;
+import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
-import phylosketch.view.DrawUtils;
 
 import java.io.*;
 import java.util.List;
-
-import static phylosketch.view.MouseInteraction.INTERPOLATE_STEP;
 
 
 /**
@@ -242,7 +241,7 @@ public class PhyloSketchIO {
 			if(!(e.getData() instanceof Path)) {
 				var a=new Point2D(((Shape)e.getSource().getData()).getTranslateX(), ((Shape)e.getSource().getData()).getTranslateY());
 				var b=new Point2D(((Shape)e.getTarget().getData()).getTranslateX(), ((Shape)e.getTarget().getData()).getTranslateY());
-				var path= DrawUtils.createPath(a,b,INTERPOLATE_STEP);
+				var path = PathUtils.createPath(List.of(a, b), true);
 				drawPane.addPath(e,path);
 			}
 		}
@@ -256,7 +255,7 @@ public class PhyloSketchIO {
 	private static String pathToString(Path path) {
 		var buf = new StringBuilder();
 		for (var item : path.getElements()) {
-			var point = DrawUtils.getCoordinates(item);
+			var point = PathUtils.getCoordinates(item);
 			if (!buf.isEmpty())
 				buf.append(",");
 			buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",point.getX()));

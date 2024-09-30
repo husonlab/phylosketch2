@@ -20,64 +20,121 @@
 
 package phylosketch.io;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Circle;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
+import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
+import jloda.util.IteratorUtils;
+import phylosketch.embed.RootedNetworkEmbedder;
+import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
-import phylosketch.view.DrawUtils;
-import splitstree6.layout.tree.HeightAndAngles;
-import splitstree6.layout.tree.LayoutTreeRectangular;
+import phylosketch.view.RootLocation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
+/**
+ * newick import
+ * Daniel Huson, 8.2024
+ */
 public class ImportNewick {
+	/**
+	 * import from file
+	 *
+	 * @param fileName file
+	 * @param view     the view to import into
+	 * @throws IOException
+	 */
 	public static void apply(String fileName, DrawPane view) throws IOException {
-		var nTrees = Math.min(6, FileUtils.getNumberOfLinesInFile(fileName));
+		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
+			apply(r, view, (int) FileUtils.getNumberOfLinesInFile(fileName));
+		}
+	}
+
+	/**
+	 * import from a buffered reader
+	 *
+	 * @param r        reader
+	 * @param view     view
+	 * @param maxTrees max number to import
+	 * @return set of new nodes
+	 * @throws IOException
+	 */
+	public static Collection<Node> apply(BufferedReader r, DrawPane view, int maxTrees) throws IOException {
+		var rootLocation = RootLocation.Left;
+
+		var nTrees = Math.min(maxTrees, 6);
 
 		var width = 750.0 / (1 + (nTrees > 3 ? 1 : 0));
 
-		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
-			var count = 0;
-			while (r.ready()) {
-				var line = r.readLine();
-				var tree = new PhyloTree();
-				tree.parseBracketNotation(line, true);
-				tree.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(e -> tree.setReticulate(e, true));
+		var oldNodes = IteratorUtils.asSet(view.getGraph().nodes());
 
-				try (var nodePointMap = LayoutTreeRectangular.apply(tree, true, HeightAndAngles.Averaging.ChildAverage);
-					 NodeArray<Node> srcTarMap = tree.newNodeArray()) {
-					var xMin = (count < 3 ? count : count - 3) * (50 + width);
-					var xMax = xMin + width;
-					var yMin = (count < 3 ? 50 : 100 + width);
-					var yMax = yMin + width;
-					scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-					for (var v : tree.nodes()) {
-						var shape = new Circle(3);
-						shape.setTranslateX(nodePointMap.get(v).getX());
-						shape.setTranslateY(nodePointMap.get(v).getY());
-						srcTarMap.put(v, view.createNode(shape));
-					}
+		var count = 0;
+		while (r.ready()) {
+			var line = r.readLine();
+			var tree = new PhyloTree();
+			(new NewickIO()).parseBracketNotation(tree, line, true, false);
+			tree.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(e -> tree.setReticulate(e, true));
+
+			try (var nodePointMap = RootedNetworkEmbedder.apply(tree); NodeArray<Node> srcTarMap = tree.newNodeArray()) {
+				var xMin = (count < 3 ? count : count - 3) * (50 + width);
+				var xMax = xMin + width;
+				var yMin = (count < 3 ? 50 : 100 + width);
+				var yMax = yMin + width;
+				scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+				for (var v : tree.nodes()) {
+					var shape = new Circle(3);
+					shape.setTranslateX(nodePointMap.get(v).getX());
+					shape.setTranslateY(nodePointMap.get(v).getY());
+					srcTarMap.put(v, view.createNode(shape));
+				}
+				// need to run this later otherwise labels will be placed incorrectly
+				Platform.runLater(()-> {
 					for (var v : tree.nodes()) {
 						var w = srcTarMap.get(v);
 						if (tree.getLabel(v) != null)
 							view.createLabel(w, tree.getLabel(v));
 					}
-					for (var e : tree.edges()) {
-						var v = srcTarMap.get(e.getSource());
-						var w = srcTarMap.get(e.getTarget());
-						view.createEdge(v, w, DrawUtils.createPath(nodePointMap.get(e.getSource()), nodePointMap.get(e.getTarget()), 3));
+				});
+				for (var e : tree.edges()) {
+					var v = srcTarMap.get(e.getSource());
+					var w = srcTarMap.get(e.getTarget());
+					var first = view.getPoint(v);
+					var last = view.getPoint(w);
+
+					List<Point2D> points;
+					if (e.getTarget().getInDegree() >= 2) {
+						points = List.of(first, last);
+					} else {
+						points = switch (rootLocation) {
+							case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
+							case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
+						};
 					}
+					view.createEdge(v, w, PathUtils.createPath(points, true));
 				}
-				view.getNodeSelection().selectAll(view.getGraph().getNodesAsList());
-				view.getEdgeSelection().selectAll(view.getGraph().getEdgesAsList());
-				if (++count == nTrees)
-					return;
 			}
+			if (++count == nTrees)
+				break;
 		}
+		var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
+		newNodes.removeAll(oldNodes);
+
+		view.getNodeSelection().clearSelection();
+		view.getEdgeSelection().clearSelection();
+		for (var v : newNodes) {
+			view.getNodeSelection().select(v);
+			for (var e : v.outEdges())
+				view.getEdgeSelection().select(e);
+		}
+		return newNodes;
 	}
 
 	private static void scaleToBox(NodeArray<Point2D> nodePointMap, double xMin, double xMax, double yMin, double yMax) {
