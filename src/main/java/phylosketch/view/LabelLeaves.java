@@ -24,6 +24,7 @@ import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
 import jloda.util.Pair;
+import phylosketch.commands.ChangeNodeLabelsCommand;
 
 import java.util.*;
 import java.util.stream.Collectors;

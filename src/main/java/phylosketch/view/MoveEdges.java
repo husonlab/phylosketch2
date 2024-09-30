@@ -20,16 +20,21 @@
 package phylosketch.view;
 
 import javafx.geometry.Point2D;
-import javafx.scene.shape.*;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import jloda.graph.Graph;
 import jloda.graph.Node;
+import phylosketch.paths.PathNormalize;
+import phylosketch.paths.PathReshape;
 
 import java.util.Set;
 
 public class MoveEdges {
 
-	public static void apply(Graph network, Set<Node> selectedNodes, double dx, double dy) {
-		for (var e : network.edges()) {
+	public static void apply(Graph graph, Set<Node> selectedNodes, double dx, double dy, boolean normalizePaths) {
+		for (var e : graph.edges()) {
 			var path = (Path) e.getData();
 
 			if (selectedNodes.contains(e.getSource()) && selectedNodes.contains(e.getTarget())) {
@@ -37,16 +42,16 @@ public class MoveEdges {
 					shiftEdge(element, dx, dy);
 				}
 			} else if (selectedNodes.contains(e.getSource()) && !selectedNodes.contains(e.getTarget())) {
-				var sourceLocation = new Point2D(((Shape) e.getSource().getData()).getTranslateX() - dx, ((Shape) e.getSource().getData()).getTranslateY() - dy);
-				var targetLocation = new Point2D(((Shape) e.getTarget().getData()).getTranslateX(), ((Shape) e.getTarget().getData()).getTranslateY());
-				for (var element : path.getElements()) {
-					shiftUsingSource(element, sourceLocation, targetLocation, dx, dy);
+				var index = 0;
+				PathReshape.apply(path, index, dx, dy);
+				if (normalizePaths) {
+					path.getElements().setAll(PathNormalize.apply(path, 2, 5));
 				}
 			} else if (!selectedNodes.contains(e.getSource()) && selectedNodes.contains(e.getTarget())) {
-				var sourceLocation = new Point2D(((Shape) e.getSource().getData()).getTranslateX(), ((Shape) e.getSource().getData()).getTranslateY());
-				var targetLocation = new Point2D(((Shape) e.getTarget().getData()).getTranslateX() - dx, ((Shape) e.getTarget().getData()).getTranslateY() - dy);
-				for (var element : path.getElements()) {
-					shiftUsingTarget(element, sourceLocation, targetLocation, dx, dy);
+				var index = path.getElements().size() - 1;
+				PathReshape.apply(path, index, dx, dy);
+				if (normalizePaths) {
+					path.getElements().setAll(PathNormalize.apply(path, 2, 5));
 				}
 			}
 		}

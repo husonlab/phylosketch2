@@ -1,5 +1,5 @@
 /*
- *  PathUtils.java Copyright (C) 2024 Daniel H. Huson
+ * PathUtilsAdvanced.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -15,9 +15,10 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package phylosketch.view;
+package phylosketch.paths;
 
 import javafx.geometry.Point2D;
 import javafx.scene.shape.LineTo;
@@ -35,7 +36,7 @@ import java.util.List;
  * utils for paths
  * Daniel Huson, 3.3024
  */
-public class PathUtils {
+public class PathUtilsAdvanced {
 
 	/**
 	 * computes all intersections between a path and a collection of paths

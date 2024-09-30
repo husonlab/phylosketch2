@@ -22,6 +22,7 @@ package phylosketch.view;
 import javafx.stage.Stage;
 import jloda.fx.label.EditLabelDialog;
 import jloda.graph.Node;
+import phylosketch.commands.ChangeNodeLabelsCommand;
 
 import java.util.Collections;
 

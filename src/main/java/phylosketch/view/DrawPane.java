@@ -19,10 +19,7 @@
 
 package phylosketch.view;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
 import javafx.geometry.Point2D;
@@ -41,6 +38,7 @@ import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.Icebergs;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.SelectionEffect;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
@@ -61,6 +59,7 @@ import java.util.*;
  * Daniel Huson, 9.2024
  */
 public class DrawPane extends Pane {
+	public enum Mode {View, Move, Edit}
 	private final PhyloTree graph;
 	private final GraphFX<PhyloTree> graphFX;
 
@@ -75,8 +74,8 @@ public class DrawPane extends Pane {
 	private final Group otherGroup = new Group();
 	private final Group world = new Group();
 
-	private final BooleanProperty editable=new SimpleBooleanProperty(this,"editable",true);
-	private final BooleanProperty moveable=new SimpleBooleanProperty(this,"moveable",true);
+	private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(this, "mode", Mode.View);
+	private final BooleanProperty movable = new SimpleBooleanProperty(this, "movable");
 
 	private final BooleanProperty arrowHeads=new SimpleBooleanProperty(this,"arrowHeads",false);
 
@@ -89,9 +88,16 @@ public class DrawPane extends Pane {
 	private final UndoManager undoManager = new UndoManager();
 
 	public DrawPane() {
+		mode.addListener((v, o, n) -> {
+			movable.set(n == Mode.Edit || n == Mode.Move);
+		});
+		ProgramProperties.track(mode, Mode::valueOf, Mode.Edit);
+
 		setPadding(new javafx.geometry.Insets(20));
 
-		Icebergs.setEnabled(true);
+		prefWidthProperty().addListener((v, o, n) -> System.err.println("width: " + n));
+
+		Icebergs.setEnabled(false);
 		var shapeIcebergMap = new HashMap<Shape, Shape>();
 
 		nodesGroup.getChildren().addListener(createIcebergListener(shapeIcebergMap, nodeIcebergsGroup));
@@ -102,29 +108,46 @@ public class DrawPane extends Pane {
 		nodeSelection = new SetSelectionModel<>();
 		edgeSelection = new SetSelectionModel<>();
 
+		var nodeIndegree = new HashMap<Node, Integer>();
+		var nodeOutdegree = new HashMap<Node, Integer>();
 		graphFX.lastUpdateProperty().addListener(e -> {
-			valid.set(graph.getNumberOfNodes() > 0 && graph.nodeStream().filter(v -> v.getInDegree() == 0).count() == 1
-					  && IsDAG.apply(graph) && graph.nodeStream().filter(Node::isLeaf).allMatch(v -> graph.getLabel(v) != null));
-
-			nodeSelection.getSelectedItems().removeAll(nodeSelection.getSelectedItems().stream().filter(a -> a.getOwner() == null).toList());
-			edgeSelection.getSelectedItems().removeAll(edgeSelection.getSelectedItems().stream().filter(a -> a.getOwner() == null).toList());
-
 			for (var v : graph.nodes()) {
-				if (v.getData() instanceof Shape shape) {
-					shape.getStyleClass().add("graph-node");
-					shape.setStrokeWidth(v.getInDegree() == 0 ? 2 : 1);
-
-					if (shape instanceof Circle circle)
-						circle.setRadius(v.getInDegree() == 0 || v.getOutDegree() == 0 ? 3 : 1.5);
-					MouseSelection.setupNodeSelection(v, shape, nodeSelection, edgeSelection);
+				if (v.getInDegree() != nodeIndegree.getOrDefault(v, -1) || v.getOutDegree() != nodeOutdegree.getOrDefault(v, -1)) {
+					if (v.getData() instanceof Circle circle) {
+						circle.setRadius(v.getInDegree() == 0 || v.getOutDegree() == 0 ? 4 : 2);
+					}
+					nodeIndegree.put(v, v.getInDegree());
+					nodeOutdegree.put(v, v.getOutDegree());
 				}
 			}
-
-			for (var edge : graph.edges()) {
-				if (edge.getData() instanceof Path ePath)
-					MouseSelection.setupEdgeSelection(edge, ePath, nodeSelection, edgeSelection);
-			}
 		});
+
+
+		if (false) {
+			graphFX.lastUpdateProperty().addListener(e -> {
+				valid.set(graph.getNumberOfNodes() > 0 && graph.nodeStream().filter(v -> v.getInDegree() == 0).count() == 1
+						  && IsDAG.apply(graph) && graph.nodeStream().filter(Node::isLeaf).allMatch(v -> graph.getLabel(v) != null));
+
+				nodeSelection.getSelectedItems().removeAll(nodeSelection.getSelectedItems().stream().filter(a -> a.getOwner() == null).toList());
+				edgeSelection.getSelectedItems().removeAll(edgeSelection.getSelectedItems().stream().filter(a -> a.getOwner() == null).toList());
+
+				for (var v : graph.nodes()) {
+					if (v.getData() instanceof Shape shape) {
+						shape.getStyleClass().add("graph-node");
+						shape.setStrokeWidth(v.getInDegree() == 0 ? 2 : 1);
+
+						if (shape instanceof Circle circle)
+							circle.setRadius(v.getInDegree() == 0 || v.getOutDegree() == 0 ? 3 : 1.5);
+						MouseSelection.setupNodeSelection(v, shape, nodeSelection, edgeSelection);
+					}
+				}
+
+				for (var edge : graph.edges()) {
+					if (edge.getData() instanceof Path ePath)
+						MouseSelection.setupEdgeSelection(edge, ePath, nodeSelection, edgeSelection);
+				}
+			});
+		}
 
 		nodeSelection.getSelectedItems().addListener((SetChangeListener<? super Node>) a -> {
 			if (a.wasAdded()) {
@@ -161,12 +184,15 @@ public class DrawPane extends Pane {
 		world.getChildren().addAll(edgeIcebergsGroup, nodeIcebergsGroup, edgesGroup, nodesGroup, nodeLabelsGroup, otherGroup);
 		getChildren().add(world);
 
-		MouseInteraction.setup(this);
+		EdgeCreationInteraction.setup(this);
+		PaneInteraction.setup(this);
+		NodeInteraction.setup(this);
+		EdgeInteraction.setup(this);
 
 		getStyleClass().add("viewer-background");
 		//setStyle("-fx-background-color: lightblue;");
 
-		MouseSelection.setupPaneSelection(this, nodeSelection, edgeSelection);
+		if (true)
 
 		outlineEdges.addListener((v, o, n)->{
 			if(!n){
@@ -373,6 +399,7 @@ public class DrawPane extends Pane {
 				edgeSelection.getSelectedItems().remove(e);
 				if (e.getData() instanceof Path p)
 					edgesGroup.getChildren().remove(p);
+				graph.deleteEdge(e);
 			}
 		}
 	}
@@ -413,7 +440,7 @@ public class DrawPane extends Pane {
 				label.setLayoutY(-5);
 			}
 		}
-		LabelUtils.makeDraggable(label, moveableProperty(),this);
+		LabelUtils.makeDraggable(label, movable, this);
 		return label;
 	}
 
@@ -437,7 +464,20 @@ public class DrawPane extends Pane {
 				}
 			}
 		};
+	}
 
+	public Collection<Node> getSelectedOrAllNodes() {
+		if (nodeSelection.size() > 0)
+			return nodeSelection.getSelectedItems();
+		else
+			return graph.getNodesAsList();
+	}
+
+	public Collection<Edge> getSelectedOrAllEdges() {
+		if (edgeSelection.size() > 0)
+			return edgeSelection.getSelectedItems();
+		else
+			return graph.getEdgesAsList();
 	}
 
 	public RichTextLabel getLabel(Node v) {
@@ -457,6 +497,12 @@ public class DrawPane extends Pane {
 		if (v.getData() instanceof Shape shape) {
 			return shape.getTranslateY();
 		} else return 0;
+	}
+
+	public Point2D getPoint(Node v) {
+		if (v.getData() instanceof Shape shape) {
+			return new Point2D(shape.getTranslateX(), shape.getTranslateY());
+		} else return null;
 	}
 
 	public void setLabel(int nodeId, String text) {
@@ -479,27 +525,23 @@ public class DrawPane extends Pane {
 		this.outlineEdges.set(outlineEdges);
 	}
 
-	public boolean isEditable() {
-		return editable.get();
-	}
-
-	public BooleanProperty editableProperty() {
-		return editable;
-	}
-
-	public boolean isMoveable() {
-		return moveable.get();
-	}
-
-	public BooleanProperty moveableProperty() {
-		return moveable;
-	}
-
 	public boolean isArrowHeads() {
 		return arrowHeads.get();
 	}
 
 	public BooleanProperty arrowHeadsProperty() {
 		return arrowHeads;
+	}
+
+	public Mode getMode() {
+		return mode.get();
+	}
+
+	public ObjectProperty<Mode> modeProperty() {
+		return mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode.set(mode);
 	}
 }
