@@ -71,6 +71,13 @@ public class MainWindowPresenter {
 		var view = window.getDrawPane();
 		var undoManager = view.getUndoManager();
 
+		EdgeCreationInteraction.setup(view);
+		PaneInteraction.setup(view);
+		NodeInteraction.setup(view, () -> controller.getSelectButton().fire());
+		EdgeInteraction.setup(view, () -> controller.getSelectButton().fire());
+
+
+
 		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> {
 			window.dirtyProperty().set(n.intValue() > 0);
 		});

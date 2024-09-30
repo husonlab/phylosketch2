@@ -81,6 +81,10 @@ public class SetupSelection {
 		});
 		controller.getSelectInvertMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
+		controller.getExtendSelectionMenuItem().setOnAction(e -> controller.getSelectButton().fire());
+		controller.getExtendSelectionMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+
 		controller.getSelectRootsMenuItem().setOnAction(e -> graph.nodeStream().filter(v -> v.getInDegree() == 0).forEach(nodeSelection::select));
 		controller.getSelectRootsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 

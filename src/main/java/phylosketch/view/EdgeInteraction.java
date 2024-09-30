@@ -20,6 +20,7 @@
 
 package phylosketch.view;
 
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -32,8 +33,8 @@ import phylosketch.paths.PathReshape;
 
 import java.util.List;
 
-import static phylosketch.paths.PathUtils.getCoordinates;
 import static phylosketch.paths.PathUtils.copy;
+import static phylosketch.paths.PathUtils.getCoordinates;
 
 /**
  * edge interaction
@@ -49,22 +50,29 @@ public class EdgeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
-	public static void setup(DrawPane view) {
+	public static void setup(DrawPane view, Runnable runDoubleClickSelection) {
 		view.getEdgesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
 					for (Node n : c.getAddedSubList()) {
 						if (n instanceof Path path && path.getUserData() instanceof jloda.graph.Edge e) {
 							path.setOnMouseClicked(me -> {
-								if (me.getClickCount() == 1 && me.isStillSincePress()) {
-									if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
-										view.getNodeSelection().clearSelection();
-										view.getEdgeSelection().clearSelection();
+								if (me.isStillSincePress()) {
+									if (me.getClickCount() == 1) {
+										if (!me.isAltDown() && PhyloSketch.isDesktop()) {
+											if (!me.isShiftDown()) {
+												view.getNodeSelection().clearSelection();
+												view.getEdgeSelection().clearSelection();
+											}
+											view.getEdgeSelection().toggleSelection(e);
+											view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
+											view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
+										}
+										me.consume();
+									} else if (me.getClickCount() == 2) {
+										Platform.runLater(runDoubleClickSelection);
+										me.consume();
 									}
-									view.getEdgeSelection().toggleSelection(e);
-									view.getNodeSelection().toggleSelection(e.getSource());
-									view.getNodeSelection().toggleSelection(e.getTarget());
-									me.consume();
 								}
 							});
 

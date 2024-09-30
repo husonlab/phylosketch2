@@ -26,7 +26,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.shape.Shape;
 import jloda.graph.Graph;
-import jloda.graph.GraphTraversals;
 import phylosketch.main.PhyloSketch;
 
 import java.util.HashSet;
@@ -43,7 +42,7 @@ public class NodeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
-	public static void setup(DrawPane view) {
+	public static void setup(DrawPane view, Runnable runDoubleClickSelection) {
 
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
@@ -53,20 +52,16 @@ public class NodeInteraction {
 							shape.setOnMouseClicked(me -> {
 								if (me.isStillSincePress()) {
 									if (me.getClickCount() == 1) {
-										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
-											view.getNodeSelection().clearSelection();
-											view.getEdgeSelection().clearSelection();
+										if (!me.isAltDown() && PhyloSketch.isDesktop()) {
+											if (!me.isShiftDown()) {
+												view.getNodeSelection().clearSelection();
+												view.getEdgeSelection().clearSelection();
+											}
+											view.getNodeSelection().toggleSelection(v);
 										}
-										view.getNodeSelection().toggleSelection(v);
 										me.consume();
 									} else if (me.getClickCount() == 2) {
-										Platform.runLater(() -> {
-											GraphTraversals.traverseReachable(v, e -> true, w -> {
-												view.getNodeSelection().select(w);
-												for (var e : w.outEdges())
-													view.getEdgeSelection().select(e);
-											});
-										});
+										Platform.runLater(runDoubleClickSelection);
 										me.consume();
 									}
 								}

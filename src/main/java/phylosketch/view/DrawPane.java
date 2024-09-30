@@ -184,11 +184,6 @@ public class DrawPane extends Pane {
 		world.getChildren().addAll(edgeIcebergsGroup, nodeIcebergsGroup, edgesGroup, nodesGroup, nodeLabelsGroup, otherGroup);
 		getChildren().add(world);
 
-		EdgeCreationInteraction.setup(this);
-		PaneInteraction.setup(this);
-		NodeInteraction.setup(this);
-		EdgeInteraction.setup(this);
-
 		getStyleClass().add("viewer-background");
 		//setStyle("-fx-background-color: lightblue;");
 

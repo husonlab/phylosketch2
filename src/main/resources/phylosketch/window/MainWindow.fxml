@@ -99,7 +99,7 @@
                                                 <Button fx:id="selectButton" mnemonicParsing="false" text="Select"
                                                         HBox.hgrow="NEVER">
                                                     <tooltip>
-                                                        <Tooltip text="Select more nodes"/>
+                                                        <Tooltip text="Extend selection"/>
                                                     </tooltip>
                                                 </Button>
                                                 <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
@@ -277,6 +277,12 @@
                                 <MenuItem fx:id="selectInvertMenuItem" text="Invert">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="extendSelectionMenuItem" text="Invert">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false" />
