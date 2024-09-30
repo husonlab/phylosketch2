@@ -51,37 +51,45 @@ public class RootedNetworkEmbedder {
 		}
 
 		if (true) {
-			try (var nodeXMap = graph.newNodeDoubleArray()) {
-				var nodes = IteratorUtils.asList(graph.nodes());
-				nodeXMap.put(graph.getRoot(), 0.0);
-				while (!nodes.isEmpty()) {
-					for (var v : nodes) {
-						var ok = true;
-						var max = 0.0;
-						for (var p : v.parents()) {
-							if (nodeXMap.containsKey(p)) {
-								max = Math.max(max, nodeXMap.get(p));
-							} else {
-								ok = false;
-								break;
-							}
-						}
-						if (ok) {
-							if (v.getInDegree() == 1) {
-								nodeXMap.put(v, nodeXMap.get(v.getParent()) + graph.getWeight(v.getFirstInEdge()));
-							} else {
-								nodeXMap.put(v, v.parentsStream(false).mapToDouble(nodeXMap::get).max().orElse(0));
-							}
-							nodes.remove(v);
-							break;
-						}
-					}
-				}
+			double reticulateOffset;
+			try (var nodeXMap = computeNodeXMap(graph, 0)) {
+				reticulateOffset = 0.1 * nodeXMap.values().stream().mapToDouble(d -> d).max().orElse(0);
+			}
+			try (var nodeXMap = computeNodeXMap(graph, reticulateOffset)) {
 				nodePointMap.replaceAll((k, v) -> new Point2D(nodeXMap.get(k), v.getY()));
 			}
 		}
-
 		return nodePointMap;
+	}
+
+	public static NodeArray<Double> computeNodeXMap(PhyloTree graph, double reticulateOffset) {
+		var nodeXMap = graph.newNodeDoubleArray();
+		var nodes = IteratorUtils.asList(graph.nodes());
+		nodeXMap.put(graph.getRoot(), 0.0);
+		while (!nodes.isEmpty()) {
+			for (var v : nodes) {
+				var ok = true;
+				var max = 0.0;
+				for (var p : v.parents()) {
+					if (nodeXMap.containsKey(p)) {
+						max = Math.max(max, nodeXMap.get(p));
+					} else {
+						ok = false;
+						break;
+					}
+				}
+				if (ok) {
+					if (v.getInDegree() == 1) {
+						nodeXMap.put(v, nodeXMap.get(v.getParent()) + graph.getWeight(v.getFirstInEdge()));
+					} else {
+						nodeXMap.put(v, reticulateOffset + v.parentsStream(false).mapToDouble(nodeXMap::get).max().orElse(0));
+					}
+					nodes.remove(v);
+					break;
+				}
+			}
+		}
+		return nodeXMap;
 	}
 
 	/**
