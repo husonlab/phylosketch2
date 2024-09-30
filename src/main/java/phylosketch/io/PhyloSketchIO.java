@@ -58,7 +58,7 @@ public class PhyloSketchIO {
 	public static void save(Writer w, DrawPane drawPane) throws IOException {
 		var graph = drawPane.getGraph();
 		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_color", "label_dx", "label_dy");
-		var edgeKeyNames = List.of("path", "stroke", "stroke_width");
+		var edgeKeyNames = List.of("path", "stroke", "stroke_width", "weight", "confidence", "probability");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
 				nodeKeyNames, (key, v) -> {
@@ -119,6 +119,12 @@ public class PhyloSketchIO {
 								 && !(!MainWindowManager.isUseDarkTheme() && path.getStroke() == Color.BLACK)
 								 && !(MainWindowManager.isUseDarkTheme() && path.getStroke()==Color.WHITE))? path.getStroke():"";
 						case "stroke_width" -> path.getStrokeWidth()!=1?path.getStrokeWidth():"";
+						case "weight" ->
+								graph.hasEdgeWeights() && e.getTarget().getInDegree() <= 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getWeight(e)) : "";
+						case "confidence" ->
+								graph.hasEdgeConfidences() ? StringUtils.removeTrailingZerosAfterDot(graph.getConfidence(e)) : "";
+						case "probability" ->
+								graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getProbability(e)) : "";
 						default -> "";
 					});
 					return (value.isBlank() ? null : value);
@@ -228,8 +234,21 @@ public class PhyloSketchIO {
 						path.setStrokeWidth(NumberUtils.parseDouble(value));
 					}
 				}
+				case "weight" -> {
+					if (NumberUtils.isDouble(value))
+						graph.setWeight(e, NumberUtils.parseDouble(value));
+				}
+				case "confidence" -> {
+					if (NumberUtils.isDouble(value))
+						graph.setConfidence(e, NumberUtils.parseDouble(value));
+				}
+				case "probability" -> {
+					if (NumberUtils.isDouble(value))
+						graph.setProbability(e, NumberUtils.parseDouble(value));
+				}
 			}
 		});
+
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
 			if(!(v.getData() instanceof Shape)) {
