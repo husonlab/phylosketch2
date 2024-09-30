@@ -1,4 +1,4 @@
-module catrenet {
+module phylosketch {
 	requires com.install4j.runtime;
 
 	requires transitive jloda_core;

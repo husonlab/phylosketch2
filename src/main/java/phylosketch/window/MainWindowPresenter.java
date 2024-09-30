@@ -107,10 +107,10 @@ public class MainWindowPresenter {
 				controller.getEditModeToggleButton().setTooltip(new Tooltip("Edit mode on, allows interactive creation of new nodes and edges"));
 			} else if (n == DrawPane.Mode.Move) {
 				controller.getEditModeToggleButton().setSelected(true);
-				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.vertical_align_bottom);
+				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.transform);
 				controller.getEditModeCheckMenuItem().setSelected(false);
 				controller.getMoveModeCheckMenuItem().setSelected(true);
-				controller.getEditModeToggleButton().setTooltip(new Tooltip("Move mode on, allows interactive relocation of nodes and reshaping of edges"));
+				controller.getEditModeToggleButton().setTooltip(new Tooltip("Transform mode on, allows interactive relocation of nodes and reshaping of edges"));
 			} else {
 				controller.getEditModeToggleButton().setSelected(false);
 				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.edit_off);

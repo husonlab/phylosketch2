@@ -22,6 +22,7 @@ package phylosketch.embed;
 import javafx.geometry.Point2D;
 import jloda.graph.*;
 import jloda.phylo.PhyloTree;
+import jloda.util.IteratorUtils;
 import jloda.util.NumberUtils;
 
 import java.util.*;
@@ -48,6 +49,38 @@ public class RootedNetworkEmbedder {
 				computeCoordinatesCladogramRec(graph.getRoot(), node2LSAChildren, yCoord, maxLevel, levels, nodePointMap);
 			}
 		}
+
+		if (true) {
+			try (var nodeXMap = graph.newNodeDoubleArray()) {
+				var nodes = IteratorUtils.asList(graph.nodes());
+				nodeXMap.put(graph.getRoot(), 0.0);
+				while (!nodes.isEmpty()) {
+					for (var v : nodes) {
+						var ok = true;
+						var max = 0.0;
+						for (var p : v.parents()) {
+							if (nodeXMap.containsKey(p)) {
+								max = Math.max(max, nodeXMap.get(p));
+							} else {
+								ok = false;
+								break;
+							}
+						}
+						if (ok) {
+							if (v.getInDegree() == 1) {
+								nodeXMap.put(v, nodeXMap.get(v.getParent()) + graph.getWeight(v.getFirstInEdge()));
+							} else {
+								nodeXMap.put(v, v.parentsStream(false).mapToDouble(nodeXMap::get).max().orElse(0));
+							}
+							nodes.remove(v);
+							break;
+						}
+					}
+				}
+				nodePointMap.replaceAll((k, v) -> new Point2D(nodeXMap.get(k), v.getY()));
+			}
+		}
+
 		return nodePointMap;
 	}
 
@@ -165,7 +198,7 @@ public class RootedNetworkEmbedder {
 	/**
 	 * fix spacing so that space between any two true leaves is 1
 	 */
-	private static void fixSpacing(List<Node> leafOrder, NodeDoubleArray yCoord) {
+	public static void fixSpacing(List<Node> leafOrder, NodeDoubleArray yCoord) {
 		final Node[] nodes = leafOrder.toArray(new Node[0]);
 		double leafPos = 0;
 		for (int lastLeaf = -1; lastLeaf < nodes.length; ) {
