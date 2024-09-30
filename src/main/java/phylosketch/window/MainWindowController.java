@@ -197,6 +197,9 @@ public class MainWindowController {
 	private MenuItem selectInvertMenuItem;
 
 	@FXML
+	private MenuItem extendSelectionMenuItem;
+
+	@FXML
 	private MenuItem selectNoneMenuItem;
 
 	@FXML
@@ -763,6 +766,10 @@ public class MainWindowController {
 
 	public MenuItem getSelectInvertMenuItem() {
 		return selectInvertMenuItem;
+	}
+
+	public MenuItem getExtendSelectionMenuItem() {
+		return extendSelectionMenuItem;
 	}
 
 	public Button getSelectButton() {
