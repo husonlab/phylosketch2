@@ -266,6 +266,16 @@ public class MainWindowController {
 	@FXML
 	private MenuItem clearLabelsMenuItem;
 
+
+	@FXML
+	private CheckMenuItem labelEdgeByWeightsMenuItem;
+
+	@FXML
+	private CheckMenuItem labelEdgeByConfidenceMenuItem;
+
+	@FXML
+	private CheckMenuItem labelEdgeByProbabilityMenuItem;
+
 	@FXML
 	private VBox topVBox;
 
@@ -818,5 +828,17 @@ public class MainWindowController {
 
 	public MenuItem getRemoveThruNodesMenuItem() {
 		return removeThruNodesMenuItem;
+	}
+
+	public CheckMenuItem getLabelEdgeByWeightsMenuItem() {
+		return labelEdgeByWeightsMenuItem;
+	}
+
+	public CheckMenuItem getLabelEdgeByConfidenceMenuItem() {
+		return labelEdgeByConfidenceMenuItem;
+	}
+
+	public CheckMenuItem getLabelEdgeByProbabilityMenuItem() {
+		return labelEdgeByProbabilityMenuItem;
 	}
 }

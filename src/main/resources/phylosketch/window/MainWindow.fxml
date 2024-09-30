@@ -343,7 +343,7 @@
                             <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..." />
                         <MenuItem fx:id="labelLeaves123MenuItem" text="Label Leaves t1,t2,t3..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="labelLeavesMenuItem" text="Label Leaves...">
+                            <MenuItem fx:id="labelLeavesMenuItem" text="Label All Leaves...">
                             <accelerator>
                                 <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
                             </accelerator>
@@ -352,7 +352,12 @@
                         <MenuItem fx:id="labelInternalABCMenuItem" text="Label Internal Nodes A,B,C..." />
                         <MenuItem fx:id="labelInternal123MenuItem" text="Label Internal Nodes t1,t2,t3..." />
                             <SeparatorMenuItem mnemonicParsing="false" />
-                            <MenuItem fx:id="clearLabelsMenuItem" text="Clear Labels" />
+                            <MenuItem fx:id="clearLabelsMenuItem" text="Clear Node Labels"/>
+                            <SeparatorMenuItem mnemonicParsing="false"/>
+                            <CheckMenuItem fx:id="labelEdgeByWeightsMenuItem" text="Edge Weight"/>
+                            <CheckMenuItem fx:id="labelEdgeByConfidenceMenuItem" text="Edge Confidence"/>
+                            <CheckMenuItem fx:id="labelEdgeByProbabilityMenuItem" text="Edge Probability"/>
+
                         </Menu>
 
                         <Menu fx:id="layoutMenu" mnemonicParsing="false" text="Layout">
