@@ -25,6 +25,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import jloda.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,5 +89,29 @@ public class PathUtils {
 		if (normalize)
 			path.getElements().setAll(PathNormalize.apply(path, 2, 5));
 		return path;
+	}
+
+	public static Point2D getMiddle(Path path) {
+		var points = extractPoints(path);
+		var first = points.get(0);
+		var last = points.get(points.size() - 1);
+		var best = 0;
+		var bestDistance = 0.0;
+		for (int i = 1; i < points.size() - 1; i++) {
+			var point = points.get(i);
+			var d = Math.min(point.distance(first), point.distance(last));
+			if (d > bestDistance) {
+				bestDistance = d;
+				best = i;
+			}
+		}
+		return points.get(best);
+	}
+
+
+	public static void reverse(Path path) {
+		var points = extractPoints(path);
+		points = CollectionUtils.reverse(points);
+		path.getElements().setAll(createPath(points, false).getElements());
 	}
 }

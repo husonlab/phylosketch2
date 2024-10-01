@@ -27,6 +27,7 @@ import phylosketch.window.MainWindowController;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Stack;
 
 /**
  * setup selection menu items
@@ -53,7 +54,7 @@ public class SetupSelection {
 				}
 			}
 
-			if(nodeSelection.size()<graph.getNumberOfNodes() || edgeSelection.size()<graph.getNumberOfEdges()) {
+			if (nodeSelection.size() < graph.getNumberOfNodes() || edgeSelection.size() < graph.getNumberOfEdges()) {
 				graph.nodes().forEach(nodeSelection::select);
 				graph.edges().forEach(edgeSelection::select);
 			} else {
@@ -139,6 +140,30 @@ public class SetupSelection {
 			}
 		});
 		controller.getSelectAllBelowMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
+
+		controller.getSelectPossibleRootLocationsMenuItem().setOnAction(a -> {
+			view.getEdgeSelection().clearSelection();
+			view.getNodeSelection().clearSelection();
+			var stack = new Stack<Node>();
+			for (var v : graph.nodes()) {
+				if (v.getInDegree() == 0) {
+					stack.push(v);
+					while (!stack.isEmpty()) {
+						v = stack.pop();
+						for (var e : v.outEdges()) {
+							var w = e.getTarget();
+							if (w.getInDegree() == 1) {
+								if (!nodeSelection.isSelected(w)) {
+									view.getEdgeSelection().select(e);
+									view.getNodeSelection().select(w);
+									stack.push(w);
+								}
+							}
+						}
+					}
+				}
+			}
+		});
 
 		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
 		controller.getSelectLowestStableAncestorMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));

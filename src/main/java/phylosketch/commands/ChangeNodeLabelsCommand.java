@@ -33,11 +33,13 @@ public class ChangeNodeLabelsCommand extends UndoableRedoableCommand {
     private final Runnable undo;
     private final Runnable redo;
 
-    public ChangeNodeLabelsCommand(DrawPane drawPane, List<Data> dataList) {
+	public ChangeNodeLabelsCommand(DrawPane view, List<Data> dataList) {
         super("Label");
 
-        undo = () -> dataList.forEach(data -> drawPane.setLabel(data.getNodeId(),data.getOldLabel()));
-        redo = () -> dataList.forEach(data ->drawPane.setLabel(data.getNodeId(),data.getNewLabel()));
+		var graph = view.getGraph();
+
+		undo = () -> dataList.forEach(data -> view.setLabel(graph.findNodeById(data.getNodeId()), data.getOldLabel()));
+		redo = () -> dataList.forEach(data -> view.setLabel(graph.findNodeById(data.getNodeId()), data.getNewLabel()));
     }
 
     @Override

@@ -19,9 +19,10 @@
 
 package phylosketch.view;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.WeakInvalidationListener;
 import javafx.beans.property.*;
-import javafx.collections.ListChangeListener;
-import javafx.collections.SetChangeListener;
+import javafx.collections.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.effect.BlurType;
@@ -37,6 +38,7 @@ import jloda.fx.graph.GraphFX;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
+import jloda.fx.util.BasicFX;
 import jloda.fx.util.Icebergs;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.SelectionEffect;
@@ -46,11 +48,15 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.graph.algorithms.IsDAG;
+import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
 import phylosketch.main.PhyloSketch;
+import phylosketch.paths.PathUtils;
 import phylosketch.window.MouseSelection;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -60,6 +66,7 @@ import java.util.*;
  */
 public class DrawPane extends Pane {
 	public enum Mode {View, Move, Edit}
+
 	private final PhyloTree graph;
 	private final GraphFX<PhyloTree> graphFX;
 
@@ -69,21 +76,29 @@ public class DrawPane extends Pane {
 	private final Group edgeIcebergsGroup = new Group();
 	private final Group nodeIcebergsGroup = new Group();
 	private final Group edgesGroup = new Group();
+	private final Group arrowHeadsGroup = new Group();
 	private final Group nodesGroup = new Group();
+	private final Group edgeLabelsGroup = new Group();
 	private final Group nodeLabelsGroup = new Group();
+	private final Group outlinesGroup = new Group();
 	private final Group otherGroup = new Group();
 	private final Group world = new Group();
 
 	private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(this, "mode", Mode.View);
 	private final BooleanProperty movable = new SimpleBooleanProperty(this, "movable");
 
-	private final BooleanProperty arrowHeads=new SimpleBooleanProperty(this,"arrowHeads",false);
+	private final ObservableMap<Edge, Shape> edgeArrowMap = FXCollections.observableHashMap();
 
-	private final BooleanProperty outlineEdges =new SimpleBooleanProperty(this,"fatEdges",false);
+	private final ObservableMap<Edge, Path> edgeOutlineMap = FXCollections.observableHashMap();
+	private final BooleanProperty showOutlines = new SimpleBooleanProperty(this, "showOutlines", false);
 
 	private final DoubleProperty tolerance = new SimpleDoubleProperty(this, "tolerance", 5);
 
 	private final BooleanProperty valid = new SimpleBooleanProperty(this, "isValidNetwork", false);
+
+	private final BooleanProperty showWeight = new SimpleBooleanProperty(this, "showWeight", false);
+	private final BooleanProperty showConfidence = new SimpleBooleanProperty(this, "showConfidence", false);
+	private final BooleanProperty showProbability = new SimpleBooleanProperty(this, "showProbability", false);
 
 	private final UndoManager undoManager = new UndoManager();
 
@@ -102,6 +117,30 @@ public class DrawPane extends Pane {
 
 		nodesGroup.getChildren().addListener(createIcebergListener(shapeIcebergMap, nodeIcebergsGroup));
 		edgesGroup.getChildren().addListener(createIcebergListener(shapeIcebergMap, edgeIcebergsGroup));
+		edgesGroup.getChildren().addListener((ListChangeListener<? super javafx.scene.Node>) a -> {
+			if (showOutlines.get()) {
+				while (a.next()) {
+					if (a.wasAdded()) {
+						var edges = a.getAddedSubList().stream().map(p -> (Edge) p.getUserData()).filter(Objects::nonNull).toList();
+						showOutlines(edges, true);
+
+					}
+					if (a.wasRemoved()) {
+						var edges = a.getRemoved().stream().map(p -> (Edge) p.getUserData()).filter(Objects::nonNull).toList();
+						showOutlines(edges, false);
+					}
+				}
+			}
+		});
+
+		outlinesGroup.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, MainWindowManager.isUseDarkTheme() ? Color.WHITE : Color.BLACK, 0.5, 0.5, 0.0, 0.0));
+		MainWindowManager.useDarkThemeProperty().addListener((v, o, n) -> {
+			outlinesGroup.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, n ? Color.WHITE : Color.BLACK, 0.5, 0.5, 0.0, 0.0));
+			for (var shape : BasicFX.getAllRecursively(outlinesGroup, Path.class)) {
+				shape.setStroke(n ? Color.WHITE : Color.BLACK);
+			}
+		});
+
 
 		graph = new PhyloTree();
 		graphFX = new GraphFX<>(graph);
@@ -172,55 +211,43 @@ public class DrawPane extends Pane {
 		edgeSelection.getSelectedItems().addListener((SetChangeListener<? super Edge>) e -> {
 			if (e.wasAdded()) {
 				var edge = e.getElementAdded();
-				if (edge.getOwner() != null && edge.getData() instanceof Shape shape)
+				if (edge.getOwner() != null && edge.getData() instanceof Shape shape) {
 					shape.setEffect(SelectionEffect.create(Color.GOLD));
+				}
+				edgeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == edge.getId()).forEach(label -> label.setEffect(SelectionEffect.create(Color.GOLD)));
 			} else if (e.wasRemoved()) {
 				var edge = e.getElementRemoved();
-				if (edge.getOwner() != null && edge.getData() instanceof Shape shape)
+				if (edge.getOwner() != null && edge.getData() instanceof Shape shape) {
 					shape.setEffect(null);
+				}
+				edgeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == edge.getId()).forEach(label -> label.setEffect(null));
 			}
 		});
 
-		world.getChildren().addAll(edgeIcebergsGroup, nodeIcebergsGroup, edgesGroup, nodesGroup, nodeLabelsGroup, otherGroup);
+		world.getChildren().addAll(edgeIcebergsGroup, nodeIcebergsGroup, edgesGroup, arrowHeadsGroup, nodesGroup, edgeLabelsGroup, nodeLabelsGroup, outlinesGroup, otherGroup);
 		getChildren().add(world);
 
 		getStyleClass().add("viewer-background");
 		//setStyle("-fx-background-color: lightblue;");
 
-		if (true)
-
-		outlineEdges.addListener((v, o, n)->{
-			if(!n){
-				nodesGroup.setVisible(true);
-				for (var item : edgesGroup.getChildren()) {
-					if (item instanceof Path path) {
-						path.setStroke(null);
-						path.setStrokeWidth(1);
-						path.setStrokeLineCap(StrokeLineCap.ROUND);
-						path.getStyleClass().add("graph-edge");
-					}
-				}
-				edgesGroup.setEffect(null);
-			}
-			else {
-				nodesGroup.setVisible(false);
-				for (var item : edgesGroup.getChildren()) {
-					if (item instanceof Path path) {
-						if (item.getUserData() instanceof Edge e) {
-							if (e.getSource().getDegree() == 1 || e.getTarget().getDegree() == 1)
-								path.setStrokeLineCap(StrokeLineCap.SQUARE);
-							else
-								path.setStrokeLineCap(StrokeLineCap.ROUND);
-						}
-						path.setStrokeWidth(30);
-						path.setStroke(MainWindowManager.isUseDarkTheme()?Color.BLACK:Color.WHITE);
-					}
-				}
-				edgesGroup.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, MainWindowManager.isUseDarkTheme()?Color.WHITE:Color.BLACK, 0.5, 0.5, 0.0, 0.0));
+		edgeArrowMap.addListener((MapChangeListener<Edge, Shape>) a -> {
+			if (a.wasAdded()) {
+				arrowHeadsGroup.getChildren().add(a.getValueAdded());
+			} else if (a.wasRemoved()) {
+				arrowHeadsGroup.getChildren().remove(a.getValueRemoved());
 			}
 		});
-	}
 
+		edgeOutlineMap.addListener((MapChangeListener<Edge, Shape>) a -> {
+			if (a.wasAdded()) {
+				outlinesGroup.getChildren().add(a.getValueAdded());
+			} else if (a.wasRemoved()) {
+				outlinesGroup.getChildren().remove(a.getValueRemoved());
+			}
+		});
+
+		showOutlines.addListener((v, o, n) -> showOutlines(graph.getEdgesAsList(), n));
+	}
 
 	public void clear() {
 		graph.clear();
@@ -231,31 +258,28 @@ public class DrawPane extends Pane {
 		undoManager.clear();
 	}
 
-	public String toBracketString(boolean showWeights) {
-		var buf = new StringBuilder();
+	public String toBracketString() {
+		var newickIO = new NewickIO();
+		var outputFormat = new NewickIO.OutputFormat(graph.hasEdgeWeights(), false, graph.hasEdgeConfidences(), graph.hasEdgeProbabilities(), false);
+
+		var w = new StringWriter();
 		for (var tree : extractAllTrees(graph)) {
 			if (nodeSelection.size() == 0 || tree.nodeStream().map(v -> (Shape) v.getData()).map(s -> (Node) s.getUserData()).anyMatch(nodeSelection::isSelected)) {
 				var root = tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny();
 				if (root.isPresent()) {
 					tree.setRoot(root.get());
 					tree.edgeStream().forEach(f -> {
-						var weight = 0.0;
-						var reticulate = (f.getTarget().getInDegree() > 1);
-						if (!reticulate) {
-							if (showWeights) {
-								var aPt = new Point2D(DrawPane.getX(f.getSource()), DrawPane.getY(f.getSource()));
-								var bPt = new Point2D(DrawPane.getX(f.getTarget()), DrawPane.getY(f.getTarget()));
-								weight = ((int) aPt.distance(bPt)) / 100.0;
-							} else weight = 1.0;
-						}
-						tree.setWeight(f, weight);
-						tree.setReticulate(f, reticulate);
+						tree.setReticulate(f, f.getTarget().getInDegree() > 1);
 					});
-					buf.append(tree.toBracketString(showWeights)).append(";\n");
+					try {
+						newickIO.write(tree, w, outputFormat);
+						w.write(";\n");
+					} catch (IOException ignored) {
+					}
 				}
 			}
 		}
-		return buf.toString();
+		return w.toString();
 	}
 
 	public List<PhyloTree> extractAllTrees(PhyloTree graph) {
@@ -304,6 +328,10 @@ public class DrawPane extends Pane {
 
 	public Group getNodeLabelsGroup() {
 		return nodeLabelsGroup;
+	}
+
+	public Group getEdgeLabelsGroup() {
+		return edgeLabelsGroup;
 	}
 
 	public Group getOtherGroup() {
@@ -391,6 +419,7 @@ public class DrawPane extends Pane {
 	public void deleteEdge(Edge... edges) {
 		for (var e : edges) {
 			if (e.getOwner() != null) {
+				edgeArrowMap.remove(e);
 				edgeSelection.getSelectedItems().remove(e);
 				if (e.getData() instanceof Path p)
 					edgesGroup.getChildren().remove(p);
@@ -427,7 +456,7 @@ public class DrawPane extends Pane {
 				label.setLayoutY(+5);
 			}
 			case Right -> {
-				label.setLayoutX(label.getWidth()+10);
+				label.setLayoutX(label.getWidth() + 10);
 				label.setLayoutY(-5);
 			}
 			default /*case Left */ -> {
@@ -435,6 +464,33 @@ public class DrawPane extends Pane {
 				label.setLayoutY(-5);
 			}
 		}
+		LabelUtils.makeDraggable(label, movable, this);
+		return label;
+	}
+
+	public RichTextLabel createLabel(Edge e, String text) {
+		var path = (Path) e.getData();
+		graph.setLabel(e, RichTextLabel.getRawText(text));
+		var label = new RichTextLabel(text);
+		e.setInfo(label);
+		label.setUserData(e.getId());
+		InvalidationListener listener = a -> {
+			var middle = PathUtils.getMiddle(path);
+			label.setTranslateX(middle.getX());
+			label.setTranslateY(middle.getY());
+		};
+		path.getElements().addListener(listener);
+		listener.invalidated(null);
+		edgeLabelsGroup.getChildren().add(label);
+		label.applyCss();
+
+		label.setOnMouseClicked(a -> {
+			if (!a.isShiftDown() && PhyloSketch.isDesktop()) {
+				getNodeSelection().clearSelection();
+				getEdgeSelection().clearSelection();
+			}
+			getEdgeSelection().toggleSelection(e);
+		});
 		LabelUtils.makeDraggable(label, movable, this);
 		return label;
 	}
@@ -494,38 +550,31 @@ public class DrawPane extends Pane {
 		} else return 0;
 	}
 
+	public RichTextLabel getLabel(Edge e) {
+		if (e.getInfo() instanceof RichTextLabel richTextLabel)
+			return richTextLabel;
+		else
+			return createLabel(e, "");
+	}
+
 	public Point2D getPoint(Node v) {
 		if (v.getData() instanceof Shape shape) {
 			return new Point2D(shape.getTranslateX(), shape.getTranslateY());
 		} else return null;
 	}
 
-	public void setLabel(int nodeId, String text) {
-		var v = graph.findNodeById(nodeId);
+	public void setLabel(Node v, String text) {
 		if (v != null) {
 			getLabel(v).setText(text);
 			graph.setLabel(v, RichTextLabel.getRawText(text));
 		}
 	}
 
-	public boolean getOutlineEdges() {
-		return outlineEdges.get();
-	}
-
-	public BooleanProperty outlineEdgesProperty() {
-		return outlineEdges;
-	}
-
-	public void setOutlineEdges(boolean outlineEdges) {
-		this.outlineEdges.set(outlineEdges);
-	}
-
-	public boolean isArrowHeads() {
-		return arrowHeads.get();
-	}
-
-	public BooleanProperty arrowHeadsProperty() {
-		return arrowHeads;
+	public void setLabel(Edge e, String text) {
+		if (e != null) {
+			getLabel(e).setText(text);
+			graph.setLabel(e, RichTextLabel.getRawText(text));
+		}
 	}
 
 	public Mode getMode() {
@@ -538,5 +587,73 @@ public class DrawPane extends Pane {
 
 	public void setMode(Mode mode) {
 		this.mode.set(mode);
+	}
+
+	public boolean isShowWeight() {
+		return showWeight.get();
+	}
+
+	public BooleanProperty showWeightProperty() {
+		return showWeight;
+	}
+
+	public boolean isShowConfidence() {
+		return showConfidence.get();
+	}
+
+	public BooleanProperty showConfidenceProperty() {
+		return showConfidence;
+	}
+
+	public boolean isShowProbability() {
+		return showProbability.get();
+	}
+
+	public BooleanProperty showProbabilityProperty() {
+		return showProbability;
+	}
+
+	public ObservableMap<Edge, Shape> getEdgeArrowMap() {
+		return edgeArrowMap;
+	}
+
+	private void showOutlines(Collection<Edge> edges, boolean show) {
+		if (!show) {
+			edgeOutlineMap.clear();
+		} else {
+			for (var e : edges) {
+				if (!edgeOutlineMap.containsKey(e)) {
+					if (e.getData() instanceof Path path) {
+						var outline = PathUtils.createPath(PathUtils.extractPoints(path), false);
+						outline.getStyleClass().remove("graph-edge");
+						if (e.getSource().getInDegree() == 0 || e.getTarget().getOutDegree() == 0)
+							outline.setStrokeLineCap(StrokeLineCap.SQUARE);
+						else
+							outline.setStrokeLineCap(StrokeLineCap.ROUND);
+
+						outline.setStrokeWidth(30);
+
+						outline.setStroke(MainWindowManager.isUseDarkTheme() ? Color.BLACK : Color.WHITE);
+						outline.setFill(Color.TRANSPARENT);
+						edgeOutlineMap.put(e, outline);
+						InvalidationListener listener = a -> {
+							outline.getElements().setAll(PathUtils.copy(path.getElements()));
+						};
+						outline.setUserData(listener); // keep a reference
+						path.getElements().addListener(new WeakInvalidationListener(listener));
+						((Shape) e.getSource().getData()).translateXProperty().addListener(new WeakInvalidationListener(listener));
+						((Shape) e.getTarget().getData()).translateXProperty().addListener(new WeakInvalidationListener(listener));
+					}
+				}
+			}
+		}
+	}
+
+	public boolean isShowOutlines() {
+		return showOutlines.get();
+	}
+
+	public BooleanProperty showOutlinesProperty() {
+		return showOutlines;
 	}
 }

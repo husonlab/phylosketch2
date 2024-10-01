@@ -36,6 +36,7 @@ import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.StatementFilter;
 import jloda.fx.window.IMainWindow;
 import jloda.fx.window.MainWindowManager;
+import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
 import phylosketch.io.FileOpener;
 import phylosketch.io.PhyloSketchFileFilter;
@@ -70,6 +71,10 @@ public class MainWindow implements IMainWindow {
     private final StringProperty name = new SimpleStringProperty(this, "name", "Untitled");
 
     private final DrawPane drawPane = new DrawPane();
+
+    static {
+        PhyloTree.SUPPORT_RICH_NEWICK = true;
+    }
 
     /**
      * constructor

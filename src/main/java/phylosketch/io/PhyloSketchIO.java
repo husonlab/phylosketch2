@@ -19,22 +19,25 @@
 
 package phylosketch.io;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.util.ColorUtilsFX;
 import jloda.fx.window.MainWindowManager;
+import jloda.graph.Edge;
 import jloda.graph.io.GraphGML;
 import jloda.util.Basic;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
-import phylosketch.paths.DrawUtils;
+import phylosketch.commands.ShowArrowsCommand;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -52,13 +55,13 @@ public class PhyloSketchIO {
 	/**
 	 * save the phylo sketch in GML format
 	 * @param w writer
-	 * @param drawPane the draw pane
+	 * @param view the draw pane
 	 * @throws IOException  something went wrong
 	 */
-	public static void save(Writer w, DrawPane drawPane) throws IOException {
-		var graph = drawPane.getGraph();
+	public static void save(Writer w, DrawPane view) throws IOException {
+		var graph = view.getGraph();
 		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_color", "label_dx", "label_dy");
-		var edgeKeyNames = List.of("path", "stroke", "stroke_width", "weight", "confidence", "probability");
+		var edgeKeyNames = List.of("path", "stroke", "stroke_width", "weight", "confidence", "probability", "arrow");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
 				nodeKeyNames, (key, v) -> {
@@ -105,15 +108,7 @@ public class PhyloSketchIO {
 				}, edgeKeyNames, (key, e) -> {
 					var path = (Path) e.getData();
 					var value = String.valueOf(switch (key) {
-						case "path" -> {
-							if(drawPane.isArrowHeads()) {
-								var other=stringToPath(pathToString(path));
-								DrawUtils.removeArrowHead(other);
-								yield pathToString(other);
-							}
-							else
-								yield pathToString(path);
-						}
+						case "path" -> pathToString(path);
 						case "stroke" ->
 								(path.getStroke()!=null
 								 && !(!MainWindowManager.isUseDarkTheme() && path.getStroke() == Color.BLACK)
@@ -125,6 +120,7 @@ public class PhyloSketchIO {
 								graph.hasEdgeConfidences() ? StringUtils.removeTrailingZerosAfterDot(graph.getConfidence(e)) : "";
 						case "probability" ->
 								graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getProbability(e)) : "";
+						case "arrow" -> view.getEdgeArrowMap().containsKey(e) ? "1" : "";
 						default -> "";
 					});
 					return (value.isBlank() ? null : value);
@@ -147,12 +143,13 @@ public class PhyloSketchIO {
 	/**
 	 * load a a phylo-sketch, previously saved in GML format
 	 * @param r reader
-	 * @param drawPane the draw pane
+	 * @param view the draw pane
 	 * @throws IOException something went wrong
 	 */
-	public static void load(Reader r, DrawPane drawPane) throws IOException {
-		drawPane.clear();
-		var graph = drawPane.getGraph();
+	public static void load(Reader r, DrawPane view) throws IOException {
+		view.clear();
+		var graph = view.getGraph();
+		var arrowEdges = new HashSet<Edge>();
 
 		var gmlInfo=GraphGML.readGML(r, graph, (key, v, value) -> {
 			switch (key) {
@@ -161,7 +158,7 @@ public class PhyloSketchIO {
 				}
 				case "shape" -> {
 					var shape = value.equals("square") ? new Rectangle(3, 3) : new Circle(3);
-					drawPane.addShape(v,shape);
+					view.addShape(v, shape);
 				}
 				case "size" -> {
 					if (v.getData() instanceof Shape shape) {
@@ -200,7 +197,7 @@ public class PhyloSketchIO {
 						shape.setTranslateY(NumberUtils.parseDouble(value));
 					}
 				}
-				case "label" -> drawPane.createLabel(v, value);
+				case "label" -> view.createLabel(v, value);
 				case "label_stroke" -> {
 					if (v.getInfo() instanceof RichTextLabel label && ColorUtilsFX.isColor(value)) {
 						label.setTextFill(ColorUtilsFX.parseColor(value));
@@ -222,7 +219,7 @@ public class PhyloSketchIO {
 				case "path" -> {
 					var path = stringToPath(value);
 					path.getStyleClass().add("graph-edge");
-					drawPane.addPath(e, path);
+					view.addPath(e, path);
 				}
 				case "stroke" -> {
 					if (e.getData() instanceof Path path && ColorUtilsFX.isColor(value)) {
@@ -246,13 +243,18 @@ public class PhyloSketchIO {
 					if (NumberUtils.isDouble(value))
 						graph.setProbability(e, NumberUtils.parseDouble(value));
 				}
+				case "arrow" -> {
+					if (value.equals("1"))
+						arrowEdges.add(e);
+
+				}
 			}
 		});
 
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
 			if(!(v.getData() instanceof Shape)) {
-				drawPane.addShape(v,new Circle(3));
+				view.addShape(v, new Circle(3));
 			}
 		}
 		// create paths for any edges for which path not given
@@ -261,13 +263,16 @@ public class PhyloSketchIO {
 				var a=new Point2D(((Shape)e.getSource().getData()).getTranslateX(), ((Shape)e.getSource().getData()).getTranslateY());
 				var b=new Point2D(((Shape)e.getTarget().getData()).getTranslateX(), ((Shape)e.getTarget().getData()).getTranslateY());
 				var path = PathUtils.createPath(List.of(a, b), true);
-				drawPane.addPath(e,path);
+				view.addPath(e, path);
 			}
 		}
 		if(gmlInfo.comment()!=null) {
 			System.err.println(gmlInfo.comment());
 		}
 		graph.setName(gmlInfo.label());
+		if (!arrowEdges.isEmpty()) {
+			Platform.runLater(() -> ShowArrowsCommand.showArrows(view, arrowEdges, true));
+		}
 	}
 
 

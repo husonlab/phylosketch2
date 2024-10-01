@@ -65,8 +65,10 @@ public class EdgeInteraction {
 												view.getEdgeSelection().clearSelection();
 											}
 											view.getEdgeSelection().toggleSelection(e);
-											view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
-											view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
+											if (!me.isControlDown()) {
+												view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
+												view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
+											}
 										}
 										me.consume();
 									} else if (me.getClickCount() == 2) {
