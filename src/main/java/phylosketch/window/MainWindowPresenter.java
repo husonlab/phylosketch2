@@ -19,7 +19,6 @@
 
 package phylosketch.window;
 
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -30,10 +29,12 @@ import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.control.CopyableLabel;
 import jloda.fx.control.RichTextLabel;
@@ -44,13 +45,13 @@ import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.WindowGeometry;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
+import jloda.util.NumberUtils;
 import phylosketch.commands.*;
 import phylosketch.io.ExportNewick;
 import phylosketch.io.PhyloSketchIO;
 import phylosketch.io.Save;
 import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.NewWindow;
-import phylosketch.paths.DrawUtils;
 import phylosketch.view.*;
 
 import java.io.IOException;
@@ -76,7 +77,19 @@ public class MainWindowPresenter {
 		NodeInteraction.setup(view, () -> controller.getSelectButton().fire());
 		EdgeInteraction.setup(view, () -> controller.getSelectButton().fire());
 
+		controller.getLabelEdgeByWeightsMenuItem().selectedProperty().bindBidirectional(view.showWeightProperty());
+		controller.getLabelEdgeByConfidenceMenuItem().selectedProperty().bindBidirectional(view.showConfidenceProperty());
+		controller.getLabelEdgeByProbabilityMenuItem().selectedProperty().bindBidirectional(view.showProbabilityProperty());
 
+		controller.getLabelEdgeByWeightsMenuItem().selectedProperty().addListener(e ->
+				undoManager.doAndAdd(new ShowEdgeValueCommand(view, view.isShowWeight(), view.isShowConfidence(), view.isShowProbability())));
+		controller.getLabelEdgeByWeightsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getLabelEdgeByConfidenceMenuItem().selectedProperty().addListener(e ->
+				undoManager.doAndAdd(new ShowEdgeValueCommand(view, view.isShowWeight(), view.isShowConfidence(), view.isShowProbability())));
+		controller.getLabelEdgeByConfidenceMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getLabelEdgeByProbabilityMenuItem().selectedProperty().addListener(e ->
+				undoManager.doAndAdd(new ShowEdgeValueCommand(view, view.isShowWeight(), view.isShowConfidence(), view.isShowProbability())));
+		controller.getLabelEdgeByProbabilityMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> {
 			window.dirtyProperty().set(n.intValue() > 0);
@@ -101,6 +114,10 @@ public class MainWindowPresenter {
 			view.getUndoManager().doAndAdd(new PasteCommand(view));
 			allowResize.set(true);
 		});
+		controller.getPasteMenuItem().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
+
+		controller.getImportButton().setOnAction(e -> openString(ClipboardUtils.getTextFilesContentOrString()));
+		controller.getImportButton().disableProperty().bind(controller.getPasteMenuItem().disableProperty());
 
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
@@ -151,16 +168,6 @@ public class MainWindowPresenter {
 			else view.setMode(DrawPane.Mode.View);
 		});
 
-		view.arrowHeadsProperty().addListener((v, o, n) -> {
-			for (var node : view.getEdgesGroup().getChildren()) {
-				if (node instanceof Path path) {
-					if (n)
-						DrawUtils.addArrowHead(path);
-					else DrawUtils.removeArrowHead(path);
-				}
-			}
-		});
-
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) e -> {
 			while (e.next()) {
 				for (var node : e.getAddedSubList()) {
@@ -174,6 +181,7 @@ public class MainWindowPresenter {
 				}
 			}
 		});
+
 		view.getNodeLabelsGroup().getChildren().addListener((ListChangeListener<? super Node>) e -> {
 			while (e.next()) {
 				for (var node : e.getAddedSubList()) {
@@ -246,34 +254,28 @@ public class MainWindowPresenter {
 		});
 
 		controller.getArrowsMenuItem().selectedProperty().addListener((v, o, n) -> {
-			view.arrowHeadsProperty().set(n);
-			if (n)
-				controller.getOutlineEdgesMenuItem().setSelected(false);
+			undoManager.doAndAdd(new ShowArrowsCommand(view, controller.getArrowsMenuItem().isSelected()));
 		});
+		controller.getArrowsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getEdgeSelection().getSelectedItems()));
+
 		controller.getOutlineEdgesMenuItem().selectedProperty().addListener((v, o, n) -> {
-			view.setOutlineEdges(n);
+			if (n)
+				view.setMode(DrawPane.Mode.View);
+			view.showOutlinesProperty().set(n);
 			if (n)
 				controller.getArrowsMenuItem().setSelected(false);
 		});
-
-		MainWindowManager.useDarkThemeProperty().addListener(e -> {
-			if (view.getOutlineEdges()) { // need to trigger recomputation
-				Platform.runLater(() -> view.setOutlineEdges(false));
-				RunAfterAWhile.applyInFXThread(controller.getOutlineEdgesMenuItem(), () -> view.setOutlineEdges(true));
-			}
+		controller.getOutlineEdgesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		view.modeProperty().addListener((v, o, n) -> {
+			if (n != DrawPane.Mode.View && view.isShowOutlines())
+				controller.getOutlineEdgesMenuItem().setSelected(false);
 		});
 
-		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString(true) + "\n"));
+		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString() + "\n"));
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getExportImageMenuItem().setOnAction(e -> {
-			if (view.getOutlineEdges())
-				view.setOutlineEdges(false);
-			try {
 				ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawPane());
-			} finally {
-				view.setOutlineEdges(controller.getOutlineEdgesMenuItem().isSelected());
-			}
 		});
 		controller.getExportImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
@@ -291,7 +293,6 @@ public class MainWindowPresenter {
 			ClipboardUtils.putImage(snapshot);
 		});
 		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
 
 		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e ->
 				RunAfterAWhile.applyInFXThread(allowRemoveSuperfluous, () -> {
@@ -335,21 +336,17 @@ public class MainWindowPresenter {
 		controller.getStraightenMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new StraightenCommand(view.getGraph(), view.getSelectedOrAllEdges())));
 		controller.getStraightenMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
+		controller.getRerootMenuItem().setOnAction(a -> {
+			var e = (view.getEdgeSelection().size() == 1 ? view.getEdgeSelection().getSelectedItem() : null);
+			var v = (e == null && view.getNodeSelection().size() == 1 ? view.getNodeSelection().getSelectedItem() : null);
+			if (e != null || v != null)
+				view.getUndoManager().doAndAdd(new RerootCommand(view, v, e));
+		});
+		controller.getRerootMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> !(view.getNodeSelection().size() == 1 || view.getEdgeSelection().size() == 1),
+				view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems()));
+
 		controller.getRectangularMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new RectangularCommand(view.getGraph(), view.getSelectedOrAllEdges())));
 		controller.getRectangularMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
-
-		controller.getImportButton().setOnAction(e -> openString(ClipboardUtils.getTextFilesContentOrString()));
-		controller.getImportButton().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
-
-
-		/*
-		{
-			else if(n==controller.getResizeRadioMenuItem()) {
-			controller.getModeButton().setTooltip(new Tooltip("Setup mode, press to change"));
-			MaterialIcons.setIcon(controller.getModeButton(), MaterialIcons.format_shapes);
-			view.setMode(DrawPane.Mode.Resize);
-		}
-		*/
 
 		var infoLabel = new CopyableLabel();
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
@@ -372,9 +369,44 @@ public class MainWindowPresenter {
 			}
 		});
 
+		controller.getEdgeWeightTextField().setOnAction(a -> {
+			if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {
+				var value = NumberUtils.parseDouble(controller.getEdgeWeightTextField().getText());
+				view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, value));
+			}
+		});
+		setupTriggerOnEnter(controller.getEdgeWeightTextField());
+		controller.getEdgeWeightTextField().disableProperty().bind(Bindings.isEmpty(view.getNodeSelection().getSelectedItems()));
+
+		controller.getMeasureWeightsButton().setOnAction(e -> {
+			view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, -1));
+		});
+		controller.getMeasureWeightsButton().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
+
+		controller.getEdgeConfidenceTextField().setOnAction(a -> {
+			if (NumberUtils.isDouble(controller.getEdgeConfidenceTextField().getText())) {
+				var value = NumberUtils.parseDouble(controller.getEdgeConfidenceTextField().getText());
+				view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Confidence, value));
+			}
+			controller.getLabelEdgeByConfidenceMenuItem().setSelected(true);
+		});
+		setupTriggerOnEnter(controller.getEdgeConfidenceTextField());
+		controller.getEdgeConfidenceTextField().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
+
+		controller.getEdgeProbabilityTextField().setOnAction(a -> {
+			if (NumberUtils.isDouble(controller.getEdgeProbabilityTextField().getText())) {
+				var value = NumberUtils.parseDouble(controller.getEdgeProbabilityTextField().getText());
+				view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Probability, value));
+			}
+			controller.getLabelEdgeByProbabilityMenuItem().setSelected(true);
+		});
+		setupTriggerOnEnter(controller.getEdgeProbabilityTextField());
+		controller.getEdgeProbabilityTextField().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
+
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);
 	}
+
 
 	public static void openString(String string) {
 		if (string != null && !string.isBlank()) {
@@ -385,5 +417,14 @@ public class MainWindowPresenter {
 			} catch (IOException ignored) {
 			}
 		}
+	}
+
+	public static void setupTriggerOnEnter(TextField textField) {
+		textField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (event.getCode() == KeyCode.ENTER) {
+				event.consume();
+				textField.getOnAction().handle(null);
+			}
+		});
 	}
 }

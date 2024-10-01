@@ -118,6 +118,53 @@
                                         </HBox>
                                     </children>
                                 </AnchorPane>
+                                <AnchorPane fx:id="editEdgesAnchorPane" maxHeight="-Infinity" minHeight="-Infinity">
+                                    <children>
+                                        <ToolBar fx:id="edgeLabelsToolBar" maxHeight="-Infinity" minHeight="-Infinity"
+                                                 prefHeight="32.0" AnchorPane.bottomAnchor="0.0"
+                                                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                 AnchorPane.topAnchor="0.0">
+                                            <items>
+                                                <Label text="Edge"/>
+                                                <TextField fx:id="edgeWeightTextField" maxHeight="-Infinity"
+                                                           minHeight="-Infinity" prefColumnCount="6" prefHeight="24.0"
+                                                           promptText="Weight">
+                                                    <tooltip>
+                                                        <Tooltip text="Set weight of selected edges"/>
+                                                    </tooltip>
+                                                </TextField>
+                                                <Button fx:id="measureWeightsButton" text="Measure">
+                                                    <tooltip>
+                                                        <Tooltip text="Set weioghts to measured distances"/>
+                                                    </tooltip>
+                                                </Button>
+                                                <Label layoutX="10.0" layoutY="12.0" text=":"/>
+                                                <TextField fx:id="edgeConfidenceTextField" layoutX="88.0" layoutY="9.0"
+                                                           maxHeight="-Infinity" minHeight="-Infinity"
+                                                           prefColumnCount="6" prefHeight="24.0"
+                                                           promptText="Confidence">
+                                                    <tooltip>
+                                                        <Tooltip text="Set confidence of selected edges"/>
+                                                    </tooltip>
+                                                </TextField>
+                                                <Label layoutX="168.0" layoutY="12.0" text=":"/>
+                                                <TextField fx:id="edgeProbabilityTextField" layoutX="246.0"
+                                                           layoutY="9.0" maxHeight="-Infinity" minHeight="-Infinity"
+                                                           prefColumnCount="6" prefHeight="24.0"
+                                                           promptText="Probablity">
+                                                    <tooltip>
+                                                        <Tooltip text="Set probability of selected reticulate edges"/>
+                                                    </tooltip>
+                                                </TextField>
+                                            </items>
+                                            <padding>
+                                                <Insets left="10.0" right="10.0"/>
+                                            </padding>
+                                        </ToolBar>
+                                        <Button fx:id="closeEdgeToolBar" mnemonicParsing="false" text="Close"
+                                                AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="3.0"/>
+                                    </children>
+                                </AnchorPane>
                             </children>
                         </VBox>
                     </top>
@@ -240,6 +287,7 @@
                                 <MenuItem fx:id="removeThruNodesMenuItem" mnemonicParsing="false"
                                           text="Remove Thru Nodes">
                                 </MenuItem>
+                                <MenuItem fx:id="rerootMenuItem" text="Change Root"/>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="findMenuItem" mnemonicParsing="false" text="Find...">
                                     <accelerator>
@@ -279,7 +327,7 @@
                                         <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="extendSelectionMenuItem" text="Invert">
+                                <MenuItem fx:id="extendSelectionMenuItem" text="Extend">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
                                                             shortcut="DOWN"/>
@@ -329,6 +377,12 @@
                                         <KeyCodeCombination alt="UP" code="B" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="selectPossibleRootLocationsMenuItem" text="Possible Root Locations">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="B" control="UP" meta="UP" shift="DOWN"
+                                                            shortcut="DOWN"/>
+                                    </accelerator>
+                                </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="selectLowestStableAncestorMenuItem" text="Lowest Stable Ancestor" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
@@ -354,9 +408,12 @@
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem fx:id="clearLabelsMenuItem" text="Clear Node Labels"/>
                             <SeparatorMenuItem mnemonicParsing="false"/>
-                            <CheckMenuItem fx:id="labelEdgeByWeightsMenuItem" text="Edge Weight"/>
-                            <CheckMenuItem fx:id="labelEdgeByConfidenceMenuItem" text="Edge Confidence"/>
-                            <CheckMenuItem fx:id="labelEdgeByProbabilityMenuItem" text="Edge Probability"/>
+                            <CheckMenuItem fx:id="labelEdgeByWeightsMenuItem" text="Show Edge Weights"/>
+                            <CheckMenuItem fx:id="labelEdgeByConfidenceMenuItem" text="Show Edge Confidences"/>
+                            <CheckMenuItem fx:id="labelEdgeByProbabilityMenuItem" text="Show Edge Probabilities"/>
+                            <SeparatorMenuItem mnemonicParsing="false"/>
+                            <CheckMenuItem fx:id="editEdgeLabelsMenuItem" mnemonicParsing="false"
+                                           text="Edit Edge Labels"/>
 
                         </Menu>
 
@@ -412,7 +469,6 @@
                                 </MenuItem>
                             </items>
                         </Menu>
-                        <Menu fx:id="algorithmMenu" mnemonicParsing="false" text="Algorithms" />
                         <Menu fx:id="windowMenu" mnemonicParsing="false" text="Window">
                             <items>
                                 <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About..." />

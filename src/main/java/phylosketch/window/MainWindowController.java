@@ -42,9 +42,6 @@ public class MainWindowController {
 	private MenuItem aboutMenuItem;
 
 	@FXML
-	private Menu algorithmMenu;
-
-	@FXML
 	private FlowPane bottomFlowPane;
 
 	@FXML
@@ -185,6 +182,29 @@ public class MainWindowController {
 	@FXML
 	private MenuItem saveMenuItem;
 
+	@FXML
+	private CheckMenuItem editEdgeLabelsMenuItem;
+
+	@FXML
+	private AnchorPane editEdgesAnchorPane;
+
+	@FXML
+	private ToolBar edgeLabelsToolBar;
+
+	@FXML
+	private TextField edgeWeightTextField;
+
+	@FXML
+	private Button measureWeightsButton;
+
+	@FXML
+	private TextField edgeConfidenceTextField;
+
+	@FXML
+	private TextField edgeProbabilityTextField;
+
+	@FXML
+	private Button closeEdgeToolBar;
 
 	@FXML
 	private Menu selectMenu;
@@ -237,6 +257,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem selectAllAboveMenuItem;
+
+	@FXML
+	private MenuItem selectPossibleRootLocationsMenuItem;
 
 	@FXML
 	private MenuItem selectLowestStableAncestorMenuItem;
@@ -331,6 +354,9 @@ public class MainWindowController {
 	private MenuItem straightenMenuItem;
 
 	@FXML
+	private MenuItem rerootMenuItem;
+
+	@FXML
 	private MenuItem rectangularMenuItem;
 
 	@FXML
@@ -380,8 +406,25 @@ public class MainWindowController {
 		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
 		MaterialIcons.setIcon(layoutMenuButton, MaterialIcons.shape_line);
 
+		MaterialIcons.setIcon(closeEdgeToolBar, MaterialIcons.clear);
+		MaterialIcons.setIcon(measureWeightsButton, MaterialIcons.square_foot);
+
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
+
+		edgeLabelsToolBar.visibleProperty().addListener((v, o, n) -> {
+			editEdgesAnchorPane.setPrefHeight(n ? 32 : 0);
+			editEdgesAnchorPane.setMinHeight(ToolBar.USE_PREF_SIZE);
+			editEdgesAnchorPane.setMaxHeight(ToolBar.USE_PREF_SIZE);
+			edgeLabelsToolBar.setPrefHeight(n ? 32 : 0);
+			edgeLabelsToolBar.setMinHeight(ToolBar.USE_PREF_SIZE);
+			edgeLabelsToolBar.setMaxHeight(ToolBar.USE_PREF_SIZE);
+
+			closeEdgeToolBar.setVisible(n);
+		});
+		edgeLabelsToolBar.setVisible(false);
+		editEdgeLabelsMenuItem.selectedProperty().bindBidirectional(edgeLabelsToolBar.visibleProperty());
+		closeEdgeToolBar.setOnAction(e -> edgeLabelsToolBar.setVisible(false));
 
 		// if we are running on MacOS, put the specific menu items in the right places
 		if (ProgramProperties.isMacOS()) {
@@ -458,7 +501,7 @@ public class MainWindowController {
 		settingsMenuButton.getItems().addAll(BasicFX.copyMenu(labelsMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem, rerootMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -471,10 +514,6 @@ public class MainWindowController {
 
 	public MenuItem getAboutMenuItem() {
 		return aboutMenuItem;
-	}
-
-	public Menu getAlgorithmMenu() {
-		return algorithmMenu;
 	}
 
 	public FlowPane getBottomFlowPane() {
@@ -770,6 +809,10 @@ public class MainWindowController {
 		return selectAllAboveMenuItem;
 	}
 
+	public MenuItem getSelectPossibleRootLocationsMenuItem() {
+		return selectPossibleRootLocationsMenuItem;
+	}
+
 	public MenuItem getSelectLowestStableAncestorMenuItem() {
 		return selectLowestStableAncestorMenuItem;
 	}
@@ -800,6 +843,10 @@ public class MainWindowController {
 
 	public MenuItem getStraightenMenuItem() {
 		return straightenMenuItem;
+	}
+
+	public MenuItem getRerootMenuItem() {
+		return rerootMenuItem;
 	}
 
 	public MenuItem getRectangularMenuItem() {
@@ -840,5 +887,21 @@ public class MainWindowController {
 
 	public CheckMenuItem getLabelEdgeByProbabilityMenuItem() {
 		return labelEdgeByProbabilityMenuItem;
+	}
+
+	public TextField getEdgeWeightTextField() {
+		return edgeWeightTextField;
+	}
+
+	public TextField getEdgeConfidenceTextField() {
+		return edgeConfidenceTextField;
+	}
+
+	public TextField getEdgeProbabilityTextField() {
+		return edgeProbabilityTextField;
+	}
+
+	public Button getMeasureWeightsButton() {
+		return measureWeightsButton;
 	}
 }

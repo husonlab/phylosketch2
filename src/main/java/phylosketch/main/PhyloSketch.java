@@ -146,6 +146,8 @@ public class PhyloSketch extends Application {
                 if(!last.isBlank()) {
                     Platform.runLater(()->{
 						try {
+							if (false)
+								System.err.println(last);
 							PhyloSketchIO.load(new StringReader(last), mainWindow.getDrawPane());
 						} catch (IOException e) {
 							throw new RuntimeException(e);
