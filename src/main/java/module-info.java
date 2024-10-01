@@ -8,10 +8,10 @@ module phylosketch {
 	requires transitive javafx.web;
 	requires org.apache.commons.numbers.gamma;
 
-	opens phylosketch.main;
-	//opens phylosketch.view;
-	opens phylosketch.window;
+	opens phylosketch2.main;
+	//opens phylosketch2.view;
+	opens phylosketch2.window;
 
-	exports phylosketch.main;
+	exports phylosketch2.main;
 
 }
