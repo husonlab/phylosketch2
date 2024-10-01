@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.9" transformSequenceNumber="10">
-  <directoryPresets config="../src/main/resources/phylosketch2/LICENSE.txt" />
+  <directoryPresets config="../src/main/resources/phylosketch/LICENSE.txt" />
   <application name="PhyloSketch2" applicationId="3630-6748-9346-1896" mediaDir="../../../builds" shortName="PhyloSketch2" publisher="Daniel H. Huson" publisherWeb="http://www.husonlab.org/phylosketch2" version="0.0.0" allPathsRelative="true" macVolumeId="b8c0a1154e563a9a" javaMinVersion="17">
     <variables>
       <variable name="renderingVMOption" />
@@ -11,6 +11,7 @@
         <entry>swt-*</entry>
         <entry>javafx-*</entry>
         <entry>install4j*</entry>
+        <entry>sqlite-jdbc-*</entry>
       </macSearchedJars>
     </codeSigning>
     <jreBundles jdkProviderId="Liberica" release="23/23+38">
@@ -32,8 +33,8 @@
       </dirEntry>
       <fileEntry mountPoint="1691242167" file="../target/phylosketch-2.0.0-SNAPSHOT.jar" />
       <dirEntry mountPoint="1691242153" file="../examples" subDirectory="examples" />
-      <fileEntry mountPoint="1691243206" file="../src/main/resources/phylosketch2/NOTICE.txt" />
-      <fileEntry mountPoint="1691243206" file="../src/main/resources/phylosketch2/LICENSE.txt" />
+      <fileEntry mountPoint="1691243206" file="../src/main/resources/phylosketch/NOTICE.txt" />
+      <fileEntry mountPoint="1691243206" file="../src/main/resources/phylosketch/LICENSE.txt" />
     </entries>
     <components>
       <component name="PhyloSketch2" id="1691242194" changeable="false">
@@ -60,17 +61,17 @@
       <executable name="PhyloSketch2" iconSet="true" redirectStdout="true" executableMode="gui" changeWorkingDirectory="false" singleInstance="true" checkConsoleParameter="true" dpiAware="false">
         <versionInfo include="true" fileDescription="PhyloSketch2 sketching program for rooted phylogenies" legalCopyright="Copyright (C)  2024 ${compiler:sys.publisher}" internalName="PhyloSketch2" />
       </executable>
-      <java mainClass="phylosketch/phylosketch2.main.PhyloSketch" mainMode="module" vmParameters="-server -Duser.language=en -Duser.region=US  ${compiler:renderingVMOption}">
+      <java mainClass="phylosketch/phylosketch.main.PhyloSketch" mainMode="module" vmParameters="-server -Duser.language=en -Duser.region=US  ${compiler:renderingVMOption}">
         <modulePath>
           <directory location="jars" failOnError="false" />
         </modulePath>
       </java>
       <iconImageFiles>
-        <file path="../src/main/resources/phylosketch2/main/PhyloSketch-512x512.png" />
+        <file path="../src/main/resources/phylosketch/main/PhyloSketch-512x512.png" />
       </iconImageFiles>
     </launcher>
   </launchers>
-  <installerGui autoUpdateDescriptorUrl="https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/updates.xml">
+  <installerGui autoUpdateDescriptorUrl="https://software-ab.cs.uni-tuebingen.de/download/phylosketch/updates.xml">
     <applications>
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" launchInNewProcess="false">
         <serializedBean>
@@ -134,7 +135,7 @@ return console.askOkCancel(message, true);
                       <entry>
                         <string>en</string>
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../src/main/resources/phylosketch2/LICENSE.txt</string>
+                          <string>../src/main/resources/phylosketch/LICENSE.txt</string>
                         </object>
                       </entry>
                     </property>
@@ -1099,7 +1100,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <unixInstaller name="Unix Installer" id="1691242146" installDir="phylosketch2" overridePrincipalLanguage="true" require64BitVm="true">
+    <unixInstaller name="Unix Installer" id="1691242146" installDir="phylosketch" overridePrincipalLanguage="true" require64BitVm="true">
       <exclude>
         <entry location="openjfx/macos" />
         <entry location="openjfx/windows-x64" />

@@ -7,10 +7,11 @@ module phylosketch {
     requires transitive javafx.fxml;
 	requires java.sql.rowset;
 
-	opens phylosketch2.main;
-	//opens phylosketch2.view;
-	opens phylosketch2.window;
+	opens phylosketch.main;
+	opens phylosketch.view;
+	opens phylosketch.window;
 
-	exports phylosketch2.main;
-
+	exports phylosketch.window;
+	exports phylosketch.io;
+	exports phylosketch.main;
 }
