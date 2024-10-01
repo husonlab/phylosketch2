@@ -227,6 +227,10 @@ public class MainWindowPresenter {
 		//controller.getSaveButton().setOnAction(controller.getSaveAsMenuItem().getOnAction());
 		//controller.getSaveButton().disableProperty().bind(controller.getSaveAsMenuItem().disableProperty());
 
+		controller.getPageSetupMenuItem().setOnAction(e -> Print.showPageLayout(window.getStage()));
+		controller.getPrintMenuItem().setOnAction((e) -> Print.print(window.getStage(), window.getDrawPane()));
+		controller.getPrintMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
 		controller.getUndoMenuItem().setOnAction(e -> view.getUndoManager().undo());
 		controller.getUndoMenuItem().disableProperty().bind(view.getUndoManager().undoableProperty().not());
 		controller.getRedoMenuItem().setOnAction(e -> view.getUndoManager().redo());
