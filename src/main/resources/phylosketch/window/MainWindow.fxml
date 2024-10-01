@@ -289,6 +289,32 @@
                                 </MenuItem>
                                 <MenuItem fx:id="rerootMenuItem" text="Change Root"/>
                                 <SeparatorMenuItem mnemonicParsing="false" />
+                                <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
+                                    <items>
+                                        <CheckMenuItem fx:id="editModeCheckMenuItem" mnemonicParsing="false"
+                                                       text="Edit Mode">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="M" control="UP" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
+                                            </accelerator>
+                                        </CheckMenuItem>
+                                        <CheckMenuItem fx:id="moveModeCheckMenuItem" mnemonicParsing="false"
+                                                       text="Move Mode">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="M" control="UP" meta="DOWN"
+                                                                    shift="DOWN" shortcut="UP"/>
+                                            </accelerator>
+                                        </CheckMenuItem>
+                                        <CheckMenuItem fx:id="resizeModeCheckMenuItem" mnemonicParsing="false"
+                                                       text="Resize Mode">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="R" control="UP" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
+                                            </accelerator>
+                                        </CheckMenuItem>
+                                    </items>
+                                </Menu>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
                                 <MenuItem fx:id="findMenuItem" mnemonicParsing="false" text="Find...">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="F" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
@@ -300,14 +326,6 @@
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                            </items>
-                        </Menu>
-                        <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
-                            <items>
-                                <CheckMenuItem fx:id="editModeCheckMenuItem" mnemonicParsing="false" text="Edit Mode"/>
-                                <CheckMenuItem fx:id="moveModeCheckMenuItem" mnemonicParsing="false" text="Move Mode"/>
-                                <CheckMenuItem fx:id="resizeModeCheckMenuItem" mnemonicParsing="false"
-                                               text="Resize Mode"/>
                             </items>
                         </Menu>
                         <Menu fx:id="selectMenu" mnemonicParsing="false" text="Select">
@@ -356,11 +374,7 @@
                                         <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="selectReticulateNodesMenuitem" text="Reticulate Nodes">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
-                                    </accelerator>
-                                </MenuItem>
+                                <MenuItem fx:id="selectReticulateNodesMenuitem" text="Reticulate Nodes"/>
                                 <MenuItem fx:id="selectThruNodesMenuItem" text="Thru Nodes"/>
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem fx:id="selectVisibleNodesMenuItem" text="Visible Nodes" />
@@ -379,7 +393,7 @@
                                 </MenuItem>
                                 <MenuItem fx:id="selectPossibleRootLocationsMenuItem" text="Possible Root Locations">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="B" control="UP" meta="UP" shift="DOWN"
+                                        <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="DOWN"
                                                             shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
@@ -421,12 +435,7 @@
                             <CheckMenuItem fx:id="arrowsMenuItem" text="Arrows"/>
                             <CheckMenuItem fx:id="outlineEdgesMenuItem" text="Outlines"/>
                             <SeparatorMenuItem mnemonicParsing="false"/>
-                            <MenuItem fx:id="smoothMenuItem" text="Smooth">
-                                <accelerator>
-                                    <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP" shift="UP"
-                                                        shortcut="DOWN"/>
-                                </accelerator>
-                            </MenuItem>
+                            <MenuItem fx:id="smoothMenuItem" text="Smooth"/>
                             <MenuItem fx:id="straightenMenuItem" text="Straighten"/>
                             <MenuItem fx:id="rectangularMenuItem" text="Rectangular"/>
                         </Menu>
