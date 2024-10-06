@@ -34,6 +34,7 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
+import phylosketch.commands.MoveNodesCommand;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
@@ -87,7 +88,7 @@ public class SetupResize {
 
 		moveHandle.setOnMouseDragged(me -> {
 			var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
-			NodeInteraction.moveNodes(view.getGraph(), view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY(), false);
+			MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY(), false);
 			mouseX = me.getScreenX();
 			mouseY = me.getScreenY();
 			updateSizeAndLocation(view, rectangle, moveHandle, resizeHandle);
@@ -102,13 +103,13 @@ public class SetupResize {
 				@Override
 				public void undo() {
 					var nodes = nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-					NodeInteraction.moveNodes(view.getGraph(), nodes, -diff.getX(), -diff.getY(), false);
+					MoveNodesCommand.moveNodesAndEdges(view.getGraph(), nodes, -diff.getX(), -diff.getY(), false);
 				}
 
 				@Override
 				public void redo() {
 					var nodes = nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-					NodeInteraction.moveNodes(view.getGraph(), nodes, diff.getX(), diff.getY(), false);
+					MoveNodesCommand.moveNodesAndEdges(view.getGraph(), nodes, diff.getX(), diff.getY(), false);
 				}
 			});
 			me.consume();

@@ -25,11 +25,10 @@ import javafx.collections.ListChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.shape.Shape;
-import jloda.graph.Graph;
+import phylosketch.commands.MoveNodesCommand;
 import phylosketch.main.PhyloSketch;
 
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * node interaction
@@ -90,7 +89,7 @@ public class NodeInteraction {
 									var previous = view.screenToLocal(mouseX, mouseY);
 									var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
-									moveNodes(view.getGraph(), view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
+									MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
 									mouseX = me.getScreenX();
 									mouseY = me.getScreenY();
 									me.consume();
@@ -103,9 +102,7 @@ public class NodeInteraction {
 									var previous = view.screenToLocal(mouseDownX, mouseDownY);
 									var location = view.screenToLocal(mouseX, mouseY);
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
-									view.getUndoManager().add("move nodes", () -> {
-										moveNodes(view.getGraph(), nodes, -d.getX(), -d.getY(), true);
-									}, () -> moveNodes(view.getGraph(), nodes, d.getX(), d.getY(), true));
+									view.getUndoManager().add(new MoveNodesCommand(view, nodes, d.getX(), d.getY()));
 									me.consume();
 								}
 							});
@@ -122,16 +119,6 @@ public class NodeInteraction {
 				}
 			}
 		});
-	}
-
-	public static void moveNodes(Graph graph, Set<jloda.graph.Node> nodes, double dx, double dy, boolean normalizePaths) {
-		for (var v : nodes) {
-			if (v.getData() instanceof Shape shape) {
-				shape.setTranslateX(shape.getTranslateX() + dx);
-				shape.setTranslateY(shape.getTranslateY() + dy);
-			}
-		}
-		MoveEdges.apply(graph, nodes, dx, dy, normalizePaths);
 	}
 
 }

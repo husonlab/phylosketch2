@@ -437,6 +437,8 @@ public class DrawPane extends Pane {
 	public void deleteEdge(Edge... edges) {
 		for (var e : edges) {
 			if (e.getOwner() != null) {
+				if (e.getInfo() instanceof RichTextLabel label)
+					edgeLabelsGroup.getChildren().remove(label);
 				edgeArrowMap.remove(e);
 				edgeSelection.getSelectedItems().remove(e);
 				if (e.getData() instanceof Path path)

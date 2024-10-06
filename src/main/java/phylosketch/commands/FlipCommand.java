@@ -51,6 +51,8 @@ public class FlipCommand extends UndoableRedoableCommand {
 
 		var nodes = view.getSelectedOrAllNodes();
 
+		var layoutCommmand = new LayoutLabelsCommand(view, nodes);
+
 		var x = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
 		var y = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
 
@@ -127,6 +129,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
+			sequential.setOnFinished(a -> layoutCommmand.undo());
 			sequential.play();
 		};
 
@@ -159,6 +162,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
+			sequential.setOnFinished(a -> layoutCommmand.redo());
 			sequential.play();
 		};
 	}

@@ -91,6 +91,8 @@ public class DeleteCommand extends UndoableRedoableCommand {
 					view.getGraph().setWeight(e, d.probability);
 				if (d.arrow)
 					view.setShowArrow(e, true);
+				if (d.label != null)
+					view.setLabel(e, d.label);
 			}
 		};
 
@@ -117,12 +119,13 @@ public class DeleteCommand extends UndoableRedoableCommand {
 	}
 
 	public record EdgeData(int id, int sourceId, int targetId, Path path, boolean arrow, Double weight,
-						   Double confidence, Double probability) {
+						   Double confidence, Double probability, String label) {
 		public EdgeData(DrawPane view, Edge e) {
 			this(e.getId(), e.getSource().getId(), e.getTarget().getId(), view.getPath(e), view.getEdgeArrowMap().containsKey(e),
 					view.getGraph().hasEdgeWeights() ? view.getGraph().getWeight(e) : null,
 					view.getGraph().hasEdgeConfidences() ? view.getGraph().getConfidence(e) : null,
-					view.getGraph().hasEdgeProbabilities() ? view.getGraph().getProbability(e) : null);
+					view.getGraph().hasEdgeProbabilities() ? view.getGraph().getProbability(e) : null,
+					view.getLabel(e).getRawText());
 		}
 	}
 }

@@ -53,7 +53,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			for (var entry : nodeOldLayoutMap.entrySet()) {
 				var label = view.getLabel(view.getGraph().findNodeById(entry.getKey()));
 				label.setLayoutX(entry.getValue().getX());
-				label.setLayoutX(entry.getValue().getY());
+				label.setLayoutY(entry.getValue().getY());
 			}
 		};
 		redo = () -> {

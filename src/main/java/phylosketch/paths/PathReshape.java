@@ -20,6 +20,7 @@
 
 package phylosketch.paths;
 
+import javafx.geometry.Point2D;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -27,7 +28,7 @@ import javafx.scene.shape.PathElement;
 
 import java.util.ArrayList;
 
-import static phylosketch.paths.PathUtils.getCoordinates;
+import static phylosketch.paths.PathUtils.*;
 
 /**
  * path reshaping
@@ -60,6 +61,10 @@ public class PathReshape {
 			}
 		}
 		path.getElements().setAll(elements);
+	}
+
+	public static void apply(Path path, double dx, double dy) {
+		path.getElements().setAll(toPathElements(extractPoints(path).stream().map(p -> new Point2D(p.getX() + dx, p.getY() + dy)).toList()));
 	}
 
 	/**
