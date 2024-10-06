@@ -379,6 +379,12 @@ public class MainWindowController {
 	private MenuItem rotateRightMenuItem;
 
 	@FXML
+	private MenuItem flipHorizontalMenuItem;
+
+	@FXML
+	private MenuItem flipVerticalMenuItem;
+
+	@FXML
 	private ToggleButton editModeToggleButton;
 
 	@FXML
@@ -864,6 +870,14 @@ public class MainWindowController {
 
 	public MenuItem getRotateRightMenuItem() {
 		return rotateRightMenuItem;
+	}
+
+	public MenuItem getFlipHorizontalMenuItem() {
+		return flipHorizontalMenuItem;
+	}
+
+	public MenuItem getFlipVerticalMenuItem() {
+		return flipVerticalMenuItem;
 	}
 
 	public ToggleButton getEditModeToggleButton() {

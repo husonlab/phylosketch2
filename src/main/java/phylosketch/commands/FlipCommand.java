@@ -26,7 +26,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import jloda.fx.undo.UndoableRedoableCommand;
-import jloda.fx.util.GeometryUtilsFX;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
@@ -36,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RotateCommand extends UndoableRedoableCommand {
+public class FlipCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
@@ -47,50 +46,53 @@ public class RotateCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
 
-	public RotateCommand(DrawPane view, boolean positiveRotation) {
-		super("rotate");
-
-		var angle = (positiveRotation ? 90 : -90);
+	public FlipCommand(DrawPane view, boolean horizontal) {
+		super("flip");
 
 		var nodes = view.getSelectedOrAllNodes();
 
 		var x = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
 		var y = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
-		var center = new Point2D(x, y);
+
 		for (var v : nodes) {
 			var point = view.getPoint(v);
 			nodeOldPointMap.put(v.getId(), point);
-			var mid = GeometryUtilsFX.rotateAbout(point, 0.5 * angle, center);
+			var mid = new Point2D(horizontal ? x : point.getX(), horizontal ? point.getY() : y);
 			nodeMidPointMap.put(v.getId(), mid);
-			var rotated = GeometryUtilsFX.rotateAbout(point, angle, center);
-			nodeNewPointMap.put(v.getId(), rotated);
+			var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
+			nodeNewPointMap.put(v.getId(), flipped);
 		}
 		for (var e : view.getGraph().edges()) {
 			if (nodes.contains(e.getSource()) || nodes.contains(e.getTarget())) {
 				var points = view.getPoints(e);
 				edgeOldPointsMap.put(e.getId(), points);
 				if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget())) {
-					var mid = new ArrayList<Point2D>();
+					var midPoints = new ArrayList<Point2D>();
 					for (var point : points) {
-						mid.add(GeometryUtilsFX.rotateAbout(point, 0.5 * angle, center));
+						midPoints.add(new Point2D(horizontal ? x : point.getX(), horizontal ? point.getY() : y));
 					}
-					edgeMidPointsMap.put(e.getId(), mid);
-					var rotated = new ArrayList<Point2D>();
+					edgeMidPointsMap.put(e.getId(), midPoints);
+					var flippedPoints = new ArrayList<Point2D>();
 					for (var point : points) {
-						rotated.add(GeometryUtilsFX.rotateAbout(point, angle, center));
+						var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
+						flippedPoints.add(flipped);
 					}
-					edgeNewPointsMap.put(e.getId(), rotated);
+					edgeNewPointsMap.put(e.getId(), flippedPoints);
 				} else if (nodes.contains(e.getSource())) {
 					var path = PathUtils.createPath(points, false);
 					var id = 0;
-					var diff = GeometryUtilsFX.rotateAbout(points.get(id), angle, center).subtract(points.get(id));
+					var point = points.get(id);
+					var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
+					var diff = flipped.subtract(points.get(id));
 					PathReshape.apply(path, id, diff.getX(), diff.getY());
 					edgeNewPointsMap.put(e.getId(), PathUtils.getPoints(path));
 
 				} else if (nodes.contains(e.getTarget())) {
 					var path = PathUtils.createPath(points, false);
 					var id = path.getElements().size() - 1;
-					var diff = GeometryUtilsFX.rotateAbout(points.get(id), angle, center).subtract(points.get(id));
+					var point = points.get(id);
+					var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
+					var diff = flipped.subtract(points.get(id));
 					PathReshape.apply(path, id, diff.getX(), diff.getY());
 					edgeNewPointsMap.put(e.getId(), PathUtils.getPoints(path));
 				}

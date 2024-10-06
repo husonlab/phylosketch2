@@ -38,11 +38,12 @@ import java.util.Map;
  * Daniel Huson, 9.2024
  */
 public class SmoothCommand extends UndoableRedoableCommand {
+	private final Runnable undo;
+	private final Runnable redo;
+
 	private final int[] edgeIds;
 	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
-	private final Runnable undo;
-	private final Runnable redo;
 
 	public SmoothCommand(Graph graph, Collection<Edge> edges) {
 		super("smooth");
@@ -51,7 +52,7 @@ public class SmoothCommand extends UndoableRedoableCommand {
 		for (var e : edges) {
 			if (e.getData() instanceof Path path) {
 				idOldPointsMap.put(e.getId(), PathUtils.extractPoints(path));
-				idNewPointsMap.put(e.getId(), PathSmoother.apply(PathUtils.extractPoints(path), 25));
+				idNewPointsMap.put(e.getId(), PathSmoother.apply(PathUtils.extractPoints(path), 50));
 			}
 		}
 
