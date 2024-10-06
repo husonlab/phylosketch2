@@ -58,6 +58,10 @@ public class PathUtils {
 		return result;
 	}
 
+	public static Path copy(Path path) {
+		return createPath(extractPoints(path), false);
+	}
+
 	public static List<Point2D> extractPoints(Path path) {
 		var points = new ArrayList<Point2D>();
 		for (var element : path.getElements()) {

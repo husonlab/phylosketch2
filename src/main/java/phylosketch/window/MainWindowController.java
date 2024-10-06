@@ -113,8 +113,6 @@ public class MainWindowController {
 	@FXML
 	private MenuItem fullScreenMenuItem;
 
-	@FXML
-	private Button importButton;
 
 	@FXML
 	private MenuItem importMenuItem;
@@ -351,13 +349,13 @@ public class MainWindowController {
 	private MenuItem smoothMenuItem;
 
 	@FXML
-	private MenuItem straightenMenuItem;
-
-	@FXML
-	private MenuItem rerootMenuItem;
+	private MenuItem straightMenuItem;
 
 	@FXML
 	private MenuItem rectangularMenuItem;
+
+	@FXML
+	private MenuItem rerootMenuItem;
 
 	@FXML
 	private StackPane centerPane;
@@ -375,11 +373,13 @@ public class MainWindowController {
 	private CheckMenuItem resizeModeCheckMenuItem;
 
 	@FXML
-	private ToggleButton editModeToggleButton;
+	private MenuItem rotateLeftMenuItem;
 
 	@FXML
-	private ToggleButton resizeModeToggleButton;
+	private MenuItem rotateRightMenuItem;
 
+	@FXML
+	private ToggleButton editModeToggleButton;
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -387,9 +387,7 @@ public class MainWindowController {
 	@FXML
 	private void initialize() {
 		MaterialIcons.setIcon(fileMenuButton, MaterialIcons.file_open);
-		MaterialIcons.setIcon(importButton, MaterialIcons.download);
 		MaterialIcons.setIcon(editModeToggleButton, MaterialIcons.edit_off);
-		MaterialIcons.setIcon(resizeModeToggleButton, MaterialIcons.open_in_full, "-fx-rotate: 90;", true);
 
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 
@@ -602,10 +600,6 @@ public class MainWindowController {
 
 	public MenuItem getFullScreenMenuItem() {
 		return fullScreenMenuItem;
-	}
-
-	public Button getImportButton() {
-		return importButton;
 	}
 
 	public MenuItem getImportMenuItem() {
@@ -840,8 +834,8 @@ public class MainWindowController {
 		return smoothMenuItem;
 	}
 
-	public MenuItem getStraightenMenuItem() {
-		return straightenMenuItem;
+	public MenuItem getStraightMenuItem() {
+		return straightMenuItem;
 	}
 
 	public MenuItem getRerootMenuItem() {
@@ -864,12 +858,16 @@ public class MainWindowController {
 		return resizeModeCheckMenuItem;
 	}
 
-	public ToggleButton getEditModeToggleButton() {
-		return editModeToggleButton;
+	public MenuItem getRotateLeftMenuItem() {
+		return rotateLeftMenuItem;
 	}
 
-	public ToggleButton getResizeModeToggleButton() {
-		return resizeModeToggleButton;
+	public MenuItem getRotateRightMenuItem() {
+		return rotateRightMenuItem;
+	}
+
+	public ToggleButton getEditModeToggleButton() {
+		return editModeToggleButton;
 	}
 
 	public MenuItem getRemoveThruNodesMenuItem() {

@@ -64,11 +64,11 @@ public class EdgeInteraction {
 												view.getNodeSelection().clearSelection();
 												view.getEdgeSelection().clearSelection();
 											}
+										}
 											view.getEdgeSelection().toggleSelection(e);
 											if (!me.isControlDown()) {
 												view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
 												view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
-											}
 										}
 										me.consume();
 									} else if (me.getClickCount() == 2) {
@@ -139,7 +139,7 @@ public class EdgeInteraction {
 		int index = -1;
 
 		ObservableList<PathElement> elements = path.getElements();
-		for (int i = 0; i < elements.size(); i++) {
+		for (int i = 1; i + 1 < elements.size(); i++) {  // can't be first or last
 			var element = elements.get(i);
 			var coordinates = getCoordinates(element);
 			if (coordinates.distance(local) < bestDistance) {

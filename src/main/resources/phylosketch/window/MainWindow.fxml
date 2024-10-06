@@ -37,6 +37,10 @@
                                     <children>
                                         <ToolBar fx:id="mainToolBar" minHeight="-Infinity" prefHeight="32.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <items>
+                                                <ToggleButton fx:id="editModeToggleButton" layoutX="191.0" layoutY="8.0"
+                                                              mnemonicParsing="false" text="Edit Mode"/>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
                                                 <MenuButton fx:id="fileMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Files">
                                                     <tooltip>
                                                         <Tooltip text="File items"/>
@@ -49,17 +53,6 @@
                                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                                     </items>
                                                 </MenuButton>
-                                                <Button fx:id="importButton" mnemonicParsing="false" text="Import">
-                                                    <tooltip>
-                                                        <Tooltip text="Import a tree or network into a new document" />
-                                                    </tooltip>
-                                                </Button>
-                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
-                                                        HBox.hgrow="NEVER"/>
-                                                <ToggleButton fx:id="editModeToggleButton" layoutX="191.0" layoutY="8.0"
-                                                              mnemonicParsing="false" text="Edit Mode"/>
-                                                <ToggleButton fx:id="resizeModeToggleButton" mnemonicParsing="false"
-                                                              text="Resize"/>
 
                                                 <MenuButton fx:id="selectMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Select">
                                                     <tooltip>
@@ -308,13 +301,6 @@
                                                                     shift="DOWN" shortcut="UP"/>
                                             </accelerator>
                                         </CheckMenuItem>
-                                        <CheckMenuItem fx:id="resizeModeCheckMenuItem" mnemonicParsing="false"
-                                                       text="Resize Mode">
-                                            <accelerator>
-                                                <KeyCodeCombination alt="UP" code="R" control="UP" meta="DOWN"
-                                                                    shift="UP" shortcut="UP"/>
-                                            </accelerator>
-                                        </CheckMenuItem>
                                     </items>
                                 </Menu>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
@@ -439,8 +425,30 @@
                             <CheckMenuItem fx:id="outlineEdgesMenuItem" text="Outlines"/>
                             <SeparatorMenuItem mnemonicParsing="false"/>
                             <MenuItem fx:id="smoothMenuItem" text="Smooth"/>
-                            <MenuItem fx:id="straightenMenuItem" text="Straighten"/>
+                            <MenuItem fx:id="straightMenuItem" text="Straight"/>
                             <MenuItem fx:id="rectangularMenuItem" text="Rectangular"/>
+
+                            <SeparatorMenuItem mnemonicParsing="false"/>
+                            <MenuItem fx:id="rotateLeftMenuItem" text="Rotate Left">
+                                <accelerator>
+                                    <KeyCodeCombination alt="UP" code="LEFT" control="UP" meta="UP" shift="UP"
+                                                        shortcut="DOWN"/>
+                                </accelerator>
+                            </MenuItem>
+                            <MenuItem fx:id="rotateRightMenuItem" text="Rotate Right">
+                                <accelerator>
+                                    <KeyCodeCombination alt="UP" code="RIGHT" control="UP" meta="UP" shift="UP"
+                                                        shortcut="DOWN"/>
+                                </accelerator>
+                            </MenuItem>
+                            <SeparatorMenuItem mnemonicParsing="false"/>
+                            <CheckMenuItem fx:id="resizeModeCheckMenuItem" mnemonicParsing="false"
+                                           text="Resize Mode">
+                                <accelerator>
+                                    <KeyCodeCombination alt="UP" code="R" control="UP" meta="DOWN"
+                                                        shift="UP" shortcut="UP"/>
+                                </accelerator>
+                            </CheckMenuItem>
                         </Menu>
 
                         <Menu mnemonicParsing="false" text="View">

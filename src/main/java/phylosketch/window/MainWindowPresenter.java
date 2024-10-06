@@ -40,6 +40,7 @@ import jloda.fx.control.CopyableLabel;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.icons.MaterialIcons;
+import jloda.fx.undo.CompositeCommand;
 import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
@@ -70,6 +71,29 @@ public class MainWindowPresenter {
 		var controller = window.getController();
 		var view = window.getDrawPane();
 		var undoManager = view.getUndoManager();
+
+		if (false) {
+			view.getGraphFX().getNodeList().addListener((ListChangeListener<? super jloda.graph.Node>) a -> {
+				while (a.next()) {
+					for (var v : a.getAddedSubList()) {
+						System.err.println("Node added: " + v.getId());
+					}
+					for (var v : a.getRemoved()) {
+						System.err.println("Node removed: " + v.getId());
+					}
+				}
+			});
+			view.getGraphFX().getEdgeList().addListener((ListChangeListener<? super jloda.graph.Edge>) a -> {
+				while (a.next()) {
+					for (var e : a.getAddedSubList()) {
+						System.err.println("Edge added: " + e.getId());
+					}
+					for (var e : a.getRemoved()) {
+						System.err.println("Edge removed: " + e.getId());
+					}
+				}
+			});
+		}
 
 		EdgeCreationInteraction.setup(view);
 		PaneInteraction.setup(view);
@@ -117,9 +141,6 @@ public class MainWindowPresenter {
 		});
 		controller.getPasteMenuItem().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
 
-		controller.getImportButton().setOnAction(e -> openString(ClipboardUtils.getTextFilesContentOrString()));
-		controller.getImportButton().disableProperty().bind(controller.getPasteMenuItem().disableProperty());
-
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
@@ -140,10 +161,10 @@ public class MainWindowPresenter {
 				controller.getEditModeToggleButton().setTooltip(new Tooltip("Transform mode on, allows interactive relocation of nodes and reshaping of edges"));
 			} else {
 				controller.getEditModeToggleButton().setSelected(false);
-				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.edit_off);
+				MaterialIcons.setIcon(controller.getEditModeToggleButton(), MaterialIcons.lock);
 				controller.getEditModeCheckMenuItem().setSelected(false);
 				controller.getMoveModeCheckMenuItem().setSelected(false);
-				controller.getEditModeToggleButton().setTooltip(new Tooltip("Edit mode off"));
+				controller.getEditModeToggleButton().setTooltip(new Tooltip("Edit mode off, press to allow editing"));
 			}
 		};
 
@@ -260,10 +281,12 @@ public class MainWindowPresenter {
 			controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1);
 		});
 
+		controller.getArrowsMenuItem().setSelected(view.isShowArrows());
+
 		controller.getArrowsMenuItem().selectedProperty().addListener((v, o, n) -> {
+			view.showArrowsProperty().set(n);
 			undoManager.doAndAdd(new ShowArrowsCommand(view, controller.getArrowsMenuItem().isSelected()));
 		});
-		controller.getArrowsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getEdgeSelection().getSelectedItems()));
 
 		controller.getOutlineEdgesMenuItem().selectedProperty().addListener((v, o, n) -> {
 			if (n)
@@ -277,8 +300,9 @@ public class MainWindowPresenter {
 			if (n != DrawPane.Mode.View && view.isShowOutlines())
 				controller.getOutlineEdgesMenuItem().setSelected(false);
 		});
+		MainWindowManager.useDarkThemeProperty().addListener(e -> controller.getOutlineEdgesMenuItem().setSelected(false));
 
-		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString() + "\n"));
+		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString()));
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getExportImageMenuItem().setOnAction(e -> {
@@ -340,8 +364,8 @@ public class MainWindowPresenter {
 		controller.getSmoothMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new SmoothCommand(view.getGraph(), view.getSelectedOrAllEdges())));
 		controller.getSmoothMenuItem().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
 
-		controller.getStraightenMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new StraightenCommand(view.getGraph(), view.getSelectedOrAllEdges())));
-		controller.getStraightenMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
+		controller.getStraightMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new StraightenCommand(view.getGraph(), view.getSelectedOrAllEdges())));
+		controller.getStraightMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
 		controller.getRerootMenuItem().setOnAction(a -> {
 			var e = (view.getEdgeSelection().size() == 1 ? view.getEdgeSelection().getSelectedItem() : null);
@@ -365,9 +389,6 @@ public class MainWindowPresenter {
 		});
 		controller.getBottomFlowPane().getChildren().add(infoLabel);
 
-		controller.getResizeModeToggleButton().selectedProperty().bindBidirectional(allowResize);
-		controller.getResizeModeToggleButton().setTooltip(new Tooltip("Allow moving and resizing of selected nodes"));
-
 		controller.getResizeModeCheckMenuItem().selectedProperty().bindBidirectional(allowResize);
 		allowResize.addListener((v, o, n) -> {
 			if (n && view.getNodeSelection().size() == 0) {
@@ -375,6 +396,13 @@ public class MainWindowPresenter {
 				view.getEdgeSelection().selectAll(view.getGraph().getEdgesAsList());
 			}
 		});
+
+		controller.getRotateLeftMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("rotate", new RotateCommand(view, false),
+				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getRotateLeftMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> view.getNodeSelection().size() < 2, view.getNodeSelection().getSelectedItems()));
+		controller.getRotateRightMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("rotate", new RotateCommand(view, true),
+				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
 			if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {

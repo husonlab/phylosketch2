@@ -32,7 +32,6 @@ import jloda.util.Basic;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
-import phylosketch.commands.ShowArrowsCommand;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
@@ -158,7 +157,7 @@ public class PhyloSketchIO {
 				}
 				case "shape" -> {
 					var shape = value.equals("square") ? new Rectangle(3, 3) : new Circle(3);
-					view.addShape(v, shape);
+					view.setShape(v, shape);
 				}
 				case "size" -> {
 					if (v.getData() instanceof Shape shape) {
@@ -254,7 +253,7 @@ public class PhyloSketchIO {
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
 			if(!(v.getData() instanceof Shape)) {
-				view.addShape(v, new Circle(3));
+				view.setShape(v, new Circle(3));
 			}
 		}
 		// create paths for any edges for which path not given
@@ -269,7 +268,11 @@ public class PhyloSketchIO {
 
 		graph.setName(gmlInfo.label());
 		if (!arrowEdges.isEmpty()) {
-			Platform.runLater(() -> ShowArrowsCommand.showArrows(view, arrowEdges, true));
+			Platform.runLater(() -> {
+				for (var f : arrowEdges) {
+					view.setShowArrow(f, true);
+				}
+			});
 		}
 	}
 
