@@ -48,8 +48,8 @@ public class PasteCommand extends UndoableRedoableCommand {
 	private Collection<Node> newNodes;
 
 	// used when pasted labels:
-	private final Map<Node, String> nodeOldLabelMap = new HashMap<Node, String>();
-	private final Map<Node, String> nodeNewLabelMap = new HashMap<Node, String>();
+	private final Map<Node, String> nodeOldLabelMap = new HashMap<>();
+	private final Map<Node, String> nodeNewLabelMap = new HashMap<>();
 
 	/**
 	 * constructor

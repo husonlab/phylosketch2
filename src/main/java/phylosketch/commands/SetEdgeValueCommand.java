@@ -35,10 +35,10 @@ import java.util.Map;
  * Daniel Huson, 9.2024
  */
 public class SetEdgeValueCommand extends UndoableRedoableCommand {
-	public enum What {Weight, Confidence, Probability}
-
 	final private Runnable undo;
 	final private Runnable redo;
+
+	public enum What {Weight, Confidence, Probability}
 
 	final private Map<Integer, Double> edgeOldMap = new HashMap<>();
 	final private Map<Integer, Double> edgeNewMap = new HashMap<>();

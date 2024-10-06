@@ -261,7 +261,7 @@ public class MainWindowPresenter {
 		controller.getRedoMenuItem().disableProperty().bind(view.getUndoManager().redoableProperty().not());
 
 		controller.getDeleteMenuItem().setOnAction(unused -> {
-			view.getUndoManager().doAndAdd(new DeleteNodesEdgesCommand(view,
+			view.getUndoManager().doAndAdd(new DeleteCommand(view,
 					view.getNodeSelection().getSelectedItems(),
 					view.getEdgeSelection().getSelectedItems()));
 		});
@@ -269,7 +269,7 @@ public class MainWindowPresenter {
 				.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
 
 		controller.getClearMenuItem().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new DeleteNodesEdgesCommand(view, view.getGraph().getNodesAsList(),
+			view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getGraph().getNodesAsList(),
 					Collections.emptyList()));
 		});
 		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
@@ -403,6 +403,13 @@ public class MainWindowPresenter {
 		controller.getRotateRightMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("rotate", new RotateCommand(view, true),
 				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
 		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+
+		controller.getFlipHorizontalMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("flip", new FlipCommand(view, true),
+				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+		controller.getFlipVerticalMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("flip", new FlipCommand(view, false),
+				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
 			if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {

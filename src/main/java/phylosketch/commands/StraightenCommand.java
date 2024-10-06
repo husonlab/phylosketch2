@@ -38,11 +38,12 @@ import java.util.Map;
  * Daniel Huson, 9.2024
  */
 public class StraightenCommand extends UndoableRedoableCommand {
+	private final Runnable undo;
+	private final Runnable redo;
+
 	private final int[] edgeIds;
 	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
-	private final Runnable undo;
-	private final Runnable redo;
 
 	public StraightenCommand(Graph graph, Collection<Edge> edges) {
 		super("setup");
