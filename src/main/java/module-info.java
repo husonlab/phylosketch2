@@ -6,6 +6,7 @@ module phylosketch {
 	requires transitive javafx.controls;
     requires transitive javafx.fxml;
 	requires java.sql.rowset;
+	requires org.apache.commons.collections4;
 
 	opens phylosketch.main;
 	opens phylosketch.view;
@@ -14,4 +15,5 @@ module phylosketch {
 	exports phylosketch.window;
 	exports phylosketch.io;
 	exports phylosketch.main;
+	exports phylosketch.view;
 }

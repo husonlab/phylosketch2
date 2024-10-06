@@ -23,6 +23,7 @@ package phylosketch.view;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -56,19 +57,22 @@ public class SetupResize {
 		final var rectangle = new Rectangle();
 		final var moveHandle = MaterialIcons.graphic(MaterialIcons.open_with);
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
+
 		rectangle.setStyle("-fx-stroke-dash-array: 3 3;-fx-fill: transparent;-fx-stroke: gray;");
 
 		final var nodePointMap = new HashMap<Integer, Point2D>();
 		final var edgePointsMap = new HashMap<Integer, List<Point2D>>();
 
+		var resizeGroup = new Group(rectangle, moveHandle, resizeHandle);
+
 		InvalidationListener invalidationListener = e -> {
 			if (view.getNodeSelection().size() > 1 && enableResize.get()) {
 				updateSizeAndLocation(view, rectangle, moveHandle, resizeHandle);
-				if (!view.getOtherGroup().getChildren().contains(rectangle)) {
-					view.getOtherGroup().getChildren().addAll(rectangle, moveHandle, resizeHandle);
+				if (!view.getOtherGroup().getChildren().contains(resizeGroup)) {
+					view.getOtherGroup().getChildren().add(resizeGroup);
 				}
 			} else {
-				view.getOtherGroup().getChildren().removeAll(rectangle, moveHandle, resizeHandle);
+				view.getOtherGroup().getChildren().remove(resizeGroup);
 			}
 		};
 

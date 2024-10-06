@@ -20,7 +20,6 @@
 
 package phylosketch.commands;
 
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
@@ -30,7 +29,6 @@ import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class RerootCommand extends UndoableRedoableCommand {
@@ -114,7 +112,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 					view.deleteNode(graph.findNodeById(newNodeId));
 				if (oldEdgeId != -1) {
 					var f = view.createEdge(graph.findNodeById(oldSourceId), graph.findNodeById(oldTargetId), oldEdgePath, oldEdgeId);
-					ShowArrowsCommand.showArrows(view, List.of(f), true);
+					view.setShowArrow(f, true);
 					view.getEdgeSelection().select(f);
 				} else {
 					view.getNodeSelection().select(graph.findNodeById(oldNodeId));
@@ -140,13 +138,10 @@ public class RerootCommand extends UndoableRedoableCommand {
 				}
 				if (oldEdgeId != -1) {
 					var location = PathUtils.getMiddle(oldEdgePath);
-					var circle = new Circle(3);
-					circle.setTranslateX(location.getX());
-					circle.setTranslateY(location.getY());
-					var w = view.createNode(circle);
+					var w = view.createNode(location);
 					newNodeId = w.getId();
 					var index = oldEdgePath.getElements().size() / 2;
-					var edgeHit = new NewEdgeCommmand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
+					var edgeHit = new AddEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
 					var parts = edgeHit.splitPath();
 					var firstPath = PathUtils.createPath(CollectionUtils.reverse(PathUtils.extractPoints(parts.getFirst())), false);
 					var e1 = view.createEdge(w, graph.findNodeById(oldSourceId), firstPath);
@@ -159,7 +154,8 @@ public class RerootCommand extends UndoableRedoableCommand {
 					view.getNodeSelection().select(e2.getTarget());
 
 					if (oldEdgeArrow) {
-						ShowArrowsCommand.showArrows(view, List.of(e1, e2), true);
+						view.setShowArrow(e1, true);
+						view.setShowArrow(e2, true);
 					}
 					view.deleteEdge(graph.findEdgeById(oldEdgeId));
 					if (oldRootId != null) {

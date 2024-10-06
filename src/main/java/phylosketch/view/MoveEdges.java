@@ -35,23 +35,23 @@ public class MoveEdges {
 
 	public static void apply(Graph graph, Set<Node> selectedNodes, double dx, double dy, boolean normalizePaths) {
 		for (var e : graph.edges()) {
-			var path = (Path) e.getData();
-
-			if (selectedNodes.contains(e.getSource()) && selectedNodes.contains(e.getTarget())) {
-				for (var element : path.getElements()) {
-					shiftEdge(element, dx, dy);
-				}
-			} else if (selectedNodes.contains(e.getSource()) && !selectedNodes.contains(e.getTarget())) {
-				var index = 0;
-				PathReshape.apply(path, index, dx, dy);
-				if (normalizePaths) {
-					path.getElements().setAll(PathNormalize.apply(path, 2, 5));
-				}
-			} else if (!selectedNodes.contains(e.getSource()) && selectedNodes.contains(e.getTarget())) {
-				var index = path.getElements().size() - 1;
-				PathReshape.apply(path, index, dx, dy);
-				if (normalizePaths) {
-					path.getElements().setAll(PathNormalize.apply(path, 2, 5));
+			if (e.getData() instanceof Path path) {
+				if (selectedNodes.contains(e.getSource()) && selectedNodes.contains(e.getTarget())) {
+					for (var element : path.getElements()) {
+						shiftEdge(element, dx, dy);
+					}
+				} else if (selectedNodes.contains(e.getSource()) && !selectedNodes.contains(e.getTarget())) {
+					var index = 0;
+					PathReshape.apply(path, index, dx, dy);
+					if (normalizePaths) {
+						path.getElements().setAll(PathNormalize.apply(path, 2, 5));
+					}
+				} else if (!selectedNodes.contains(e.getSource()) && selectedNodes.contains(e.getTarget())) {
+					var index = path.getElements().size() - 1;
+					PathReshape.apply(path, index, dx, dy);
+					if (normalizePaths) {
+						path.getElements().setAll(PathNormalize.apply(path, 2, 5));
+					}
 				}
 			}
 		}

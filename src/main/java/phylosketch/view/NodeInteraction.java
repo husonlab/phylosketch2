@@ -57,8 +57,8 @@ public class NodeInteraction {
 												view.getNodeSelection().clearSelection();
 												view.getEdgeSelection().clearSelection();
 											}
-											view.getNodeSelection().toggleSelection(v);
 										}
+										view.getNodeSelection().toggleSelection(v);
 										me.consume();
 									} else if (me.getClickCount() == 2) {
 										Platform.runLater(runDoubleClickSelection);

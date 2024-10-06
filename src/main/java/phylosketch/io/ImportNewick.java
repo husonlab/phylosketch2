@@ -22,7 +22,6 @@ package phylosketch.io;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.shape.Circle;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.NewickIO;
@@ -89,10 +88,7 @@ public class ImportNewick {
 				var yMax = yMin + width;
 				scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
 				for (var v : tree.nodes()) {
-					var shape = new Circle(3);
-					shape.setTranslateX(nodePointMap.get(v).getX());
-					shape.setTranslateY(nodePointMap.get(v).getY());
-					srcTarMap.put(v, view.createNode(shape));
+					srcTarMap.put(v, view.createNode(nodePointMap.get(v)));
 				}
 				// need to run this later otherwise labels will be placed incorrectly
 				Platform.runLater(()-> {
