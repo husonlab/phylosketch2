@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
@@ -53,6 +54,8 @@ public class RotateCommand extends UndoableRedoableCommand {
 		var angle = (positiveRotation ? 90 : -90);
 
 		var nodes = view.getSelectedOrAllNodes();
+
+		var layoutCommmand = new LayoutLabelsCommand(view, nodes);
 
 		var x = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
 		var y = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
@@ -125,6 +128,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
+			sequential.setOnFinished(e -> Platform.runLater(layoutCommmand::undo));
 			sequential.play();
 		};
 
@@ -157,6 +161,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
+			sequential.setOnFinished(a -> layoutCommmand.redo());
 			sequential.play();
 		};
 	}

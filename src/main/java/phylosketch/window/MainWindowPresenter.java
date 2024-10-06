@@ -40,7 +40,6 @@ import jloda.fx.control.CopyableLabel;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.icons.MaterialIcons;
-import jloda.fx.undo.CompositeCommand;
 import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
@@ -397,18 +396,14 @@ public class MainWindowPresenter {
 			}
 		});
 
-		controller.getRotateLeftMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("rotate", new RotateCommand(view, false),
-				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getRotateLeftMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RotateCommand(view, false)));
 		controller.getRotateLeftMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> view.getNodeSelection().size() < 2, view.getNodeSelection().getSelectedItems()));
-		controller.getRotateRightMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("rotate", new RotateCommand(view, true),
-				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getRotateRightMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RotateCommand(view, true)));
 		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
-		controller.getFlipHorizontalMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("flip", new FlipCommand(view, true),
-				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getFlipHorizontalMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new FlipCommand(view, true)));
 		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
-		controller.getFlipVerticalMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new CompositeCommand("flip", new FlipCommand(view, false),
-				new LayoutLabelsCommand(view, view.getSelectedOrAllNodes()))));
+		controller.getFlipVerticalMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new FlipCommand(view, false)));
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
