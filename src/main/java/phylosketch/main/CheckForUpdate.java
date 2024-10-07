@@ -24,7 +24,10 @@ import com.install4j.api.update.ApplicationDisplayMode;
 import com.install4j.api.update.UpdateChecker;
 import com.install4j.api.update.UpdateDescriptor;
 import com.install4j.api.update.UpdateDescriptorEntry;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
 import jloda.fx.util.ProgramProperties;
+import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 
@@ -35,13 +38,12 @@ import java.util.concurrent.Executors;
  * Daniel Huson, 5.2018
  */
 public class CheckForUpdate {
-	public static final String programURL = "https://software-ab.cs.uni-tuebingen.de/download/phylosketch";
 	public static final String applicationId = "1691242391";
 
 	/**
 	 * check for update, download and install, if present
 	 */
-	public static void apply() {
+	public static void apply(String programURL) {
 		try {
 			final ApplicationDisplayMode applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
 			final UpdateDescriptor updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
@@ -75,4 +77,14 @@ public class CheckForUpdate {
             NotificationManager.showInformation("Failed to check for updates: " + e);
         }
     }
+
+	public static void setupDisableProperty(BooleanProperty disable) {
+		disable.set(true);
+
+		InvalidationListener listener = a -> disable.set(MainWindowManager.getInstance().size() > 1 ||
+														 (MainWindowManager.getInstance().size() == 1
+														  && !MainWindowManager.getInstance().getMainWindow(0).isEmpty()));
+		listener.invalidated(null);
+		MainWindowManager.getInstance().changedProperty().addListener(listener);
+	}
 }
