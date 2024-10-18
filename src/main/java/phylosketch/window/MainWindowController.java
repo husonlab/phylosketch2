@@ -33,6 +33,7 @@ import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
+import phylosketch.main.PhyloSketch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -388,6 +389,9 @@ public class MainWindowController {
 	private ToggleButton editModeToggleButton;
 
 	@FXML
+	private Button importButton;
+
+	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
 
 	@FXML
@@ -405,6 +409,11 @@ public class MainWindowController {
 
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
 		MaterialIcons.setIcon(selectButton, MaterialIcons.select_all);
+
+		if (PhyloSketch.isDesktop())
+			MaterialIcons.setIcon(importButton, MaterialIcons.input, "-fx-translate-y: 1;", true);
+		else
+			MaterialIcons.setIcon(importButton, MaterialIcons.input, "-fx-padding: 0 5px;-fx-translate-y: 2;", true);
 
 		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
 		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
@@ -914,5 +923,9 @@ public class MainWindowController {
 
 	public Button getMeasureWeightsButton() {
 		return measureWeightsButton;
+	}
+
+	public Button getImportButton() {
+		return importButton;
 	}
 }

@@ -41,7 +41,12 @@
                                                               mnemonicParsing="false" text="Edit Mode"/>
                                                 <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
                                                         HBox.hgrow="NEVER"/>
-                                                <MenuButton fx:id="fileMenuButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Files">
+                                                <Button fx:id="importButton" text="Import"/>
+                                                <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
+                                                        HBox.hgrow="NEVER"/>
+                                                <MenuButton fx:id="fileMenuButton" maxHeight="-Infinity"
+                                                            maxWidth="-Infinity" minHeight="-Infinity"
+                                                            minWidth="-Infinity" mnemonicParsing="false" text="Files">
                                                     <tooltip>
                                                         <Tooltip text="File items"/>
                                                     </tooltip>
@@ -303,6 +308,7 @@
                                         </CheckMenuItem>
                                     </items>
                                 </Menu>
+
                                 <SeparatorMenuItem mnemonicParsing="false"/>
                                 <MenuItem fx:id="findMenuItem" mnemonicParsing="false" text="Find...">
                                     <accelerator>
