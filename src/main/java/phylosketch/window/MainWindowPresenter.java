@@ -136,10 +136,15 @@ public class MainWindowPresenter {
 		controller.getAboutMenuItem().setOnAction(e -> SplashScreen.showSplash(Duration.ofMinutes(2)));
 
 		controller.getPasteMenuItem().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new PasteCommand(view));
+			view.getUndoManager().doAndAdd(new PasteCommand(view, ClipboardUtils.getTextFilesContentOrString(1000000)));
 			allowResize.set(true);
 		});
 		controller.getPasteMenuItem().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
+
+		ImportButtonUtils.setup(controller.getImportButton(), s -> {
+			view.getUndoManager().doAndAdd(new PasteCommand(view, s));
+			allowResize.set(true);
+		});
 
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));

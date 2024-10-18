@@ -21,7 +21,6 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import jloda.fx.util.ClipboardUtils;
 import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
 import jloda.util.StringUtils;
@@ -56,10 +55,9 @@ public class PasteCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view the view
 	 */
-	public PasteCommand(DrawPane view) {
+	public PasteCommand(DrawPane view, String pastedString) {
 		super("paste");
 
-		var pastedString = ClipboardUtils.getTextFilesContentOrString(1000000);
 		pastedLine = StringUtils.getFirstLine(pastedString);
 		if (pastedLine.startsWith("(") && (pastedLine.endsWith(")") || pastedLine.endsWith(";"))) {
 			try {
