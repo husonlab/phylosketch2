@@ -70,54 +70,56 @@ public class ImportNewick {
 
 		var nTrees = Math.min(maxTrees, 6);
 
-		var width = 750.0 / (1 + (nTrees > 3 ? 1 : 0));
+		var width = 300.0 / (1 + (nTrees > 3 ? 1 : 0));
 
 		var oldNodes = IteratorUtils.asSet(view.getGraph().nodes());
 
 		var count = 0;
 		while (r.ready()) {
 			var line = r.readLine();
-			var tree = new PhyloTree();
-			(new NewickIO()).parseBracketNotation(tree, line, true, false);
-			tree.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(e -> tree.setReticulate(e, true));
+			if (line != null && !line.isBlank()) {
+				var tree = new PhyloTree();
+				(new NewickIO()).parseBracketNotation(tree, line, true, false);
+				tree.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(e -> tree.setReticulate(e, true));
 
-			try (var nodePointMap = RootedNetworkEmbedder.apply(tree); NodeArray<Node> srcTarMap = tree.newNodeArray()) {
-				var xMin = (count < 3 ? count : count - 3) * (50 + width);
-				var xMax = xMin + width;
-				var yMin = (count < 3 ? 50 : 100 + width);
-				var yMax = yMin + width;
-				scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-				for (var v : tree.nodes()) {
-					srcTarMap.put(v, view.createNode(nodePointMap.get(v)));
-				}
-				// need to run this later otherwise labels will be placed incorrectly
-				Platform.runLater(()-> {
+				try (var nodePointMap = RootedNetworkEmbedder.apply(tree); NodeArray<Node> srcTarMap = tree.newNodeArray()) {
+					var xMin = (count < 3 ? count : count - 3) * (50 + width);
+					var xMax = xMin + width;
+					var yMin = (count < 3 ? 50 : 100 + width);
+					var yMax = yMin + width;
+					scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
 					for (var v : tree.nodes()) {
-						var w = srcTarMap.get(v);
-						if (tree.getLabel(v) != null)
-							view.createLabel(w, tree.getLabel(v));
+						srcTarMap.put(v, view.createNode(nodePointMap.get(v)));
 					}
-				});
-				for (var e : tree.edges()) {
-					var v = srcTarMap.get(e.getSource());
-					var w = srcTarMap.get(e.getTarget());
-					var first = view.getPoint(v);
-					var last = view.getPoint(w);
+					// need to run this later otherwise labels will be placed incorrectly
+					Platform.runLater(() -> {
+						for (var v : tree.nodes()) {
+							var w = srcTarMap.get(v);
+							if (tree.getLabel(v) != null)
+								view.createLabel(w, tree.getLabel(v));
+						}
+					});
+					for (var e : tree.edges()) {
+						var v = srcTarMap.get(e.getSource());
+						var w = srcTarMap.get(e.getTarget());
+						var first = view.getPoint(v);
+						var last = view.getPoint(w);
 
-					List<Point2D> points;
-					if (e.getTarget().getInDegree() >= 2) {
-						points = List.of(first, last);
-					} else {
-						points = switch (rootLocation) {
-							case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
-							case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
-						};
+						List<Point2D> points;
+						if (e.getTarget().getInDegree() >= 2) {
+							points = List.of(first, last);
+						} else {
+							points = switch (rootLocation) {
+								case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
+								case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
+							};
+						}
+						view.createEdge(v, w, PathUtils.createPath(points, true));
 					}
-					view.createEdge(v, w, PathUtils.createPath(points, true));
 				}
+				if (++count == nTrees)
+					break;
 			}
-			if (++count == nTrees)
-				break;
 		}
 		var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 		newNodes.removeAll(oldNodes);
