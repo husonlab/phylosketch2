@@ -145,6 +145,7 @@ public class MainWindowPresenter {
 			view.getUndoManager().doAndAdd(new PasteCommand(view, s));
 			allowResize.set(true);
 		});
+		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit));
 
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
