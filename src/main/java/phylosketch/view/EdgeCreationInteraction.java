@@ -25,6 +25,8 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import phylosketch.commands.AddEdgeCommand;
+import phylosketch.paths.PathSmoother;
+import phylosketch.paths.PathUtils;
 
 import static phylosketch.paths.PathUtils.getCoordinates;
 
@@ -76,6 +78,7 @@ public class EdgeCreationInteraction {
 				if (!path.getElements().isEmpty()) {
 					view.getEdgesGroup().getChildren().remove(path);
 					if (isGoodPath(path)) {
+						path.getElements().setAll(PathUtils.createPath(PathSmoother.apply(PathUtils.extractPoints(path), 10), true).getElements());
 						view.getUndoManager().doAndAdd(new AddEdgeCommand(view, path));
 					}
 					path.getElements().clear();
