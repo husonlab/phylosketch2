@@ -266,6 +266,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 
 			Edge newEdge; // new edge
 			{
+				extendPathIfNecessary(startPoint, path, endPoint);
 				newEdge = view.createEdge(s, t, path);
 				newEdgeId = newEdge.getId();
 			}
@@ -286,6 +287,21 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			if (mustSplitEndEdge)
 				view.deleteEdge(graph.findEdgeById(endEdgeId));
 		};
+	}
+
+	private static void extendPathIfNecessary(Point2D startPoint, Path path, Point2D endPoint) {
+		var pathPoints = PathUtils.extractPoints(path);
+		var extendStart = (pathPoints.get(0).distance(startPoint) > 1);
+		var endEnd = (pathPoints.get(pathPoints.size() - 1).distance(endPoint) > 1);
+		if (extendStart || endEnd) {
+			var points = new ArrayList<Point2D>();
+			if (extendStart)
+				points.add(startPoint);
+			points.addAll(pathPoints);
+			if (endEnd)
+				points.add(endPoint);
+			path.getElements().setAll(PathUtils.createPath(points, true).getElements());
+		}
 	}
 
 	@Override
