@@ -43,6 +43,8 @@ public class RerootCommand extends UndoableRedoableCommand {
 	private final Integer oldTargetId;
 	private final Path oldEdgePath;
 
+	private int newEdgeAtSourceId = -1;
+	private int newEdgeAtTargetId = -1;
 	private Integer newNodeId = -1;
 	private Integer newRootId = -1;
 
@@ -137,15 +139,18 @@ public class RerootCommand extends UndoableRedoableCommand {
 					f.reverse();
 				}
 				if (oldEdgeId != -1) {
-					var location = PathUtils.getMiddle(oldEdgePath);
-					var w = view.createNode(location);
-					newNodeId = w.getId();
 					var index = oldEdgePath.getElements().size() / 2;
 					var edgeHit = new AddEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
 					var parts = edgeHit.splitPath();
+					var location = PathUtils.getCoordinates(parts.getSecond().getElements().get(0));
+					var w = view.createNode(location, newNodeId);
+					newNodeId = w.getId();
+
 					var firstPath = PathUtils.createPath(CollectionUtils.reverse(PathUtils.extractPoints(parts.getFirst())), false);
-					var e1 = view.createEdge(w, graph.findNodeById(oldSourceId), firstPath);
-					var e2 = view.createEdge(w, graph.findNodeById(oldTargetId), parts.getSecond());
+					var e1 = view.createEdge(w, graph.findNodeById(oldSourceId), firstPath, newEdgeAtSourceId);
+					newEdgeAtSourceId = e1.getId();
+					var e2 = view.createEdge(w, graph.findNodeById(oldTargetId), parts.getSecond(), newEdgeAtTargetId);
+					newEdgeAtTargetId = e2.getId();
 
 					view.getNodeSelection().select(w);
 					view.getEdgeSelection().select(e1);
