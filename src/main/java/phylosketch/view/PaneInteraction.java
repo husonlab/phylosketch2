@@ -29,8 +29,10 @@ public class PaneInteraction {
 	public static void setup(DrawPane view) {
 		view.setOnMouseClicked(me -> {
 			if ((me.getClickCount() == 2 || !PhyloSketch.isDesktop() && me.getClickCount() == 1) && me.isStillSincePress()) {
-				view.getNodeSelection().clearSelection();
-				view.getEdgeSelection().clearSelection();
+				if (view.getNodeSelection().size() > 0 || view.getEdgeSelection().size() > 0) {
+					view.getNodeSelection().clearSelection();
+					view.getEdgeSelection().clearSelection();
+				}
 				me.consume();
 			}
 		});

@@ -91,14 +91,12 @@ public class EdgeCreationInteraction {
 	public static boolean isGoodPath(Path path) {
 		Point2D first = null;
 		for (var element : path.getElements()) {
-			if (element instanceof LineTo || element instanceof MoveTo) {
 				var coordinates = getCoordinates(element);
 				if (first == null) {
 					first = coordinates;
 				} else {
 					if (first.distance(coordinates) >= 10)
 						return true;
-				}
 			}
 		}
 		return false;

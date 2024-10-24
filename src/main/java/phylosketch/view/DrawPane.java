@@ -87,7 +87,7 @@ public class DrawPane extends Pane {
 	private final ObservableMap<Edge, Path> edgeOutlineMap = FXCollections.observableHashMap();
 	private final BooleanProperty showOutlines = new SimpleBooleanProperty(this, "showOutlines", false);
 
-	private final BooleanProperty showArrows = new SimpleBooleanProperty(this, "showArrows,true");
+	private final BooleanProperty showArrows = new SimpleBooleanProperty(this, "showArrows", true);
 
 	private final DoubleProperty tolerance = new SimpleDoubleProperty(this, "tolerance", 5);
 
@@ -385,7 +385,7 @@ public class DrawPane extends Pane {
 	}
 
 	public Node createNode(Shape shape, RichTextLabel label, int recycledId) {
-		var v = graph.newNode(null, recycledId);
+		var v = recycledId != -1 ? graph.newNode(null, recycledId) : graph.newNode();
 		setShape(v, shape);
 		if (label != null && !nodeLabelsGroup.getChildren().contains(label)) {
 			v.setInfo(label);
@@ -416,7 +416,11 @@ public class DrawPane extends Pane {
 
 
 	public Edge createEdge(Node v, Node w, Path path) {
-		var e = graph.newEdge(v, w);
+		return createEdge(v, w, path, -1);
+	}
+
+	public Edge createEdge(Node v, Node w, Path path, int recycledId) {
+		var e = (recycledId != -1 ? graph.newEdge(v, w, null, recycledId) : graph.newEdge(v, w));
 		addPath(e, path);
 		return e;
 	}
@@ -426,12 +430,6 @@ public class DrawPane extends Pane {
 		path.setUserData(e);
 		if (!edgesGroup.getChildren().contains(path))
 			edgesGroup.getChildren().add(path);
-	}
-
-	public Edge createEdge(Node v, Node w, Path path, int recycledId) {
-		var e = graph.newEdge(v, w, null, recycledId);
-		addPath(e, path);
-		return e;
 	}
 
 	public void deleteEdge(Edge... edges) {

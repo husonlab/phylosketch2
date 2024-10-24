@@ -23,6 +23,7 @@ import javafx.stage.FileChooser;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.util.TextFileFilter;
+import jloda.util.FileUtils;
 import phylosketch.window.MainWindow;
 
 import java.io.File;
@@ -58,7 +59,7 @@ public class Save {
 
         if (!currentFile.isDirectory()) {
             fileChooser.setInitialDirectory(currentFile.getParentFile());
-            fileChooser.setInitialFileName(currentFile.getName());
+			fileChooser.setInitialFileName(FileUtils.getFileNameWithoutPathOrSuffix(currentFile.getPath()));
         } else {
             var tmp = new File(ProgramProperties.get("SaveFileDir", ""));
             if (tmp.isDirectory()) {

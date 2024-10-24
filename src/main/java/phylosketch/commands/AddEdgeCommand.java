@@ -59,6 +59,8 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 	private Path startPath;
 
 	private int newStartNodeId = -1;
+	private int newStartEdgeSourcePartId = -1;
+	private int newStartEdgeTargetPartId = -1;
 
 	private int endEdgeId = -1;
 	private boolean endEdgeArrow = false;
@@ -67,7 +69,8 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 	private Path endPath;
 
 	private int newEndNodeId = -1;
-
+	private int newEndEdgeSourcePartId = -1;
+	private int newEndEdgeTargetPartId = -1;
 	private int newEdgeId = -1;
 
 	/**
@@ -155,7 +158,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 					startParts = null;
 					startPoint = view.getPoint(startNode);
 					startNodeId = startNode.getId();
-				} else if (startEdgeHit != null) { // spl
+				} else if (startEdgeHit != null) { // splitting start edge
 					mustCreateStartNode = false;
 					mustSplitStartEdge = true;
 
@@ -216,24 +219,26 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			Node s; // start node for new edge
 			if (mustSplitStartEdge) {
 				{
-					s = view.createNode(startPoint);
+					s = view.createNode(startPoint, newStartNodeId);
 					newStartNodeId = s.getId();
 				}
 
 				{
 					var v = graph.findNodeById(startEdgeSourceId);
-					var e = view.createEdge(v, s, startParts.getFirst());
+					var e = view.createEdge(v, s, startParts.getFirst(), newStartEdgeSourcePartId);
+					newStartEdgeSourcePartId = e.getId();
 					if (startEdgeArrow)
 						redoArrows.add(e);
 				}
 				{
 					var w = graph.findNodeById(startEdgeTargetId);
-					var e = view.createEdge(s, w, startParts.getSecond());
+					var e = view.createEdge(s, w, startParts.getSecond(), newStartEdgeTargetPartId);
+					newStartEdgeTargetPartId = e.getId();
 					if (startEdgeArrow)
 						redoArrows.add(e);
 				}
 			} else if (mustCreateStartNode) {
-				s = view.createNode(startPoint);
+				s = view.createNode(startPoint, newStartNodeId);
 				newStartNodeId = s.getId();
 			} else {
 				s = graph.findNodeById(startNodeId);
@@ -242,23 +247,25 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			Node t; // end node for new edge
 			if (mustSplitEndEdge) {
 				{
-					t = view.createNode(endPoint);
+					t = view.createNode(endPoint, newEndNodeId);
 					newEndNodeId = t.getId();
 				}
 				{
 					var v = graph.findNodeById(endEdgeSourceId);
-					var e = view.createEdge(v, t, endParts.getFirst());
+					var e = view.createEdge(v, t, endParts.getFirst(), newEndEdgeSourcePartId);
+					newEndEdgeSourcePartId = e.getId();
 					if (endEdgeArrow)
 						redoArrows.add(e);
 				}
 				{
 					var w = graph.findNodeById(endEdgeTargetId);
-					var e = view.createEdge(t, w, endParts.getSecond());
+					var e = view.createEdge(t, w, endParts.getSecond(), newEndEdgeTargetPartId);
+					newEndEdgeTargetPartId = e.getId();
 					if (endEdgeArrow)
 						redoArrows.add(e);
 				}
 			} else if (mustCreateEndNode) {
-				t = view.createNode(endPoint);
+				t = view.createNode(endPoint, newEndNodeId);
 				newEndNodeId = t.getId();
 			} else {
 				t = graph.findNodeById(endNodeId);
@@ -267,7 +274,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			Edge newEdge; // new edge
 			{
 				extendPathIfNecessary(startPoint, path, endPoint);
-				newEdge = view.createEdge(s, t, path);
+				newEdge = view.createEdge(s, t, path, newEdgeId);
 				newEdgeId = newEdge.getId();
 			}
 
@@ -322,7 +329,6 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 	@Override
 	public void redo() {
 		redo.run();
-
 	}
 
 	private static Node findNode(DrawPane view, Point2D local) {

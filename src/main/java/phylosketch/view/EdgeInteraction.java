@@ -57,68 +57,76 @@ public class EdgeInteraction {
 					for (Node n : c.getAddedSubList()) {
 						if (n instanceof Path path && path.getUserData() instanceof jloda.graph.Edge e) {
 							path.setOnMouseClicked(me -> {
-								if (me.isStillSincePress()) {
-									if (me.getClickCount() == 1) {
-										if (!me.isAltDown() && PhyloSketch.isDesktop()) {
-											if (!me.isShiftDown()) {
-												view.getNodeSelection().clearSelection();
-												view.getEdgeSelection().clearSelection();
+								if (!me.isSynthesized()) {
+									if (me.isStillSincePress()) {
+										if (me.getClickCount() == 1) {
+											if (!me.isAltDown() && PhyloSketch.isDesktop()) {
+												if (!me.isShiftDown()) {
+													view.getNodeSelection().clearSelection();
+													view.getEdgeSelection().clearSelection();
+												}
 											}
-										}
 											view.getEdgeSelection().toggleSelection(e);
 											if (!me.isControlDown()) {
 												view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
 												view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
+											}
+											me.consume();
+										} else if (me.getClickCount() == 2) {
+											Platform.runLater(runDoubleClickSelection);
+											me.consume();
 										}
-										me.consume();
-									} else if (me.getClickCount() == 2) {
-										Platform.runLater(runDoubleClickSelection);
-										me.consume();
 									}
 								}
 							});
 
 							path.setOnMousePressed(me -> {
-								if (view.getMode() == DrawPane.Mode.Move && !view.getEdgeSelection().isSelected(e)) {
-									if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
-										view.getNodeSelection().clearSelection();
-										view.getEdgeSelection().clearSelection();
+								if (view.getMode() == DrawPane.Mode.Move && !me.isSynthesized()) {
+									if (view.getMode() == DrawPane.Mode.Move && !view.getEdgeSelection().isSelected(e)) {
+										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+											view.getNodeSelection().clearSelection();
+											view.getEdgeSelection().clearSelection();
+										}
+										view.getEdgeSelection().select(e);
 									}
-									view.getEdgeSelection().select(e);
+									if ((view.getMode() == DrawPane.Mode.Edit || view.getMode() == DrawPane.Mode.Move)
+										&& view.getEdgeSelection().isSelected(e)) {
+										mouseDownX = me.getScreenX();
+										mouseDownY = me.getScreenY();
+										var local = view.screenToLocal(mouseDownX, mouseDownY);
+										pathIndex = findIndex(path, local);
+										originalElements = copy(path.getElements());
+										mouseX = me.getScreenX();
+										mouseY = me.getScreenY();
+										me.consume();
+									} else
+										pathIndex = -1;
 								}
-								if ((view.getMode() == DrawPane.Mode.Edit || view.getMode() == DrawPane.Mode.Move)
-									&& view.getEdgeSelection().isSelected(e)) {
-									mouseDownX = me.getScreenX();
-									mouseDownY = me.getScreenY();
-									var local = view.screenToLocal(mouseDownX, mouseDownY);
-									pathIndex = findIndex(path, local);
-									originalElements = copy(path.getElements());
-									mouseX = me.getScreenX();
-									mouseY = me.getScreenY();
-									me.consume();
-								} else
-									pathIndex = -1;
 							});
 							path.setOnMouseDragged(me -> {
-								if (pathIndex != -1) {
-									var local = view.screenToLocal(me.getScreenX(), me.getScreenY());
-									var d = local.subtract(view.screenToLocal(mouseX, mouseY));
-									PathReshape.apply(path, pathIndex, d.getX(), d.getY());
-									mouseX = me.getScreenX();
-									mouseY = me.getScreenY();
-									me.consume();
+								if (view.getMode() == DrawPane.Mode.Move && !me.isSynthesized()) {
+									if (pathIndex != -1) {
+										var local = view.screenToLocal(me.getScreenX(), me.getScreenY());
+										var d = local.subtract(view.screenToLocal(mouseX, mouseY));
+										PathReshape.apply(path, pathIndex, d.getX(), d.getY());
+										mouseX = me.getScreenX();
+										mouseY = me.getScreenY();
+										me.consume();
+									}
 								}
 							});
 							path.setOnMouseReleased(me -> {
-								if (pathIndex != -1 && !me.isStillSincePress()) {
-									var theOriginalElements = originalElements;
-									var refinedElements = PathNormalize.apply(path, 2, 5);
-									path.getElements().setAll(refinedElements);
+								if (view.getMode() == DrawPane.Mode.Move && !me.isSynthesized()) {
+									if (pathIndex != -1 && !me.isStillSincePress()) {
+										var theOriginalElements = originalElements;
+										var refinedElements = PathNormalize.apply(path, 2, 5);
+										path.getElements().setAll(refinedElements);
 
-									view.getUndoManager().add("reshape",
-											() -> path.getElements().setAll(theOriginalElements),
-											() -> path.getElements().setAll(refinedElements));
-									me.consume();
+										view.getUndoManager().add("reshape",
+												() -> path.getElements().setAll(theOriginalElements),
+												() -> path.getElements().setAll(refinedElements));
+										me.consume();
+									}
 								}
 							});
 							path.setOnMouseEntered(me -> {
