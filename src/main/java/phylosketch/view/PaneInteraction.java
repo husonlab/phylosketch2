@@ -20,14 +20,17 @@
 
 package phylosketch.view;
 
+import javafx.beans.property.BooleanProperty;
 import phylosketch.main.PhyloSketch;
 
 /**
  * setup view mouse
  */
 public class PaneInteraction {
-	public static void setup(DrawPane view) {
+	public static void setup(DrawPane view, BooleanProperty allowResize) {
 		view.setOnMouseClicked(me -> {
+			if (me.getClickCount() == 1)
+				allowResize.set(false);
 			if ((me.getClickCount() == 2 || !PhyloSketch.isDesktop() && me.getClickCount() == 1) && me.isStillSincePress()) {
 				if (view.getNodeSelection().size() > 0 || view.getEdgeSelection().size() > 0) {
 					view.getNodeSelection().clearSelection();

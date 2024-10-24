@@ -97,11 +97,11 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 
 			if (startNode != null && endNode != null && !IsDAG.apply(view.getGraph(), List.of(new Pair<>(startNode, endNode))))
 				return;
-			if (startNode != null && endEdgeHit != null && !IsDAG.apply(view.getGraph(), List.of(new Pair<>(startNode, endEdgeHit.e().getSource()))))
+			if (startNode != null && endEdgeHit != null && !IsDAG.apply(view.getGraph(), List.of(new Pair<>(startNode, endEdgeHit.e().getTarget()))))
 				return;
 			if (startEdgeHit != null && endNode != null && !IsDAG.apply(view.getGraph(), List.of(new Pair<>(startEdgeHit.e.getSource(), endNode))))
 				return;
-			if (startEdgeHit != null && endEdgeHit != null && !IsDAG.apply(view.getGraph(), List.of(new Pair<>(startEdgeHit.e.getSource(), endEdgeHit.e().getSource()))))
+			if (startEdgeHit != null && endEdgeHit != null && !IsDAG.apply(view.getGraph(), List.of(new Pair<>(startEdgeHit.e.getSource(), endEdgeHit.e().getTarget()))))
 				return;
 		}
 

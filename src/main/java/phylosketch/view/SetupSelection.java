@@ -40,7 +40,6 @@ public class SetupSelection {
 		var edgeSelection = view.getEdgeSelection();
 
 		controller.getSelectButton().setOnAction(a -> {
-
 			for (var e : graph.edges()) {
 				if (nodeSelection.isSelected(e.getSource()) && !nodeSelection.isSelected(e.getTarget())) {
 					controller.getSelectAllBelowMenuItem().fire();
@@ -95,13 +94,25 @@ public class SetupSelection {
 		controller.getSelectReticulateNodesMenuitem().setOnAction(e -> graph.nodeStream().filter(v -> v.getInDegree() > 1).forEach(nodeSelection::select));
 		controller.getSelectReticulateNodesMenuitem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getSelectStableNodesMenuItem().setOnAction(e -> RootedNetworkProperties.computeAllCompletelyStableInternal(graph).forEach(nodeSelection::select));
+		controller.getSelectStableNodesMenuItem().setOnAction(e -> {
+			try (var nodes = RootedNetworkProperties.computeAllCompletelyStableInternal(graph)) {
+				nodes.forEach(nodeSelection::select);
+			}
+		});
 		controller.getSelectStableNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getSelectVisibleNodesMenuItem().setOnAction(e -> RootedNetworkProperties.computeAllVisibleNodes(graph, null).forEach(nodeSelection::select));
+		controller.getSelectVisibleNodesMenuItem().setOnAction(e -> {
+			try (var nodes = RootedNetworkProperties.computeAllVisibleNodes(graph, null)) {
+				nodes.forEach(nodeSelection::select);
+			}
+		});
 		controller.getSelectVisibleNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getSelectVisibleReticulationsMenuItem().setOnAction(e -> RootedNetworkProperties.computeAllVisibleNodes(graph, null).stream().filter(v -> v.getInDegree() > 1).forEach(nodeSelection::select));
+		controller.getSelectVisibleReticulationsMenuItem().setOnAction(e -> {
+			try (var nodes = RootedNetworkProperties.computeAllVisibleNodes(graph, null)) {
+				nodes.stream().filter(v -> v.getInDegree() > 1).forEach(nodeSelection::select);
+			}
+		});
 		controller.getSelectVisibleReticulationsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectTreeNodesMenuItem().setOnAction(e -> graph.nodeStream().filter(v -> v.getInDegree() <= 1 && v.getOutDegree() > 0).forEach(nodeSelection::select));

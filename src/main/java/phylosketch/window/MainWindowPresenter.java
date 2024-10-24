@@ -96,7 +96,7 @@ public class MainWindowPresenter {
 		}
 
 		EdgeCreationInteraction.setup(view);
-		PaneInteraction.setup(view);
+		PaneInteraction.setup(view, allowResize);
 		NodeInteraction.setup(view, () -> controller.getSelectButton().fire());
 		EdgeInteraction.setup(view, () -> controller.getSelectButton().fire());
 
@@ -136,14 +136,20 @@ public class MainWindowPresenter {
 		controller.getAboutMenuItem().setOnAction(e -> SplashScreen.showSplash(Duration.ofMinutes(2)));
 
 		controller.getPasteMenuItem().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new PasteCommand(view, ClipboardUtils.getTextFilesContentOrString(1000000)));
-			allowResize.set(true);
+			var pasteCommand = new PasteCommand(view, ClipboardUtils.getTextFilesContentOrString(1000000));
+			if (pasteCommand.isRedoable()) {
+				view.getUndoManager().doAndAdd(pasteCommand);
+				allowResize.set(true);
+			}
 		});
 		controller.getPasteMenuItem().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
 
 		ImportButtonUtils.setup(controller.getImportButton(), s -> {
-			view.getUndoManager().doAndAdd(new PasteCommand(view, s));
-			allowResize.set(true);
+			var pasteCommand = new PasteCommand(view, s);
+			if (pasteCommand.isRedoable()) {
+				view.getUndoManager().doAndAdd(pasteCommand);
+				allowResize.set(true);
+			}
 		});
 		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit));
 
