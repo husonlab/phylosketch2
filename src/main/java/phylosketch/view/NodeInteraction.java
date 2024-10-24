@@ -60,7 +60,9 @@ public class NodeInteraction {
 										view.getNodeSelection().toggleSelection(v);
 										me.consume();
 									} else if (me.getClickCount() == 2) {
+										view.getNodeSelection().select(v);
 										Platform.runLater(runDoubleClickSelection);
+										me.consume();
 									}
 								}
 							});
