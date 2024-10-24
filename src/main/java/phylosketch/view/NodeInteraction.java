@@ -61,7 +61,6 @@ public class NodeInteraction {
 										me.consume();
 									} else if (me.getClickCount() == 2) {
 										Platform.runLater(runDoubleClickSelection);
-										me.consume();
 									}
 								}
 							});

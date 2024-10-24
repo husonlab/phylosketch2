@@ -298,8 +298,6 @@ public class MainWindowPresenter {
 			if (n)
 				view.setMode(DrawPane.Mode.View);
 			view.showOutlinesProperty().set(n);
-			if (n)
-				controller.getArrowsMenuItem().setSelected(false);
 		});
 		controller.getOutlineEdgesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 		view.modeProperty().addListener((v, o, n) -> {
@@ -407,23 +405,23 @@ public class MainWindowPresenter {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, false));
 		});
-		controller.getRotateLeftMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> view.getNodeSelection().size() < 2, view.getNodeSelection().getSelectedItems()));
+		controller.getRotateLeftMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 		controller.getRotateRightMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, true));
 		});
-		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+		controller.getRotateRightMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getFlipHorizontalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new FlipCommand(view, true));
 		});
-		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+		controller.getFlipHorizontalMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 		controller.getFlipVerticalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new FlipCommand(view, false));
 		});
-		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+		controller.getFlipVerticalMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
 			if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {
@@ -462,6 +460,7 @@ public class MainWindowPresenter {
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply("https://software-ab.cs.uni-tuebingen.de/download/phylosketch2"));
 		CheckForUpdate.setupDisableProperty(controller.getCheckForUpdatesMenuItem().disableProperty());
 
+		SwipeUtils.setConsumeSwipes(view);
 
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);

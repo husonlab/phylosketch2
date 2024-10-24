@@ -57,8 +57,8 @@ public class RotateCommand extends UndoableRedoableCommand {
 
 		var layoutCommmand = new LayoutLabelsCommand(view, nodes);
 
-		var x = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
-		var y = view.getNodeSelection().getSelectedItems().stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
+		var x = nodes.stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
+		var y = nodes.stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
 		var center = new Point2D(x, y);
 		for (var v : nodes) {
 			var point = view.getPoint(v);
