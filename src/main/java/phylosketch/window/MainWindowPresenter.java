@@ -389,6 +389,9 @@ public class MainWindowPresenter {
 		controller.getRectangularMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new RectangularCommand(view.getGraph(), view.getSelectedOrAllEdges())));
 		controller.getRectangularMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
+		controller.getQuadraticCurveMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new QuadraticCurveCommand(view.getGraph(), view.getSelectedOrAllEdges())));
+		controller.getQuadraticCurveMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
+
 		var infoLabel = new CopyableLabel();
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
 			try (var componentMap = view.getGraph().newNodeIntArray()) {
