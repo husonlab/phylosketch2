@@ -433,6 +433,7 @@
                             <MenuItem fx:id="smoothMenuItem" text="Smooth"/>
                             <MenuItem fx:id="straightMenuItem" text="Straight"/>
                             <MenuItem fx:id="rectangularMenuItem" text="Rectangular"/>
+                            <MenuItem fx:id="quadraticCurveMenuItem" text="Quad. Curve"/>
 
                             <SeparatorMenuItem mnemonicParsing="false"/>
                             <MenuItem fx:id="rotateLeftMenuItem" text="Rotate Left">

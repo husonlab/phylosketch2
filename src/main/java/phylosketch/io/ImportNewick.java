@@ -114,7 +114,9 @@ public class ImportNewick {
 								case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
 							};
 						}
-						view.createEdge(v, w, PathUtils.createPath(points, true));
+						var f = view.createEdge(v, w, PathUtils.createPath(points, true));
+						if (view.isShowArrows())
+							view.setShowArrow(f, true);
 					}
 				}
 				if (++count == nTrees)

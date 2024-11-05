@@ -270,10 +270,10 @@ public class LSATreeUtilities {
 				changed = false;
 				List<Node> falseLeaves = new LinkedList<>();
 				for (Node v = tree.getFirstNode(); v != null; v = v.getNext()) {
-					if (v.getInDegree() == 1 && v.getOutDegree() == 0 && (tree.getLabel(v) == null || tree.getLabel(v).length() == 0))
+					if (v.getInDegree() == 1 && v.getOutDegree() == 0 && (tree.getLabel(v) == null || tree.getLabel(v).isEmpty()))
 						falseLeaves.add(v);
 				}
-				if (falseLeaves.size() > 0) {
+				if (!falseLeaves.isEmpty()) {
 					for (Node u : falseLeaves)
 						tree.deleteNode(u);
 					changed = true;
@@ -281,10 +281,10 @@ public class LSATreeUtilities {
 
 				List<Node> divertices = new LinkedList<>();
 				for (Node v = tree.getFirstNode(); v != null; v = v.getNext()) {
-					if (v.getInDegree() == 1 && v.getOutDegree() == 1 && v != tree.getRoot() && (tree.getLabel(v) == null || tree.getLabel(v).length() == 0))
+					if (v.getInDegree() == 1 && v.getOutDegree() == 1 && v != tree.getRoot() && (tree.getLabel(v) == null || tree.getLabel(v).isEmpty()))
 						divertices.add(v);
 				}
-				if (divertices.size() > 0) {
+				if (!divertices.isEmpty()) {
 					for (Node u : divertices)
 						tree.delDivertex(u);
 					changed = true;
@@ -304,7 +304,7 @@ public class LSATreeUtilities {
 
 		for (Node v = tree.getFirstNode(); v != null; v = v.getNext()) {
 			{
-				if (v.getOutDegree() == 0 && (tree.getLabel(v) == null || tree.getLabel(v).trim().length() == 0)) {
+				if (v.getOutDegree() == 0 && (tree.getLabel(v) == null || tree.getLabel(v).trim().isEmpty())) {
 					System.err.println("WARNING: adding label to naked leaf: " + v);
 					tree.setLabel(v, "V" + v.getId());
 				}

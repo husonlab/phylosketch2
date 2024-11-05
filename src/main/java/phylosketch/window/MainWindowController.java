@@ -356,6 +356,9 @@ public class MainWindowController {
 	private MenuItem rectangularMenuItem;
 
 	@FXML
+	private MenuItem quadraticCurveMenuItem;
+
+	@FXML
 	private MenuItem rerootMenuItem;
 
 	@FXML
@@ -859,6 +862,10 @@ public class MainWindowController {
 
 	public MenuItem getRectangularMenuItem() {
 		return rectangularMenuItem;
+	}
+
+	public MenuItem getQuadraticCurveMenuItem() {
+		return quadraticCurveMenuItem;
 	}
 
 	public CheckMenuItem getEditModeCheckMenuItem() {
