@@ -430,10 +430,11 @@
                             <CheckMenuItem fx:id="arrowsMenuItem" text="Arrows"/>
                             <CheckMenuItem fx:id="outlineEdgesMenuItem" text="Outlines"/>
                             <SeparatorMenuItem mnemonicParsing="false"/>
-                            <MenuItem fx:id="smoothMenuItem" text="Smooth"/>
                             <MenuItem fx:id="straightMenuItem" text="Straight"/>
                             <MenuItem fx:id="rectangularMenuItem" text="Rectangular"/>
-                            <MenuItem fx:id="quadraticCurveMenuItem" text="Quad. Curve"/>
+                            <MenuItem fx:id="quadraticCurveMenuItem" text="Curve"/>
+                            <SeparatorMenuItem mnemonicParsing="false"/>
+                            <MenuItem fx:id="smoothMenuItem" text="Smooth"/>
 
                             <SeparatorMenuItem mnemonicParsing="false"/>
                             <MenuItem fx:id="rotateLeftMenuItem" text="Rotate Left">

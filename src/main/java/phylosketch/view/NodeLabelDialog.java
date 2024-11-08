@@ -19,6 +19,8 @@
 
 package phylosketch.view;
 
+import javafx.application.Platform;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import jloda.fx.label.EditLabelDialog;
 import jloda.graph.Node;
@@ -33,16 +35,35 @@ import java.util.Collections;
  */
 public class NodeLabelDialog {
 
-    public static boolean apply(Stage owner, DrawPane drawPane, Node v) {
-        var editLabelDialog = new EditLabelDialog(owner, drawPane.getLabel(v));
-        var result = editLabelDialog.showAndWait();
-        if (result.isPresent()) {
-            var id = v.getId();
-            var oldLabel = drawPane.getLabel(v).getText();
-            var newLabel = result.get();
-            drawPane.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(drawPane, Collections.singletonList(new ChangeNodeLabelsCommand.Data(id, oldLabel, newLabel))));
-            return true;
-        } else
-            return false;
-    }
+	public static boolean apply(Stage owner, DrawPane drawPane, Node v) {
+		var editLabelDialog = new EditLabelDialog(owner, drawPane.getLabel(v));
+		var result = editLabelDialog.showAndWait();
+		if (result.isPresent()) {
+			var id = v.getId();
+			var oldLabel = drawPane.getLabel(v).getText();
+			var newLabel = result.get();
+			drawPane.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(drawPane, Collections.singletonList(new ChangeNodeLabelsCommand.Data(id, oldLabel, newLabel))));
+			return true;
+		} else
+			return false;
+	}
+
+	public static void apply(DrawPane drawPane, double screenX, double screenY, Node v, Runnable runAfter) {
+		var oldLabel = drawPane.getLabel(v).getText();
+		var textField = new TextField(oldLabel);
+		var local = drawPane.screenToLocal(screenX, screenY);
+		textField.setTranslateX(local.getX());
+		textField.setTranslateY(local.getY());
+		drawPane.getChildren().add(textField);
+		textField.setOnAction(e -> {
+			var id = v.getId();
+			var newLabel = textField.getText();
+			if (!newLabel.equals(oldLabel)) {
+				drawPane.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(drawPane, Collections.singletonList(new ChangeNodeLabelsCommand.Data(id, oldLabel, newLabel))));
+			}
+			Platform.runLater(() -> drawPane.getChildren().remove(textField));
+			if (runAfter != null)
+				Platform.runLater(runAfter);
+		});
+	}
 }
