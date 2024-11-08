@@ -51,6 +51,7 @@ import phylosketch.commands.*;
 import phylosketch.io.*;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
+import phylosketch.main.PhyloSketch;
 import phylosketch.view.*;
 
 import java.io.IOException;
@@ -210,8 +211,8 @@ public class MainWindowPresenter {
 					if (node instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
 						shape.setOnContextMenuRequested(cm -> {
 							var setLabel = new MenuItem("Edit Label");
-							setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
-							new ContextMenu(setLabel).show(window.getStage(), cm.getScreenX(), cm.getScreenY());
+							setLabel.setOnAction(x -> NodeLabelDialog.apply(view, cm.getScreenX(), cm.getScreenY(), v, null));
+							new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
 						});
 					}
 				}
@@ -225,8 +226,11 @@ public class MainWindowPresenter {
 						richTextLabel.setOnContextMenuRequested(cm -> {
 							var v = view.getGraph().findNodeById(nodeId);
 							var setLabel = new MenuItem("Edit Label");
-							setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
-							new ContextMenu(setLabel).show(window.getStage(), cm.getScreenX(), cm.getScreenY());
+							if (PhyloSketch.isDesktop())
+								setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
+							else
+								setLabel.setOnAction(x -> NodeLabelDialog.apply(view, cm.getScreenX(), cm.getScreenY(), v, null));
+							new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
 						});
 					}
 				}
@@ -469,7 +473,7 @@ public class MainWindowPresenter {
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply("https://software-ab.cs.uni-tuebingen.de/download/phylosketch2"));
 		CheckForUpdate.setupDisableProperty(controller.getCheckForUpdatesMenuItem().disableProperty());
 
-		SwipeUtils.setConsumeSwipes(view);
+		SwipeUtils.setConsumeSwipes(controller.getRootPane());
 
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);

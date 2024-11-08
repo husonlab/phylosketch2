@@ -25,6 +25,7 @@ import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
 import jloda.util.Pair;
 import phylosketch.commands.ChangeNodeLabelsCommand;
+import phylosketch.main.PhyloSketch;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,11 +82,25 @@ public class LabelLeaves {
 			leaves.removeIf(v -> !drawPane.getNodeSelection().isSelected(v));
         }
 
-        for (var v : leaves) {
-            drawPane.getNodeSelection().clearSelection();
-            drawPane.getNodeSelection().select(v);
-            if (!NodeLabelDialog.apply(owner, drawPane, v))
-                break;
+        if (PhyloSketch.isDesktop()) {
+            for (var v : leaves) {
+                drawPane.getNodeSelection().clearSelection();
+                drawPane.getNodeSelection().select(v);
+                if (!NodeLabelDialog.apply(owner, drawPane, v))
+                    break;
+            }
+        } else {
+            relabelRec(drawPane, leaves);
+        }
+    }
+
+    private static void relabelRec(DrawPane drawPane, List<Node> leaves) {
+        if (!leaves.isEmpty()) {
+            var v = leaves.remove(0);
+            var shape = drawPane.getShape(v);
+            var bounds = shape.getBoundsInLocal();
+            var location = shape.localToScreen(bounds.getMinX(), bounds.getMinY());
+            NodeLabelDialog.apply(drawPane, location.getX(), location.getY(), v, () -> relabelRec(drawPane, leaves));
         }
     }
 

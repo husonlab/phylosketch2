@@ -20,7 +20,10 @@
 
 package phylosketch.view;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.scene.control.TextField;
+import jloda.fx.util.BasicFX;
 import phylosketch.main.PhyloSketch;
 
 /**
@@ -29,8 +32,12 @@ import phylosketch.main.PhyloSketch;
 public class PaneInteraction {
 	public static void setup(DrawPane view, BooleanProperty allowResize) {
 		view.setOnMouseClicked(me -> {
-			if (me.getClickCount() == 1)
+			if (me.getClickCount() == 1) {
 				allowResize.set(false);
+				for (var textField : BasicFX.getAllRecursively(view, TextField.class)) {
+					Platform.runLater(() -> view.getChildren().remove(textField));
+				}
+			}
 			if ((me.getClickCount() == 2 || !PhyloSketch.isDesktop() && me.getClickCount() == 1) && me.isStillSincePress()) {
 				if (view.getNodeSelection().size() > 0 || view.getEdgeSelection().size() > 0) {
 					view.getNodeSelection().clearSelection();
