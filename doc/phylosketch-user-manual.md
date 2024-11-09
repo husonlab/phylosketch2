@@ -144,7 +144,7 @@ Other items for modifying the tree or network:
 * Delete - remove currently selected nodes and/or edges.
 * Undo and redo - Revert or repeat your last actions.
 * Zoom In and zoom out - Adjust the view of the canvas for closer inspection or an overview.
-* Find - Open or close the find toolbar for locating specific nodes.
+* Find - Open or close the find toolbar for locating specific nodes and find/replace toolbar for changing node labels.
 * Extend Selection - Expand your current selection to include more nodes or edges.
 * Export Menu - Copy the current selection or capture an image of the canvas for sharing.
 
@@ -182,6 +182,7 @@ tree or network might have, such as `network`, `tree-based network`, or `tempora
 
 * Use the Export Menu to copy the current selection or save a snapshot of the canvas.
 * Exported images or data can be shared directly from your device.
+* Display a QR code containing the tree or network in Newick format.
 
 ## Left-side Tabs (mobile app only)
 

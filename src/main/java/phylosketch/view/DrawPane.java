@@ -257,8 +257,11 @@ public class DrawPane extends Pane {
 		}
 		undoManager.clear();
 	}
-
 	public String toBracketString() {
+		return toBracketString(10000000);
+	}
+
+	public String toBracketString(int maxLength) {
 		var newickIO = new NewickIO();
 		var outputFormat = new NewickIO.OutputFormat(graph.hasEdgeWeights(), false, graph.hasEdgeConfidences(), graph.hasEdgeProbabilities(), false);
 
@@ -272,8 +275,12 @@ public class DrawPane extends Pane {
 						tree.setReticulate(f, f.getTarget().getInDegree() > 1);
 					});
 					try {
-						newickIO.write(tree, w, outputFormat);
-						w.write(";\n");
+						var add = new StringWriter();
+						newickIO.write(tree, add, outputFormat);
+						add.write(";\n");
+						if (w.toString().length() + add.toString().length() > maxLength) {
+							return w.toString();
+						} else w.write(add.toString());
 					} catch (IOException ignored) {
 					}
 				}

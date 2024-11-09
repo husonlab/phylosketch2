@@ -19,27 +19,30 @@
 
 package phylosketch.window;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
-import jloda.fx.control.CopyableLabel;
+import javafx.scene.text.Text;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.dialog.ExportImageDialog;
+import jloda.fx.find.FindToolBar;
+import jloda.fx.find.Searcher;
 import jloda.fx.icons.MaterialIcons;
+import jloda.fx.qr.QRViewUtils;
 import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
@@ -47,6 +50,7 @@ import jloda.fx.window.WindowGeometry;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
+import jloda.util.StringUtils;
 import phylosketch.commands.*;
 import phylosketch.io.*;
 import phylosketch.main.CheckForUpdate;
@@ -65,6 +69,8 @@ import java.util.List;
  * Daniel Huson, 9.2024
  */
 public class MainWindowPresenter {
+	private final FindToolBar findToolBar;
+
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 	private final BooleanProperty allowRemoveSuperfluous = new SimpleBooleanProperty(this, "allowRemoveSuperfluous", false);
 
@@ -72,6 +78,24 @@ public class MainWindowPresenter {
 		var controller = window.getController();
 		var view = window.getDrawPane();
 		var undoManager = view.getUndoManager();
+
+		findToolBar = new FindToolBar(window.getStage(), setupSearcher(view));
+		findToolBar.setShowFindToolBar(false);
+		findToolBar.setShowReplaceToolBar(false);
+		controller.getTopVBox().getChildren().add(findToolBar);
+		controller.getFindButton().setOnAction(e -> {
+			if (!findToolBar.isShowFindToolBar()) {
+				findToolBar.setShowFindToolBar(true);
+				Platform.runLater(() -> controller.getFindButton().setSelected(true));
+			} else if (!findToolBar.isShowReplaceToolBar()) {
+				findToolBar.setShowReplaceToolBar(true);
+				Platform.runLater(() -> controller.getFindButton().setSelected(true));
+			} else {
+				findToolBar.setShowFindToolBar(false);
+				findToolBar.setShowReplaceToolBar(false);
+				Platform.runLater(() -> controller.getFindButton().setSelected(false));
+			}
+		});
 
 		if (false) {
 			view.getGraphFX().getNodeList().addListener((ListChangeListener<? super jloda.graph.Node>) a -> {
@@ -396,15 +420,16 @@ public class MainWindowPresenter {
 		controller.getQuadraticCurveMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new QuadraticCurveCommand(view.getGraph(), view.getSelectedOrAllEdges())));
 		controller.getQuadraticCurveMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
-		var infoLabel = new CopyableLabel();
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
+			controller.getBottomFlowPane().getChildren().removeAll(BasicFX.findRecursively(controller.getBottomFlowPane(), n -> n instanceof Text));
 			try (var componentMap = view.getGraph().newNodeIntArray()) {
 				var components = view.getGraph().computeConnectedComponents(componentMap);
 				var roots = view.getGraph().nodeStream().filter(v -> v.getInDegree() == 0).count();
-				infoLabel.setText("comps=" + components + " roots=" + roots + " " + RootedNetworkProperties.computeInfoString(view.getGraph()));
+				for (var text : StringUtils.toList(("comps=" + components + " roots=" + roots + " " + RootedNetworkProperties.computeInfoString(view.getGraph())).replaceAll(" ", "\n"))) {
+					controller.getBottomFlowPane().getChildren().add(new Text(text));
+				}
 			}
 		});
-		controller.getBottomFlowPane().getChildren().add(infoLabel);
 
 		controller.getResizeModeCheckMenuItem().selectedProperty().bindBidirectional(allowResize);
 		allowResize.addListener((v, o, n) -> {
@@ -477,6 +502,12 @@ public class MainWindowPresenter {
 
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);
+
+		var treeProperty = new SimpleObjectProperty<>(view.getGraph());
+		view.getGraphFX().lastUpdateProperty().addListener(e -> treeProperty.set(view.getGraph()));
+		var qrImageView = new SimpleObjectProperty<ImageView>();
+		QRViewUtils.setup(controller.getCenterAnchorPane(), treeProperty, t -> view.toBracketString(4296),
+				qrImageView, controller.getShowQRCode().selectedProperty());
 	}
 
 
@@ -498,5 +529,25 @@ public class MainWindowPresenter {
 				textField.getOnAction().handle(null);
 			}
 		});
+	}
+
+
+	private Searcher<Node> setupSearcher(DrawPane view) {
+		var graph = view.getGraph();
+		var graphFX = view.getGraphFX();
+		var nodeSelection = view.getNodeSelection();
+		return new Searcher<>(view.getNodesGroup().getChildren(), id -> nodeSelection.isSelected(graph.findNodeById(id)), (id, s) -> {
+			if (s)
+				nodeSelection.select(graph.findNodeById(id));
+			else
+				nodeSelection.clearSelection(graph.findNodeById(id));
+		}, new SimpleObjectProperty<>(SelectionMode.MULTIPLE), id -> graph.getLabel(graph.findNodeById(id)), null,
+				(id, label) -> {
+					var v = graph.findNodeById(id);
+					var oldLabel = graph.getLabel(v);
+					var data = new ChangeNodeLabelsCommand.Data(id, oldLabel, label);
+					view.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(view, List.of(data)));
+				}
+				, null, null);
 	}
 }
