@@ -24,10 +24,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import jloda.fx.control.ZoomableScrollPane;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
@@ -123,12 +120,6 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem increaseFontSizeMenuItem;
-
-	@FXML
-	private AnchorPane innerAnchorPane;
-
-	@FXML
-	private ToolBar mainToolBar;
 
 	@FXML
 	private Label memoryUsageLabel;
@@ -362,6 +353,12 @@ public class MainWindowController {
 	private MenuItem rerootMenuItem;
 
 	@FXML
+	private AnchorPane bottomAnchorPane;
+
+	@FXML
+	private AnchorPane centerAnchorPane;
+
+	@FXML
 	private StackPane centerPane;
 
 	@FXML
@@ -393,6 +390,18 @@ public class MainWindowController {
 
 	@FXML
 	private Button importButton;
+
+	@FXML
+	private BorderPane toolBorderPane;
+
+	@FXML
+	private HBox rightHBox;
+	@FXML
+	private HBox overflowHBox;
+
+	@FXML
+	private CheckMenuItem showQRCode;
+
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -530,6 +539,40 @@ public class MainWindowController {
 		copyImageExportMenuItem.disableProperty().bind(copyImageMenuItem.disableProperty());
 
 		centerPane.getChildren().add(scrollPane);
+
+		overflowHBox.setMinHeight(HBox.USE_PREF_SIZE);
+		overflowHBox.setMaxHeight(HBox.USE_PREF_SIZE);
+		overflowHBox.setPrefHeight(0);
+		overflowHBox.setVisible(false);
+
+		centerAnchorPane.setMinWidth(AnchorPane.USE_PREF_SIZE);
+		centerAnchorPane.setMaxWidth(AnchorPane.USE_PREF_SIZE);
+		bottomAnchorPane.setMinWidth(AnchorPane.USE_PREF_SIZE);
+		bottomAnchorPane.setMaxWidth(AnchorPane.USE_PREF_SIZE);
+
+		bottomAnchorPane.setMinHeight(AnchorPane.USE_PREF_SIZE);
+		bottomAnchorPane.setMaxHeight(AnchorPane.USE_PREF_SIZE);
+		bottomAnchorPane.prefHeightProperty().bind(bottomFlowPane.heightProperty());
+
+		rootPane.widthProperty().addListener((v, o, n) -> {
+			if (n.doubleValue() < 600 && !overflowHBox.isVisible()) {
+				toolBorderPane.getChildren().remove(rightHBox);
+				overflowHBox.getChildren().add(rightHBox);
+				overflowHBox.setVisible(true);
+				overflowHBox.setPrefHeight(32);
+			}
+			if (n.doubleValue() > 600 && overflowHBox.isVisible()) {
+				overflowHBox.getChildren().remove(rightHBox);
+				toolBorderPane.setRight(rightHBox);
+				overflowHBox.setVisible(false);
+				overflowHBox.setPrefHeight(0);
+			}
+
+			if (n.doubleValue() >= 375) {
+				centerAnchorPane.setPrefWidth(n.doubleValue());
+				bottomAnchorPane.setPrefWidth(n.doubleValue());
+			}
+		});
 	}
 
 	public MenuItem getAboutMenuItem() {
@@ -630,14 +673,6 @@ public class MainWindowController {
 
 	public MenuItem getIncreaseFontSizeMenuItem() {
 		return increaseFontSizeMenuItem;
-	}
-
-	public AnchorPane getInnerAnchorPane() {
-		return innerAnchorPane;
-	}
-
-	public ToolBar getMainToolBar() {
-		return mainToolBar;
 	}
 
 	public Label getMemoryUsageLabel() {
@@ -934,5 +969,17 @@ public class MainWindowController {
 
 	public Button getImportButton() {
 		return importButton;
+	}
+
+	public AnchorPane getCenterAnchorPane() {
+		return centerAnchorPane;
+	}
+
+	public AnchorPane getBottomAnchorPane() {
+		return bottomAnchorPane;
+	}
+
+	public CheckMenuItem getShowQRCode() {
+		return showQRCode;
 	}
 }
