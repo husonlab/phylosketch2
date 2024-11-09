@@ -425,8 +425,10 @@ public class MainWindowPresenter {
 			try (var componentMap = view.getGraph().newNodeIntArray()) {
 				var components = view.getGraph().computeConnectedComponents(componentMap);
 				var roots = view.getGraph().nodeStream().filter(v -> v.getInDegree() == 0).count();
-				for (var text : StringUtils.toList(("comps=" + components + " roots=" + roots + " " + RootedNetworkProperties.computeInfoString(view.getGraph())).replaceAll(" ", "\n"))) {
-					controller.getBottomFlowPane().getChildren().add(new Text(text));
+				for (var str : StringUtils.toList(("comps=" + components + " roots=" + roots + " " + RootedNetworkProperties.computeInfoString(view.getGraph())).replaceAll(" ", "\n"))) {
+					var text = new Text(str);
+					text.getStyleClass().add("rich-text-label");
+					window.getStatusPane().getChildren().add(text);
 				}
 			}
 		});

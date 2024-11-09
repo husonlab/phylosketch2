@@ -20,6 +20,7 @@
 package phylosketch.window;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
@@ -30,7 +31,6 @@ import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
-import phylosketch.main.PhyloSketch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -422,10 +422,7 @@ public class MainWindowController {
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
 		MaterialIcons.setIcon(selectButton, MaterialIcons.select_all);
 
-		if (PhyloSketch.isDesktop())
-			MaterialIcons.setIcon(importButton, MaterialIcons.input, "-fx-translate-y: 1;", true);
-		else
-			MaterialIcons.setIcon(importButton, MaterialIcons.input, "-fx-padding: 0 5px;-fx-translate-y: 2;", true);
+		MaterialIcons.setIcon(importButton, MaterialIcons.file_download);
 
 		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
 		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
@@ -554,7 +551,11 @@ public class MainWindowController {
 		bottomAnchorPane.setMaxHeight(AnchorPane.USE_PREF_SIZE);
 		bottomAnchorPane.prefHeightProperty().bind(bottomFlowPane.heightProperty());
 
-		rootPane.widthProperty().addListener((v, o, n) -> {
+		rootPane.widthProperty().addListener(getWidthChangeListener());
+	}
+
+	public ChangeListener<Number> getWidthChangeListener() {
+		return (v, o, n) -> {
 			if (n.doubleValue() < 600 && !overflowHBox.isVisible()) {
 				toolBorderPane.getChildren().remove(rightHBox);
 				overflowHBox.getChildren().add(rightHBox);
@@ -572,7 +573,7 @@ public class MainWindowController {
 				centerAnchorPane.setPrefWidth(n.doubleValue());
 				bottomAnchorPane.setPrefWidth(n.doubleValue());
 			}
-		});
+		};
 	}
 
 	public MenuItem getAboutMenuItem() {
