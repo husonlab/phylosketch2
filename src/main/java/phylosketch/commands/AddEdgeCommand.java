@@ -331,7 +331,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	private static Node findNode(DrawPane view, Point2D local) {
+	public static Node findNode(DrawPane view, Point2D local) {
 		var bestDistance = 10.0;
 		Node best = null;
 
@@ -346,7 +346,7 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		return best;
 	}
 
-	private static EdgeHit findEdge(DrawPane view, Point2D local) {
+	public static EdgeHit findEdge(DrawPane view, Point2D local) {
 		var bestDistance = 10.0;
 		Edge bestEdge = null;
 		Path bestPath = null;

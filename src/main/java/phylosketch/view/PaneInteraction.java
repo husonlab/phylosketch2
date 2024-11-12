@@ -27,7 +27,8 @@ import jloda.fx.util.BasicFX;
 import phylosketch.main.PhyloSketch;
 
 /**
- * setup view mouse
+ * setup pane interaction
+ * Daniel Huson, 2024
  */
 public class PaneInteraction {
 	public static void setup(DrawPane view, BooleanProperty allowResize) {

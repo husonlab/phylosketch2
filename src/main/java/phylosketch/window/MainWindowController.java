@@ -395,6 +395,8 @@ public class MainWindowController {
 	private BorderPane toolBorderPane;
 
 	@FXML
+	private HBox leftHBox;
+	@FXML
 	private HBox rightHBox;
 	@FXML
 	private HBox overflowHBox;
@@ -982,5 +984,9 @@ public class MainWindowController {
 
 	public CheckMenuItem getShowQRCode() {
 		return showQRCode;
+	}
+
+	public HBox getLeftHBox() {
+		return leftHBox;
 	}
 }

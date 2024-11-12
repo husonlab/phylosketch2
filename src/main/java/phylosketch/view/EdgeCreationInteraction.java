@@ -20,11 +20,18 @@
 
 package phylosketch.view;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.util.Duration;
 import phylosketch.commands.AddEdgeCommand;
+import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 
@@ -33,6 +40,13 @@ import static phylosketch.paths.PathUtils.getCoordinates;
 public class EdgeCreationInteraction {
 	private static double mouseDownX;
 	private static double mouseDownY;
+	private static final BooleanProperty dragAllowed = new SimpleBooleanProperty(EdgeCreationInteraction.class, "dragAllowed", false);
+	private static Timeline dragDelayTimeline;
+
+	static {
+		dragDelayTimeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> dragAllowed.set(true)));
+		dragDelayTimeline.setCycleCount(1);
+	}
 
 	private final static Path path = new Path();
 
@@ -46,6 +60,11 @@ public class EdgeCreationInteraction {
 	 * @param view
 	 */
 	public static void setup(DrawPane view) {
+		if (PhyloSketch.isDesktop()) {
+			dragAllowed.addListener((v, o, n) -> {
+				view.setCursor(n ? Cursor.CROSSHAIR : Cursor.DEFAULT);
+			});
+		}
 
 		view.setOnMousePressed(me -> {
 			mouseDownX = me.getSceneX();
@@ -56,19 +75,30 @@ public class EdgeCreationInteraction {
 				path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
 				if (!view.getEdgesGroup().getChildren().contains(path))
 					view.getEdgesGroup().getChildren().add(path);
+
+				// if we don't hit a node or edge, then need to press at least 0.5 seconds to create a node
+				if (AddEdgeCommand.findNode(view, location) == null && AddEdgeCommand.findEdge(view, location) == null) {
+					dragAllowed.set(false);
+					dragDelayTimeline.playFromStart();
+				} else {
+					dragAllowed.set(true);
+				}
 				me.consume();
 			}
 		});
 
 		view.setOnMouseDragged(me -> {
 			if (view.getMode() == DrawPane.Mode.Edit) {
-				if (!path.getElements().isEmpty()) {
-					view.getNodeSelection().clearSelection();
-					view.getEdgeSelection().clearSelection();
+				if (dragAllowed.get()) {
+					if (!path.getElements().isEmpty()) {
+						view.getNodeSelection().clearSelection();
+						view.getEdgeSelection().clearSelection();
 
-					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					path.getElements().add(new LineTo(location.getX(), location.getY()));
+						var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
+						path.getElements().add(new LineTo(location.getX(), location.getY()));
+					}
 				}
+				dragDelayTimeline.stop();
 			}
 			me.consume();
 		});
@@ -82,6 +112,8 @@ public class EdgeCreationInteraction {
 						view.getUndoManager().doAndAdd(new AddEdgeCommand(view, path));
 					}
 					path.getElements().clear();
+					dragDelayTimeline.stop();
+					dragAllowed.set(false);
 				}
 			}
 			me.consume();
