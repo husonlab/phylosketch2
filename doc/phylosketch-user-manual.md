@@ -161,8 +161,11 @@ tree or network might have, such as `network`, `tree-based network`, or `tempora
 ### Creating Nodes and Edges
 
 * In Edit Mode, drag along the canvas to create an edge.
-* If your new edge starts near a node, then the edge will attach to that node.
-* If the edge starts near an existing edge, then a node will be inserted into the existing edge
+* To create a new node, double-click on the canvas (desktop version) or press in the canvas for 1/2 second (mobile
+  version)
+* To create new edge, press and drag from a node or edge.
+* If you press on an existing node, then this will be the source of the new edge.
+* If you press on an existing edge, then a node will be inserted into the existing edge
   and the new edge will attach to it.
 * Similarly, if the new edge ends near an existing node or edge, then it will attach to that.
 
