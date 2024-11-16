@@ -7,6 +7,7 @@ module phylosketch {
     requires transitive javafx.fxml;
 	requires java.sql.rowset;
 	requires org.apache.commons.collections4;
+	requires org.apache.commons.math4.legacy;
 
 	opens phylosketch.main;
 	opens phylosketch.view;

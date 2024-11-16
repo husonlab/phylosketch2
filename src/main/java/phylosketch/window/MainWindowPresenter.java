@@ -120,7 +120,6 @@ public class MainWindowPresenter {
 			});
 		}
 
-		EdgeCreationInteraction.setup(view);
 		PaneInteraction.setup(view, allowResize);
 		NodeInteraction.setup(view, () -> controller.getSelectButton().fire());
 		EdgeInteraction.setup(view, () -> controller.getSelectButton().fire());
