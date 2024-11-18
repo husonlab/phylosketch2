@@ -20,106 +20,132 @@
 
 package phylosketch.view;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.util.Duration;
 import jloda.fx.util.BasicFX;
-import jloda.util.Single;
+import jloda.fx.util.SelectionEffectBlue;
+import jloda.fx.util.SelectionEffectRed;
 import phylosketch.commands.AddEdgeCommand;
 import phylosketch.commands.AddNodeCommand;
-import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 
 import static phylosketch.paths.PathUtils.getCoordinates;
 
 public class PaneInteraction {
+	private static final PauseTransition waitThenCreateNodeTransition = new PauseTransition();
+
+	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(PaneInteraction.class, "inDrawingEdge", false);
 	public static final BooleanProperty inMultiTouchGesture = new SimpleBooleanProperty(PaneInteraction.class, "inMultiTouchGesture", false);
 
 	private final static Path path = new Path();
 
 	static {
 		path.getStyleClass().add("graph-edge");
+		waitThenCreateNodeTransition.setDuration(Duration.seconds(0.5));
+		waitThenCreateNodeTransition.setCycleCount(1);
 	}
 
 	/**
 	 * setup the interaction
 	 */
 	public static void setup(DrawPane view, BooleanProperty allowResize) {
-		var inDrag = new Single<>(false);
-		var inLongPressCreateNode = new Single<>(false);
-		var mouseDownTime = new Single<>(Long.MAX_VALUE);
+		var inMultiTouchLabel = new Label("multi-touch");
+		var inDrawingEdgeLabel = new Label("drawing edge");
+
+		inMultiTouchGesture.addListener((v, o, n) -> {
+			if (n)
+				view.getChildren().add(inMultiTouchLabel);
+			else
+				view.getChildren().remove(inMultiTouchLabel);
+		});
+
+		inDrawingEdge.addListener((v, o, n) -> {
+			if (n)
+				view.getChildren().add(inDrawingEdgeLabel);
+			else
+				view.getChildren().remove(inDrawingEdgeLabel);
+		});
+
 
 		view.setOnMouseClicked(me -> {
-			if (me.getClickCount() == 1) {
+			if (me.isStillSincePress() && me.getClickCount() == 1) {
 				allowResize.set(false);
 				for (var textField : BasicFX.getAllRecursively(view, TextField.class)) {
 					Platform.runLater(() -> view.getChildren().remove(textField));
 				}
 			}
 
-			if (view.getNodeSelection().size() > 0 || view.getEdgeSelection().size() > 0) {
+			if (me.isStillSincePress() && (view.getNodeSelection().size() > 0 || view.getEdgeSelection().size() > 0)) {
 				view.getNodeSelection().clearSelection();
 				view.getEdgeSelection().clearSelection();
 			}
 
-			if (PhyloSketch.isDesktop() && view.getMode() == DrawPane.Mode.Edit && !inMultiTouchGesture.get()) {
+			if (view.getMode() == DrawPane.Mode.Edit && me.isStillSincePress() && !inMultiTouchGesture.get()) {
 				if (view.getGraph().getNumberOfNodes() == 0 || me.getClickCount() == 2) {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
+					var shape = view.getShape(view.getGraph().getLastNode());
+					shape.setEffect(SelectionEffectBlue.getInstance());
 				}
 			}
 			me.consume();
 		});
 
 		view.setOnMousePressed(me -> {
-			inDrag.set(false);
-			inLongPressCreateNode.set(false);
-			mouseDownTime.set(Long.MAX_VALUE);
+			inDrawingEdge.set(false);
 
 			if (view.getMode() == DrawPane.Mode.Edit && !inMultiTouchGesture.get()) {
+				waitThenCreateNodeTransition.stop();
+				path.getElements().clear();
 				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 				if (AddEdgeCommand.findNode(view, location) != null || AddEdgeCommand.findEdge(view, location) != null) {
 					path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
-					inDrag.set(true);
-				} else if (!PhyloSketch.isDesktop()) {
-					inLongPressCreateNode.set(true);
-					if (view.getGraph().getNumberOfNodes() == 0) {
-						mouseDownTime.set(0L); // definitely want to create a node
-					} else
-						mouseDownTime.set(System.currentTimeMillis());
+					inDrawingEdge.set(true);
+
+				} else {
+					waitThenCreateNodeTransition.setOnFinished(e -> {
+						view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
+						var shape = view.getShape(view.getGraph().getLastNode());
+						shape.setEffect(SelectionEffectRed.getInstance());
+					});
+					waitThenCreateNodeTransition.playFromStart();
 				}
 			}
 			me.consume();
 		});
 
 		view.setOnMouseDragged(me -> {
-			if (inDrag.get()) {
+			if (inDrawingEdge.get()) {
 				view.setCursor(Cursor.CROSSHAIR);
 				if (!path.getElements().isEmpty()) {
 					if (!view.getEdgesGroup().getChildren().contains(path))
 						view.getEdgesGroup().getChildren().add(path);
-					view.getNodeSelection().clearSelection();
-					view.getEdgeSelection().clearSelection();
-
+					if (false) {
+						view.getNodeSelection().clearSelection();
+						view.getEdgeSelection().clearSelection();
+					}
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					path.getElements().add(new LineTo(location.getX(), location.getY()));
 				}
-			}
+			} else
+				waitThenCreateNodeTransition.stop();
+
 			me.consume();
 		});
 
 		view.setOnMouseReleased(me -> {
-			if (inLongPressCreateNode.get() && me.isStillSincePress() && System.currentTimeMillis() >= mouseDownTime.get() + 500) {
-				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-				view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
-			} else if (inDrag.get()) {
+			if (inDrawingEdge.get()) {
 				view.setCursor(Cursor.DEFAULT);
 				view.getEdgesGroup().getChildren().remove(path);
 				if (!path.getElements().isEmpty()) {
@@ -129,7 +155,10 @@ public class PaneInteraction {
 					}
 					path.getElements().clear();
 				}
-			}
+				inDrawingEdge.set(false);
+			} else
+				waitThenCreateNodeTransition.stop();
+			me.consume();
 		});
 
 

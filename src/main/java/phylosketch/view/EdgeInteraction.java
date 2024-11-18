@@ -50,12 +50,20 @@ public class EdgeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
+	/**
+	 * setup edge interactions
+	 * Note that interactive creation of new edges ist setup in PaneInteraction
+	 *
+	 * @param view
+	 * @param runDoubleClickSelection
+	 */
 	public static void setup(DrawPane view, Runnable runDoubleClickSelection) {
 		view.getEdgesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
 					for (Node n : c.getAddedSubList()) {
 						if (n instanceof Path path && path.getUserData() instanceof jloda.graph.Edge e) {
+
 							path.setOnMouseClicked(me -> {
 								if (me.isStillSincePress()) {
 									if (me.getClickCount() == 1) {
@@ -70,24 +78,15 @@ public class EdgeInteraction {
 											view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
 											view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
 										}
-										me.consume();
 									} else if (me.getClickCount() == 2) {
 										Platform.runLater(runDoubleClickSelection);
-										me.consume();
 									}
 								}
+								me.consume();
 							});
 
 							path.setOnMousePressed(me -> {
-								if (view.getMode() == DrawPane.Mode.Move && !view.getEdgeSelection().isSelected(e)) {
-									if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
-										view.getNodeSelection().clearSelection();
-										view.getEdgeSelection().clearSelection();
-									}
-									view.getEdgeSelection().select(e);
-								}
-								if ((view.getMode() == DrawPane.Mode.Edit || view.getMode() == DrawPane.Mode.Move)
-									&& view.getEdgeSelection().isSelected(e)) {
+								if (view.getMode() == DrawPane.Mode.Move) {
 									mouseDownX = me.getScreenX();
 									mouseDownY = me.getScreenY();
 									var local = view.screenToLocal(mouseDownX, mouseDownY);
@@ -101,14 +100,22 @@ public class EdgeInteraction {
 							});
 							path.setOnMouseDragged(me -> {
 								if (view.getMode() == DrawPane.Mode.Move) {
+									if (!view.getEdgeSelection().isSelected(e)) {
+										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+											view.getNodeSelection().clearSelection();
+											view.getEdgeSelection().clearSelection();
+										}
+										view.getEdgeSelection().select(e);
+									}
+
 									if (pathIndex != -1) {
 										var local = view.screenToLocal(me.getScreenX(), me.getScreenY());
 										var d = local.subtract(view.screenToLocal(mouseX, mouseY));
 										PathReshape.apply(path, pathIndex, d.getX(), d.getY());
 										mouseX = me.getScreenX();
 										mouseY = me.getScreenY();
-										me.consume();
 									}
+									me.consume();
 								}
 							});
 							path.setOnMouseReleased(me -> {
@@ -121,8 +128,8 @@ public class EdgeInteraction {
 										view.getUndoManager().add("reshape",
 												() -> path.getElements().setAll(theOriginalElements),
 												() -> path.getElements().setAll(refinedElements));
-										me.consume();
 									}
+									me.consume();
 								}
 							});
 							path.setOnMouseEntered(me -> {

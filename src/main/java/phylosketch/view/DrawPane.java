@@ -44,6 +44,7 @@ import jloda.graph.algorithms.ConnectedComponents;
 import jloda.graph.algorithms.IsDAG;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
+import jloda.util.Counter;
 import jloda.util.IteratorUtils;
 import phylosketch.commands.LayoutLabelsCommand;
 import phylosketch.main.PhyloSketch;
@@ -267,7 +268,7 @@ public class DrawPane extends Pane {
 
 		var w = new StringWriter();
 		for (var tree : extractAllTrees(graph)) {
-			if (nodeSelection.size() == 0 || tree.nodeStream().map(v -> (Shape) v.getData()).map(s -> (Node) s.getUserData()).anyMatch(nodeSelection::isSelected)) {
+			if (nodeSelection.size() == 0 || tree.nodeStream().map(v -> (Shape) v.getData()).filter(Objects::nonNull).map(s -> (Node) s.getUserData()).anyMatch(nodeSelection::isSelected)) {
 				var root = tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny();
 				if (root.isPresent()) {
 					tree.setRoot(root.get());
@@ -298,7 +299,25 @@ public class DrawPane extends Pane {
 				var tree = new PhyloTree();
 				tree.copy(graph, srcTarMap, null);
 				graph.nodeStream().filter(v -> !Objects.equals(componentMap.get(v), component)).map(srcTarMap::get).forEach(tree::deleteNode);
-				list.add(tree);
+
+				var roots = tree.nodeStream().filter(v -> v.getInDegree() == 0).toList();
+				if (roots.size() == 1) {
+					tree.setRoot(roots.get(0));
+					list.add(tree);
+				} else if (roots.size() > 1) {
+					var root = tree.newNode();
+					for (var v : roots) {
+						var e = tree.newEdge(root, v);
+						tree.setWeight(e, 0);
+					}
+					tree.setRoot(root);
+					list.add(tree);
+				}
+				var unnamed = new Counter(0);
+				tree.postorderTraversal(v -> {
+					if (v.isLeaf() && tree.getLabel(v) == null)
+						tree.setLabel(v, "Unnamed-" + unnamed.incrementAndGet());
+				});
 				srcTarMap.clear();
 			}
 		}
@@ -398,6 +417,8 @@ public class DrawPane extends Pane {
 			v.setInfo(label);
 			nodeLabelsGroup.getChildren().add(label);
 		}
+		getNodeSelection().select(v);
+
 		return v;
 	}
 
@@ -429,6 +450,7 @@ public class DrawPane extends Pane {
 	public Edge createEdge(Node v, Node w, Path path, int recycledId) {
 		var e = (recycledId != -1 ? graph.newEdge(v, w, null, recycledId) : graph.newEdge(v, w));
 		addPath(e, path);
+		getEdgeSelection().select(e);
 		return e;
 	}
 
@@ -441,7 +463,7 @@ public class DrawPane extends Pane {
 
 	public void deleteEdge(Edge... edges) {
 		for (var e : edges) {
-			if (e.getOwner() != null) {
+			if (e != null && e.getOwner() != null) {
 				if (e.getInfo() instanceof RichTextLabel label)
 					edgeLabelsGroup.getChildren().remove(label);
 				edgeArrowMap.remove(e);

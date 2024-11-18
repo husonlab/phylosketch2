@@ -240,6 +240,9 @@ public class MainWindowController {
 	private MenuItem selectStableNodesMenuItem;
 
 	@FXML
+	private MenuItem selectArticulationNodesMenuItem;
+
+	@FXML
 	private MenuItem selectAllBelowMenuItem;
 
 	@FXML
@@ -848,6 +851,10 @@ public class MainWindowController {
 
 	public MenuItem getSelectStableNodesMenuItem() {
 		return selectStableNodesMenuItem;
+	}
+
+	public MenuItem getSelectArticulationNodesMenuItem() {
+		return selectArticulationNodesMenuItem;
 	}
 
 	public MenuItem getSelectAllBelowMenuItem() {

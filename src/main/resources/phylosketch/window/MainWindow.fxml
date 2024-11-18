@@ -408,6 +408,7 @@
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
+                                    <MenuItem fx:id="selectArticulationNodesMenuItem" text="Articulation Nodes"/>
                                     <MenuItem fx:id="selectReticulateNodesMenuitem" text="Reticulate Nodes"/>
                                     <MenuItem fx:id="selectThruNodesMenuItem" text="Thru Nodes"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>

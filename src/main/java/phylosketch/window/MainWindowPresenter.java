@@ -420,17 +420,47 @@ public class MainWindowPresenter {
 		controller.getQuadraticCurveMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
-			controller.getBottomFlowPane().getChildren().removeAll(BasicFX.findRecursively(controller.getBottomFlowPane(), n -> n instanceof Text));
+			window.getStatusPane().getChildren().removeAll(BasicFX.findRecursively(window.getStatusPane(), n -> "info".equals(n.getUserData())));
 			try (var componentMap = view.getGraph().newNodeIntArray()) {
 				var components = view.getGraph().computeConnectedComponents(componentMap);
 				var roots = view.getGraph().nodeStream().filter(v -> v.getInDegree() == 0).count();
 				for (var str : StringUtils.toList(("comps=" + components + " roots=" + roots + " " + RootedNetworkProperties.computeInfoString(view.getGraph())).replaceAll(" ", "\n"))) {
 					var text = new Text(str);
+					text.setUserData("info");
 					text.getStyleClass().add("rich-text-label");
 					window.getStatusPane().getChildren().add(text);
 				}
 			}
 		});
+
+		var waitObject = new Object();
+		InvalidationListener selectionInvalidationListener = e -> {
+			RunAfterAWhile.applyInFXThread(waitObject, () -> {
+				var toRemove = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
+						.filter(t -> t.getText().contains("selected")).toList();
+				window.getStatusPane().getChildren().removeAll(toRemove);
+				if (view.getNodeSelection().size() > 0) {
+					var nodeText = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
+							.filter(t -> t.getText().startsWith("nodes=")).findAny();
+					if (nodeText.isPresent()) {
+						var index = window.getStatusPane().getChildren().indexOf(nodeText.get());
+						var text = new Text("(" + view.getNodeSelection().size() + " selected)");
+						window.getStatusPane().getChildren().add(index + 1, text);
+					}
+				}
+				if (view.getEdgeSelection().size() > 0) {
+					var edgeText = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
+							.filter(t -> t.getText().startsWith("edges=")).findAny();
+					if (edgeText.isPresent()) {
+						var index = window.getStatusPane().getChildren().indexOf(edgeText.get());
+						var text = new Text("(" + view.getEdgeSelection().size() + " selected)");
+						window.getStatusPane().getChildren().add(index + 1, text);
+					}
+				}
+			});
+		};
+		view.getNodeSelection().getSelectedItems().addListener(selectionInvalidationListener);
+		view.getEdgeSelection().getSelectedItems().addListener(selectionInvalidationListener);
 
 		controller.getResizeModeCheckMenuItem().selectedProperty().bindBidirectional(allowResize);
 		allowResize.addListener((v, o, n) -> {
