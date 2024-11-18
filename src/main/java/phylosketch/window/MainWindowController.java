@@ -432,7 +432,7 @@ public class MainWindowController {
 		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
 		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
 		MaterialIcons.setIcon(layoutMenuButton, MaterialIcons.shape_line);
-		MaterialIcons.setIcon(deleteButton, MaterialIcons.disabled_by_default);
+		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
 		MaterialIcons.setIcon(closeEdgeToolBar, MaterialIcons.clear);
 		MaterialIcons.setIcon(measureWeightsButton, MaterialIcons.square_foot);

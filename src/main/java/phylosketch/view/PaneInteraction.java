@@ -60,23 +60,24 @@ public class PaneInteraction {
 	 * setup the interaction
 	 */
 	public static void setup(DrawPane view, BooleanProperty allowResize) {
-		var inMultiTouchLabel = new Label("multi-touch");
-		var inDrawingEdgeLabel = new Label("drawing edge");
+		if (true) { // for debuggin zoom and pan interference
+			var inMultiTouchLabel = new Label("multi-touch");
+			var inDrawingEdgeLabel = new Label("drawing edge");
 
-		inMultiTouchGesture.addListener((v, o, n) -> {
-			if (n)
-				view.getChildren().add(inMultiTouchLabel);
-			else
-				view.getChildren().remove(inMultiTouchLabel);
-		});
+			inMultiTouchGesture.addListener((v, o, n) -> {
+				if (n)
+					view.getChildren().add(inMultiTouchLabel);
+				else
+					view.getChildren().remove(inMultiTouchLabel);
+			});
 
-		inDrawingEdge.addListener((v, o, n) -> {
-			if (n)
-				view.getChildren().add(inDrawingEdgeLabel);
-			else
-				view.getChildren().remove(inDrawingEdgeLabel);
-		});
-
+			inDrawingEdge.addListener((v, o, n) -> {
+				if (n)
+					view.getChildren().add(inDrawingEdgeLabel);
+				else
+					view.getChildren().remove(inDrawingEdgeLabel);
+			});
+		}
 
 		view.setOnMouseClicked(me -> {
 			if (me.isStillSincePress() && me.getClickCount() == 1) {
@@ -95,8 +96,10 @@ public class PaneInteraction {
 				if (view.getGraph().getNumberOfNodes() == 0 || me.getClickCount() == 2) {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
-					var shape = view.getShape(view.getGraph().getLastNode());
-					shape.setEffect(SelectionEffectBlue.getInstance());
+					if (false) {
+						var shape = view.getShape(view.getGraph().getLastNode());
+						shape.setEffect(SelectionEffectBlue.getInstance());
+					}
 				}
 			}
 			me.consume();
@@ -105,7 +108,7 @@ public class PaneInteraction {
 		view.setOnMousePressed(me -> {
 			inDrawingEdge.set(false);
 
-			if (view.getMode() == DrawPane.Mode.Edit && !inMultiTouchGesture.get()) {
+			if (!inMultiTouchGesture.get() && view.getMode() == DrawPane.Mode.Edit) {
 				waitThenCreateNodeTransition.stop();
 				path.getElements().clear();
 				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -116,12 +119,14 @@ public class PaneInteraction {
 				} else {
 					waitThenCreateNodeTransition.setOnFinished(e -> {
 						view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
-						var shape = view.getShape(view.getGraph().getLastNode());
-						shape.setEffect(SelectionEffectRed.getInstance());
+						if (false) {
+							var shape = view.getShape(view.getGraph().getLastNode());
+							shape.setEffect(SelectionEffectRed.getInstance());
+						}
 					});
 					waitThenCreateNodeTransition.playFromStart();
 				}
-			}
+				}
 			me.consume();
 		});
 
@@ -140,7 +145,6 @@ public class PaneInteraction {
 				}
 			} else
 				waitThenCreateNodeTransition.stop();
-
 			me.consume();
 		});
 
@@ -161,14 +165,9 @@ public class PaneInteraction {
 			me.consume();
 		});
 
+		view.setOnTouchPressed(e -> inMultiTouchGesture.set(e.getTouchCount() > 1));
 
-		view.setOnTouchPressed(e -> {
-			inMultiTouchGesture.set(e.getTouchCount() > 1);
-		});
-
-		view.setOnTouchReleased(e -> {
-			inMultiTouchGesture.set(e.getTouchCount() < 1);
-		});
+		view.setOnTouchReleased(e -> inMultiTouchGesture.set(e.getTouchCount() < 1));
 	}
 
 	public static boolean isGoodPath(Path path) {
