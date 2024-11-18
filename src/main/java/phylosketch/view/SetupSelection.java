@@ -23,6 +23,7 @@ import javafx.beans.binding.Bindings;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.phylo.algorithms.RootedNetworkProperties;
+import phylosketch.utils.ArticulationPoints;
 import phylosketch.window.MainWindowController;
 
 import java.util.LinkedList;
@@ -100,6 +101,12 @@ public class SetupSelection {
 			}
 		});
 		controller.getSelectStableNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getSelectArticulationNodesMenuItem().setOnAction(e -> {
+			try (var nodes = ArticulationPoints.apply(graph)) {
+				nodes.forEach(nodeSelection::select);
+			}
+		});
 
 		controller.getSelectVisibleNodesMenuItem().setOnAction(e -> {
 			try (var nodes = RootedNetworkProperties.computeAllVisibleNodes(graph, null)) {

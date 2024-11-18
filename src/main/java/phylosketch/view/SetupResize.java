@@ -22,6 +22,7 @@ package phylosketch.view;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
+import javafx.event.Event;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.shape.Path;
@@ -56,7 +57,6 @@ public class SetupResize {
 
 	public static void apply(DrawPane view, BooleanProperty enableResize) {
 		final var rectangle = new Rectangle();
-		final var moveHandle = MaterialIcons.graphic(MaterialIcons.open_with);
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
 
 		rectangle.setStyle("-fx-stroke-dash-array: 3 3;-fx-fill: transparent;-fx-stroke: gray;");
@@ -64,11 +64,11 @@ public class SetupResize {
 		final var nodePointMap = new HashMap<Integer, Point2D>();
 		final var edgePointsMap = new HashMap<Integer, List<Point2D>>();
 
-		var resizeGroup = new Group(rectangle, moveHandle, resizeHandle);
+		var resizeGroup = new Group(rectangle, resizeHandle);
 
 		InvalidationListener invalidationListener = e -> {
 			if (view.getNodeSelection().size() > 1 && enableResize.get()) {
-				updateSizeAndLocation(view, rectangle, moveHandle, resizeHandle);
+				updateSizeAndLocation(view, rectangle, resizeHandle);
 				if (!view.getOtherGroup().getChildren().contains(resizeGroup)) {
 					view.getOtherGroup().getChildren().add(resizeGroup);
 				}
@@ -80,22 +80,26 @@ public class SetupResize {
 		view.getNodeSelection().getSelectedItems().addListener(invalidationListener);
 		enableResize.addListener(invalidationListener);
 
-		moveHandle.setOnMousePressed(me -> {
+		resizeHandle.setOnMouseClicked(Event::consume);
+		rectangle.setOnMouseClicked(Event::consume);
+
+		rectangle.setOnMousePressed(me -> {
 			mouseX = mouseDownX = me.getScreenX();
 			mouseY = mouseDownY = me.getScreenY();
 			me.consume();
 		});
 
-		moveHandle.setOnMouseDragged(me -> {
+
+		rectangle.setOnMouseDragged(me -> {
 			var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
 			MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY(), false);
 			mouseX = me.getScreenX();
 			mouseY = me.getScreenY();
-			updateSizeAndLocation(view, rectangle, moveHandle, resizeHandle);
+			updateSizeAndLocation(view, rectangle, resizeHandle);
 			me.consume();
 		});
 
-		moveHandle.setOnMouseReleased(me -> {
+		rectangle.setOnMouseReleased(me -> {
 			view.getUndoManager().add(new UndoableRedoableCommand("move") {
 				private final Point2D diff = view.screenToLocal(mouseX, mouseY).subtract(view.screenToLocal(mouseDownX, mouseDownY));
 				private final List<Integer> nodeIds = view.getNodeSelection().getSelectedItems().stream().map(v -> v.getId()).toList();
@@ -173,7 +177,7 @@ public class SetupResize {
 							path.getElements().setAll(PathUtils.toPathElements(entry.getValue()));
 						}
 					}
-					updateSizeAndLocation(view, rectangle, moveHandle, resizeHandle);
+					updateSizeAndLocation(view, rectangle, resizeHandle);
 				}
 
 				@Override
@@ -181,21 +185,19 @@ public class SetupResize {
 					var set = nodePointMap.keySet().stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
 					SetupResize.scale(view.getGraph(), set, diff.getX(), diff.getY());
 					PathNormalize.normalizeEdges(getAdjacentEdges(set));
-					updateSizeAndLocation(view, rectangle, moveHandle, resizeHandle);
+					updateSizeAndLocation(view, rectangle, resizeHandle);
 				}
 			});
 			me.consume();
 		});
 	}
 
-	private static void updateSizeAndLocation(DrawPane view, Rectangle rectangle, javafx.scene.Node moveHandle, javafx.scene.Node resizeHandle) {
+	private static void updateSizeAndLocation(DrawPane view, Rectangle rectangle, javafx.scene.Node resizeHandle) {
 		var bbox = computeBoundingBox(view.getNodeSelection().getSelectedItems());
 		rectangle.setX(bbox.xMin() - 12);
 		rectangle.setY(bbox.yMin() - 12);
 		rectangle.setWidth(bbox.width() + 24);
 		rectangle.setHeight(bbox.height() + 24);
-		moveHandle.setTranslateX(rectangle.getX() - 16);
-		moveHandle.setTranslateY(rectangle.getY() - 16);
 		resizeHandle.setTranslateX(rectangle.getX() + rectangle.getWidth());
 		resizeHandle.setTranslateY(rectangle.getY() + rectangle.getHeight());
 	}

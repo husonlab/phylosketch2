@@ -41,6 +41,13 @@ public class NodeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
+	/**
+	 * setup node interactions
+	 * Note that creation of new nodes is setup in PaneInteraction
+	 *
+	 * @param view
+	 * @param runDoubleClickSelection
+	 */
 	public static void setup(DrawPane view, Runnable runDoubleClickSelection) {
 
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
@@ -62,21 +69,13 @@ public class NodeInteraction {
 									} else if (me.getClickCount() == 2) {
 										view.getNodeSelection().select(v);
 										Platform.runLater(runDoubleClickSelection);
-										me.consume();
 									}
 								}
+								me.consume();
 							});
 
 							shape.setOnMousePressed(me -> {
-								if (view.getMode() == DrawPane.Mode.Move && !view.getNodeSelection().isSelected(v)) {
-									if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
-										view.getNodeSelection().clearSelection();
-										view.getEdgeSelection().clearSelection();
-									}
-									view.getNodeSelection().select(v);
-								}
-								if ((view.getMode() == DrawPane.Mode.Edit || view.getMode() == DrawPane.Mode.Move)
-									&& view.getNodeSelection().isSelected(v)) {
+								if (view.getMode() == DrawPane.Mode.Move) {
 									mouseDownX = me.getScreenX();
 									mouseDownY = me.getScreenY();
 									mouseX = mouseDownX;
@@ -86,19 +85,28 @@ public class NodeInteraction {
 							});
 
 							shape.setOnMouseDragged(me -> {
-								if ((view.getMode() == DrawPane.Mode.Edit || view.getMode() == DrawPane.Mode.Move) && view.getNodeSelection().isSelected(v)) {
+								if (view.getMode() == DrawPane.Mode.Move) {
+									if (!view.getNodeSelection().isSelected(v)) {
+										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+											view.getNodeSelection().clearSelection();
+											view.getEdgeSelection().clearSelection();
+										}
+										view.getNodeSelection().select(v);
+									}
+
 									var previous = view.screenToLocal(mouseX, mouseY);
 									var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
 									MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
 									mouseX = me.getScreenX();
 									mouseY = me.getScreenY();
+
 									me.consume();
 								}
 							});
 
 							shape.setOnMouseReleased(me -> {
-								if ((view.getMode() == DrawPane.Mode.Edit || view.getMode() == DrawPane.Mode.Move) && view.getNodeSelection().isSelected(v)) {
+								if (view.getMode() == DrawPane.Mode.Move) {
 									var nodes = new HashSet<>(view.getNodeSelection().getSelectedItems());
 									var previous = view.screenToLocal(mouseDownX, mouseDownY);
 									var location = view.screenToLocal(mouseX, mouseY);

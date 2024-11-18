@@ -77,6 +77,7 @@ They are:
 * Tree Nodes - select all tree nodes (indegree 0 or 1)
 * Reticulate Nodes - select all reticulate nodes (indegree 2 or more)
 * Thru Nodes - select all nodes with indegree 1 and outdegree 1
+* Articulation Nodes - nodes that separate biconnected components (using Tarnjan's algorithm)
 * Visible Nodes - select all visible nodes, i.e. nodes that have path of tree edges down to a leaf
 * Visible Reticulations - select all visible reticulate nodes
 * Completely Stable Nodes - select all nodes that are on all paths from the root to leaves below them
@@ -161,8 +162,7 @@ tree or network might have, such as `network`, `tree-based network`, or `tempora
 ### Creating Nodes and Edges
 
 * In Edit Mode, drag along the canvas to create an edge.
-* To create a new node, double-click on the canvas (desktop version) or press in the canvas for 1/2 second (mobile
-  version)
+* To create a new node, double-click on the canvas or press on the canvas for half a second.
 * To create new edge, press and drag from a node or edge.
 * If you press on an existing node, then this will be the source of the new edge.
 * If you press on an existing edge, then a node will be inserted into the existing edge
