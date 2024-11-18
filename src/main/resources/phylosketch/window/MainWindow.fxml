@@ -408,13 +408,13 @@
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
-                                    <MenuItem fx:id="selectArticulationNodesMenuItem" text="Articulation Nodes"/>
                                     <MenuItem fx:id="selectReticulateNodesMenuitem" text="Reticulate Nodes"/>
                                     <MenuItem fx:id="selectThruNodesMenuItem" text="Thru Nodes"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <MenuItem fx:id="selectArticulationNodesMenuItem" text="Articulation Nodes"/>
+                                    <MenuItem fx:id="selectStableNodesMenuItem" text="Completely Stable Nodes"/>
                                     <MenuItem fx:id="selectVisibleNodesMenuItem" text="Visible Nodes"/>
                                     <MenuItem fx:id="selectVisibleReticulationsMenuItem" text="Visible Reticulations"/>
-                                    <MenuItem fx:id="selectStableNodesMenuItem" text="Completely Stable Nodes"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="selectAllBelowMenuItem" text="All Below">
                                         <accelerator>

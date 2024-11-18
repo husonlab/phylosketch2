@@ -78,9 +78,9 @@ They are:
 * Reticulate Nodes - select all reticulate nodes (indegree 2 or more)
 * Thru Nodes - select all nodes with indegree 1 and outdegree 1
 * Articulation Nodes - nodes that separate biconnected components (using Tarnjan's algorithm)
+* Completely Stable Nodes - select all nodes that are on all paths from the root to leaves below them
 * Visible Nodes - select all visible nodes, i.e. nodes that have path of tree edges down to a leaf
 * Visible Reticulations - select all visible reticulate nodes
-* Completely Stable Nodes - select all nodes that are on all paths from the root to leaves below them
 * All Below - select all nodes below the currently selected nodes
 * All Above - select all nodes above the currently selected nodes
 * Possible Root Locations - select all nodes or edges where the root may be placed
