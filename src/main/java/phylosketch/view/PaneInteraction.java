@@ -60,7 +60,7 @@ public class PaneInteraction {
 	 * setup the interaction
 	 */
 	public static void setup(DrawPane view, BooleanProperty allowResize) {
-		if (true) { // for debuggin zoom and pan interference
+		if (false) { // for debugging zoom and pan interference
 			var inMultiTouchLabel = new Label("multi-touch");
 			var inDrawingEdgeLabel = new Label("drawing edge");
 
@@ -78,6 +78,11 @@ public class PaneInteraction {
 					view.getChildren().remove(inDrawingEdgeLabel);
 			});
 		}
+
+		inMultiTouchGesture.addListener((v, o, n) -> {
+			if (n)
+				inDrawingEdge.set(false);
+		});
 
 		view.setOnMouseClicked(me -> {
 			if (me.isStillSincePress() && me.getClickCount() == 1) {
@@ -159,7 +164,6 @@ public class PaneInteraction {
 					}
 					path.getElements().clear();
 				}
-				inDrawingEdge.set(false);
 			} else
 				waitThenCreateNodeTransition.stop();
 			me.consume();

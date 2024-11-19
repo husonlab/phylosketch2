@@ -51,10 +51,15 @@ public class NodeLabelDialog {
 	public static void apply(DrawPane drawPane, double screenX, double screenY, Node v, Runnable runAfter) {
 		var oldLabel = drawPane.getLabel(v).getText();
 		var textField = new TextField(oldLabel);
+		textField.focusedProperty().addListener((a, o, n) -> {
+			if (n)
+				textField.selectAll();
+		});
 		var local = drawPane.screenToLocal(screenX, screenY);
 		textField.setTranslateX(local.getX());
 		textField.setTranslateY(local.getY());
 		drawPane.getChildren().add(textField);
+		textField.requestFocus();
 		textField.setOnAction(e -> {
 			var id = v.getId();
 			var newLabel = textField.getText();

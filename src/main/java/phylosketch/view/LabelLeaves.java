@@ -82,7 +82,7 @@ public class LabelLeaves {
 			leaves.removeIf(v -> !drawPane.getNodeSelection().isSelected(v));
         }
 
-        if (PhyloSketch.isDesktop()) {
+        if (false && PhyloSketch.isDesktop()) { // use the small dialog
             for (var v : leaves) {
                 drawPane.getNodeSelection().clearSelection();
                 drawPane.getNodeSelection().select(v);
