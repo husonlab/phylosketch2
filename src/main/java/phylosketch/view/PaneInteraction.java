@@ -20,21 +20,20 @@
 
 package phylosketch.view;
 
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
-import javafx.util.Duration;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
-import jloda.fx.util.SelectionEffectRed;
 import phylosketch.commands.AddEdgeCommand;
 import phylosketch.commands.AddNodeCommand;
 import phylosketch.paths.PathSmoother;
@@ -43,8 +42,6 @@ import phylosketch.paths.PathUtils;
 import static phylosketch.paths.PathUtils.getCoordinates;
 
 public class PaneInteraction {
-	private static final PauseTransition waitThenCreateNodeTransition = new PauseTransition();
-
 	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(PaneInteraction.class, "inDrawingEdge", false);
 	public static final BooleanProperty inMultiTouchGesture = new SimpleBooleanProperty(PaneInteraction.class, "inMultiTouchGesture", false);
 
@@ -52,8 +49,6 @@ public class PaneInteraction {
 
 	static {
 		path.getStyleClass().add("graph-edge");
-		waitThenCreateNodeTransition.setDuration(Duration.seconds(0.5));
-		waitThenCreateNodeTransition.setCycleCount(1);
 	}
 
 	/**
@@ -82,6 +77,18 @@ public class PaneInteraction {
 		inMultiTouchGesture.addListener((v, o, n) -> {
 			if (n)
 				inDrawingEdge.set(false);
+		});
+
+		view.setOnContextMenuRequested(me -> {
+			var createNodeMenuItem = new MenuItem("New Node");
+			createNodeMenuItem.setOnAction(e -> {
+				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
+				view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
+			});
+			var menu = new ContextMenu();
+			menu.getItems().add(createNodeMenuItem);
+			menu.show(view, me.getScreenX(), me.getScreenY());
+
 		});
 
 		view.setOnMouseClicked(me -> {
@@ -114,24 +121,14 @@ public class PaneInteraction {
 			inDrawingEdge.set(false);
 
 			if (!inMultiTouchGesture.get() && view.getMode() == DrawPane.Mode.Edit) {
-				waitThenCreateNodeTransition.stop();
 				path.getElements().clear();
 				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 				if (AddEdgeCommand.findNode(view, location) != null || AddEdgeCommand.findEdge(view, location) != null) {
 					path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
 					inDrawingEdge.set(true);
 
-				} else {
-					waitThenCreateNodeTransition.setOnFinished(e -> {
-						view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
-						if (false) {
-							var shape = view.getShape(view.getGraph().getLastNode());
-							shape.setEffect(SelectionEffectRed.getInstance());
-						}
-					});
-					waitThenCreateNodeTransition.playFromStart();
 				}
-				}
+			}
 			me.consume();
 		});
 
@@ -148,8 +145,7 @@ public class PaneInteraction {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					path.getElements().add(new LineTo(location.getX(), location.getY()));
 				}
-			} else
-				waitThenCreateNodeTransition.stop();
+			}
 			me.consume();
 		});
 
@@ -164,8 +160,7 @@ public class PaneInteraction {
 					}
 					path.getElements().clear();
 				}
-			} else
-				waitThenCreateNodeTransition.stop();
+			}
 			me.consume();
 		});
 
