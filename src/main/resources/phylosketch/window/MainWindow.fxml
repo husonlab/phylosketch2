@@ -28,6 +28,14 @@
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <center>
             <BorderPane>
+                <center>
+                    <AnchorPane fx:id="centerAnchorPane" BorderPane.alignment="CENTER">
+                        <children>
+                            <StackPane fx:id="centerPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                        </children>
+                    </AnchorPane>
+                </center>
                 <top>
                     <VBox fx:id="topVBox" BorderPane.alignment="CENTER">
                         <children>
@@ -122,6 +130,8 @@
                                                     <MenuItem fx:id="exportExportMenuItem" mnemonicParsing="false"
                                                               text="Export data..."/>
                                                     <SeparatorMenuItem mnemonicParsing="false"/>
+                                                    <CheckMenuItem fx:id="showNewick" mnemonicParsing="false"
+                                                                   text="Show Newick"/>
                                                     <CheckMenuItem fx:id="showQRCode" mnemonicParsing="false"
                                                                    text="Show QR Code"/>
                                                 </items>
@@ -179,29 +189,8 @@
                     </VBox>
                 </top>
                 <bottom>
-                    <AnchorPane fx:id="bottomAnchorPane" BorderPane.alignment="CENTER">
-                        <children>
-                            <FlowPane fx:id="bottomFlowPane" alignment="CENTER_LEFT" hgap="2.0" maxHeight="-Infinity"
-                                      minHeight="32.0" prefWrapLength="100.0" rowValignment="TOP" vgap="2.0"
-                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                      AnchorPane.topAnchor="0.0">
-                                <padding>
-                                    <Insets bottom="5.0" left="10.0" right="60.0" top="5.0"/>
-                                </padding>
-                            </FlowPane>
-                            <Label fx:id="memoryUsageLabel" text="Memory" AnchorPane.bottomAnchor="10.0"
-                                   AnchorPane.rightAnchor="16.0"/>
-                        </children>
-                    </AnchorPane>
+                    <VBox fx:id="bottomVBox" BorderPane.alignment="CENTER"/>
                 </bottom>
-                <center>
-                    <AnchorPane fx:id="centerAnchorPane" BorderPane.alignment="CENTER">
-                        <children>
-                            <StackPane fx:id="centerPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                        </children>
-                    </AnchorPane>
-                </center>
             </BorderPane>
         </center>
         <top>
@@ -577,5 +566,20 @@
                 </children>
             </VBox>
         </top>
+        <bottom>
+            <AnchorPane fx:id="bottomAnchorPane" BorderPane.alignment="CENTER">
+                <children>
+                    <FlowPane fx:id="bottomFlowPane" alignment="CENTER_LEFT" hgap="2.0" maxHeight="-Infinity"
+                              minHeight="32.0" prefWrapLength="100.0" rowValignment="TOP" vgap="2.0"
+                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <padding>
+                            <Insets bottom="5.0" left="10.0" right="60.0" top="5.0"/>
+                        </padding>
+                    </FlowPane>
+                    <Label fx:id="memoryUsageLabel" text="Memory" AnchorPane.bottomAnchor="10.0"
+                           AnchorPane.rightAnchor="16.0"/>
+                </children>
+            </AnchorPane>
+        </bottom>
     </BorderPane>
 </AnchorPane>

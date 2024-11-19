@@ -24,6 +24,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
@@ -63,6 +64,7 @@ import java.io.StringWriter;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * setup all control bindings
@@ -94,6 +96,16 @@ public class MainWindowPresenter {
 				findToolBar.setShowFindToolBar(false);
 				findToolBar.setShowReplaceToolBar(false);
 				Platform.runLater(() -> controller.getFindButton().setSelected(false));
+			}
+		});
+		findToolBar.showFindToolBarProperty().addListener(a -> {
+			if (!findToolBar.isShowFindToolBar() && !findToolBar.isShowReplaceToolBar()) {
+				controller.getFindButton().setSelected(false);
+			}
+		});
+		findToolBar.showReplaceToolBarProperty().addListener(a -> {
+			if (!findToolBar.isShowFindToolBar() && !findToolBar.isShowReplaceToolBar()) {
+				controller.getFindButton().setSelected(false);
 			}
 		});
 
@@ -339,7 +351,9 @@ public class MainWindowPresenter {
 		});
 		MainWindowManager.useDarkThemeProperty().addListener(e -> controller.getOutlineEdgesMenuItem().setSelected(false));
 
-		controller.getCopyMenuItem().setOnAction(e -> ClipboardUtils.putString(view.toBracketString()));
+		controller.getCopyMenuItem().setOnAction(e -> {
+			ClipboardUtils.putString(view.toBracketString());
+		});
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getExportImageMenuItem().setOnAction(e -> {
@@ -445,6 +459,8 @@ public class MainWindowPresenter {
 					if (nodeText.isPresent()) {
 						var index = window.getStatusPane().getChildren().indexOf(nodeText.get());
 						var text = new Text("(" + view.getNodeSelection().size() + " selected)");
+						text.setUserData("info");
+						text.getStyleClass().add("rich-text-label");
 						window.getStatusPane().getChildren().add(index + 1, text);
 					}
 				}
@@ -454,6 +470,8 @@ public class MainWindowPresenter {
 					if (edgeText.isPresent()) {
 						var index = window.getStatusPane().getChildren().indexOf(edgeText.get());
 						var text = new Text("(" + view.getEdgeSelection().size() + " selected)");
+						text.setUserData("info");
+						text.getStyleClass().add("rich-text-label");
 						window.getStatusPane().getChildren().add(index + 1, text);
 					}
 				}
@@ -534,11 +552,18 @@ public class MainWindowPresenter {
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);
 
-		var treeProperty = new SimpleObjectProperty<>(view.getGraph());
-		view.getGraphFX().lastUpdateProperty().addListener(e -> treeProperty.set(view.getGraph()));
 		var qrImageView = new SimpleObjectProperty<ImageView>();
-		QRViewUtils.setup(controller.getCenterAnchorPane(), treeProperty, t -> view.toBracketString(4296),
+
+		var updateProperty = new SimpleLongProperty(System.currentTimeMillis());
+		view.getGraphFX().lastUpdateProperty().addListener(e -> updateProperty.set(System.currentTimeMillis()));
+		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e -> updateProperty.set(System.currentTimeMillis()));
+
+		QRViewUtils.setup(controller.getCenterAnchorPane(), updateProperty, () -> view.toBracketString(4296),
 				qrImageView, controller.getShowQRCode().selectedProperty());
+		controller.getShowQRCode().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		NewickPane.setup(controller.getCenterAnchorPane(), updateProperty, () -> view.toBracketString(4296), controller.getShowNewick().selectedProperty());
+		controller.getShowNewick().disableProperty().bind(view.getGraphFX().emptyProperty());
 	}
 
 
@@ -565,18 +590,22 @@ public class MainWindowPresenter {
 
 	private Searcher<Node> setupSearcher(DrawPane view) {
 		var graph = view.getGraph();
-		var graphFX = view.getGraphFX();
+
+		Function<Integer, jloda.graph.Node> index2node = index -> (jloda.graph.Node) view.getNodesGroup().getChildren().get(index).getUserData();
 		var nodeSelection = view.getNodeSelection();
-		return new Searcher<>(view.getNodesGroup().getChildren(), id -> nodeSelection.isSelected(graph.findNodeById(id)), (id, s) -> {
-			if (s)
-				nodeSelection.select(graph.findNodeById(id));
-			else
-				nodeSelection.clearSelection(graph.findNodeById(id));
-		}, new SimpleObjectProperty<>(SelectionMode.MULTIPLE), id -> graph.getLabel(graph.findNodeById(id)), null,
-				(id, label) -> {
-					var v = graph.findNodeById(id);
+		return new Searcher<>(view.getNodesGroup().getChildren(),
+				index -> nodeSelection.isSelected(index2node.apply(index)),
+				(index, s) -> {
+					if (s)
+						nodeSelection.select(index2node.apply(index));
+					else
+						nodeSelection.clearSelection(index2node.apply(index));
+				}, new SimpleObjectProperty<>(SelectionMode.MULTIPLE),
+				index -> graph.getLabel(index2node.apply(index)), null,
+				(index, label) -> {
+					var v = index2node.apply(index);
 					var oldLabel = graph.getLabel(v);
-					var data = new ChangeNodeLabelsCommand.Data(id, oldLabel, label);
+					var data = new ChangeNodeLabelsCommand.Data(v.getId(), oldLabel, label);
 					view.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(view, List.of(data)));
 				}
 				, null, null);

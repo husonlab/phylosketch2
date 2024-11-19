@@ -407,6 +407,12 @@ public class MainWindowController {
 	@FXML
 	private CheckMenuItem showQRCode;
 
+	@FXML
+	private CheckMenuItem showNewick;
+
+	@FXML
+	private VBox bottomVBox;
+
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -993,7 +999,15 @@ public class MainWindowController {
 		return showQRCode;
 	}
 
+	public CheckMenuItem getShowNewick() {
+		return showNewick;
+	}
+
 	public HBox getLeftHBox() {
 		return leftHBox;
+	}
+
+	public VBox getBottomVBox() {
+		return bottomVBox;
 	}
 }
