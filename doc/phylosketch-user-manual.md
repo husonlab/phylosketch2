@@ -140,6 +140,22 @@ Other items for modifying the tree or network:
 
 * Change Root - all the root of the tree or network to be changed by selecting a new node or edge.
 
+### Settings Menu Button
+
+The Settings Menu contains the following items.
+
+- **Increase Font** - Increases the font size of node labels.
+- **Decrease Font** - Decreases the font size of node labels.
+- **Bold** - Formats node labels in bold.
+- **Italic** - Formats node labels in italics.
+- **Small Node** - Adjusts the size of nodes to small.
+- **Medium Node** - Adjusts the size of nodes to medium.
+- **Large Node** - Adjusts the size of the nodes to large.
+- **Thin Edge** - Sets the thickness of edges to thin.
+- **Medium Edge** - Sets the thickness of edges to medium.
+- **Thick Edge** - Sets the thickness of edges to thick.
+-
+
 ### Other Toolbar Buttons
 
 * Delete - remove currently selected nodes and/or edges.
@@ -181,6 +197,26 @@ tree or network might have, such as `network`, `tree-based network`, or `tempora
 * Use the toolbar to set weights, confidence values, or probabilities for selected edges.
 * Toggle the display of these properties using options in the Label Menu.
 
+### Styling Node Labels
+
+Node labels can be styled using a non-standard set of HTML-like tags.
+Select the node to be styled and use the context menu to edit the label.
+Here are the supported tags:
+
+- `<i>text</i>`: Text in italics
+- `<b>text</b>`: Text in bold
+- `<sup>text</sup>`: Text as superscript
+- `<sub>text</sub>`: Text as subscript
+- `<u>text</u>`: Text underlined
+- `<a>text</a>`: Text with strike-through
+- `<br>`: Start a new line
+- `<font "font-name">text</font>`: Text with a specific font
+- `<size "font-size">text</size>`: Text with a specific font size
+- `<c "font-color">text</c>`: Text with a specific font color
+- `<bg "bg-color">text</bg>`: Text with a specific background color
+- `<mark shape="value" width="value" height="value" fill="color" stroke="color">`: Adds a mark. Possible marks
+  are `Square`, `Circle`, `TriangleUp`, `TriangleDown`, `Diamond`, `Hexagon`, `Rectangle`, `Oval` and `None`.
+- `<img src="url" alt="text" width="value" height="value">`: Adds an image.
 ### Exporting and Sharing
 
 * Use the Export Menu to copy the current selection or save a snapshot of the canvas.
