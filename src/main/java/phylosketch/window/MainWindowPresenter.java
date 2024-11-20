@@ -137,8 +137,8 @@ public class MainWindowPresenter {
 		}
 
 		PaneInteraction.setup(view, allowResize);
-		NodeInteraction.setup(view, () -> controller.getSelectButton().fire());
-		EdgeInteraction.setup(view, () -> controller.getSelectButton().fire());
+		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
+		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
 
 		controller.getLabelEdgeByWeightsMenuItem().selectedProperty().bindBidirectional(view.showWeightProperty());
 		controller.getLabelEdgeByConfidenceMenuItem().selectedProperty().bindBidirectional(view.showConfidenceProperty());
@@ -510,8 +510,15 @@ public class MainWindowPresenter {
 		controller.getResizeModeCheckMenuItem().selectedProperty().bindBidirectional(allowResize);
 		allowResize.addListener((v, o, n) -> {
 			if (n && view.getNodeSelection().size() == 0) {
-				view.getNodeSelection().selectAll(view.getGraph().getNodesAsList());
-				view.getEdgeSelection().selectAll(view.getGraph().getEdgesAsList());
+				if (view.getEdgeSelection().size() > 0) {
+					for (var e : view.getEdgeSelection().getSelectedItems()) {
+						view.getNodeSelection().select(e.getSource());
+						view.getNodeSelection().select(e.getTarget());
+					}
+				} else {
+					view.getNodeSelection().selectAll(view.getGraph().getNodesAsList());
+					view.getEdgeSelection().selectAll(view.getGraph().getEdgesAsList());
+				}
 			}
 		});
 

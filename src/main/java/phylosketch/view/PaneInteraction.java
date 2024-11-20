@@ -152,8 +152,8 @@ public class PaneInteraction {
 		});
 
 		view.setOnMouseReleased(me -> {
+			view.setCursor(Cursor.DEFAULT);
 			if (inDrawingEdge.get()) {
-				view.setCursor(Cursor.DEFAULT);
 				view.getEdgesGroup().getChildren().remove(path);
 				if (!path.getElements().isEmpty()) {
 					if (isGoodPath(path)) {

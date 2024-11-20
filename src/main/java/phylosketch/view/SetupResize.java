@@ -25,6 +25,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -55,7 +57,7 @@ public class SetupResize {
 	private static double mouseX;
 	private static double mouseY;
 
-	public static void apply(DrawPane view, BooleanProperty enableResize) {
+	public static void apply(DrawPane view, BooleanProperty resizeMode) {
 		final var rectangle = new Rectangle();
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
 
@@ -67,7 +69,7 @@ public class SetupResize {
 		var resizeGroup = new Group(rectangle, resizeHandle);
 
 		InvalidationListener invalidationListener = e -> {
-			if (view.getNodeSelection().size() > 1 && enableResize.get()) {
+			if (view.getNodeSelection().size() > 1 && resizeMode.get()) {
 				updateSizeAndLocation(view, rectangle, resizeHandle);
 				if (!view.getOtherGroup().getChildren().contains(resizeGroup)) {
 					view.getOtherGroup().getChildren().add(resizeGroup);
@@ -78,10 +80,19 @@ public class SetupResize {
 		};
 
 		view.getNodeSelection().getSelectedItems().addListener(invalidationListener);
-		enableResize.addListener(invalidationListener);
+		resizeMode.addListener(invalidationListener);
 
 		resizeHandle.setOnMouseClicked(Event::consume);
 		rectangle.setOnMouseClicked(Event::consume);
+
+		rectangle.setOnContextMenuRequested(a -> {
+			var resizeItem = new CheckMenuItem("Resize Mode");
+			resizeItem.setSelected(resizeMode.get());
+			resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
+			var contextMenu = new ContextMenu(resizeItem);
+			contextMenu.show(rectangle, a.getScreenX(), a.getScreenY());
+			a.consume();
+		});
 
 		rectangle.setOnMousePressed(me -> {
 			mouseX = mouseDownX = me.getScreenX();

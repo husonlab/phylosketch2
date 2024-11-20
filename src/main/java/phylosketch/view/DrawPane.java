@@ -447,13 +447,8 @@ public class DrawPane extends Pane {
 		nodeLabelsGroup.getChildren().add(label);
 		label.applyCss();
 
-		label.setOnMouseClicked(e -> {
-			if (!e.isShiftDown() && PhyloSketch.isDesktop()) {
-				getNodeSelection().clearSelection();
-				getEdgeSelection().clearSelection();
-			}
-			getNodeSelection().toggleSelection(v);
-		});
+		label.setOnMouseClicked(shape.getOnMouseClicked());
+
 		var labelLayout = LayoutLabelsCommand.computeLabelLayout(RootLocation.compute(ConnectedComponents.component(v)), label);
 		label.setLayoutX(labelLayout.getX());
 		label.setLayoutY(labelLayout.getY());

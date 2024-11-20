@@ -27,7 +27,6 @@ import jloda.graph.Edge;
 import jloda.graph.Graph;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
-import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.QuadraticCurve;
 import phylosketch.view.RootLocation;
@@ -68,17 +67,11 @@ public class QuadraticCurveCommand extends UndoableRedoableCommand {
 					var first = PathUtils.getCoordinates(path.getElements().get(0));
 					var last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
 
-
-					if (e.getTarget().getInDegree() >= 2) {
-						var points = List.of(first, last);
-						idNewPointsMap.put(e.getId(), PathNormalize.refine(points, 5));
-					} else {
-						var control = switch (nodeRootLocationMap.get(e.getSource())) {
-							case Top, Bottom -> new Point2D(last.getX(), first.getY());
-							case Left, Right -> new Point2D(first.getX(), last.getY());
-						};
-						idNewPointsMap.put(e.getId(), QuadraticCurve.apply(first, control, last, 5));
-					}
+					var control = switch (nodeRootLocationMap.get(e.getSource())) {
+						case Top, Bottom -> new Point2D(last.getX(), first.getY());
+						case Left, Right -> new Point2D(first.getX(), last.getY());
+					};
+					idNewPointsMap.put(e.getId(), QuadraticCurve.apply(first, control, last, 5));
 				}
 			}
 		}
