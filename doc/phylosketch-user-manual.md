@@ -221,6 +221,7 @@ Here are the supported tags:
 
 * Use the Export Menu to copy the current selection or save a snapshot of the canvas.
 * Exported images or data can be shared directly from your device.
+* Displays the Newick description of the current tree or network(s).
 * Display a QR code containing the tree or network in Newick format.
 
 ## Left-side Tabs (mobile app only)
