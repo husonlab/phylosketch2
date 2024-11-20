@@ -80,15 +80,17 @@ public class PaneInteraction {
 		});
 
 		view.setOnContextMenuRequested(me -> {
-			var createNodeMenuItem = new MenuItem("New Node");
-			createNodeMenuItem.setOnAction(e -> {
-				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-				view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
-			});
-			var menu = new ContextMenu();
-			menu.getItems().add(createNodeMenuItem);
-			menu.show(view, me.getScreenX(), me.getScreenY());
-
+			if (view.getMode() == DrawPane.Mode.Edit) {
+				var createNodeMenuItem = new MenuItem("New Node");
+				createNodeMenuItem.setOnAction(e -> {
+					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
+					view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
+				});
+				var menu = new ContextMenu();
+				menu.getItems().add(createNodeMenuItem);
+				menu.show(view, me.getScreenX(), me.getScreenY());
+			}
+			me.consume();
 		});
 
 		view.setOnMouseClicked(me -> {

@@ -23,10 +23,7 @@ package phylosketch.commands;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.PathElement;
-import javafx.scene.shape.Shape;
+import javafx.scene.shape.*;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -109,8 +106,16 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 
 		undo = () -> {
 			var graph = view.getGraph();
-			if (newEdgeId != -1)
-				view.deleteEdge(graph.findEdgeById(newEdgeId));
+			if (newEdgeId != -1) {
+				var f = graph.findEdgeById(newEdgeId);
+				if (f.getSource().getDegree() == 1 && view.getShape(f.getSource()) instanceof Circle circle) {
+					circle.setRadius(circle.getRadius() / 2);
+				}
+				if (f.getTarget().getDegree() == 1 && view.getShape(f.getTarget()) instanceof Circle circle) {
+					circle.setRadius(circle.getRadius() / 2);
+				}
+				view.deleteEdge(f);
+			}
 
 			if (newStartNodeId != -1)
 				view.deleteNode(graph.findNodeById(newStartNodeId));
@@ -276,7 +281,14 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			Edge newEdge; // new edge
 			{
 				extendPathIfNecessary(startPoint, path, endPoint);
+				if (s.getInDegree() > 0 && s.getOutDegree() == 0 && view.getShape(s) instanceof Circle circle) {
+					circle.setRadius(circle.getRadius() / 2);
+				}
+				if (t.getInDegree() == 0 && t.getOutDegree() > 0 && view.getShape(t) instanceof Circle circle) {
+					circle.setRadius(circle.getRadius() / 2);
+				}
 				newEdge = view.createEdge(s, t, path, newEdgeId);
+
 				newEdgeId = newEdge.getId();
 			}
 

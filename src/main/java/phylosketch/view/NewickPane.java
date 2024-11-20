@@ -41,7 +41,15 @@ public class NewickPane {
 		var textArea = new TextArea();
 		textArea.setText(stringSupplier.get());
 		updateProperty.addListener((v, o, n) -> {
-			textArea.setText(stringSupplier.get());
+			if (showProperty.get()) {
+				textArea.setText(stringSupplier.get());
+			}
+		});
+
+		showProperty.addListener((v, o, n) -> {
+			if (n) {
+				textArea.setText(stringSupplier.get());
+			}
 		});
 
 		textArea.setEditable(false);

@@ -193,7 +193,7 @@ The mobile app provides tabs on the left-hand-side of the window.
 
 * The Files tab provides a table of all known documents, specifying name, date last opened, size and kind.
 * The File tab has a toolbar that provides items to add a new document, duplicate a document, edit the name
-  of an existing document, delete a document, import a new document or open a document. There is also a button
+  of an existing document or delete a document. There is also a button
   for toggling between light and dark mode.
 * You can switch between open documents by clicking on their tabs.
 
@@ -204,9 +204,8 @@ The non-mobile version of the PhyloSketch app provides a menu bar with the follo
 ### File menu
 
 * New - open a new document.
-* Open - open an existing document.
+* Open - open an existing document or a Newick file.
 * Recent - open a recently opened document.
-* Import - import a tree or network in Newick format.
 * Export - export a tree or network in Newick format.
 * Save - save to a document.
 * Page Setup - set up the page for printing.

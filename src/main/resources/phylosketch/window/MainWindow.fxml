@@ -88,6 +88,32 @@
                                                     <Tooltip text="Edge layout"/>
                                                 </tooltip>
                                             </MenuButton>
+                                            <MenuButton fx:id="styleMenuButton" mnemonicParsing="false" text="Style">
+                                                <items>
+                                                    <MenuItem fx:id="increaseFontButton" mnemonicParsing="false"
+                                                              text="Increase Font"/>
+                                                    <MenuItem fx:id="decreaseFontButton" mnemonicParsing="false"
+                                                              text="Decrease Font"/>
+                                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                                    <MenuItem fx:id="boldButton" mnemonicParsing="false" text="Bold"/>
+                                                    <MenuItem fx:id="italicButton" mnemonicParsing="false"
+                                                              text="Italic"/>
+                                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                                    <MenuItem fx:id="smallNodeButton" mnemonicParsing="false"
+                                                              text="Small Node"/>
+                                                    <MenuItem fx:id="mediumNodeButton" mnemonicParsing="false"
+                                                              text="Medium Node"/>
+                                                    <MenuItem fx:id="largeNodeButton" mnemonicParsing="false"
+                                                              text="Large Node"/>
+                                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                                    <MenuItem fx:id="thinEdgeButton" mnemonicParsing="false"
+                                                              text="Thin Edge"/>
+                                                    <MenuItem fx:id="mediumEdgeButton" mnemonicParsing="false"
+                                                              text="Medium Edge"/>
+                                                    <MenuItem fx:id="thickEdgeButton" mnemonicParsing="false"
+                                                              text="Thick Edge"/>
+                                                </items>
+                                            </MenuButton>
                                             <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete">
                                                 <tooltip>
                                                     <Tooltip text="Delete selected nodes and edges"/>
@@ -215,8 +241,6 @@
                                     </MenuItem>
                                     <Menu fx:id="recentFilesMenu" mnemonicParsing="false" text="Recent"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
-                                    <MenuItem fx:id="importMenuItem" mnemonicParsing="false" text="Import...">
-                                    </MenuItem>
                                     <Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
                                         <items>
                                             <MenuItem fx:id="exportImageMenuItem" mnemonicParsing="false"
@@ -307,7 +331,7 @@
                                     <MenuItem fx:id="removeThruNodesMenuItem" mnemonicParsing="false"
                                               text="Remove Thru Nodes">
                                     </MenuItem>
-                                    <MenuItem fx:id="rerootMenuItem" text="Change Root"/>
+                                    <MenuItem fx:id="rerootMenuItem" text="Set Root"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
                                         <items>
@@ -519,7 +543,7 @@
                                     </MenuItem>
                                     <MenuItem fx:id="decreaseFontSizeMenuItem" text="Decrease Font Size">
                                         <accelerator>
-                                            <KeyCodeCombination alt="UP" code="SLASH" control="UP" meta="UP" shift="UP"
+                                            <KeyCodeCombination alt="UP" code="MINUS" control="UP" meta="UP" shift="UP"
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
