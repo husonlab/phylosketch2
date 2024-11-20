@@ -22,6 +22,7 @@ package phylosketch.io;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.scene.shape.Circle;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.NewickIO;
@@ -68,7 +69,16 @@ public class ImportNewick {
 	public static Collection<Node> apply(BufferedReader r, DrawPane view, int maxTrees) throws IOException {
 		var rootLocation = RootLocation.Left;
 
+		view.applyCss();
+
+		System.err.println("preferred width: " + view.getPrefWidth());
+		System.err.println("preferred height: " + view.getPrefHeight());
+		System.err.println("width: " + view.getWidth());
+		System.err.println("height: " + view.getHeight());
+
 		var nTrees = Math.min(maxTrees, 6);
+
+		var columns = (view.getWidth() / 500 + 1);
 
 		var width = 300.0 / (1 + (nTrees > 3 ? 1 : 0));
 
@@ -97,6 +107,11 @@ public class ImportNewick {
 							var w = srcTarMap.get(v);
 							if (tree.getLabel(v) != null)
 								view.createLabel(w, tree.getLabel(v));
+							if (w.getInDegree() > 0 && w.getOutDegree() > 0) {
+								if (view.getShape(w) instanceof Circle circle) {
+									circle.setRadius(circle.getRadius() / 2);
+								}
+							}
 						}
 					});
 					for (var e : tree.edges()) {

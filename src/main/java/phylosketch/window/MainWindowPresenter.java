@@ -53,7 +53,10 @@ import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.commands.*;
-import phylosketch.io.*;
+import phylosketch.io.ExportNewick;
+import phylosketch.io.PhyloSketchIO;
+import phylosketch.io.Save;
+import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
@@ -75,6 +78,7 @@ public class MainWindowPresenter {
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 	private final BooleanProperty allowRemoveSuperfluous = new SimpleBooleanProperty(this, "allowRemoveSuperfluous", false);
+	private final BooleanProperty allowReRoot = new SimpleBooleanProperty(this, "allowReRoot", false);
 
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
@@ -191,8 +195,6 @@ public class MainWindowPresenter {
 
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
-
-		controller.getImportMenuItem().setOnAction(e -> ImportNewickDialog.apply(window));
 
 		ChangeListener<DrawPane.Mode> listener = (v, o, n) -> {
 			if (n == DrawPane.Mode.Edit) {
@@ -424,8 +426,7 @@ public class MainWindowPresenter {
 			if (e != null || v != null)
 				view.getUndoManager().doAndAdd(new RerootCommand(view, v, e));
 		});
-		controller.getRerootMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> !(view.getNodeSelection().size() == 1 || view.getEdgeSelection().size() == 1),
-				view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems()));
+		controller.getRerootMenuItem().disableProperty().bind(allowReRoot.not());
 
 		controller.getRectangularMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new RectangularCommand(view.getGraph(), view.getSelectedOrAllEdges())));
 		controller.getRectangularMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
@@ -475,6 +476,32 @@ public class MainWindowPresenter {
 						window.getStatusPane().getChildren().add(index + 1, text);
 					}
 				}
+
+				if (view.getNodeSelection().size() == 1) {
+					var v = view.getNodeSelection().getSelectedItem();
+					while (true) {
+						if (v.getInDegree() == 1)
+							v = v.getParent();
+						else {
+							allowReRoot.set(v.getInDegree() == 0);
+							return;
+						}
+					}
+				} else if (view.getEdgeSelection().size() == 1) {
+					var f = view.getEdgeSelection().getSelectedItem();
+					if (f.nodes().containsAll(view.getNodeSelection().getSelectedItems())) {
+						var v = f.getTarget();
+
+						while (true) {
+							if (v.getInDegree() == 1)
+								v = v.getParent();
+							else {
+								allowReRoot.set(v.getInDegree() == 0);
+								return;
+							}
+						}
+					}
+				} else allowReRoot.set(false);
 			});
 		};
 		view.getNodeSelection().getSelectedItems().addListener(selectionInvalidationListener);
@@ -551,6 +578,8 @@ public class MainWindowPresenter {
 
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);
+
+		SetupFormatting.apply(view, controller);
 
 		var qrImageView = new SimpleObjectProperty<ImageView>();
 

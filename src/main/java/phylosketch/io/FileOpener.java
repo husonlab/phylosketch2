@@ -20,6 +20,7 @@
 
 package phylosketch.io;
 
+import javafx.application.Platform;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
@@ -42,9 +43,11 @@ public class FileOpener implements Consumer<String> {
 	@Override
 	public void accept(String fileName) {
 		var window = (MainWindow) MainWindowManager.getInstance().getLastFocusedMainWindow();
-		if (window == null || !window.isEmpty())
+		if (window == null || !window.isEmpty()) {
 			window = NewWindow.apply();
-		accept(fileName, window);
+		}
+		var fWindow = window;
+		Platform.runLater(() -> accept(fileName, fWindow));
 	}
 
 	public void accept(String fileName, MainWindow window) {

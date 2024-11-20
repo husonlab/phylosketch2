@@ -35,13 +35,15 @@ import jloda.fx.graph.GraphFX;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
-import jloda.fx.util.*;
+import jloda.fx.util.BasicFX;
+import jloda.fx.util.GeometryUtilsFX;
+import jloda.fx.util.Icebergs;
+import jloda.fx.util.SelectionEffect;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
-import jloda.graph.algorithms.IsDAG;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.util.Counter;
@@ -49,7 +51,6 @@ import jloda.util.IteratorUtils;
 import phylosketch.commands.LayoutLabelsCommand;
 import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathUtils;
-import phylosketch.window.MouseSelection;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -62,6 +63,10 @@ import java.util.*;
  */
 public class DrawPane extends Pane {
 	public enum Mode {View, Move, Edit}
+
+	public static final double DEFAULT_NODE_RADIUS = 3.0;
+	public static final double DEFAULT_EDGE_WIDTH = 1.0;
+
 
 	private final PhyloTree graph;
 	private final GraphFX<PhyloTree> graphFX;
@@ -143,51 +148,6 @@ public class DrawPane extends Pane {
 		graphFX = new GraphFX<>(graph);
 		nodeSelection = new SetSelectionModel<>();
 		edgeSelection = new SetSelectionModel<>();
-
-		var object = new Object();
-
-		graphFX.lastUpdateProperty().addListener(e -> {
-			RunAfterAWhile.applyInFXThread(object, () -> {
-				for (var v : graph.nodes()) {
-					if (v.getOwner() != null) {
-						var shape = getShape(v);
-						if (shape instanceof Circle circle) {
-							if (v.getInDegree() == 0 || v.getOutDegree() == 0)
-								circle.setRadius(4);
-							else
-								((Circle) shape).setRadius(2);
-
-						}
-					}
-				}
-			});
-		});
-
-		if (false) {
-			graphFX.lastUpdateProperty().addListener(e -> {
-				valid.set(graph.getNumberOfNodes() > 0 && graph.nodeStream().filter(v -> v.getInDegree() == 0).count() == 1
-						  && IsDAG.apply(graph) && graph.nodeStream().filter(Node::isLeaf).allMatch(v -> graph.getLabel(v) != null));
-
-				nodeSelection.getSelectedItems().removeAll(nodeSelection.getSelectedItems().stream().filter(a -> a.getOwner() == null).toList());
-				edgeSelection.getSelectedItems().removeAll(edgeSelection.getSelectedItems().stream().filter(a -> a.getOwner() == null).toList());
-
-				for (var v : graph.nodes()) {
-					if (v.getData() instanceof Shape shape) {
-						shape.getStyleClass().add("graph-node");
-						shape.setStrokeWidth(v.getInDegree() == 0 ? 2 : 1);
-
-						if (shape instanceof Circle circle)
-							circle.setRadius(v.getInDegree() == 0 || v.getOutDegree() == 0 ? 3 : 1.5);
-						MouseSelection.setupNodeSelection(v, shape, nodeSelection, edgeSelection);
-					}
-				}
-
-				for (var edge : graph.edges()) {
-					if (edge.getData() instanceof Path ePath)
-						MouseSelection.setupEdgeSelection(edge, ePath, nodeSelection, edgeSelection);
-				}
-			});
-		}
 
 		nodeSelection.getSelectedItems().addListener((SetChangeListener<? super Node>) a -> {
 			if (a.wasAdded()) {
@@ -457,6 +417,7 @@ public class DrawPane extends Pane {
 	public void addPath(Edge e, Path path) {
 		e.setData(path);
 		path.setUserData(e);
+		path.setStrokeWidth(DEFAULT_EDGE_WIDTH);
 		if (!edgesGroup.getChildren().contains(path))
 			edgesGroup.getChildren().add(path);
 	}
@@ -504,6 +465,7 @@ public class DrawPane extends Pane {
 		var path = (Path) e.getData();
 		graph.setLabel(e, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);
+
 		e.setInfo(label);
 		label.setUserData(e.getId());
 		InvalidationListener listener = a -> {

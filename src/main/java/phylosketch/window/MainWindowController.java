@@ -111,10 +111,6 @@ public class MainWindowController {
 	@FXML
 	private MenuItem fullScreenMenuItem;
 
-
-	@FXML
-	private MenuItem importMenuItem;
-
 	@FXML
 	private Button zoomInButton;
 
@@ -413,6 +409,28 @@ public class MainWindowController {
 	@FXML
 	private VBox bottomVBox;
 
+	@FXML
+	private MenuButton styleMenuButton;
+	@FXML
+	private MenuItem increaseFontButton;
+	@FXML
+	private MenuItem decreaseFontButton;
+	@FXML
+	private MenuItem boldButton;
+	@FXML
+	private MenuItem italicButton;
+	@FXML
+	private MenuItem smallNodeButton;
+	@FXML
+	private MenuItem mediumNodeButton;
+	@FXML
+	private MenuItem largeNodeButton;
+	@FXML
+	private MenuItem thinEdgeButton;
+	@FXML
+	private MenuItem mediumEdgeButton;
+	@FXML
+	private MenuItem thickEdgeButton;
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -435,13 +453,35 @@ public class MainWindowController {
 
 		MaterialIcons.setIcon(importButton, MaterialIcons.file_download);
 
-		MaterialIcons.setIcon(selectMenuButton,MaterialIcons.checklist);
+		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.checklist_rtl);
 		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
 		MaterialIcons.setIcon(layoutMenuButton, MaterialIcons.shape_line);
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
 		MaterialIcons.setIcon(closeEdgeToolBar, MaterialIcons.clear);
 		MaterialIcons.setIcon(measureWeightsButton, MaterialIcons.square_foot);
+
+		MaterialIcons.setIcon(styleMenuButton, MaterialIcons.settings);
+		increaseFontButton.setGraphic(MaterialIcons.graphic(MaterialIcons.text_increase));
+		increaseFontButton.setText(null);
+		decreaseFontButton.setGraphic(MaterialIcons.graphic(MaterialIcons.text_decrease));
+		decreaseFontButton.setText(null);
+		boldButton.setGraphic(MaterialIcons.graphic(MaterialIcons.format_bold));
+		boldButton.setText(null);
+		italicButton.setGraphic(MaterialIcons.graphic(MaterialIcons.format_italic));
+		italicButton.setText(null);
+		smallNodeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.circle, "-fx-font-size: 6;"));
+		smallNodeButton.setText(null);
+		mediumNodeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.circle, "-fx-font-size: 12;"));
+		mediumNodeButton.setText(null);
+		largeNodeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.circle, "-fx-font-size: 18;"));
+		largeNodeButton.setText(null);
+		thinEdgeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.trending_flat, "-fx-font-size: 12;"));
+		thinEdgeButton.setText(null);
+		mediumEdgeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.trending_flat, "-fx-font-size: 16;"));
+		mediumEdgeButton.setText(null);
+		thickEdgeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.trending_flat, "-fx-font-size: 22;"));
+		thickEdgeButton.setText(null);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -524,6 +564,11 @@ public class MainWindowController {
 
 			deleteButton.setOnAction(e -> deleteMenuItem.getOnAction().handle(e));
 			deleteButton.disableProperty().bind(deleteMenuItem.disableProperty());
+
+			increaseFontSizeMenuItem.setOnAction(e -> increaseFontButton.fire());
+			increaseFontSizeMenuItem.disableProperty().bind(increaseFontButton.disableProperty());
+			decreaseFontSizeMenuItem.setOnAction(e -> decreaseFontButton.fire());
+			decreaseFontSizeMenuItem.disableProperty().bind(decreaseFontButton.disableProperty());
 		}
 
 		scrollPane.setFitToWidth(true);
@@ -675,9 +720,6 @@ public class MainWindowController {
 		return fullScreenMenuItem;
 	}
 
-	public MenuItem getImportMenuItem() {
-		return importMenuItem;
-	}
 
 	public Button getZoomInButton() {
 		return zoomInButton;
@@ -1009,5 +1051,49 @@ public class MainWindowController {
 
 	public VBox getBottomVBox() {
 		return bottomVBox;
+	}
+
+	public MenuItem getThickEdgeButton() {
+		return thickEdgeButton;
+	}
+
+	public MenuItem getMediumEdgeButton() {
+		return mediumEdgeButton;
+	}
+
+	public MenuItem getThinEdgeButton() {
+		return thinEdgeButton;
+	}
+
+	public MenuItem getLargeNodeButton() {
+		return largeNodeButton;
+	}
+
+	public MenuItem getMediumNodeButton() {
+		return mediumNodeButton;
+	}
+
+	public MenuItem getSmallNodeButton() {
+		return smallNodeButton;
+	}
+
+	public MenuItem getItalicButton() {
+		return italicButton;
+	}
+
+	public MenuItem getBoldButton() {
+		return boldButton;
+	}
+
+	public MenuItem getDecreaseFontButton() {
+		return decreaseFontButton;
+	}
+
+	public MenuItem getIncreaseFontButton() {
+		return increaseFontButton;
+	}
+
+	public MenuButton getStyleMenuButton() {
+		return styleMenuButton;
 	}
 }
