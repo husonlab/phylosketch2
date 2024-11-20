@@ -67,16 +67,11 @@ public class RectangularCommand extends UndoableRedoableCommand {
 					var first = PathUtils.getCoordinates(path.getElements().get(0));
 					var last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
 
-					List<Point2D> points;
+					var points = switch (nodeRootLocationMap.get(e.getSource())) {
+						case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
+						case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
+					};
 
-					if (e.getTarget().getInDegree() >= 2) {
-						points = List.of(first, last);
-					} else {
-						points = switch (nodeRootLocationMap.get(e.getSource())) {
-							case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
-							case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
-						};
-					}
 					idNewPointsMap.put(e.getId(), PathNormalize.refine(points, 5));
 				}
 			}

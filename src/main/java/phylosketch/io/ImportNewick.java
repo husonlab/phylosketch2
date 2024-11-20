@@ -53,7 +53,7 @@ public class ImportNewick {
 	 */
 	public static void apply(String fileName, DrawPane view) throws IOException {
 		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
-			apply(r, view, (int) FileUtils.getNumberOfLinesInFile(fileName));
+			apply(r, view);
 		}
 	}
 
@@ -62,11 +62,10 @@ public class ImportNewick {
 	 *
 	 * @param r        reader
 	 * @param view     view
-	 * @param maxTrees max number to import
 	 * @return set of new nodes
 	 * @throws IOException
 	 */
-	public static Collection<Node> apply(BufferedReader r, DrawPane view, int maxTrees) throws IOException {
+	public static Collection<Node> apply(BufferedReader r, DrawPane view) throws IOException {
 		var rootLocation = RootLocation.Left;
 
 		view.applyCss();
@@ -76,28 +75,39 @@ public class ImportNewick {
 		System.err.println("width: " + view.getWidth());
 		System.err.println("height: " + view.getHeight());
 
-		var nTrees = Math.min(maxTrees, 6);
-
-		var columns = (view.getWidth() / 500 + 1);
-
-		var width = 300.0 / (1 + (nTrees > 3 ? 1 : 0));
+		final var width = 300;
+		var gap = 50.0;
+		var totalWidth = Math.max(width + gap, view.getWidth() - gap);
+		var totalHeight = Math.max(width + gap, view.getHeight() - gap);
+		var xMin = gap;
+		var yMin = gap;
 
 		var oldNodes = IteratorUtils.asSet(view.getGraph().nodes());
 
-		var count = 0;
 		while (r.ready()) {
 			var line = r.readLine();
-			if (line != null && !line.isBlank()) {
+			if (line == null)
+				break;
+			if (!line.isBlank() && line.trim().startsWith("(")) {
 				var tree = new PhyloTree();
 				(new NewickIO()).parseBracketNotation(tree, line, true, false);
 				tree.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(e -> tree.setReticulate(e, true));
 
 				try (var nodePointMap = RootedNetworkEmbedder.apply(tree); NodeArray<Node> srcTarMap = tree.newNodeArray()) {
-					var xMin = (count < 3 ? count : count - 3) * (50 + width);
+					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
+
+					if (yMin + gap + height > totalHeight) {
+						yMin = gap;
+						xMin += width + gap;
+						if (xMin + gap + height >= totalWidth)
+							break;
+					}
+
 					var xMax = xMin + width;
-					var yMin = (count < 3 ? 50 : 100 + width);
-					var yMax = yMin + width;
+					var yMax = yMin + height;
 					scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+					yMin += height + gap;
+
 					for (var v : tree.nodes()) {
 						srcTarMap.put(v, view.createNode(nodePointMap.get(v)));
 					}
@@ -134,8 +144,6 @@ public class ImportNewick {
 							view.setShowArrow(f, true);
 					}
 				}
-				if (++count == nTrees)
-					break;
 			}
 		}
 		var newNodes = IteratorUtils.asSet(view.getGraph().nodes());

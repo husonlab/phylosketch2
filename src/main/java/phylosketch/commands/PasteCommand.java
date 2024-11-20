@@ -20,9 +20,11 @@
 
 package phylosketch.commands;
 
+import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
+import jloda.util.Pair;
 import jloda.util.StringUtils;
 import phylosketch.io.ImportNewick;
 import phylosketch.view.DrawPane;
@@ -43,12 +45,11 @@ public class PasteCommand extends UndoableRedoableCommand {
 	private Runnable redo;
 
 	// used when pasted Newick:
-	private final String pastedLine;
 	private Collection<Node> newNodes;
 
 	// used when pasted labels:
-	private final Map<Node, String> nodeOldLabelMap = new HashMap<>();
-	private final Map<Node, String> nodeNewLabelMap = new HashMap<>();
+	private final Map<Integer, Pair<String, String>> nodeOldLabelMap = new HashMap<>();
+	private final Map<Integer, Pair<String, String>> nodeNewLabelMap = new HashMap<>();
 
 	/**
 	 * constructor
@@ -58,11 +59,13 @@ public class PasteCommand extends UndoableRedoableCommand {
 	public PasteCommand(DrawPane view, String pastedString) {
 		super("paste");
 
-		pastedLine = StringUtils.getFirstLine(pastedString);
-		if (pastedLine.startsWith("(") && (pastedLine.endsWith(")") || pastedLine.endsWith(";"))) {
+		var pastedLines = StringUtils.getLinesFromString(pastedString, 1000);
+		var looksLikeNewick = !pastedLines.isEmpty() && pastedLines.stream().allMatch(s -> s.trim().startsWith("(") && (s.trim().endsWith(")") || s.trim().endsWith(";")));
+
+		if (looksLikeNewick) {
 			try {
 				var tree = new PhyloTree();
-				tree.parseBracketNotation(pastedLine, true);
+				tree.parseBracketNotation(pastedLines.get(0), true);
 			} catch (IOException ex) {
 				return;
 			}
@@ -74,8 +77,8 @@ public class PasteCommand extends UndoableRedoableCommand {
 			};
 			redo = () -> {
 				newNodes = null;
-				try (BufferedReader r = new BufferedReader(new StringReader(pastedLine))) {
-					newNodes = ImportNewick.apply(r, view, 1);
+				try (BufferedReader r = new BufferedReader(new StringReader(StringUtils.toString(pastedLines, "\n")))) {
+					newNodes = ImportNewick.apply(r, view);
 				} catch (IOException ignored) {
 					undo = null;
 					redo = null;
@@ -84,27 +87,36 @@ public class PasteCommand extends UndoableRedoableCommand {
 		} else {
 			var selectedLeaves = view.getNodeSelection().getSelectedItems().stream().filter(Node::isLeaf).toList();
 			if (!selectedLeaves.isEmpty()) {
-				var lines = StringUtils.getLinesFromString(pastedString, selectedLeaves.size());
 				var count = 0;
 				for (var v : selectedLeaves) {
-					if (count < lines.size()) {
-						nodeOldLabelMap.put(v, view.getLabel(v).getText());
-						var line = lines.get(count);
+					if (count < pastedLines.size()) {
+						var id = v.getId();
+						var graphLabel = view.getGraph().getLabel(v);
+						var displayLabel = view.getLabel(v).getText();
+						nodeOldLabelMap.put(id, new Pair<>(graphLabel, displayLabel));
+						var line = pastedLines.get(count);
 						if (line.length() > 1024)
 							line = line.substring(0, 1024);
-						nodeNewLabelMap.put(v, line);
+						var newGraphLabel = RichTextLabel.getRawText(line);
+						nodeNewLabelMap.put(id, new Pair<>(newGraphLabel, line));
 						count++;
 					} else break;
 				}
 				if (!nodeNewLabelMap.isEmpty()) {
 					undo = () -> {
 						for (var entry : nodeOldLabelMap.entrySet()) {
-							view.getLabel(entry.getKey()).setText(entry.getValue());
+							var v = view.getGraph().findNodeById(entry.getKey());
+							var pair = entry.getValue();
+							view.getGraph().setLabel(v, pair.getFirst());
+							view.getLabel(v).setText(pair.getSecond());
 						}
 					};
 					redo = () -> {
 						for (var entry : nodeNewLabelMap.entrySet()) {
-							view.getLabel(entry.getKey()).setText(entry.getValue());
+							var v = view.getGraph().findNodeById(entry.getKey());
+							var pair = entry.getValue();
+							view.getGraph().setLabel(v, pair.getFirst());
+							view.getLabel(v).setText(pair.getSecond());
 						}
 					};
 				}

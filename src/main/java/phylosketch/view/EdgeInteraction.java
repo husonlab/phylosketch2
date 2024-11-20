@@ -21,10 +21,13 @@
 package phylosketch.view;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import phylosketch.main.PhyloSketch;
@@ -57,15 +60,26 @@ public class EdgeInteraction {
 	 * @param view
 	 * @param runDoubleClickSelection
 	 */
-	public static void setup(DrawPane view, Runnable runDoubleClickSelection) {
+	public static void setup(DrawPane view, BooleanProperty resizeMode, Runnable runDoubleClickSelection) {
 		view.getEdgesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
 					for (Node n : c.getAddedSubList()) {
 						if (n instanceof Path path && path.getUserData() instanceof jloda.graph.Edge e) {
 
+							path.setOnContextMenuRequested(a -> {
+								if (view.getEdgeSelection().isSelected(e) && view.getMode() == DrawPane.Mode.Move) {
+									var resizeItem = new CheckMenuItem("Resize Mode");
+									resizeItem.setSelected(resizeMode.get());
+									resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
+									var contextMenu = new ContextMenu(resizeItem);
+									contextMenu.show(path, a.getScreenX(), a.getScreenY());
+								}
+								a.consume();
+							});
+
 							path.setOnMouseClicked(me -> {
-								if (me.isStillSincePress()) {
+								if (me.isStillSincePress() && !me.isControlDown()) {
 									if (me.getClickCount() == 1) {
 										if (!me.isAltDown() && PhyloSketch.isDesktop()) {
 											if (!me.isShiftDown()) {
