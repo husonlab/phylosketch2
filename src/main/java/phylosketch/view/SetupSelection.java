@@ -23,6 +23,7 @@ import javafx.beans.binding.Bindings;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.phylo.algorithms.RootedNetworkProperties;
+import jloda.util.IteratorUtils;
 import phylosketch.utils.ArticulationPoints;
 import phylosketch.window.MainWindowController;
 
@@ -78,13 +79,23 @@ public class SetupSelection {
 
 		controller.getSelectInvertMenuItem().setOnAction(e -> {
 			graph.nodes().forEach(nodeSelection::toggleSelection);
-			graph.edges().forEach(edgeSelection::toggleSelection);
 		});
 		controller.getSelectInvertMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getExtendSelectionMenuItem().setOnAction(e -> controller.getSelectButton().fire());
 		controller.getExtendSelectionMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
+		controller.getSelectTreeEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() <= 1).forEach(edgeSelection::select));
+		controller.getSelectTreeEdgesMenuItem().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
+
+		controller.getSelectReticulateEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(edgeSelection::select));
+		controller.getSelectReticulateEdgesMenuItem().disableProperty().bind(controller.getSelectTreeEdgesMenuItem().disableProperty());
+
+		controller.getSelectInEdgesMenuItem().setOnAction(c -> nodeSelection.getSelectedItems().forEach(v -> edgeSelection.selectAll(IteratorUtils.asList(v.inEdges()))));
+		controller.getSelectInEdgesMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
+
+		controller.getSelectOutEdgesMenuItem().setOnAction(c -> nodeSelection.getSelectedItems().forEach(v -> edgeSelection.selectAll(IteratorUtils.asList(v.outEdges()))));
+		controller.getSelectOutEdgesMenuItem().disableProperty().bind(controller.getSelectInEdgesMenuItem().disableProperty());
 
 		controller.getSelectRootsMenuItem().setOnAction(e -> graph.nodeStream().filter(v -> v.getInDegree() == 0).forEach(nodeSelection::select));
 		controller.getSelectRootsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
@@ -122,7 +133,7 @@ public class SetupSelection {
 		});
 		controller.getSelectVisibleReticulationsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getSelectTreeNodesMenuItem().setOnAction(e -> graph.nodeStream().filter(v -> v.getInDegree() <= 1 && v.getOutDegree() > 0).forEach(nodeSelection::select));
+		controller.getSelectTreeNodesMenuItem().setOnAction(e -> graph.nodeStream().filter(v -> v.getInDegree() <= 1).forEach(nodeSelection::select));
 		controller.getSelectTreeNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectAllAboveMenuItem().setOnAction(c -> {
@@ -186,11 +197,6 @@ public class SetupSelection {
 		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
 		controller.getSelectLowestStableAncestorMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
 
-		controller.getSelectTreeEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() <= 1).forEach(edgeSelection::select));
-		controller.getSelectTreeEdgesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-		controller.getSelectReticulateEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(edgeSelection::select));
-		controller.getSelectReticulateEdgesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectThruNodesMenuItem().setOnAction(c -> graph.nodeStream().filter(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()).forEach(nodeSelection::select));
 		controller.getSelectThruNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());

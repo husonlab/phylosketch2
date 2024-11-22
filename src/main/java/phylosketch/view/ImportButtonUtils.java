@@ -21,6 +21,8 @@ package phylosketch.view;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.input.TransferMode;
 import jloda.fx.util.ClipboardUtils;
 import jloda.util.FileUtils;
@@ -37,11 +39,19 @@ import static jloda.fx.util.ClipboardUtils.isTextFile;
  */
 public class ImportButtonUtils {
 
-	public static void setup(Button importButton, Consumer<String> importString) {
+	public static void setup(MenuItem pasteMenuItem, Button importButton, Consumer<String> importString,
+							 Consumer<Image> importImage) {
 		var dragOver = new SimpleBooleanProperty(false);
 
 		importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
-		importButton.setOnAction(e -> importString.accept(ClipboardUtils.getTextFilesContentOrString(100000)));
+		importButton.setOnAction(e -> {
+			if (ClipboardUtils.hasString() || ClipboardUtils.hasFiles())
+				importString.accept(ClipboardUtils.getTextFilesContentOrString(100000));
+			else if (ClipboardUtils.hasImage())
+				importImage.accept(ClipboardUtils.getImage());
+		});
+		pasteMenuItem.setOnAction(importButton.getOnAction());
+		pasteMenuItem.disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
 
 		importButton.setOnDragOver(e -> {
 			var db = e.getDragboard();
