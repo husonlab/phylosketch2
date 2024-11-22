@@ -78,15 +78,14 @@ public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 		if (showWeights && graph.hasEdgeWeights())
 			buf.append(StringUtils.removeTrailingZerosAfterDot(newWeight == null ? graph.getWeight(e) : newWeight));
 		if (showConfidence) {
-			if (graph.hasEdgeConfidences() && e.getTarget().getOutDegree() > 0) {
-				if (!buf.isEmpty())
+			if (e.getTarget().getOutDegree() > 1) {
 					buf.append(":");
 				buf.append(StringUtils.removeTrailingZerosAfterDot(newConfidence == null ? graph.getConfidence(e) : newConfidence));
-			}
+			} else if (showProbability)
+				buf.append(":");
 		}
 		if (showProbability) {
 			if (graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1) {
-				if (!buf.isEmpty())
 					buf.append(":");
 				buf.append(StringUtils.removeTrailingZerosAfterDot(newProbability == null ? graph.getProbability(e) : newProbability));
 			}

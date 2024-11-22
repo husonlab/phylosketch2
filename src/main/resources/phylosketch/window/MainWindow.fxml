@@ -382,31 +382,20 @@
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
-                                    <MenuItem fx:id="selectInvertMenuItem" text="Invert">
-                                        <accelerator>
-                                            <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="UP"
-                                                                shortcut="DOWN"/>
-                                        </accelerator>
-                                    </MenuItem>
                                     <MenuItem fx:id="extendSelectionMenuItem" text="Extend">
                                         <accelerator>
                                             <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
-                                    <SeparatorMenuItem mnemonicParsing="false"/>
-                                    <MenuItem fx:id="selectTreeEdgesMenuItem" text="Tree Edges">
+                                    <MenuItem fx:id="selectInvertMenuItem" text="Invert">
                                         <accelerator>
-                                            <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="DOWN"
+                                            <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="UP"
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
-                                    <MenuItem fx:id="selectReticulateEdgesMenuItem" text="Reticulate Edges">
-                                        <accelerator>
-                                            <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN"
-                                                                shortcut="DOWN"/>
-                                        </accelerator>
-                                    </MenuItem>
+
+
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="selectRootsMenuItem" text="Roots"/>
                                     <MenuItem fx:id="selectLeavesMenuItem" text="Leaves">
@@ -423,6 +412,25 @@
                                     </MenuItem>
                                     <MenuItem fx:id="selectReticulateNodesMenuitem" text="Reticulate Nodes"/>
                                     <MenuItem fx:id="selectThruNodesMenuItem" text="Thru Nodes"/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+
+                                    <MenuItem fx:id="selectTreeEdgesMenuItem" text="Tree Edges">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="DOWN"
+                                                                shortcut="DOWN"/>
+                                        </accelerator>
+                                    </MenuItem>
+                                    <MenuItem fx:id="selectReticulateEdgesMenuItem" text="Reticulate Edges">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN"
+                                                                shortcut="DOWN"/>
+                                        </accelerator>
+                                    </MenuItem>
+                                    <MenuItem fx:id="selectInEdgesMenuItem" text="In Edges">
+                                    </MenuItem>
+                                    <MenuItem fx:id="selectOutEdgesMenuItem" text="Out Edges">
+                                    </MenuItem>
+
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="selectArticulationNodesMenuItem" text="Articulation Nodes"/>
                                     <MenuItem fx:id="selectStableNodesMenuItem" text="Completely Stable Nodes"/>
@@ -478,7 +486,8 @@
                                 <SeparatorMenuItem mnemonicParsing="false"/>
                                 <CheckMenuItem fx:id="labelEdgeByWeightsMenuItem" text="Show Edge Weights"/>
                                 <CheckMenuItem fx:id="labelEdgeByConfidenceMenuItem" text="Show Edge Confidences"/>
-                                <CheckMenuItem fx:id="labelEdgeByProbabilityMenuItem" text="Show Edge Probabilities"/>
+                                <CheckMenuItem fx:id="labelEdgeByProbabilityMenuItem"
+                                               text="Show Reticulate Probabilities"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
                                 <CheckMenuItem fx:id="editEdgeLabelsMenuItem" mnemonicParsing="false"
                                                text="Edit Edge Labels"/>

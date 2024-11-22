@@ -53,7 +53,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 	 * @param value the value to set to. If what is Weight and value=-1, will set to weights graphical edge lengths
 	 */
 	public SetEdgeValueCommand(DrawPane view, What what, double value) {
-		super("weights");
+		super("set " + what.toString().toLowerCase());
 
 		var graph = view.getGraph();
 
@@ -74,14 +74,14 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 		for (var e : view.getEdgeSelection().getSelectedItems()) {
 			switch (what) {
 				case Weight -> {
-					var useValue = (value == -1 ? computeGraphicalEdgeLength(view, nodeRootOrientationMap.get(e.getSource()), e) : value);
+					var useValue = (value == -1 ? (int) Math.round(computeGraphicalEdgeLength(view, nodeRootOrientationMap.get(e.getSource()), e)) : value);
 					edgeOldMap.put(e.getId(), graph.getWeight(e));
 					edgeNewMap.put(e.getId(), useValue);
 					edgeOldLabelMap.put(e.getId(), view.getLabel(e).getText());
 					edgeNewLabelMap.put(e.getId(), ShowEdgeValueCommand.makeLabel(view, e, view.isShowWeight(), useValue, view.isShowConfidence(), null, view.isShowProbability(), null));
 				}
 				case Confidence -> {
-					if (e.getTarget().getInDegree() > 1) {
+					if (e.getTarget().getOutDegree() > 0) {
 						edgeOldMap.put(e.getId(), graph.getConfidence(e));
 						edgeNewMap.put(e.getId(), value);
 						edgeOldLabelMap.put(e.getId(), view.getLabel(e).getText());

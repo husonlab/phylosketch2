@@ -24,7 +24,6 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -136,7 +135,6 @@ public class PaneInteraction {
 
 		view.setOnMouseDragged(me -> {
 			if (inDrawingEdge.get()) {
-				view.setCursor(Cursor.CROSSHAIR);
 				if (!path.getElements().isEmpty()) {
 					if (!view.getEdgesGroup().getChildren().contains(path))
 						view.getEdgesGroup().getChildren().add(path);
@@ -152,7 +150,6 @@ public class PaneInteraction {
 		});
 
 		view.setOnMouseReleased(me -> {
-			view.setCursor(Cursor.DEFAULT);
 			if (inDrawingEdge.get()) {
 				view.getEdgesGroup().getChildren().remove(path);
 				if (!path.getElements().isEmpty()) {

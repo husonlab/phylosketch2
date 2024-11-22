@@ -212,6 +212,12 @@ public class MainWindowController {
 	private MenuItem selectReticulateEdgesMenuItem;
 
 	@FXML
+	private MenuItem selectInEdgesMenuItem;
+
+	@FXML
+	private MenuItem selectOutEdgesMenuItem;
+
+	@FXML
 	private MenuItem selectThruNodesMenuItem;
 
 	@FXML
@@ -867,6 +873,14 @@ public class MainWindowController {
 
 	public MenuItem getSelectReticulateEdgesMenuItem() {
 		return selectReticulateEdgesMenuItem;
+	}
+
+	public MenuItem getSelectInEdgesMenuItem() {
+		return selectInEdgesMenuItem;
+	}
+
+	public MenuItem getSelectOutEdgesMenuItem() {
+		return selectOutEdgesMenuItem;
 	}
 
 	public MenuItem getSelectThruNodesMenuItem() {

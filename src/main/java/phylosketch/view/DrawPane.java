@@ -74,6 +74,7 @@ public class DrawPane extends Pane {
 	private final SelectionModel<Node> nodeSelection;
 	private final SelectionModel<Edge> edgeSelection;
 
+	private final Group backgroundGroup = new Group();
 	private final Group edgeIcebergsGroup = new Group();
 	private final Group nodeIcebergsGroup = new Group();
 	private final Group edgesGroup = new Group();
@@ -185,7 +186,7 @@ public class DrawPane extends Pane {
 			}
 		});
 
-		world.getChildren().addAll(edgeIcebergsGroup, nodeIcebergsGroup, edgesGroup, arrowHeadsGroup, nodesGroup, edgeLabelsGroup, nodeLabelsGroup, outlinesGroup, otherGroup);
+		world.getChildren().addAll(backgroundGroup, edgeIcebergsGroup, nodeIcebergsGroup, edgesGroup, arrowHeadsGroup, nodesGroup, edgeLabelsGroup, nodeLabelsGroup, outlinesGroup, otherGroup);
 		getChildren().add(world);
 
 		getStyleClass().add("viewer-background");
@@ -302,6 +303,10 @@ public class DrawPane extends Pane {
 
 	public GraphFX<PhyloTree> getGraphFX() {
 		return graphFX;
+	}
+
+	public Group getBackgroundGroup() {
+		return backgroundGroup;
 	}
 
 	public Group getEdgesGroup() {

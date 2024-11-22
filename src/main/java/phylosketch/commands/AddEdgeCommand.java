@@ -108,11 +108,11 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 			var graph = view.getGraph();
 			if (newEdgeId != -1) {
 				var f = graph.findEdgeById(newEdgeId);
-				if (f.getSource().getDegree() == 1 && view.getShape(f.getSource()) instanceof Circle circle) {
-					circle.setRadius(circle.getRadius() / 2);
+				if (f.getSource().getInDegree() > 0 && f.getSource().getOutDegree() == 1 && view.getShape(f.getSource()) instanceof Circle circle) {
+					circle.setRadius(2 * circle.getRadius());
 				}
-				if (f.getTarget().getDegree() == 1 && view.getShape(f.getTarget()) instanceof Circle circle) {
-					circle.setRadius(circle.getRadius() / 2);
+				if (f.getTarget().getInDegree() == 1 && f.getTarget().getOutDegree() > 0 && view.getShape(f.getTarget()) instanceof Circle circle) {
+					circle.setRadius(2 * circle.getRadius());
 				}
 				view.deleteEdge(f);
 			}

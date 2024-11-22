@@ -175,24 +175,6 @@ public class MainWindowPresenter {
 
 		controller.getAboutMenuItem().setOnAction(e -> SplashScreen.showSplash(Duration.ofMinutes(2)));
 
-		controller.getPasteMenuItem().setOnAction(e -> {
-			var pasteCommand = new PasteCommand(view, ClipboardUtils.getTextFilesContentOrString(1000000));
-			if (pasteCommand.isRedoable()) {
-				view.getUndoManager().doAndAdd(pasteCommand);
-				allowResize.set(true);
-			}
-		});
-		controller.getPasteMenuItem().disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
-
-		ImportButtonUtils.setup(controller.getImportButton(), s -> {
-			var pasteCommand = new PasteCommand(view, s);
-			if (pasteCommand.isRedoable()) {
-				view.getUndoManager().doAndAdd(pasteCommand);
-				allowResize.set(true);
-			}
-		});
-		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit));
-
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
@@ -263,7 +245,7 @@ public class MainWindowPresenter {
 						richTextLabel.setOnContextMenuRequested(cm -> {
 							var v = view.getGraph().findNodeById(nodeId);
 							var setLabel = new MenuItem("Edit Label");
-							if (PhyloSketch.isDesktop())
+							if (false || PhyloSketch.isDesktop())
 								setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
 							else
 								setLabel.setOnAction(x -> NodeLabelDialog.apply(view, cm.getScreenX(), cm.getScreenY(), v, null));
@@ -551,10 +533,11 @@ public class MainWindowPresenter {
 			}
 		});
 		setupTriggerOnEnter(controller.getEdgeWeightTextField());
-		controller.getEdgeWeightTextField().disableProperty().bind(Bindings.isEmpty(view.getNodeSelection().getSelectedItems()));
+		controller.getEdgeWeightTextField().disableProperty().bind(Bindings.isEmpty(view.getEdgeSelection().getSelectedItems()));
 
 		controller.getMeasureWeightsButton().setOnAction(e -> {
 			view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, -1));
+			controller.getLabelEdgeByWeightsMenuItem().setSelected(true);
 		});
 		controller.getMeasureWeightsButton().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
 
@@ -600,6 +583,30 @@ public class MainWindowPresenter {
 
 		NewickPane.setup(controller.getCenterAnchorPane(), updateProperty, () -> view.toBracketString(4296), controller.getShowNewick().selectedProperty());
 		controller.getShowNewick().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		var backgroundImage = new BackgroundImagePane(view.getUndoManager());
+		var showImageProperty = backgroundImage.showProperty();
+		showImageProperty.addListener((v, o, n) -> {
+			if (n)
+				view.getBackgroundGroup().getChildren().add(backgroundImage);
+			else
+				view.getBackgroundGroup().getChildren().remove(backgroundImage);
+		});
+
+
+		ImportButtonUtils.setup(controller.getPasteMenuItem(), controller.getImportButton(), s -> {
+			var pasteCommand = new PasteCommand(view, s);
+			if (pasteCommand.isRedoable()) {
+				view.getUndoManager().doAndAdd(pasteCommand);
+				allowResize.set(true);
+			}
+		}, image -> {
+			backgroundImage.getImageView().setImage(image);
+			showImageProperty.set(true);
+		});
+		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit));
+
+
 	}
 
 
