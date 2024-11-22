@@ -51,7 +51,7 @@ public class ImportButtonUtils {
 				importImage.accept(ClipboardUtils.getImage());
 		});
 		pasteMenuItem.setOnAction(importButton.getOnAction());
-		pasteMenuItem.disableProperty().bind(ClipboardUtils.hasStringProperty().not().and(ClipboardUtils.hasFilesProperty().not()));
+		pasteMenuItem.disableProperty().bind((ClipboardUtils.hasStringProperty().or(ClipboardUtils.hasFilesProperty()).or(ClipboardUtils.hasImageProperty()).not()));
 
 		importButton.setOnDragOver(e -> {
 			var db = e.getDragboard();

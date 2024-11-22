@@ -54,7 +54,7 @@ public class BackgroundImagePane extends HBox {
 		setTranslateY(defaultGeometry.get(1));
 
 		imageView = new ImageView();
-		imageView.setOpacity(0.5);
+		imageView.setOpacity(0.6);
 		imageView.imageProperty().addListener((v, o, n) -> {
 			if (n != null) {
 				imageView.setFitWidth(defaultGeometry.get(2));
