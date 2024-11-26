@@ -94,8 +94,6 @@ public class DrawPane extends Pane {
 	private final ObservableMap<Edge, Path> edgeOutlineMap = FXCollections.observableHashMap();
 	private final BooleanProperty showOutlines = new SimpleBooleanProperty(this, "showOutlines", false);
 
-	private final BooleanProperty showArrows = new SimpleBooleanProperty(this, "showArrows", true);
-
 	private final DoubleProperty tolerance = new SimpleDoubleProperty(this, "tolerance", 5);
 
 	private final BooleanProperty valid = new SimpleBooleanProperty(this, "isValidNetwork", false);
@@ -663,13 +661,6 @@ public class DrawPane extends Pane {
 		return showOutlines;
 	}
 
-	public boolean isShowArrows() {
-		return showArrows.get();
-	}
-
-	public BooleanProperty showArrowsProperty() {
-		return showArrows;
-	}
 
 	public void setShowArrow(Edge e, boolean show) {
 		if (!show) {
@@ -679,6 +670,8 @@ public class DrawPane extends Pane {
 				if (e.getData() instanceof Path path) {
 					var arrowHead = new Polygon(7.0, 0.0, -7.0, 4.0, -7.0, -4.0);
 					arrowHead.getStyleClass().add("graph-node");
+					arrowHead.strokeProperty().bind(path.strokeProperty());
+					arrowHead.fillProperty().bind(arrowHead.strokeProperty());
 					edgeArrowMap.put(e, arrowHead);
 
 					InvalidationListener listener = a -> {
@@ -705,5 +698,9 @@ public class DrawPane extends Pane {
 				}
 			}
 		}
+	}
+
+	public boolean isShowArrow(Edge e) {
+		return edgeArrowMap.containsKey(e);
 	}
 }

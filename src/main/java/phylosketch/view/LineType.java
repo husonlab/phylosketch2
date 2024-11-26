@@ -1,5 +1,5 @@
 /*
- * EdgeContextMenu.java Copyright (C) 2024 Daniel H. Huson
+ * LineType.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -20,17 +20,34 @@
 
 package phylosketch.view;
 
-import javafx.scene.shape.Path;
-import jloda.fx.util.BasicFX;
-import jloda.graph.Edge;
-import phylosketch.window.MainWindowController;
+import javafx.scene.shape.Shape;
 
 import java.util.List;
 
-public class EdgeContextMenu {
-	public static void setup(DrawPane view, MainWindowController controller, Edge e, Path path) {
-		path.setOnContextMenuRequested(c -> {
-			var menu = BasicFX.copyMenu(List.of(controller.getLabelEdgeByWeightsMenuItem(), controller.getLabelEdgeByConfidenceMenuItem(), controller.getLabelEdgeByProbabilityMenuItem()));
-		});
+/**
+ * line types
+ * Daniel Huson, 11.2024
+ */
+public enum LineType {
+	Solid(),
+	Dotted(2.0, 8.0),
+	Dashed(10.0, 10.0);
+
+	public final List<Double> strokeDashArray;
+
+	private LineType(Double... dashArray) {
+		strokeDashArray = List.of(dashArray);
+	}
+
+	public void applyTo(Shape shape) {
+		shape.getStrokeDashArray().setAll(strokeDashArray);
+	}
+
+	public static LineType fromShape(Shape shape) {
+		for (var type : values()) {
+			if (shape.getStrokeDashArray().equals(type.strokeDashArray))
+				return type;
+		}
+		return Solid;
 	}
 }

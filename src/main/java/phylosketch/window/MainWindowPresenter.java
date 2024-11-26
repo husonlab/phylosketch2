@@ -35,6 +35,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
@@ -50,9 +51,9 @@ import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
-import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.commands.*;
+import phylosketch.format.FormatPaneView;
 import phylosketch.io.ExportNewick;
 import phylosketch.io.PhyloSketchIO;
 import phylosketch.io.Save;
@@ -60,6 +61,7 @@ import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
+import phylosketch.utils.Clusters;
 import phylosketch.view.*;
 
 import java.io.IOException;
@@ -75,6 +77,7 @@ import java.util.function.Function;
  */
 public class MainWindowPresenter {
 	private final FindToolBar findToolBar;
+	private final FormatPaneView formatPaneView;
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 	private final BooleanProperty allowRemoveSuperfluous = new SimpleBooleanProperty(this, "allowRemoveSuperfluous", false);
@@ -113,6 +116,17 @@ public class MainWindowPresenter {
 			}
 		});
 
+		formatPaneView = new FormatPaneView(view, controller.getShowSettingsButton().selectedProperty());
+		AnchorPane.setTopAnchor(formatPaneView.getPane(), 10.0);
+		AnchorPane.setRightAnchor(formatPaneView.getPane(), 20.0);
+		controller.getShowSettingsButton().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				controller.getCenterAnchorPane().getChildren().add(formatPaneView.getPane());
+			else
+				controller.getCenterAnchorPane().getChildren().remove(formatPaneView.getPane());
+		});
+		DraggableLabel.makeDraggable(formatPaneView.getPane());
+
 		if (false) {
 			view.getGraphFX().getNodeList().addListener((ListChangeListener<? super jloda.graph.Node>) a -> {
 				while (a.next()) {
@@ -139,20 +153,6 @@ public class MainWindowPresenter {
 		PaneInteraction.setup(view, allowResize);
 		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
 		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
-
-		controller.getLabelEdgeByWeightsMenuItem().selectedProperty().bindBidirectional(view.showWeightProperty());
-		controller.getLabelEdgeByConfidenceMenuItem().selectedProperty().bindBidirectional(view.showConfidenceProperty());
-		controller.getLabelEdgeByProbabilityMenuItem().selectedProperty().bindBidirectional(view.showProbabilityProperty());
-
-		controller.getLabelEdgeByWeightsMenuItem().selectedProperty().addListener(e ->
-				undoManager.doAndAdd(new ShowEdgeValueCommand(view, view.isShowWeight(), view.isShowConfidence(), view.isShowProbability())));
-		controller.getLabelEdgeByWeightsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-		controller.getLabelEdgeByConfidenceMenuItem().selectedProperty().addListener(e ->
-				undoManager.doAndAdd(new ShowEdgeValueCommand(view, view.isShowWeight(), view.isShowConfidence(), view.isShowProbability())));
-		controller.getLabelEdgeByConfidenceMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-		controller.getLabelEdgeByProbabilityMenuItem().selectedProperty().addListener(e ->
-				undoManager.doAndAdd(new ShowEdgeValueCommand(view, view.isShowWeight(), view.isShowConfidence(), view.isShowProbability())));
-		controller.getLabelEdgeByProbabilityMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> {
 			window.dirtyProperty().set(n.intValue() > 0);
@@ -316,12 +316,6 @@ public class MainWindowPresenter {
 			controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1);
 		});
 
-		controller.getArrowsMenuItem().setSelected(view.isShowArrows());
-
-		controller.getArrowsMenuItem().selectedProperty().addListener((v, o, n) -> {
-			view.showArrowsProperty().set(n);
-			undoManager.doAndAdd(new ShowArrowsCommand(view, controller.getArrowsMenuItem().isSelected()));
-		});
 
 		controller.getOutlineEdgesMenuItem().selectedProperty().addListener((v, o, n) -> {
 			if (n)
@@ -375,32 +369,26 @@ public class MainWindowPresenter {
 		controller.getRemoveThruNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RemoveThruNodesCommand(view)));
 		controller.getRemoveThruNodesMenuItem().disableProperty().bind(allowRemoveSuperfluous.not());
 
-		controller.getLabelLeavesABCMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelLeavesABC(view))));
+		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "leaves", "ABC", true)));
 		controller.getLabelLeavesABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLabelLeaves123MenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelLeaves123(view))));
+		controller.getLabelLeaves123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "leaves", "t1t2t3", true)));
 		controller.getLabelLeaves123MenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getLabelLeavesMenuItem().setOnAction(c -> LabelLeaves.labelLeaves(window.getStage(), view));
 		controller.getLabelLeavesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLabelInternalABCMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelInternalABC(view))));
+		controller.getLabelInternalABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "internal", "ABC", true)));
 		controller.getLabelInternalABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLabelInternal123MenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.labelInternal123(view))));
+		controller.getLabelInternal123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "internal", "t1t2t3", true)));
 		controller.getLabelInternal123MenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getClearLabelsMenuItem().setOnAction(c -> undoManager.doAndAdd(new ChangeNodeLabelsCommand(view, LabelLeaves.clear(view))));
+		controller.getClearLabelsMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "all", "none", true)));
 		controller.getClearLabelsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getNodeLabelsGroup().getChildren()));
 
 		controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
 		BasicFX.setupFullScreenMenuSupport(window.getStage(), controller.getFullScreenMenuItem());
-
-		controller.getSmoothMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new SmoothCommand(view.getGraph(), view.getSelectedOrAllEdges())));
-		controller.getSmoothMenuItem().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
-
-		controller.getStraightMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new StraightenCommand(view.getGraph(), view.getSelectedOrAllEdges())));
-		controller.getStraightMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
 		controller.getRerootMenuItem().setOnAction(a -> {
 			var e = (view.getEdgeSelection().size() == 1 ? view.getEdgeSelection().getSelectedItem() : null);
@@ -409,12 +397,6 @@ public class MainWindowPresenter {
 				view.getUndoManager().doAndAdd(new RerootCommand(view, v, e));
 		});
 		controller.getRerootMenuItem().disableProperty().bind(allowReRoot.not());
-
-		controller.getRectangularMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new RectangularCommand(view.getGraph(), view.getSelectedOrAllEdges())));
-		controller.getRectangularMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
-
-		controller.getQuadraticCurveMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new QuadraticCurveCommand(view.getGraph(), view.getSelectedOrAllEdges())));
-		controller.getQuadraticCurveMenuItem().disableProperty().bind(controller.getSmoothMenuItem().disableProperty());
 
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
 			window.getStatusPane().getChildren().removeAll(BasicFX.findRecursively(window.getStatusPane(), n -> "info".equals(n.getUserData())));
@@ -526,41 +508,6 @@ public class MainWindowPresenter {
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getEdgeWeightTextField().setOnAction(a -> {
-			if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {
-				var value = NumberUtils.parseDouble(controller.getEdgeWeightTextField().getText());
-				view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, value));
-			}
-		});
-		setupTriggerOnEnter(controller.getEdgeWeightTextField());
-		controller.getEdgeWeightTextField().disableProperty().bind(Bindings.isEmpty(view.getEdgeSelection().getSelectedItems()));
-
-		controller.getMeasureWeightsButton().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, -1));
-			controller.getLabelEdgeByWeightsMenuItem().setSelected(true);
-		});
-		controller.getMeasureWeightsButton().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
-
-		controller.getEdgeConfidenceTextField().setOnAction(a -> {
-			if (NumberUtils.isDouble(controller.getEdgeConfidenceTextField().getText())) {
-				var value = NumberUtils.parseDouble(controller.getEdgeConfidenceTextField().getText());
-				view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Confidence, value));
-			}
-			controller.getLabelEdgeByConfidenceMenuItem().setSelected(true);
-		});
-		setupTriggerOnEnter(controller.getEdgeConfidenceTextField());
-		controller.getEdgeConfidenceTextField().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
-
-		controller.getEdgeProbabilityTextField().setOnAction(a -> {
-			if (NumberUtils.isDouble(controller.getEdgeProbabilityTextField().getText())) {
-				var value = NumberUtils.parseDouble(controller.getEdgeProbabilityTextField().getText());
-				view.getUndoManager().doAndAdd(new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Probability, value));
-			}
-			controller.getLabelEdgeByProbabilityMenuItem().setSelected(true);
-		});
-		setupTriggerOnEnter(controller.getEdgeProbabilityTextField());
-		controller.getEdgeProbabilityTextField().disableProperty().bind(controller.getEdgeWeightTextField().disableProperty());
-
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply("https://software-ab.cs.uni-tuebingen.de/download/phylosketch2"));
 		CheckForUpdate.setupDisableProperty(controller.getCheckForUpdatesMenuItem().disableProperty());
 
@@ -568,8 +515,6 @@ public class MainWindowPresenter {
 
 		SetupSelection.apply(view, controller);
 		SetupResize.apply(view, allowResize);
-
-		SetupFormatting.apply(view, controller);
 
 		var qrImageView = new SimpleObjectProperty<ImageView>();
 
@@ -606,6 +551,9 @@ public class MainWindowPresenter {
 		});
 		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit));
 
+		controller.getFindAgainMenuItem().setOnAction(e -> {
+			Clusters.show(view.getGraph());
+		});
 
 	}
 
@@ -652,5 +600,9 @@ public class MainWindowPresenter {
 					view.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(view, List.of(data)));
 				}
 				, null, null);
+	}
+
+	public FormatPaneView getFormatPaneView() {
+		return formatPaneView;
 	}
 }

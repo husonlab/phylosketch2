@@ -140,8 +140,7 @@ public class ImportNewick {
 							};
 						}
 						var f = view.createEdge(v, w, PathUtils.createPath(points, true));
-						if (view.isShowArrows())
-							view.setShowArrow(f, true);
+						view.setShowArrow(f, true);
 					}
 				}
 			}

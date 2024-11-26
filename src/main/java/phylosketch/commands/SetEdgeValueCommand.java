@@ -27,6 +27,7 @@ import jloda.graph.algorithms.ConnectedComponents;
 import phylosketch.view.DrawPane;
 import phylosketch.view.RootLocation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +43,6 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 
 	final private Map<Integer, Double> edgeOldMap = new HashMap<>();
 	final private Map<Integer, Double> edgeNewMap = new HashMap<>();
-	private final Map<Integer, String> edgeOldLabelMap = new HashMap<>();
-	private final Map<Integer, String> edgeNewLabelMap = new HashMap<>();
 
 	/**
 	 * constructor
@@ -57,6 +56,9 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 
 		var graph = view.getGraph();
 
+		if (view.getEdgeSelection().size() == 0)
+			view.getEdgeSelection().selectAll(view.getGraphFX().getEdgeList());
+
 		final Map<Node, RootLocation> nodeRootOrientationMap;
 		if (what == What.Weight && value == -1) {
 			nodeRootOrientationMap = new HashMap<>();
@@ -68,44 +70,38 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 					}
 				}
 			}
-			;
 		} else nodeRootOrientationMap = null;
 
+		var additionalToSelect = new ArrayList<Edge>();
 		for (var e : view.getEdgeSelection().getSelectedItems()) {
 			switch (what) {
 				case Weight -> {
 					var useValue = (value == -1 ? (int) Math.round(computeGraphicalEdgeLength(view, nodeRootOrientationMap.get(e.getSource()), e)) : value);
 					edgeOldMap.put(e.getId(), graph.getWeight(e));
 					edgeNewMap.put(e.getId(), useValue);
-					edgeOldLabelMap.put(e.getId(), view.getLabel(e).getText());
-					edgeNewLabelMap.put(e.getId(), ShowEdgeValueCommand.makeLabel(view, e, view.isShowWeight(), useValue, view.isShowConfidence(), null, view.isShowProbability(), null));
 				}
 				case Confidence -> {
 					if (e.getTarget().getOutDegree() > 0) {
 						edgeOldMap.put(e.getId(), graph.getConfidence(e));
 						edgeNewMap.put(e.getId(), value);
-						edgeOldLabelMap.put(e.getId(), view.getLabel(e).getText());
-						edgeNewLabelMap.put(e.getId(), ShowEdgeValueCommand.makeLabel(view, e, view.isShowWeight(), null, view.isShowConfidence(), value, view.isShowProbability(), null));
 					}
 				}
 				case Probability -> {
 					if (e.getTarget().getInDegree() > 1) {
 						edgeOldMap.put(e.getId(), graph.getProbability(e));
 						edgeNewMap.put(e.getId(), value);
-						edgeOldLabelMap.put(e.getId(), view.getLabel(e).getText());
-						edgeNewLabelMap.put(e.getId(), ShowEdgeValueCommand.makeLabel(view, e, view.isShowWeight(), null, view.isShowConfidence(), null, view.isShowProbability(), value));
 						if ((value > 0 && value < 1) && e.getTarget().getInDegree() == 2) {
 							var f = (e.getTarget().getFirstInEdge() == e ? e.getTarget().getLastInEdge() : e.getTarget().getFirstInEdge());
 							if (!view.getEdgeSelection().isSelected(f)) {
 								edgeOldMap.put(f.getId(), graph.getProbability(f));
-								edgeOldLabelMap.put(f.getId(), view.getLabel(f).getText());
 								edgeNewMap.put(f.getId(), 1.0 - value);
-								edgeNewLabelMap.put(f.getId(), ShowEdgeValueCommand.makeLabel(view, f, view.isShowWeight(), null, view.isShowConfidence(), null, view.isShowProbability(), 1.0 - value));
+								additionalToSelect.add(f);
 							}
 						}
 					}
 				}
 			}
+			view.getEdgeSelection().getSelectedItems().addAll(additionalToSelect);
 		}
 
 		if (!edgeNewMap.isEmpty()) {
@@ -117,7 +113,6 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 						case Confidence -> graph.setConfidence(e, entry.getValue());
 						case Probability -> graph.setProbability(e, entry.getValue());
 					}
-					view.getLabel(e).setText(edgeOldLabelMap.get(entry.getKey()));
 				}
 			};
 
@@ -129,7 +124,6 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 						case Confidence -> graph.setConfidence(e, entry.getValue());
 						case Probability -> graph.setProbability(e, entry.getValue());
 					}
-					view.getLabel(e).setText(edgeNewLabelMap.get(entry.getKey()));
 				}
 			};
 		} else {
