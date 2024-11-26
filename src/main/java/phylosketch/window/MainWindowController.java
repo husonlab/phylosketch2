@@ -85,6 +85,9 @@ public class MainWindowController {
 	private Menu exportMenu;
 
 	@FXML
+	private ToggleButton showSettingsButton;
+
+	@FXML
 	private MenuButton exportMenuButton;
 
 	@FXML
@@ -164,30 +167,6 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem saveMenuItem;
-
-	@FXML
-	private CheckMenuItem editEdgeLabelsMenuItem;
-
-	@FXML
-	private AnchorPane editEdgesAnchorPane;
-
-	@FXML
-	private ToolBar edgeLabelsToolBar;
-
-	@FXML
-	private TextField edgeWeightTextField;
-
-	@FXML
-	private Button measureWeightsButton;
-
-	@FXML
-	private TextField edgeConfidenceTextField;
-
-	@FXML
-	private TextField edgeProbabilityTextField;
-
-	@FXML
-	private Button closeEdgeToolBar;
 
 	@FXML
 	private Menu selectMenu;
@@ -281,16 +260,6 @@ public class MainWindowController {
 	@FXML
 	private MenuItem clearLabelsMenuItem;
 
-
-	@FXML
-	private CheckMenuItem labelEdgeByWeightsMenuItem;
-
-	@FXML
-	private CheckMenuItem labelEdgeByConfidenceMenuItem;
-
-	@FXML
-	private CheckMenuItem labelEdgeByProbabilityMenuItem;
-
 	@FXML
 	private VBox topVBox;
 
@@ -325,9 +294,6 @@ public class MainWindowController {
 	private MenuButton selectMenuButton;
 
 	@FXML
-	private MenuButton settingsMenuButton;
-
-	@FXML
 	private MenuButton layoutMenuButton;
 
 	@FXML
@@ -335,24 +301,6 @@ public class MainWindowController {
 
 	@FXML
 	private Menu layoutMenu;
-
-	@FXML
-	private CheckMenuItem arrowsMenuItem;
-
-	@FXML
-	private CheckMenuItem outlineEdgesMenuItem;
-
-	@FXML
-	private MenuItem smoothMenuItem;
-
-	@FXML
-	private MenuItem straightMenuItem;
-
-	@FXML
-	private MenuItem rectangularMenuItem;
-
-	@FXML
-	private MenuItem quadraticCurveMenuItem;
 
 	@FXML
 	private MenuItem rerootMenuItem;
@@ -416,27 +364,7 @@ public class MainWindowController {
 	private VBox bottomVBox;
 
 	@FXML
-	private MenuButton styleMenuButton;
-	@FXML
-	private MenuItem increaseFontButton;
-	@FXML
-	private MenuItem decreaseFontButton;
-	@FXML
-	private MenuItem boldButton;
-	@FXML
-	private MenuItem italicButton;
-	@FXML
-	private MenuItem smallNodeButton;
-	@FXML
-	private MenuItem mediumNodeButton;
-	@FXML
-	private MenuItem largeNodeButton;
-	@FXML
-	private MenuItem thinEdgeButton;
-	@FXML
-	private MenuItem mediumEdgeButton;
-	@FXML
-	private MenuItem thickEdgeButton;
+	private CheckMenuItem outlineEdgesMenuItem;
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -460,51 +388,13 @@ public class MainWindowController {
 		MaterialIcons.setIcon(importButton, MaterialIcons.file_download);
 
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.checklist_rtl);
-		MaterialIcons.setIcon(settingsMenuButton, MaterialIcons.new_label);
 		MaterialIcons.setIcon(layoutMenuButton, MaterialIcons.shape_line);
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
-		MaterialIcons.setIcon(closeEdgeToolBar, MaterialIcons.clear);
-		MaterialIcons.setIcon(measureWeightsButton, MaterialIcons.square_foot);
-
-		MaterialIcons.setIcon(styleMenuButton, MaterialIcons.settings);
-		increaseFontButton.setGraphic(MaterialIcons.graphic(MaterialIcons.text_increase));
-		increaseFontButton.setText(null);
-		decreaseFontButton.setGraphic(MaterialIcons.graphic(MaterialIcons.text_decrease));
-		decreaseFontButton.setText(null);
-		boldButton.setGraphic(MaterialIcons.graphic(MaterialIcons.format_bold));
-		boldButton.setText(null);
-		italicButton.setGraphic(MaterialIcons.graphic(MaterialIcons.format_italic));
-		italicButton.setText(null);
-		smallNodeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.circle, "-fx-font-size: 6;"));
-		smallNodeButton.setText(null);
-		mediumNodeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.circle, "-fx-font-size: 12;"));
-		mediumNodeButton.setText(null);
-		largeNodeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.circle, "-fx-font-size: 18;"));
-		largeNodeButton.setText(null);
-		thinEdgeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.trending_flat, "-fx-font-size: 12;"));
-		thinEdgeButton.setText(null);
-		mediumEdgeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.trending_flat, "-fx-font-size: 16;"));
-		mediumEdgeButton.setText(null);
-		thickEdgeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.trending_flat, "-fx-font-size: 22;"));
-		thickEdgeButton.setText(null);
+		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
-
-		edgeLabelsToolBar.visibleProperty().addListener((v, o, n) -> {
-			editEdgesAnchorPane.setPrefHeight(n ? 32 : 0);
-			editEdgesAnchorPane.setMinHeight(ToolBar.USE_PREF_SIZE);
-			editEdgesAnchorPane.setMaxHeight(ToolBar.USE_PREF_SIZE);
-			edgeLabelsToolBar.setPrefHeight(n ? 32 : 0);
-			edgeLabelsToolBar.setMinHeight(ToolBar.USE_PREF_SIZE);
-			edgeLabelsToolBar.setMaxHeight(ToolBar.USE_PREF_SIZE);
-
-			closeEdgeToolBar.setVisible(n);
-		});
-		edgeLabelsToolBar.setVisible(false);
-		editEdgeLabelsMenuItem.selectedProperty().bindBidirectional(edgeLabelsToolBar.visibleProperty());
-		closeEdgeToolBar.setOnAction(e -> edgeLabelsToolBar.setVisible(false));
 
 		// if we are running on MacOS, put the specific menu items in the right places
 		if (ProgramProperties.isMacOS()) {
@@ -552,7 +442,10 @@ public class MainWindowController {
 			deleteRecentFilesMenuItem.setOnAction(e-> deleteMenuItem.getOnAction().handle(e));
 			deleteRecentFilesMenuItem.disableProperty().bind(deleteMenuItem.disableProperty());
 
+			var keep = new ArrayList<>(fileMenuButton.getItems());
+
 			recentFilesMenu.getItems().addListener((InvalidationListener) e -> {
+				fileMenuButton.getItems().setAll(keep);
 				fileMenuButton.getItems().addAll(BasicFX.copyMenu(recentFilesMenu.getItems()));
 			});
 		}
@@ -570,11 +463,6 @@ public class MainWindowController {
 
 			deleteButton.setOnAction(e -> deleteMenuItem.getOnAction().handle(e));
 			deleteButton.disableProperty().bind(deleteMenuItem.disableProperty());
-
-			increaseFontSizeMenuItem.setOnAction(e -> increaseFontButton.fire());
-			increaseFontSizeMenuItem.disableProperty().bind(increaseFontButton.disableProperty());
-			decreaseFontSizeMenuItem.setOnAction(e -> decreaseFontButton.fire());
-			decreaseFontSizeMenuItem.disableProperty().bind(decreaseFontButton.disableProperty());
 		}
 
 		scrollPane.setFitToWidth(true);
@@ -586,7 +474,6 @@ public class MainWindowController {
 		scrollPane.setRequireShiftOrControlToZoom(true);
 
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
-		settingsMenuButton.getItems().addAll(BasicFX.copyMenu(labelsMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem, rerootMenuItem)));
@@ -947,33 +834,10 @@ public class MainWindowController {
 		return selectButton;
 	}
 
-	public CheckMenuItem getArrowsMenuItem() {
-		return arrowsMenuItem;
-	}
-
-	public CheckMenuItem getOutlineEdgesMenuItem() {
-		return outlineEdgesMenuItem;
-	}
-
-	public MenuItem getSmoothMenuItem() {
-		return smoothMenuItem;
-	}
-
-	public MenuItem getStraightMenuItem() {
-		return straightMenuItem;
-	}
-
 	public MenuItem getRerootMenuItem() {
 		return rerootMenuItem;
 	}
 
-	public MenuItem getRectangularMenuItem() {
-		return rectangularMenuItem;
-	}
-
-	public MenuItem getQuadraticCurveMenuItem() {
-		return quadraticCurveMenuItem;
-	}
 
 	public CheckMenuItem getEditModeCheckMenuItem() {
 		return editModeCheckMenuItem;
@@ -1011,33 +875,6 @@ public class MainWindowController {
 		return removeThruNodesMenuItem;
 	}
 
-	public CheckMenuItem getLabelEdgeByWeightsMenuItem() {
-		return labelEdgeByWeightsMenuItem;
-	}
-
-	public CheckMenuItem getLabelEdgeByConfidenceMenuItem() {
-		return labelEdgeByConfidenceMenuItem;
-	}
-
-	public CheckMenuItem getLabelEdgeByProbabilityMenuItem() {
-		return labelEdgeByProbabilityMenuItem;
-	}
-
-	public TextField getEdgeWeightTextField() {
-		return edgeWeightTextField;
-	}
-
-	public TextField getEdgeConfidenceTextField() {
-		return edgeConfidenceTextField;
-	}
-
-	public TextField getEdgeProbabilityTextField() {
-		return edgeProbabilityTextField;
-	}
-
-	public Button getMeasureWeightsButton() {
-		return measureWeightsButton;
-	}
 
 	public Button getImportButton() {
 		return importButton;
@@ -1067,47 +904,11 @@ public class MainWindowController {
 		return bottomVBox;
 	}
 
-	public MenuItem getThickEdgeButton() {
-		return thickEdgeButton;
+	public ToggleButton getShowSettingsButton() {
+		return showSettingsButton;
 	}
 
-	public MenuItem getMediumEdgeButton() {
-		return mediumEdgeButton;
-	}
-
-	public MenuItem getThinEdgeButton() {
-		return thinEdgeButton;
-	}
-
-	public MenuItem getLargeNodeButton() {
-		return largeNodeButton;
-	}
-
-	public MenuItem getMediumNodeButton() {
-		return mediumNodeButton;
-	}
-
-	public MenuItem getSmallNodeButton() {
-		return smallNodeButton;
-	}
-
-	public MenuItem getItalicButton() {
-		return italicButton;
-	}
-
-	public MenuItem getBoldButton() {
-		return boldButton;
-	}
-
-	public MenuItem getDecreaseFontButton() {
-		return decreaseFontButton;
-	}
-
-	public MenuItem getIncreaseFontButton() {
-		return increaseFontButton;
-	}
-
-	public MenuButton getStyleMenuButton() {
-		return styleMenuButton;
+	public CheckMenuItem getOutlineEdgesMenuItem() {
+		return outlineEdgesMenuItem;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * NodeSizeCommand.java Copyright (C) 2024 Daniel H. Huson
+ * NodeLabelColorCommand.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -20,6 +20,7 @@
 
 package phylosketch.commands;
 
+import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.view.DrawPane;
 
@@ -27,39 +28,56 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * edge width command
+ * node  color command
  * Daniel Huson, 11.2024
  */
-public class EdgeWidthCommand extends UndoableRedoableCommand {
+public class NodeColorCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
-	private final Map<Integer, Double> oldSizeMap = new HashMap<>();
-	private final Map<Integer, Double> newSizeMap = new HashMap<>();
+	public enum Which {stroke, fill}
 
+	;
 
-	public EdgeWidthCommand(DrawPane view, double width) {
-		super("edge width");
+	private final Map<Integer, Color> oldMap = new HashMap<>();
+	private final Map<Integer, Color> newMap = new HashMap<>();
 
-		for (var e : view.getSelectedOrAllEdges()) {
-			var path = view.getPath(e);
-			if (path != null) {
-				var id = e.getId();
-				oldSizeMap.put(id, path.getStrokeWidth());
-				newSizeMap.put(id, width);
+	public NodeColorCommand(DrawPane view, Which which, Color color) {
+		super("color");
+
+		for (var v : view.getSelectedOrAllNodes()) {
+			var id = v.getId();
+			var shape = view.getShape(v);
+			if (shape != null) {
+				oldMap.put(id, (Color) (which == Which.stroke ? shape.getStroke() : shape.getFill()));
+				newMap.put(id, color);
 			}
 		}
-		if (!newSizeMap.isEmpty()) {
+		if (!newMap.isEmpty()) {
 			undo = () -> {
-				for (var entry : oldSizeMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).setStrokeWidth(entry.getValue());
+				for (var id : oldMap.keySet()) {
+					var v = view.getGraph().findNodeById(id);
+					var shape = view.getShape(v);
+					if (shape != null) {
+						if (which == Which.stroke) {
+							shape.setStroke(oldMap.get(id));
+						} else if (which == Which.fill) {
+							shape.setFill(oldMap.get(id));
+						}
+					}
 				}
 			};
 			redo = () -> {
-				for (var entry : newSizeMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).setStrokeWidth(entry.getValue());
+				for (var id : newMap.keySet()) {
+					var v = view.getGraph().findNodeById(id);
+					var shape = view.getShape(v);
+					if (shape != null) {
+						if (which == Which.stroke) {
+							shape.setStroke(newMap.get(id));
+						} else if (which == Which.fill) {
+							shape.setFill(newMap.get(id));
+						}
+					}
 				}
 			};
 		}
@@ -85,3 +103,4 @@ public class EdgeWidthCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 }
+

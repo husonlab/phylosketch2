@@ -22,9 +22,9 @@ package phylosketch.view;
 import javafx.beans.binding.Bindings;
 import jloda.graph.Edge;
 import jloda.graph.Node;
+import jloda.graph.algorithms.ArticulationPoints;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.IteratorUtils;
-import phylosketch.utils.ArticulationPoints;
 import phylosketch.window.MainWindowController;
 
 import java.util.LinkedList;
@@ -194,7 +194,7 @@ public class SetupSelection {
 			}
 		});
 
-		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
+		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors2(graph, nodeSelection.getSelectedItems())));
 		controller.getSelectLowestStableAncestorMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
 
 

@@ -1,5 +1,5 @@
 /*
- * ShowArrowsCommand.java Copyright (C) 2024 Daniel H. Huson
+ * NodeLabelColorCommand.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -20,39 +20,52 @@
 
 package phylosketch.commands;
 
+import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.view.DrawPane;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShowArrowsCommand extends UndoableRedoableCommand {
+/**
+ * node  color command
+ * edge Huson, 11.2024
+ */
+public class EdgeColorCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
-	private final Map<Integer, Boolean> oldMap = new HashMap<>();
-	private final Map<Integer, Boolean> newMap = new HashMap<>();
+	private final Map<Integer, Color> oldMap = new HashMap<>();
+	private final Map<Integer, Color> newMap = new HashMap<>();
 
-	public ShowArrowsCommand(DrawPane view, boolean show) {
-		super("arrows");
+	public EdgeColorCommand(DrawPane view, Color color) {
+		super("color");
 
 		for (var e : view.getSelectedOrAllEdges()) {
 			var id = e.getId();
-			oldMap.put(id, view.isShowArrow(e));
-			newMap.put(id, show);
+			var path = view.getPath(e);
+			if (path != null) {
+				oldMap.put(id, (Color) path.getStroke());
+				newMap.put(id, color);
+			}
 		}
-
-		if (!oldMap.isEmpty()) {
+		if (!newMap.isEmpty()) {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					view.setShowArrow(e, oldMap.get(id));
+					var path = view.getPath(e);
+					if (path != null) {
+						path.setStroke(oldMap.get(id));
+					}
 				}
 			};
 			redo = () -> {
-				for (var id : oldMap.keySet()) {
+				for (var id : newMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					view.setShowArrow(e, newMap.get(id));
+					var path = view.getPath(e);
+					if (path != null) {
+						path.setStroke(newMap.get(id));
+					}
 				}
 			};
 		}
@@ -68,8 +81,6 @@ public class ShowArrowsCommand extends UndoableRedoableCommand {
 		return redo != null;
 	}
 
-
-
 	@Override
 	public void undo() {
 		undo.run();
@@ -80,3 +91,4 @@ public class ShowArrowsCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 }
+

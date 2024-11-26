@@ -32,30 +32,55 @@ public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private final Map<Integer, String> edgeOldLabelMap = new HashMap<>();
-	private final Map<Integer, String> edgeNewLabelMap = new HashMap<>();
+	private final Map<Integer, Show> oldMap = new HashMap<>();
+	private final Map<Integer, Show> newMap = new HashMap<>();
 
-	public ShowEdgeValueCommand(DrawPane view, boolean showWeights, boolean showConfidence, boolean showProbability) {
+	public ShowEdgeValueCommand(DrawPane view, Boolean showWeights, Boolean showSupport, Boolean showProbability) {
 		super("edge labels");
 
 		var graph = view.getGraph();
 
 		for (var e : view.getSelectedOrAllEdges()) {
-			edgeOldLabelMap.put(e.getId(), view.getLabel(e).getText());
-			edgeNewLabelMap.put(e.getId(), makeLabel(view, e, showWeights, showConfidence, showProbability));
+			var label = view.getLabel(e);
+			if (label != null) {
+				var oldLabel = label.getText();
+				var oldShow = new Show(hasWeights(oldLabel), hasSupport(oldLabel), hasProbability(oldLabel));
+				oldMap.put(e.getId(), oldShow);
+				var newShowWeights = (showWeights != null ? showWeights : hasWeights(oldLabel));
+				var newShowSupport = (showSupport != null ? showSupport : hasSupport(oldLabel));
+				var newShowProbability = (showProbability != null ? showProbability : hasProbability(oldLabel));
+				var newShow = new Show(newShowWeights, newShowSupport, newShowProbability);
+				newMap.put(e.getId(), newShow);
+			}
 		}
 
 		undo = () -> {
-			for (var entry : edgeOldLabelMap.entrySet()) {
-				view.setLabel(graph.findEdgeById(entry.getKey()), entry.getValue());
+			for (var id : oldMap.keySet()) {
+				var e = graph.findEdgeById(id);
+				var show = oldMap.get(id);
+				view.setLabel(e, show.makeLabel(view, e));
 			}
 		};
 
 		redo = () -> {
-			for (var entry : edgeNewLabelMap.entrySet()) {
-				view.setLabel(graph.findEdgeById(entry.getKey()), entry.getValue());
+			for (var id : newMap.keySet()) {
+				var e = graph.findEdgeById(id);
+				var show = newMap.get(id);
+				view.setLabel(e, show.makeLabel(view, e));
 			}
 		};
+	}
+
+	public static boolean hasWeights(String label) {
+		return !label.isBlank() && !label.trim().startsWith(":");
+	}
+
+	public static boolean hasSupport(String label) {
+		return !label.isBlank() && label.contains(":") && !label.contains("::");
+	}
+
+	public static boolean hasProbability(String label) {
+		return !label.isBlank() && StringUtils.countOccurrences(label, ':') == 2;
 	}
 
 	@Override
@@ -68,28 +93,27 @@ public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	public static String makeLabel(DrawPane view, Edge e, boolean showWeights, boolean showConfidence, boolean showProbability) {
-		return makeLabel(view, e, showWeights, null, showConfidence, null, showProbability, null);
-	}
-
-	public static String makeLabel(DrawPane view, Edge e, boolean showWeights, Double newWeight, boolean showConfidence, Double newConfidence, boolean showProbability, Double newProbability) {
-		var graph = view.getGraph();
-		var buf = new StringBuilder();
-		if (showWeights && graph.hasEdgeWeights())
-			buf.append(StringUtils.removeTrailingZerosAfterDot(newWeight == null ? graph.getWeight(e) : newWeight));
-		if (showConfidence) {
-			if (e.getTarget().getOutDegree() > 1) {
+	private record Show(boolean weights, boolean support, boolean probability) {
+		public String makeLabel(DrawPane view, Edge e) {
+			var graph = view.getGraph();
+			var buf = new StringBuilder();
+			if (weights && graph.hasEdgeWeights())
+				buf.append(StringUtils.removeTrailingZerosAfterDot(graph.getWeight(e)));
+			if (support) {
+				if (e.getTarget().getOutDegree() > 0) {
 					buf.append(":");
-				buf.append(StringUtils.removeTrailingZerosAfterDot(newConfidence == null ? graph.getConfidence(e) : newConfidence));
-			} else if (showProbability)
-				buf.append(":");
-		}
-		if (showProbability) {
-			if (graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1) {
-					buf.append(":");
-				buf.append(StringUtils.removeTrailingZerosAfterDot(newProbability == null ? graph.getProbability(e) : newProbability));
+					buf.append(StringUtils.removeTrailingZerosAfterDot(graph.getConfidence(e)));
+				}
 			}
+			if (probability) {
+				if (graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1) {
+					if (e.getTarget().getOutDegree() <= 1)
+						buf.append(":");
+					buf.append(":");
+					buf.append(StringUtils.removeTrailingZerosAfterDot(graph.getProbability(e)));
+				}
+			}
+			return buf.toString();
 		}
-		return buf.toString();
 	}
 }

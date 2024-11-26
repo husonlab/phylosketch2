@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ FormatPane.fxml Copyright (C) 2024 Daniel H. Huson
+  ~  
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~  
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~  
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~  
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="rootPane" prefHeight="743.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="phylosketch.format.FormatPaneController">
+    <children>
+        <AnchorPane>
+            <children>
+                <Accordion fx:id="nodeStyleAccordion" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                           AnchorPane.topAnchor="0.0">
+                    <panes>
+                        <TitledPane animated="false" text="Node Style">
+                            <content>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                            <children>
+                                                <Label text="Shape"/>
+                                                <ChoiceBox fx:id="nodeShapeChoiceBox" prefWidth="50.0">
+                                                    <tooltip>
+                                                        <Tooltip text="Node shape"/>
+                                                    </tooltip>
+                                                </ChoiceBox>
+                                                <Label layoutX="10.0" layoutY="15.0" text="Size"/>
+                                                <ChoiceBox fx:id="nodeSizeChoiceBox" layoutX="51.0" layoutY="10.0"
+                                                           prefWidth="50.0">
+                                                    <tooltip>
+                                                        <Tooltip text="Node size"/>
+                                                    </tooltip>
+                                                </ChoiceBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                            <children>
+                                                <Label text="Color  "/>
+                                                <ColorPicker fx:id="nodeColorPicker">
+                                                    <tooltip>
+                                                        <Tooltip text="Node color"/>
+                                                    </tooltip>
+                                                </ColorPicker>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+                    </panes>
+                </Accordion>
+                <Button fx:id="closeButton" minHeight="24.0" mnemonicParsing="false" prefHeight="24.0" text="x"
+                        AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+            </children>
+        </AnchorPane>
+        <Accordion fx:id="nodeLabelsAccordion" layoutX="10.0" layoutY="36.0">
+            <panes>
+                <TitledPane animated="false" text="Node Labels">
+                    <content>
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="21.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Label"/>
+                                        <ChoiceBox fx:id="useNodesToLabelCBox" prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip text="Which nodes to label"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                        <Label text="by"/>
+                                        <ChoiceBox fx:id="howToLabelNodesCBox" prefWidth="60.0">
+                                            <tooltip>
+                                                <Tooltip text="How to label nodes"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                        <ToggleButton fx:id="uniqueLabelsToggleButton" mnemonicParsing="false" text="1">
+                                            <HBox.margin>
+                                                <Insets left="5.0"/>
+                                            </HBox.margin>
+                                            <tooltip>
+                                                <Tooltip text="Unique mode: don't use existing labels"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="21.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Set    "/>
+                                        <TextField fx:id="nodeLabelTextField" prefColumnCount="14" promptText="Label"
+                                                   HBox.hgrow="NEVER"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion fx:id="nodeLabelStyleAccordion" VBox.vgrow="NEVER">
+            <panes>
+                <TitledPane animated="false" text="Node Labels Style">
+                    <content>
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Font "/>
+                                        <ChoiceBox fx:id="nodeLabelFontChoiceBox" prefWidth="150.0">
+                                            <tooltip>
+                                                <Tooltip text="Node label font"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="21.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Size "/>
+                                        <ChoiceBox fx:id="nodeLabelSizeChoiceBox" prefWidth="50.0">
+                                            <tooltip>
+                                                <Tooltip text="Node label font size"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                        <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false" text="B">
+                                            <tooltip>
+                                                <Tooltip text="Node labels bold"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="nodeLabelItalicButton" layoutX="84.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="I">
+                                            <tooltip>
+                                                <Tooltip text="Node labels italic"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="nodeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="U">
+                                            <tooltip>
+                                                <Tooltip text="Node labels underlined"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="nodeLabelStrikeButton" layoutX="173.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Node labels striked through"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="52.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Color"/>
+                                        <ColorPicker fx:id="nodeLabelColorPicker">
+                                            <tooltip>
+                                                <Tooltip text="Node label color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="74.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Fill     "/>
+                                        <ColorPicker fx:id="nodeLabelBackgroundColorPicker">
+                                            <tooltip>
+                                                <Tooltip text="Node label fill color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion fx:id="edgeStyleAccordion" layoutX="10.0" layoutY="36.0">
+            <panes>
+                <TitledPane animated="false" text="Edge Style">
+                    <content>
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="21.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Shape"/>
+                                        <Button fx:id="edgeStraightButton" mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Straight edges"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeRectangularButton" layoutX="10.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="R">
+                                            <tooltip>
+                                                <Tooltip text="Rectangular edges"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeCurvedButton" layoutX="40.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="C">
+                                            <tooltip>
+                                                <Tooltip text="Curved edges"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="smoothButton" layoutX="111.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="Smooth">
+                                            <tooltip>
+                                                <Tooltip text="Smooth edges"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Line    "/>
+                                        <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="50.0"/>
+                                        <Label layoutX="10.0" layoutY="15.0" text="Width"/>
+                                        <ChoiceBox fx:id="edgeWidthChoiceBox" layoutX="51.0" layoutY="10.0"
+                                                   prefWidth="50.0"/>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Color "/>
+                                        <ColorPicker fx:id="edgeColorPicker"/>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Show "/>
+                                        <ToggleButton fx:id="showArrowsButton" text="Arrow Heads"/>
+                                    </children>
+                                </HBox>
+
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion fx:id="edgeValuesAccordion" layoutX="10.0" layoutY="36.0">
+            <panes>
+                <TitledPane animated="false" text="Edge Labels">
+                    <content>
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="21.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Weight       "/>
+                                        <ToggleButton fx:id="showWeightToggleButton" mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Show edge weights / branch lengths"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <TextField fx:id="edgeWeightTextField" prefColumnCount="6">
+                                            <tooltip>
+                                                <Tooltip text="Set edge weight / branch length"/>
+                                            </tooltip>
+                                        </TextField>
+                                        <Button fx:id="measureEdgeWeightsButton" mnemonicParsing="false" text="M">
+                                            <tooltip>
+                                                <Tooltip text="Set edge weights from coordinates"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="52.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Support     "/>
+                                        <ToggleButton fx:id="showSupportToggleButton" layoutX="84.0" layoutY="10.0"
+                                                      mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Show confidence or support values"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <TextField fx:id="edgeSupportTextField" prefColumnCount="6">
+                                            <tooltip>
+                                                <Tooltip text="Set edge support, e.g. bootstrap value"/>
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" layoutX="21.0" layoutY="83.0" spacing="5.0">
+                                    <children>
+                                        <Label text="Probability"/>
+                                        <ToggleButton fx:id="showProbabilityToggleButton" layoutX="132.0" layoutY="10.0"
+                                                      mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Show probabilities on reticulate edges"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <TextField fx:id="edgeProbabilityTextField" prefColumnCount="6">
+                                            <tooltip>
+                                                <Tooltip text="Set reticulate edge inheretence probability"/>
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion fx:id="edgeLabelStyleAccordion" layoutX="10.0" layoutY="62.0">
+            <panes>
+                <TitledPane animated="false" text="Edge Label Style">
+                    <content>
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Font "/>
+                                        <ChoiceBox fx:id="edgeLabelFontChoiceBox" prefWidth="150.0">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels font"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Size "/>
+                                        <ChoiceBox fx:id="edgeLabelSizeChoiceBox" prefWidth="50.0">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels size"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                        <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false" text="B">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels bold"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeLabelItalicButton" layoutX="84.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="I">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels italic"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="U">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels underlined"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeLabelStrikeButton" layoutX="147.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels striked through"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Color"/>
+                                        <ColorPicker fx:id="edgeLabelColorPicker">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <Label text="Fill     "/>
+                                        <ColorPicker fx:id="edgeLabelBackgroundColorPicker">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels fill color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+    </children>
+</VBox>

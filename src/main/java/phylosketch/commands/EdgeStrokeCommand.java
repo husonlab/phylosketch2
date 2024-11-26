@@ -1,5 +1,5 @@
 /*
- * ShowArrowsCommand.java Copyright (C) 2024 Daniel H. Huson
+ * NodeSizeCommand.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -20,39 +20,49 @@
 
 package phylosketch.commands;
 
+import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.view.DrawPane;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShowArrowsCommand extends UndoableRedoableCommand {
+/**
+ * edge stroke command
+ * Daniel Huson, 11.2024
+ */
+public class EdgeStrokeCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
-	private final Map<Integer, Boolean> oldMap = new HashMap<>();
-	private final Map<Integer, Boolean> newMap = new HashMap<>();
+	private final Map<Integer, Color> oldSizeMap = new HashMap<>();
+	private final Map<Integer, Color> newSizeMap = new HashMap<>();
 
-	public ShowArrowsCommand(DrawPane view, boolean show) {
-		super("arrows");
+
+	public EdgeStrokeCommand(DrawPane view, Color stroke) {
+		super("edge stroke");
 
 		for (var e : view.getSelectedOrAllEdges()) {
-			var id = e.getId();
-			oldMap.put(id, view.isShowArrow(e));
-			newMap.put(id, show);
+			var path = view.getPath(e);
+			if (path != null) {
+				var id = e.getId();
+				if (path.getStroke() instanceof Color old) {
+					oldSizeMap.put(id, old);
+					newSizeMap.put(id, stroke);
+				}
+			}
 		}
-
-		if (!oldMap.isEmpty()) {
+		if (!newSizeMap.isEmpty()) {
 			undo = () -> {
-				for (var id : oldMap.keySet()) {
-					var e = view.getGraph().findEdgeById(id);
-					view.setShowArrow(e, oldMap.get(id));
+				for (var entry : oldSizeMap.entrySet()) {
+					var e = view.getGraph().findEdgeById(entry.getKey());
+					view.getPath(e).setStroke(entry.getValue());
 				}
 			};
 			redo = () -> {
-				for (var id : oldMap.keySet()) {
-					var e = view.getGraph().findEdgeById(id);
-					view.setShowArrow(e, newMap.get(id));
+				for (var entry : newSizeMap.entrySet()) {
+					var e = view.getGraph().findEdgeById(entry.getKey());
+					view.getPath(e).setStroke(entry.getValue());
 				}
 			};
 		}
@@ -67,8 +77,6 @@ public class ShowArrowsCommand extends UndoableRedoableCommand {
 	public boolean isRedoable() {
 		return redo != null;
 	}
-
-
 
 	@Override
 	public void undo() {

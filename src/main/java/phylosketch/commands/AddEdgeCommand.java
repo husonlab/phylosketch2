@@ -47,7 +47,6 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 	private Runnable redo;
 
 	private final List<Point2D> points;
-	private final boolean showArrows;
 
 	private int startEdgeId = -1;
 	private boolean startEdgeArrow = false;
@@ -80,8 +79,6 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 		super("new edge");
 
 		this.points = PathUtils.extractPoints(path0);
-		showArrows = view.isShowArrows();
-
 		{
 			var path = PathUtils.createPath(points, true);
 			var start = getCoordinates(path.getElements().get(0));
@@ -234,8 +231,9 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 					var v = graph.findNodeById(startEdgeSourceId);
 					var e = view.createEdge(v, s, startParts.getFirst(), newStartEdgeSourcePartId);
 					newStartEdgeSourcePartId = e.getId();
-					if (startEdgeArrow)
+					if (startEdgeArrow) {
 						redoArrows.add(e);
+					}
 				}
 				{
 					var w = graph.findNodeById(startEdgeTargetId);
@@ -292,10 +290,9 @@ public class AddEdgeCommand extends UndoableRedoableCommand {
 				newEdgeId = newEdge.getId();
 			}
 
-			if (showArrows)
-				redoArrows.add(newEdge);
+			redoArrows.add(newEdge);
 
-			if (showArrows) {
+			{
 				Platform.runLater(() -> {
 					for (var f : redoArrows) {
 						view.setShowArrow(f, true);
