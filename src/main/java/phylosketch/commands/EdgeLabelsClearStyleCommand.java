@@ -1,5 +1,5 @@
 /*
- * NodeLabelColorCommand.java Copyright (C) 2024 Daniel H. Huson
+ * NodeLabelsClearStyleCommand.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -20,7 +20,6 @@
 
 package phylosketch.commands;
 
-import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.view.DrawPane;
 
@@ -28,54 +27,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * node label color command
+ * clear node label styling
  * Daniel Huson, 11.2024
  */
-public class NodeLabelColorCommand extends UndoableRedoableCommand {
+public class EdgeLabelsClearStyleCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
-	public enum Which {textFill, background}
+	private final Map<Integer, String> oldMap = new HashMap<>();
+	private final Map<Integer, String> newMap = new HashMap<>();
 
-	private final Map<Integer, Color> oldMap = new HashMap<>();
-	private final Map<Integer, Color> newMap = new HashMap<>();
-
-	public NodeLabelColorCommand(DrawPane view, Which which, Color color) {
-		super("color");
-
-		for (var v : view.getSelectedOrAllNodes()) {
-			var id = v.getId();
-			var label = view.getLabel(v);
-			if (label != null) {
-				oldMap.put(id, (Color) (which == Which.textFill ? label.getTextFill() : label.getBackgroundColor()));
-				newMap.put(id, color);
-			}
+	public EdgeLabelsClearStyleCommand(DrawPane view) {
+		super("clear labels");
+		for (var e : view.getSelectedOrAllEdges()) {
+			oldMap.put(e.getId(), view.getLabel(e).getText());
+			newMap.put(e.getId(), view.getLabel(e).getRawText());
 		}
-		if (!newMap.isEmpty()) {
+		if (!oldMap.isEmpty()) {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
-					var v = view.getGraph().findNodeById(id);
-					var label = view.getLabel(v);
-					if (label != null) {
-						if (which == Which.textFill) {
-							label.setTextFill(oldMap.get(id));
-						} else if (which == Which.background) {
-							label.setBackgroundColor(oldMap.get(id));
-						}
-					}
+					var e = view.getGraph().findEdgeById(id);
+					view.setLabel(e, oldMap.get(id));
 				}
 			};
 			redo = () -> {
 				for (var id : newMap.keySet()) {
-					var v = view.getGraph().findNodeById(id);
-					var label = view.getLabel(v);
-					if (label != null) {
-						if (which == Which.textFill) {
-							label.setTextFill(newMap.get(id));
-						} else if (which == Which.background) {
-							label.setBackgroundColor(newMap.get(id));
-						}
-					}
+					var e = view.getGraph().findEdgeById(id);
+					view.setLabel(e, newMap.get(id));
 				}
 			};
 		}
@@ -94,6 +72,7 @@ public class NodeLabelColorCommand extends UndoableRedoableCommand {
 	@Override
 	public void undo() {
 		undo.run();
+
 	}
 
 	@Override
@@ -101,4 +80,3 @@ public class NodeLabelColorCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 }
-

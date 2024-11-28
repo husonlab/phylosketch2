@@ -139,9 +139,6 @@ public class MainWindowController {
 	private MenuItem openRecentFileMenuItem;
 
 	@FXML
-	private MenuItem deleteRecentFilesMenuItem;
-
-	@FXML
 	private MenuItem pageSetupMenuItem;
 
 	@FXML
@@ -361,10 +358,10 @@ public class MainWindowController {
 	private CheckMenuItem showNewick;
 
 	@FXML
-	private VBox bottomVBox;
+	private CheckMenuItem outlineEdgesMenuItem;
 
 	@FXML
-	private CheckMenuItem outlineEdgesMenuItem;
+	private VBox firstVBox;
 
 	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -439,8 +436,6 @@ public class MainWindowController {
 			newRecentFileMenuItem.disableProperty().bind(newMenuItem.disableProperty());
 			openRecentFileMenuItem.setOnAction(e -> openMenuItem.getOnAction().handle(e));
 			openRecentFileMenuItem.disableProperty().bind(openMenuItem.disableProperty());
-			deleteRecentFilesMenuItem.setOnAction(e-> deleteMenuItem.getOnAction().handle(e));
-			deleteRecentFilesMenuItem.disableProperty().bind(deleteMenuItem.disableProperty());
 
 			var keep = new ArrayList<>(fileMenuButton.getItems());
 
@@ -898,10 +893,6 @@ public class MainWindowController {
 
 	public HBox getLeftHBox() {
 		return leftHBox;
-	}
-
-	public VBox getBottomVBox() {
-		return bottomVBox;
 	}
 
 	public ToggleButton getShowSettingsButton() {

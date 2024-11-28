@@ -31,23 +31,26 @@ import java.util.Map;
  * Daniel Huson, 11.2024
  */
 public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
-	public enum Which {size, bold, italic, underlined, strike}
+	public enum Which {font, size, bold, italic, underlined, strike}
 	
 	private final Runnable undo;
 	private final Runnable redo;
 	private final Map<Integer, Formatting> oldMap = new HashMap<>();
 	private final Map<Integer, Formatting> newMap = new HashMap<>();
 
-	public EdgeLabelFormatCommand(DrawPane view, Which which, Boolean newValue, Double newSize) {
+	public EdgeLabelFormatCommand(DrawPane view, Which which, Boolean newValue, Double newSize, String newFontFamily) {
 		super("format");
 
 		for (var e : view.getSelectedOrAllEdges()) {
 			var id = e.getId();
 			var label = view.getLabel(e);
 			if (label != null) {
-				if (which == Which.size) {
-					oldMap.put(id, new Formatting(which, null, label.getFontSize()));
-					newMap.put(id, new Formatting(which, null, newSize));
+				if (which == EdgeLabelFormatCommand.Which.font) {
+					oldMap.put(id, new EdgeLabelFormatCommand.Formatting(which, null, null, label.getFontFamily()));
+					newMap.put(id, new EdgeLabelFormatCommand.Formatting(which, null, null, newFontFamily));
+				} else if (which == Which.size) {
+					oldMap.put(id, new Formatting(which, null, label.getFontSize(), null));
+					newMap.put(id, new Formatting(which, null, newSize, null));
 				} else {
 					var oldValue = switch (which) {
 						case bold -> label.isBold();
@@ -56,8 +59,8 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 						case strike -> label.isStrike();
 						default -> null;
 					};
-					oldMap.put(id, new Formatting(which, oldValue, null));
-					newMap.put(id, new Formatting(which, newValue, null));
+					oldMap.put(id, new Formatting(which, oldValue, null, null));
+					newMap.put(id, new Formatting(which, newValue, null, null));
 				}
 			}
 		}
@@ -72,12 +75,13 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 					var label = view.getLabel(e);
 					if (label != null) {
 						var formatting = oldMap.get(id);
-						switch (which) {
+						switch (formatting.which()) {
 							case bold -> label.setBold(formatting.value());
 							case italic -> label.setItalic(formatting.value());
 							case underlined -> label.setUnderline(formatting.value());
 							case strike -> label.setStrike(formatting.value());
 							case size -> label.setFontSize(formatting.size());
+							case font -> label.setFontFamily(formatting.fontFamily());
 						}
 					}
 				}
@@ -88,12 +92,13 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 					var label = view.getLabel(e);
 					if (label != null) {
 						var formatting = newMap.get(id);
-						switch (which) {
+						switch (formatting.which()) {
 							case bold -> label.setBold(formatting.value());
 							case italic -> label.setItalic(formatting.value());
 							case underlined -> label.setUnderline(formatting.value());
 							case strike -> label.setStrike(formatting.value());
 							case size -> label.setFontSize(formatting.size());
+							case font -> label.setFontFamily(formatting.fontFamily());
 						}
 					}
 				}
@@ -122,6 +127,6 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 	}
 
 
-	public record Formatting(Which which, Boolean value, Double size) {
+	public record Formatting(Which which, Boolean value, Double size, String fontFamily) {
 	}
 }
