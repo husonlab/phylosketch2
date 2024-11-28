@@ -23,11 +23,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane fx:id="rootPane" prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="phylosketch.window.MainWindowController">
+<AnchorPane fx:id="rootPane" prefHeight="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="phylosketch.window.MainWindowController">
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <center>
-            <BorderPane>
+            <BorderPane fx:id="centerBorderPane">
                 <center>
                     <AnchorPane fx:id="centerAnchorPane" BorderPane.alignment="CENTER">
                         <children>
@@ -37,7 +37,7 @@
                     </AnchorPane>
                 </center>
                 <top>
-                    <VBox fx:id="topVBox" BorderPane.alignment="CENTER">
+                    <VBox fx:id="firstVBox" BorderPane.alignment="CENTER">
                         <children>
                             <BorderPane fx:id="toolBorderPane" prefHeight="32.0" styleClass="tool-bar">
                                 <left>
@@ -60,9 +60,6 @@
                                                               text="New..."/>
                                                     <MenuItem fx:id="openRecentFileMenuItem" mnemonicParsing="false"
                                                               text="Open..."/>
-                                                    <SeparatorMenuItem mnemonicParsing="false"/>
-                                                    <MenuItem fx:id="deleteRecentFilesMenuItem" mnemonicParsing="false"
-                                                              text="Delete"/>
                                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                                 </items>
                                             </MenuButton>
@@ -143,13 +140,10 @@
                         </children>
                     </VBox>
                 </top>
-                <bottom>
-                    <VBox fx:id="bottomVBox" BorderPane.alignment="CENTER"/>
-                </bottom>
             </BorderPane>
         </center>
         <top>
-            <VBox BorderPane.alignment="CENTER">
+            <VBox fx:id="topVBox" BorderPane.alignment="CENTER">
                 <children>
                     <MenuBar fx:id="menuBar">
                         <menus>

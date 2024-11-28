@@ -86,7 +86,6 @@ public class MainWindowPresenter {
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
 		var view = window.getDrawPane();
-		var undoManager = view.getUndoManager();
 
 		findToolBar = new FindToolBar(window.getStage(), setupSearcher(view));
 		findToolBar.setShowFindToolBar(false);
@@ -125,7 +124,6 @@ public class MainWindowPresenter {
 			else
 				controller.getCenterAnchorPane().getChildren().remove(formatPaneView.getPane());
 		});
-		DraggableLabel.makeDraggable(formatPaneView.getPane());
 
 		if (false) {
 			view.getGraphFX().getNodeList().addListener((ListChangeListener<? super jloda.graph.Node>) a -> {
@@ -552,7 +550,10 @@ public class MainWindowPresenter {
 		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit));
 
 		controller.getFindAgainMenuItem().setOnAction(e -> {
-			Clusters.show(view.getGraph());
+			if (false)
+				Clusters.show(view.getGraph());
+			if (findToolBar.isShowFindToolBar())
+				findToolBar.findAgain();
 		});
 
 	}

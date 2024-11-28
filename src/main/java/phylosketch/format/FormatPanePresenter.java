@@ -69,45 +69,54 @@ public class FormatPanePresenter {
 			for (var v : view.getNodeSelection().getSelectedItems()) {
 				if (label == null)
 					label = view.getLabel(v).getText();
-				else if (!label.equals(view.getLabel(v).getText()))
-					return;
+				else if (!label.equals(view.getLabel(v).getText())) {
+					label = null;
+					break;
+				}
 			}
-			if (label != null) {
-				var finalLabel = label;
-				Platform.runLater(() -> controller.getNodeLabelTextField().setText(finalLabel));
-			}
+			var finalLabel = label;
+			Platform.runLater(() -> controller.getNodeLabelTextField().setText(finalLabel));
 		});
 
+
+		controller.getNodeLabelFontChoiceBox().valueProperty().addListener((v, o, n) -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.font, null, null, n));
+			}
+		});
+		controller.getClearNodeLabelFontButton().setOnAction(a -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.font, null, null, null));
+			}
+		});
 
 		controller.getNodeLabelBoldButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).anyMatch(t -> t != null && !t.isBold());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.bold, select, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.bold, select, null, null));
 			}
 		});
 		controller.getNodeLabelItalicButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.italic, select, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.italic, select, null, null));
 			}
 		});
 		controller.getNodeLabelUnderlineButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.underlined, select, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.underlined, select, null, null));
 			}
 		});
-		controller.getNodeLabelStrikeButton().setOnAction(e -> {
-			if (canUpdate) {
-				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isStrike());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.strike, select, null));
-			}
+
+		controller.getClearNodeLabelStyleButton().setOnAction(e -> {
+			view.getUndoManager().doAndAdd(new NodeLabelsClearStyleCommand(view));
 		});
 
 		controller.getNodeLabelSizeChoiceBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null) {
-					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.size, null, n));
+					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.size, null, n, null));
 				}
 			}
 		});
@@ -126,15 +135,41 @@ public class FormatPanePresenter {
 			}
 		});
 
+		controller.getClearNodeColorButton().setOnAction(a -> {
+			if (canUpdate) {
+				canUpdate = false;
+				controller.getNodeColorPicker().setValue(null);
+				canUpdate = true;
+				view.getUndoManager().doAndAdd(new NodeColorCommand(view, NodeColorCommand.Which.fill, null));
+			}
+		});
+
 		controller.getNodeLabelColorPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new NodeLabelColorCommand(view, NodeLabelColorCommand.Which.textfill, n));
+				view.getUndoManager().doAndAdd(new NodeLabelColorCommand(view, NodeLabelColorCommand.Which.textFill, n));
+			}
+		});
+
+		controller.getClearNodeLabelColorButton().setOnAction(a -> {
+			if (canUpdate) {
+				canUpdate = false;
+				controller.getNodeLabelColorPicker().setValue(null);
+				canUpdate = true;
+				view.getUndoManager().doAndAdd(new NodeLabelColorCommand(view, NodeLabelColorCommand.Which.textFill, null));
 			}
 		});
 
 		controller.getNodeLabelBackgroundColorPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				view.getUndoManager().doAndAdd(new NodeLabelColorCommand(view, NodeLabelColorCommand.Which.background, n));
+			}
+		});
+		controller.getClearNodeLabelBackgroundColorButton().setOnAction(a -> {
+			if (canUpdate) {
+				canUpdate = false;
+				controller.getNodeLabelBackgroundColorPicker().setValue(null);
+				canUpdate = true;
+				view.getUndoManager().doAndAdd(new NodeLabelColorCommand(view, NodeLabelColorCommand.Which.background, null));
 			}
 		});
 
@@ -205,36 +240,46 @@ public class FormatPanePresenter {
 			}
 		});
 
+		controller.getEdgeLabelFontChoiceBox().valueProperty().addListener((v, o, n) -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.font, null, null, n));
+			}
+		});
+		controller.getClearEdgeLabelFontButton().setOnAction(a -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.font, null, null, null));
+			}
+		});
+
+
 		controller.getEdgeLabelBoldButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isBold());
-				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.bold, select, null));
+				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.bold, select, null, null));
 			}
 		});
 		controller.getEdgeLabelItalicButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
-				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.italic, select, null));
+				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.italic, select, null, null));
 			}
 		});
 		controller.getEdgeLabelUnderlineButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
-				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.underlined, select, null));
-			}
-		});
-		controller.getEdgeLabelStrikeButton().setOnAction(e -> {
-			if (canUpdate) {
-				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isStrike());
-				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.strike, select, null));
+				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.underlined, select, null, null));
 			}
 		});
 
 		controller.getEdgeLabelSizeChoiceBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null)
-					view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.size, null, n));
+					view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.size, null, n, null));
 			}
+		});
+
+		controller.getClearEdgeLabelStyleButton().setOnAction(e -> {
+			view.getUndoManager().doAndAdd(new EdgeLabelsClearStyleCommand(view));
 		});
 
 		controller.getEdgeWidthChoiceBox().valueProperty().addListener((var, o, n) -> {
@@ -245,6 +290,12 @@ public class FormatPanePresenter {
 		controller.getEdgeColorPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				view.getUndoManager().doAndAdd(new EdgeColorCommand(view, n));
+			}
+		});
+
+		controller.getClearEdgeColorButton().setOnAction(a -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new EdgeColorCommand(view, null));
 			}
 		});
 
@@ -332,6 +383,35 @@ public class FormatPanePresenter {
 		});
 		setupTriggerOnEnter(controller.getEdgeProbabilityTextField());
 		controller.getEdgeProbabilityTextField().disableProperty().bind(disableSetEdges);
+
+		controller.getEdgeLabelColorPicker().valueProperty().addListener((var, o, n) -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new EdgeLabelColorCommand(view, EdgeLabelColorCommand.Which.textFill, n));
+			}
+		});
+
+		controller.getClearEdgeLabelColorButton().setOnAction(a -> {
+			if (canUpdate) {
+				canUpdate = false;
+				controller.getEdgeLabelColorPicker().setValue(null);
+				canUpdate = true;
+				view.getUndoManager().doAndAdd(new EdgeLabelColorCommand(view, EdgeLabelColorCommand.Which.textFill, null));
+			}
+		});
+
+		controller.getEdgeLabelBackgroundColorPicker().valueProperty().addListener((var, o, n) -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new EdgeLabelColorCommand(view, EdgeLabelColorCommand.Which.background, n));
+			}
+		});
+		controller.getClearEdgeLabelBackgroundColorButton().setOnAction(a -> {
+			if (canUpdate) {
+				canUpdate = false;
+				controller.getEdgeLabelBackgroundColorPicker().setValue(null);
+				canUpdate = true;
+				view.getUndoManager().doAndAdd(new EdgeLabelColorCommand(view, EdgeLabelColorCommand.Which.background, null));
+			}
+		});
 	}
 
 	public static void setupTriggerOnEnter(TextField textField) {

@@ -36,6 +36,7 @@ import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -59,8 +60,8 @@ public class PhyloSketchIO {
 	 */
 	public static void save(Writer w, DrawPane view) throws IOException {
 		var graph = view.getGraph();
-		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_color", "label_dx", "label_dy");
-		var edgeKeyNames = List.of("path", "stroke", "stroke_width", "weight", "confidence", "probability", "arrow");
+		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_dx", "label_dy");
+		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
 				nodeKeyNames, (key, v) -> {
@@ -89,16 +90,7 @@ public class PhyloSketchIO {
 										   && !(MainWindowManager.isUseDarkTheme() && shape.getFill()==Color.WHITE))? shape.getFill():"";
 						case "x" -> StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateX());
 						case "y" ->  StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateY());
-						case "label" -> {
-							// graph.getLabel(v) != null ? graph.getLabel(v) : "";
-							if (v.getInfo() instanceof RichTextLabel richTextLabel) {
-								yield richTextLabel.getText();
-							} else yield "";
-						}
-						case "label_stroke" ->
-								(label!=null &&  label.getTextFill()!=null
-								 && !(!MainWindowManager.isUseDarkTheme() && label.getTextFill() == Color.BLACK)
-								 && !(MainWindowManager.isUseDarkTheme() && label.getTextFill()==Color.WHITE))? label.getTextFill():"";
+						case "label" -> view.getLabel(v).getText().trim();
 						case "label_dx" -> label != null ?  StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutX()) : "";
 						case "label_dy" -> label != null ? StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutY()) : "";
 						default -> "";
@@ -112,6 +104,8 @@ public class PhyloSketchIO {
 								(path.getStroke()!=null
 								 && !(!MainWindowManager.isUseDarkTheme() && path.getStroke() == Color.BLACK)
 								 && !(MainWindowManager.isUseDarkTheme() && path.getStroke()==Color.WHITE))? path.getStroke():"";
+						case "stroke_dash_array" ->
+								path.getStrokeDashArray().isEmpty() ? "" : StringUtils.toString(path.getStrokeDashArray(), ",");
 						case "stroke_width" -> path.getStrokeWidth()!=1?path.getStrokeWidth():"";
 						case "weight" ->
 								graph.hasEdgeWeights() && e.getTarget().getInDegree() <= 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getWeight(e)) : "";
@@ -120,6 +114,7 @@ public class PhyloSketchIO {
 						case "probability" ->
 								graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getProbability(e)) : "";
 						case "arrow" -> view.getEdgeArrowMap().containsKey(e) ? "1" : "";
+						case "label" -> view.getLabel(e).getText().trim();
 						default -> "";
 					});
 					return (value.isBlank() ? null : value);
@@ -196,25 +191,32 @@ public class PhyloSketchIO {
 						shape.setTranslateY(NumberUtils.parseDouble(value));
 					}
 				}
-				case "label" -> view.createLabel(v, value);
-				case "label_stroke" -> {
-					if (v.getInfo() instanceof RichTextLabel label && ColorUtilsFX.isColor(value)) {
-						label.setTextFill(ColorUtilsFX.parseColor(value));
-					}
-				}
+				case "label" -> view.getLabel(v).setText(value);
 				case "label_dx" -> {
-					if (v.getInfo() instanceof RichTextLabel label && NumberUtils.isDouble(value)) {
-						label.setLayoutX(NumberUtils.parseDouble(value));
+					if (NumberUtils.isDouble(value)) {
+						view.getLabel(v).setLayoutX(NumberUtils.parseDouble(value));
 					}
 				}
 				case "label_dy" -> {
-					if (v.getInfo() instanceof RichTextLabel label && NumberUtils.isDouble(value)) {
-						label.setLayoutY(NumberUtils.parseDouble(value));
+					if (NumberUtils.isDouble(value)) {
+						view.getLabel(v).setLayoutY(NumberUtils.parseDouble(value));
 					}
 				}
 			}
 		}, (key, e, value) -> {
 			switch (key) {
+				case "weight" -> {
+					if (NumberUtils.isDouble(value))
+						graph.setWeight(e, NumberUtils.parseDouble(value));
+				}
+				case "confidence" -> {
+					if (NumberUtils.isDouble(value))
+						graph.setConfidence(e, NumberUtils.parseDouble(value));
+				}
+				case "probability" -> {
+					if (NumberUtils.isDouble(value))
+						graph.setProbability(e, NumberUtils.parseDouble(value));
+				}
 				case "path" -> {
 					var path = stringToPath(value);
 					path.getStyleClass().add("graph-edge");
@@ -230,23 +232,17 @@ public class PhyloSketchIO {
 						path.setStrokeWidth(NumberUtils.parseDouble(value));
 					}
 				}
-				case "weight" -> {
-					if (NumberUtils.isDouble(value))
-						graph.setWeight(e, NumberUtils.parseDouble(value));
-				}
-				case "confidence" -> {
-					if (NumberUtils.isDouble(value))
-						graph.setConfidence(e, NumberUtils.parseDouble(value));
-				}
-				case "probability" -> {
-					if (NumberUtils.isDouble(value))
-						graph.setProbability(e, NumberUtils.parseDouble(value));
+				case "stroke_dash_array" -> {
+					var items = StringUtils.split(value, ',');
+					if (Arrays.stream(items).allMatch(NumberUtils::isDouble) && view.getPath(e) != null) {
+						view.getPath(e).getStrokeDashArray().setAll(Arrays.stream(items).map(NumberUtils::parseDouble).toList());
+					}
 				}
 				case "arrow" -> {
 					if (value.equals("1"))
 						arrowEdges.add(e);
-
 				}
+				case "label" -> view.getLabel(e).setText(value);
 			}
 		});
 

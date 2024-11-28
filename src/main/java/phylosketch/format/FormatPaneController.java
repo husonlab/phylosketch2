@@ -20,23 +20,22 @@
 
 package phylosketch.format;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.icons.MaterialIcons;
-import jloda.fx.util.BasicFX;
-import jloda.util.Counter;
 import phylosketch.view.LineType;
 
 public class FormatPaneController {
-
 	@FXML
 	private Button closeButton;
 
 	@FXML
 	private ColorPicker edgeColorPicker;
+
+	@FXML
+	private Button clearEdgeColorButton;
 
 	@FXML
 	private ToggleButton showArrowsButton;
@@ -48,13 +47,24 @@ public class FormatPaneController {
 	private ColorPicker edgeLabelBackgroundColorPicker;
 
 	@FXML
+	private Button clearEdgeLabelBackgroundColorButton;
+
+
+	@FXML
 	private Button edgeLabelBoldButton;
 
 	@FXML
 	private ColorPicker edgeLabelColorPicker;
 
 	@FXML
+	private Button clearEdgeLabelColorButton;
+
+
+	@FXML
 	private ChoiceBox<String> edgeLabelFontChoiceBox;
+
+	@FXML
+	private Button clearEdgeLabelFontButton;
 
 	@FXML
 	private Button edgeLabelItalicButton;
@@ -63,13 +73,10 @@ public class FormatPaneController {
 	private ChoiceBox<Double> edgeLabelSizeChoiceBox;
 
 	@FXML
-	private Button edgeLabelStrikeButton;
-
-	@FXML
 	private Button edgeLabelUnderlineButton;
 
 	@FXML
-	private Accordion edgeLabelStyleAccordion;
+	private Button clearEdgeLabelStyleButton;
 
 	@FXML
 	private ChoiceBox<LineType> edgeLineChoiceBox;
@@ -82,12 +89,6 @@ public class FormatPaneController {
 
 	@FXML
 	private ChoiceBox<Double> edgeWidthChoiceBox;
-
-	@FXML
-	private Accordion edgeStyleAccordion;
-
-	@FXML
-	private Accordion edgeValuesAccordion;
 
 	@FXML
 	private ToggleButton showWeightToggleButton;
@@ -103,16 +104,28 @@ public class FormatPaneController {
 	private ColorPicker nodeColorPicker;
 
 	@FXML
+	private Button clearNodeColorButton;
+
+	@FXML
 	private Button nodeLabelBoldButton;
 
 	@FXML
 	private ColorPicker nodeLabelBackgroundColorPicker;
 
 	@FXML
+	private Button clearNodeLabelBackgroundColorButton;
+
+	@FXML
 	private ColorPicker nodeLabelColorPicker;
 
 	@FXML
+	private Button clearNodeLabelColorButton;
+
+	@FXML
 	private ChoiceBox<String> nodeLabelFontChoiceBox;
+
+	@FXML
+	private Button clearNodeLabelFontButton;
 
 	@FXML
 	private ChoiceBox<Double> nodeLabelSizeChoiceBox;
@@ -121,22 +134,16 @@ public class FormatPaneController {
 	private Button nodeLabelItalicButton;
 
 	@FXML
-	private Button nodeLabelStrikeButton;
+	private Button clearNodeLabelStyleButton;
 
 	@FXML
 	private Button nodeLabelUnderlineButton;
-
-	@FXML
-	private Accordion nodeLabelStyleAccordion;
 
 	@FXML
 	private ChoiceBox<?> nodeShapeChoiceBox;
 
 	@FXML
 	private ChoiceBox<Double> nodeSizeChoiceBox;
-
-	@FXML
-	private Accordion nodeStyleAccordion;
 
 	@FXML
 	private VBox rootPane;
@@ -157,9 +164,6 @@ public class FormatPaneController {
 	private Button measureEdgeWeightsButton;
 
 	@FXML
-	private Accordion nodeLabelsAccordion;
-
-	@FXML
 	private ChoiceBox<String> howToLabelNodesCBox;
 
 	@FXML
@@ -176,7 +180,6 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
 		MaterialIcons.setIcon(nodeLabelUnderlineButton, MaterialIcons.format_underline);
-		MaterialIcons.setIcon(nodeLabelStrikeButton, MaterialIcons.format_strikethrough);
 
 		MaterialIcons.setIcon(edgeRectangularButton, MaterialIcons.keyboard_return, "-fx-scale-x: -1;-fx-scale-y: -1;", true);
 		MaterialIcons.setIcon(edgeStraightButton, MaterialIcons.arrow_right_alt);
@@ -185,7 +188,6 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(edgeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
 		MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
-		MaterialIcons.setIcon(edgeLabelStrikeButton, MaterialIcons.format_strikethrough);
 
 		MaterialIcons.setIcon(closeButton, MaterialIcons.close);
 
@@ -196,13 +198,6 @@ public class FormatPaneController {
 
 		MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
 
-
-		var accordions = BasicFX.getAllRecursively(rootPane, Accordion.class).toArray(new Accordion[0]);
-		for (var accordion : accordions) {
-			accordion.expandedPaneProperty().addListener(e -> adjustVBoxHeight(rootPane, accordions));
-		}
-		adjustVBoxHeight(rootPane);
-
 		nodeLabelSizeChoiceBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
 		edgeLabelSizeChoiceBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
 
@@ -212,8 +207,8 @@ public class FormatPaneController {
 		getEdgeLineChoiceBox().getItems().addAll(LineType.values());
 		getEdgeLineChoiceBox().setValue(LineType.Solid);
 
-		nodeLabelFontChoiceBox.getItems().addAll("", "Serif", "SansSerif", "Monospaced");
-		edgeLabelFontChoiceBox.getItems().addAll("", "Serif", "SansSerif", "Monospaced");
+		nodeLabelFontChoiceBox.getItems().addAll("", "SansSerif", "Serif", "Monospaced");
+		edgeLabelFontChoiceBox.getItems().addAll("", "SansSerif", "Serif", "Monospaced");
 
 		edgeWeightTextField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
 		edgeSupportTextField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
@@ -225,23 +220,6 @@ public class FormatPaneController {
 		useNodesToLabelCBox.setValue(null);
 
 		uniqueLabelsToggleButton.setSelected(true);
-	}
-
-	private void adjustVBoxHeight(VBox vbox, Accordion... accordions) {
-		if (accordions.length > 0) {
-			var totalHeight = new Counter(0);
-
-			var last = accordions[accordions.length - 1];
-
-			for (var accordion : accordions) {
-				var expandedPane = accordion.getExpandedPane();
-				if (expandedPane != null) {
-					totalHeight.add((long) Math.ceil(expandedPane.getHeight()));
-				}
-				totalHeight.add((long) Math.ceil(accordion.getHeight()));
-			}
-			Platform.runLater(() -> vbox.setPrefHeight(totalHeight.get()));
-		}
 	}
 
 	public ColorPicker getEdgeColorPicker() {
@@ -268,6 +246,10 @@ public class FormatPaneController {
 		return edgeLabelFontChoiceBox;
 	}
 
+	public Button getClearEdgeLabelFontButton() {
+		return clearEdgeLabelFontButton;
+	}
+
 	public Button getEdgeLabelItalicButton() {
 		return edgeLabelItalicButton;
 	}
@@ -276,12 +258,12 @@ public class FormatPaneController {
 		return edgeLabelSizeChoiceBox;
 	}
 
-	public Button getEdgeLabelStrikeButton() {
-		return edgeLabelStrikeButton;
-	}
-
 	public Button getEdgeLabelUnderlineButton() {
 		return edgeLabelUnderlineButton;
+	}
+
+	public Button getClearEdgeLabelStyleButton() {
+		return clearEdgeLabelStyleButton;
 	}
 
 	public ChoiceBox<LineType> getEdgeLineChoiceBox() {
@@ -304,6 +286,10 @@ public class FormatPaneController {
 		return nodeColorPicker;
 	}
 
+	public Button getClearNodeColorButton() {
+		return clearNodeColorButton;
+	}
+
 	public Button getNodeLabelBoldButton() {
 		return nodeLabelBoldButton;
 	}
@@ -312,12 +298,24 @@ public class FormatPaneController {
 		return nodeLabelBackgroundColorPicker;
 	}
 
+	public Button getClearNodeLabelBackgroundColorButton() {
+		return clearNodeLabelBackgroundColorButton;
+	}
+
 	public ColorPicker getNodeLabelColorPicker() {
 		return nodeLabelColorPicker;
 	}
 
+	public Button getClearNodeLabelColorButton() {
+		return clearNodeLabelColorButton;
+	}
+
 	public ChoiceBox<String> getNodeLabelFontChoiceBox() {
 		return nodeLabelFontChoiceBox;
+	}
+
+	public Button getClearNodeLabelFontButton() {
+		return clearNodeLabelFontButton;
 	}
 
 	public ChoiceBox<Double> getNodeLabelSizeChoiceBox() {
@@ -328,8 +326,8 @@ public class FormatPaneController {
 		return nodeLabelItalicButton;
 	}
 
-	public Button getNodeLabelStrikeButton() {
-		return nodeLabelStrikeButton;
+	public Button getClearNodeLabelStyleButton() {
+		return clearNodeLabelStyleButton;
 	}
 
 	public Button getNodeLabelUnderlineButton() {
@@ -402,5 +400,17 @@ public class FormatPaneController {
 
 	public TextField getNodeLabelTextField() {
 		return nodeLabelTextField;
+	}
+
+	public Button getClearEdgeColorButton() {
+		return clearEdgeColorButton;
+	}
+
+	public Button getClearEdgeLabelBackgroundColorButton() {
+		return clearEdgeLabelBackgroundColorButton;
+	}
+
+	public Button getClearEdgeLabelColorButton() {
+		return clearEdgeLabelColorButton;
 	}
 }

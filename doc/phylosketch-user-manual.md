@@ -55,10 +55,15 @@ The toolbar provides access to the core functionalities of PhyloSketch:
 
 • Select the desired mode (Edit, Transform, or Read-Only) using the first item on the tool bar.
 
-### Import Button (mobile version only)
+### Import Button
 
 * Use the Import button to paste a tree or network (given Newick format) onto the canvas.
 * Imported structures will be displayed on the canvas, ready for further editing or analysis.
+
+### Files Menu Button (Desktop version only)
+
+The gives access to file related menu items, including creating a new file,
+opening a file and opening a recent file.
 
 ### Selection Menu Button
 
@@ -87,30 +92,6 @@ They are:
 * Lowest Stable Ancestor - select the lowest stable ancestor of each selected node
 * From Previous Window - select nodes that have the same labels as previously selected nodes
 
-### Label Menu Button
-
-The Label Menu provides items for label labeling the nodes and edges of the tree or network.
-They apply to the current selection, or to everything, if nothing is selected.
-
-Items for labeling nodes:
-
-* Label Leaves A,B,C... - label leaves A, B, C etc.
-* Label Leaves t1,t2,t3... - label leaves t1, t2, t3 etc.
-*
-* Label All Leaves... - this starts an interactive dialog for typing leaf labels.
-*
-* Label Internal Nodes A,B,C... - label internal nodes A, B, C etc.
-* Label Internal Nodes t1,t2,t3... - label internal nodes t1, t2, t3 etc.
-*
-* Clear Node Labels - remove all node labels.
-
-Items for labeling edges:
-
-* Show Edge Weights - display edge weights.
-* Show Edge Confidences - display edge confidence values.
-* Show Edge Probabilities - display edge probabilities (usually only reticulate edges).
-*
-* Edit Edge Labels - this shows or hides a tool bar for setting or editing edge weights, confidences and probabilities.
 
 ### Layout Menu Button
 
@@ -119,11 +100,7 @@ Items apply to the current selection, or to everything, if nothing is selected.
 
 Items for changing how edges appear:
 
-* Arrows - draw edges as arrows.
 * Outlines - draw tree or network as "outline".
-* Smooth - smooth the edges.
-* Straight - straighten edges.
-* Rectangular - change edge shape to rectangular.
 
 Items for changing the layout:
 
@@ -138,23 +115,12 @@ Other items for modifying the tree or network:
 
 * Remove Thru Nodes - replace any "thru node" (a node that has indegree 1 and outdegree 1) by an edge.
 
-* Change Root - all the root of the tree or network to be changed by selecting a new node or edge.
+* Set Root - all the root of the tree or network to be changed by selecting a new node or edge.
 
-### Settings Menu Button
+### Formatting Menu Button
 
-The Settings Menu contains the following items.
+The formatting menu button opens the formatting pane (see below).
 
-- **Increase Font** - Increases the font size of node labels.
-- **Decrease Font** - Decreases the font size of node labels.
-- **Bold** - Formats node labels in bold.
-- **Italic** - Formats node labels in italics.
-- **Small Node** - Adjusts the size of nodes to small.
-- **Medium Node** - Adjusts the size of nodes to medium.
-- **Large Node** - Adjusts the size of the nodes to large.
-- **Thin Edge** - Sets the thickness of edges to thin.
-- **Medium Edge** - Sets the thickness of edges to medium.
-- **Thick Edge** - Sets the thickness of edges to thick.
--
 
 ### Other Toolbar Buttons
 
@@ -172,6 +138,44 @@ of root nodes `roots`, `nodes`, `edges` and `leaves`. It reports the hybridizati
 tree or network might have, such as `network`, `tree-based network`, or `temporal network`.
 
 ![statusbar](figs/statusbar.png)
+
+## Formatting pane
+
+The formatting pane provides items for styling nodes and edges,
+labeling nodes and edges, and setting the styling the node and edge
+labels.
+
+### Node style
+
+The node style pane can be used to set the shape, size and color of nodes.
+
+### Node labels
+
+The node labels pane can be used to systematically label nodes A, B, C and some other ways.
+In addition, labels can be typed.
+
+### Node labels style
+
+The node labels style pane can be used to set the font, size, style foreground
+and background colors of node labels.
+
+### Edge style
+
+The edge style pane can be used to set the shape of edges, to smooth edges, set the
+line style (solid, dotted or dashed), width, color, and whether to show arrow heads.
+
+### Edge labels
+
+The edge labels pane can be used to set the weights, support and probability values
+of edges. In addition, there is a button for setting the weights of edges based
+on their horizontal or vertical distance.
+In addition, there are buttons for turning the visualizations of weights, support values and probabilities
+on and off.
+
+### Edge labels style
+
+The edge labels style pane can be used to set the font, size, style foreground
+and background colors of edge labels.
 
 ## Working with Nodes and Edges
 

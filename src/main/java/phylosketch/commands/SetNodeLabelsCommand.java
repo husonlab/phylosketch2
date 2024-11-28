@@ -30,6 +30,7 @@ import phylosketch.view.RootLocation;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * set the node labels command
@@ -117,14 +118,14 @@ public class SetNodeLabelsCommand extends UndoableRedoableCommand {
 					case leaves -> v.isLeaf();
 					case internal -> !v.isLeaf();
 					case all -> true;
-				}).toList();
+				}).collect(Collectors.toSet());
 		if (!nodes.isEmpty()) {
 			for (var v : nodes) {
 				oldMap.put(v.getId(), view.getLabel(v).getText());
 			}
 			var seen = new HashSet<String>();
 			if (unique) {
-				seen.addAll(view.getSelectedOrAllNodes().stream().map(v -> view.getLabel(v).getRawText()).filter(s -> !s.isBlank()).toList());
+				seen.addAll(view.getSelectedOrAllNodes().stream().filter(v -> !nodes.contains(v)).map(v -> view.getLabel(v).getRawText()).filter(s -> !s.isBlank()).toList());
 			}
 			computeNewLabels(view, nodes, how, seen, newMap);
 
