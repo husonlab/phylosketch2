@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * remove all or selected di-vertices from graph
+ * remove all or selected "true nodes" (di-vertices) from graph
  * Daniel Huson, 9.2024
  */
 public class RemoveThruNodesCommand extends UndoableRedoableCommand {

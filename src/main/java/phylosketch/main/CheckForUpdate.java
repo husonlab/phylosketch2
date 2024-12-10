@@ -22,12 +22,7 @@ package phylosketch.main;
 import com.install4j.api.launcher.ApplicationLauncher;
 import com.install4j.api.update.ApplicationDisplayMode;
 import com.install4j.api.update.UpdateChecker;
-import com.install4j.api.update.UpdateDescriptor;
-import com.install4j.api.update.UpdateDescriptorEntry;
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
 import jloda.fx.util.ProgramProperties;
-import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 
@@ -38,53 +33,44 @@ import java.util.concurrent.Executors;
  * Daniel Huson, 5.2018
  */
 public class CheckForUpdate {
-	public static final String applicationId = "1691242391";
+	public static String programURL = "https://software-ab.cs.uni-tuebingen.de/download/phylosketch2";
+	public static String applicationId = "1691242391";
 
 	/**
 	 * check for update, download and install, if present
 	 */
-	public static void apply(String programURL) {
+	public static void apply() {
 		try {
-			final ApplicationDisplayMode applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
-			final UpdateDescriptor updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
-			final UpdateDescriptorEntry possibleUpdate = updateDescriptor.getPossibleUpdateEntry();
+			final var applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
+			final var updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
+			final var possibleUpdate = updateDescriptor.getPossibleUpdateEntry();
 			if (possibleUpdate == null) {
-                NotificationManager.showInformation("Installed version is up-to-date");
-            } else {
-                if (!ProgramProperties.isUseGUI()) {
-                    NotificationManager.showInformation("New version available: " + possibleUpdate.getNewVersion() + "\nPlease download from: " + programURL);
-                } else {
-                    final Runnable runnable = () -> {
-                        System.err.println("Launching update dialog");
-                        ApplicationLauncher.launchApplicationInProcess(applicationId, null,
-                                new ApplicationLauncher.Callback() {
-                                    public void exited(int exitValue) {
-                                        System.err.println("Exit value: " + exitValue);
-                                    }
+				NotificationManager.showInformation("Installed version is up-to-date");
+			} else {
+				if (!ProgramProperties.isUseGUI()) {
+					NotificationManager.showInformation("New version available: " + possibleUpdate.getNewVersion() + "\nPlease download from: " + programURL);
+				} else {
+					final Runnable runnable = () -> {
+						System.err.println("Update available: " + possibleUpdate.getNewVersion());
+						ApplicationLauncher.launchApplicationInProcess(applicationId, null,
+								new ApplicationLauncher.Callback() {
+									public void exited(int exitValue) {
+										System.err.println("Exit value: " + exitValue);
+									}
 
-                                    public void prepareShutdown() {
-                                        ProgramProperties.store();
-                                    }
-                                },
-                                ApplicationLauncher.WindowMode.FRAME, null);
-                    };
-                    //SwingUtilities.invokeLater(runnable);
-                    Executors.newSingleThreadExecutor().submit(runnable);
-                }
-            }
-        } catch (Exception e) {
-            Basic.caught(e);
-            NotificationManager.showInformation("Failed to check for updates: " + e);
-        }
-    }
-
-	public static void setupDisableProperty(BooleanProperty disable) {
-		disable.set(true);
-
-		InvalidationListener listener = a -> disable.set(MainWindowManager.getInstance().size() > 1 ||
-														 (MainWindowManager.getInstance().size() == 1
-														  && !MainWindowManager.getInstance().getMainWindow(0).isEmpty()));
-		listener.invalidated(null);
-		MainWindowManager.getInstance().changedProperty().addListener(listener);
+									public void prepareShutdown() {
+										ProgramProperties.store();
+									}
+								},
+								ApplicationLauncher.WindowMode.FRAME, null);
+					};
+					//SwingUtilities.invokeLater(runnable);
+					Executors.newSingleThreadExecutor().submit(runnable);
+				}
+			}
+		} catch (Exception e) {
+			Basic.caught(e);
+			NotificationManager.showInformation("Failed to check for updates: " + e);
+		}
 	}
 }

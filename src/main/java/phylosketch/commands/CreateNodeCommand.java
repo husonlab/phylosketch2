@@ -28,7 +28,7 @@ import phylosketch.view.DrawPane;
  * creates a new node
  * Daniel Huson, 9.2024
  */
-public class AddNodeCommand extends UndoableRedoableCommand {
+public class CreateNodeCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
@@ -40,8 +40,8 @@ public class AddNodeCommand extends UndoableRedoableCommand {
 	 * @param view     the view
 	 * @param location the location
 	 */
-	public AddNodeCommand(DrawPane view, Point2D location) {
-		super("new node");
+	public CreateNodeCommand(DrawPane view, Point2D location) {
+		super("create node");
 
 		undo = () -> {
 			if (newNodeId != -1)

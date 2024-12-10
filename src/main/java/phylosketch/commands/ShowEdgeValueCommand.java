@@ -28,6 +28,10 @@ import phylosketch.view.DrawPane;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * show edge values command
+ * Daniel Huson, 2024
+ */
 public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;

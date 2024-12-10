@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * edge stroke command
+ * edge line type command
  * Daniel Huson, 11.2024
  */
 public class EdgeLineTypeCommand extends UndoableRedoableCommand {

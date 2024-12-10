@@ -70,11 +70,6 @@ public class ImportNewick {
 
 		view.applyCss();
 
-		System.err.println("preferred width: " + view.getPrefWidth());
-		System.err.println("preferred height: " + view.getPrefHeight());
-		System.err.println("width: " + view.getWidth());
-		System.err.println("height: " + view.getHeight());
-
 		final var width = 300;
 		var gap = 50.0;
 		var totalWidth = Math.max(width + gap, view.getWidth() - gap);

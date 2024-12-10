@@ -34,6 +34,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * layout labels command
+ * Daniel Huson, 2024
+ */
 public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;

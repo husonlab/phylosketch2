@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * node  color command
+ * edge  color command
  * edge Huson, 11.2024
  */
 public class EdgeColorCommand extends UndoableRedoableCommand {

@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * node label color command
+ * edge label color command
  * Daniel Huson, 11.2024
  */
 public class EdgeLabelColorCommand extends UndoableRedoableCommand {

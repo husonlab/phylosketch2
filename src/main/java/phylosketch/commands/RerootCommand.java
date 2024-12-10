@@ -31,6 +31,10 @@ import phylosketch.view.DrawPane;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * reroot command
+ * Daniel Huson, 2024
+ */
 public class RerootCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
@@ -140,7 +144,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 				}
 				if (oldEdgeId != -1) {
 					var index = oldEdgePath.getElements().size() / 2;
-					var edgeHit = new AddEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
+					var edgeHit = new CreateEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
 					var parts = edgeHit.splitPath();
 					var location = PathUtils.getCoordinates(parts.getSecond().getElements().get(0));
 					var w = view.createNode(location, newNodeId);

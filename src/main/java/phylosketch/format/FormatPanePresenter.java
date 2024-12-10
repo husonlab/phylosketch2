@@ -25,16 +25,29 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import jloda.fx.undo.CompositeCommand;
+import jloda.fx.util.BasicFX;
+import jloda.fx.util.RunAfterAWhile;
 import jloda.util.NumberUtils;
+import jloda.util.StringUtils;
 import phylosketch.commands.*;
 import phylosketch.view.DrawPane;
+import phylosketch.view.LineType;
 
+import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 
+/**
+ * format pane presenter
+ * Daniel Huson, 11.2024
+ */
 public class FormatPanePresenter {
 	private boolean canUpdate = true;
 
@@ -64,20 +77,23 @@ public class FormatPanePresenter {
 			}
 		});
 		setupTriggerOnEnter(controller.getNodeLabelTextField());
-		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e -> {
-			String label = null;
-			for (var v : view.getNodeSelection().getSelectedItems()) {
-				if (label == null)
-					label = view.getLabel(v).getText();
-				else if (!label.equals(view.getLabel(v).getText())) {
-					label = null;
-					break;
-				}
-			}
-			var finalLabel = label;
-			Platform.runLater(() -> controller.getNodeLabelTextField().setText(finalLabel));
-		});
 
+		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e -> {
+			if (canUpdate) {
+				String label = null;
+				for (var v : view.getNodeSelection().getSelectedItems()) {
+					if (label == null)
+						label = view.getLabel(v).getText();
+					else if (!label.equals(view.getLabel(v).getText())) {
+						label = null;
+						break;
+					}
+
+				}
+				var finalLabel = label;
+				Platform.runLater(() -> controller.getNodeLabelTextField().setText(finalLabel));
+			}
+		});
 
 		controller.getNodeLabelFontChoiceBox().valueProperty().addListener((v, o, n) -> {
 			if (canUpdate) {
@@ -110,7 +126,9 @@ public class FormatPanePresenter {
 		});
 
 		controller.getClearNodeLabelStyleButton().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new NodeLabelsClearStyleCommand(view));
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new NodeLabelsClearStyleCommand(view));
+			}
 		});
 
 		controller.getNodeLabelSizeChoiceBox().valueProperty().addListener((var, o, n) -> {
@@ -174,54 +192,71 @@ public class FormatPanePresenter {
 		});
 
 		{
-			InvalidationListener invalidationListener = e -> {
-				canUpdate = false;
-				try {
-					controller.getNodeLabelTextField().setText(null);
-					controller.getNodeSizeChoiceBox().setValue(null);
-					controller.getNodeColorPicker().setValue(null);
-					controller.getNodeShapeChoiceBox().setValue(null);
-					controller.getNodeLabelSizeChoiceBox().setValue(null);
-					controller.getNodeLabelColorPicker().setValue(null);
-					controller.getNodeLabelBackgroundColorPicker().setValue(null);
-					controller.getNodeLabelFontChoiceBox().setValue(null);
-					controller.getNodeLabelSizeChoiceBox().setValue(null);
-					controller.getHowToLabelNodesCBox().setValue(null);
-					controller.getUseNodesToLabelCBox().setValue(null);
-				} finally {
-					canUpdate = true;
-				}
+			var object = new Object();
+			InvalidationListener updateShowNodesListener = e -> {
+				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> ((Circle) view.getShape(v)).getRadius());
+				var color = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) view.getShape(v).getFill());
+				var label = exactlyOne(view.getSelectedOrAllNodes(), v -> view.getLabel(v).getText());
+				var labelFont = exactlyOne(view.getSelectedOrAllNodes(), v -> view.getLabel(v).getFontFamily());
+				var labelSize = exactlyOne(view.getSelectedOrAllNodes(), v -> view.getLabel(v).getFontSize());
+				var labelColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) view.getLabel(v).getTextFill());
+				var labelBackground = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) view.getLabel(v).getBackgroundColor());
+				RunAfterAWhile.applyInFXThread(object, () -> {
+					canUpdate = false;
+					try {
+						controller.getNodeShapeChoiceBox().setValue(null);
+
+						controller.getNodeSizeChoiceBox().setValue(nodeSize);
+						controller.getNodeColorPicker().setValue(color);
+						controller.getNodeLabelTextField().setText(label);
+						controller.getNodeLabelFontChoiceBox().setValue(labelFont);
+						controller.getNodeLabelSizeChoiceBox().setValue(labelSize);
+						controller.getNodeLabelColorPicker().setValue(labelColor);
+						controller.getNodeLabelBackgroundColorPicker().setValue(labelBackground);
+					} finally {
+						canUpdate = true;
+					}
+				});
 			};
-			view.getNodeSelection().getSelectedItems().addListener(invalidationListener);
-			view.getGraphFX().getNodeList().addListener(invalidationListener);
+			view.getNodeSelection().getSelectedItems().addListener(updateShowNodesListener);
 		}
 
 		{
-			InvalidationListener invalidationListener = e -> {
-				canUpdate = false;
-				try {
-					controller.getEdgeWidthChoiceBox().setValue(null);
-					controller.getEdgeColorPicker().setValue(null);
-					controller.getEdgeLineChoiceBox().setValue(null);
-					controller.getEdgeLabelSizeChoiceBox().setValue(null);
-					controller.getEdgeLabelColorPicker().setValue(null);
-					controller.getEdgeLabelBackgroundColorPicker().setValue(null);
-					controller.getEdgeLabelFontChoiceBox().setValue(null);
-					controller.getEdgeLabelSizeChoiceBox().setValue(null);
-					controller.getEdgeWeightTextField().setText(null);
-					controller.getEdgeSupportTextField().setText(null);
-					controller.getEdgeProbabilityTextField().setText(null);
-					if (false) {
-						controller.getShowWeightToggleButton().setSelected(false);
-						controller.getShowSupportToggleButton().setSelected(false);
-						controller.getShowProbabilityToggleButton().setSelected(false);
+			var object = new Object();
+			InvalidationListener updateShowEdgesListener = a -> {
+				var lineType = exactlyOne(view.getSelectedOrAllEdges(), e -> LineType.fromShape(view.getPath(e)));
+				var edgeWidth = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getPath(e).getStrokeWidth());
+				var color = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) view.getPath(e).getFill());
+				var weight = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getGraph().hasEdgeWeights() ? view.getGraph().getWeight(e) : null);
+				var support = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getGraph().hasEdgeWeights() ? view.getGraph().getConfidence(e) : null);
+				var probability = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getGraph().hasEdgeWeights() ? view.getGraph().getProbability(e) : null);
+				var labelFont = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getLabel(e).getFontFamily());
+				var labelSize = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getLabel(e).getFontSize());
+				var labelColor = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) view.getLabel(e).getTextFill());
+				var labelBackground = exactlyOne(view.getSelectedOrAllEdges(), v -> (Color) view.getLabel(v).getBackgroundColor());
+				RunAfterAWhile.applyInFXThread(object, () -> {
+					canUpdate = false;
+					try {
+						controller.getEdgeLineChoiceBox().setValue(lineType);
+						controller.getEdgeWidthChoiceBox().setValue(edgeWidth);
+						controller.getEdgeLabelFontChoiceBox().setValue(labelFont);
+						controller.getEdgeLabelSizeChoiceBox().setValue(labelSize);
+						controller.getEdgeColorPicker().setValue(color);
+						if (weight != null)
+							controller.getEdgeWeightTextField().setText(StringUtils.removeTrailingZerosAfterDot(weight));
+						if (support != null)
+							controller.getEdgeSupportTextField().setText(StringUtils.removeTrailingZerosAfterDot(support));
+						if (probability != null)
+							controller.getEdgeProbabilityTextField().setText(StringUtils.removeTrailingZerosAfterDot(probability));
+						controller.getEdgeLabelColorPicker().setValue(labelColor);
+						controller.getEdgeLabelBackgroundColorPicker().setValue(labelBackground);
+					} finally {
+						canUpdate = true;
 					}
-				} finally {
-					canUpdate = true;
-				}
+				});
 			};
-			view.getEdgeSelection().getSelectedItems().addListener(invalidationListener);
-			view.getGraphFX().getEdgeList().addListener(invalidationListener);
+			view.getEdgeSelection().getSelectedItems().addListener(updateShowEdgesListener);
+			view.getGraphFX().getEdgeList().addListener(updateShowEdgesListener);
 		}
 
 		controller.getShowWeightToggleButton().selectedProperty().addListener((v, o, n) -> {
@@ -279,12 +314,16 @@ public class FormatPanePresenter {
 		});
 
 		controller.getClearEdgeLabelStyleButton().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new EdgeLabelsClearStyleCommand(view));
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new EdgeLabelsClearStyleCommand(view));
+			}
 		});
 
 		controller.getEdgeWidthChoiceBox().valueProperty().addListener((var, o, n) -> {
-			if (n != null)
-				view.getUndoManager().doAndAdd(new EdgeWidthCommand(view, n));
+			if (canUpdate) {
+				if (n != null)
+					view.getUndoManager().doAndAdd(new EdgeWidthCommand(view, n));
+			}
 		});
 
 		controller.getEdgeColorPicker().valueProperty().addListener((var, o, n) -> {
@@ -306,7 +345,11 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getSmoothButton().setOnAction(a -> view.getUndoManager().doAndAdd(new SmoothCommand(view.getGraph(), view.getSelectedOrAllEdges())));
+		controller.getSmoothButton().setOnAction(a -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new SmoothCommand(view.getGraph(), view.getSelectedOrAllEdges()));
+			}
+		});
 		controller.getSmoothButton().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
 
 		controller.getEdgeStraightButton().setOnAction(e -> {
@@ -340,20 +383,24 @@ public class FormatPanePresenter {
 		disableSetEdges.bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
 
 		controller.getMeasureEdgeWeightsButton().setOnAction(e -> {
-			if (!controller.getShowWeightToggleButton().isSelected())
-				controller.getShowWeightToggleButton().fire();
-			view.getUndoManager().doAndAdd(new CompositeCommand("set weights", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, -1),
-					new ShowEdgeValueCommand(view, true, null, null)));
+			if (canUpdate) {
+				if (!controller.getShowWeightToggleButton().isSelected())
+					controller.getShowWeightToggleButton().fire();
+				view.getUndoManager().doAndAdd(new CompositeCommand("set weights", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, -1),
+						new ShowEdgeValueCommand(view, true, null, null)));
+			}
 		});
 		controller.getMeasureEdgeWeightsButton().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
-			if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {
-				if (!controller.getShowWeightToggleButton().isSelected())
-					controller.getShowWeightToggleButton().fire();
-				var value = NumberUtils.parseDouble(controller.getEdgeWeightTextField().getText());
-				view.getUndoManager().doAndAdd(new CompositeCommand("weights", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, value),
-						new ShowEdgeValueCommand(view, true, null, null)));
+			if (canUpdate) {
+				if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {
+					if (!controller.getShowWeightToggleButton().isSelected())
+						controller.getShowWeightToggleButton().fire();
+					var value = NumberUtils.parseDouble(controller.getEdgeWeightTextField().getText());
+					view.getUndoManager().doAndAdd(new CompositeCommand("weights", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, value),
+							new ShowEdgeValueCommand(view, true, null, null)));
+				}
 			}
 		});
 
@@ -361,24 +408,28 @@ public class FormatPanePresenter {
 		controller.getEdgeWeightTextField().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeSupportTextField().setOnAction(a -> {
-			if (NumberUtils.isDouble(controller.getEdgeSupportTextField().getText())) {
-				if (!controller.getShowSupportToggleButton().isSelected())
-					controller.getShowSupportToggleButton().fire();
-				var value = NumberUtils.parseDouble(controller.getEdgeSupportTextField().getText());
-				view.getUndoManager().doAndAdd(new CompositeCommand("set support", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Confidence, value),
-						new ShowEdgeValueCommand(view, null, true, null)));
+			if (canUpdate) {
+				if (NumberUtils.isDouble(controller.getEdgeSupportTextField().getText())) {
+					if (!controller.getShowSupportToggleButton().isSelected())
+						controller.getShowSupportToggleButton().fire();
+					var value = NumberUtils.parseDouble(controller.getEdgeSupportTextField().getText());
+					view.getUndoManager().doAndAdd(new CompositeCommand("set support", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Confidence, value),
+							new ShowEdgeValueCommand(view, null, true, null)));
+				}
 			}
 		});
 		setupTriggerOnEnter(controller.getEdgeSupportTextField());
 		controller.getEdgeSupportTextField().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeProbabilityTextField().setOnAction(a -> {
-			if (NumberUtils.isDouble(controller.getEdgeProbabilityTextField().getText())) {
-				if (!controller.getShowProbabilityToggleButton().isSelected())
-					controller.getShowProbabilityToggleButton().fire();
-				var value = NumberUtils.parseDouble(controller.getEdgeProbabilityTextField().getText());
-				view.getUndoManager().doAndAdd(new CompositeCommand("set probabilities", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Probability, value),
-						new ShowEdgeValueCommand(view, null, null, true)));
+			if (canUpdate) {
+				if (NumberUtils.isDouble(controller.getEdgeProbabilityTextField().getText())) {
+					if (!controller.getShowProbabilityToggleButton().isSelected())
+						controller.getShowProbabilityToggleButton().fire();
+					var value = NumberUtils.parseDouble(controller.getEdgeProbabilityTextField().getText());
+					view.getUndoManager().doAndAdd(new CompositeCommand("set probabilities", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Probability, value),
+							new ShowEdgeValueCommand(view, null, null, true)));
+				}
 			}
 		});
 		setupTriggerOnEnter(controller.getEdgeProbabilityTextField());
@@ -412,6 +463,23 @@ public class FormatPanePresenter {
 				view.getUndoManager().doAndAdd(new EdgeLabelColorCommand(view, EdgeLabelColorCommand.Which.background, null));
 			}
 		});
+
+		AccordionManager.apply(controller.getRootPane(), BasicFX.getAllRecursively(controller.getRootPane(), Accordion.class), 3);
+	}
+
+	private <S, T> T exactlyOne(Collection<S> nodes, Function<S, T> function) {
+		T first = null;
+		for (var v : nodes) {
+			var value = function.apply(v);
+			if (value != null) {
+				if (first == null) {
+					first = value;
+				} else if (!first.equals(value)) {
+					return null;
+				}
+			}
+		}
+		return first;
 	}
 
 	public static void setupTriggerOnEnter(TextField textField) {

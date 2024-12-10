@@ -32,6 +32,7 @@ import java.util.Objects;
 
 /**
  * the format pane view
+ * Daniel Huson, 11.2024
  */
 public class FormatPaneView {
 	private final Pane pane;
