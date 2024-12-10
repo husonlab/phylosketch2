@@ -26,6 +26,10 @@ import phylosketch.view.DrawPane;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * show arrow heads command
+ * Daniel Huson, 2024
+ */
 public class ShowArrowsCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;

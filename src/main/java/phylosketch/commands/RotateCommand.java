@@ -37,6 +37,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Rotate command
+ * Daniel Huson, 2024
+ */
 public class RotateCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;

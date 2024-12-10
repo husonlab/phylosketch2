@@ -24,14 +24,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox fx:id="rootPane" prefHeight="743.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
-        <AnchorPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                    VBox.vgrow="ALWAYS">
             <children>
                 <Accordion AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <panes>
-                        <TitledPane animated="false" text="Node Style">
+                        <TitledPane animated="false" maxHeight="-Infinity" minHeight="-Infinity" text="Node Style">
                             <content>
                                 <GridPane hgap="5.0" vgap="3.0">
                                     <columnConstraints>
@@ -92,9 +93,9 @@
                         prefHeight="24.0" text="x" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
             </children>
         </AnchorPane>
-        <Accordion layoutX="10.0" layoutY="36.0">
+        <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Node Labels">
+                <TitledPane animated="false" maxHeight="-Infinity" minHeight="-Infinity" text="Node Labels">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -135,9 +136,9 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <Accordion VBox.vgrow="NEVER">
+        <Accordion VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Node Labels Style">
+                <TitledPane animated="false" maxHeight="-Infinity" minHeight="-Infinity" text="Node Labels Style">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -258,7 +259,7 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <Accordion layoutX="10.0" layoutY="36.0">
+        <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">
             <panes>
                 <TitledPane animated="false" text="Edge Style">
                     <content>
@@ -338,7 +339,7 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <Accordion layoutX="10.0" layoutY="36.0">
+        <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">
             <panes>
                 <TitledPane animated="false" text="Edge Labels">
                     <content>
@@ -415,7 +416,7 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <Accordion layoutX="10.0" layoutY="62.0">
+        <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
                 <TitledPane animated="false" text="Edge Label Style">
                     <content>

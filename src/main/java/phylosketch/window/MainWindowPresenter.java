@@ -506,8 +506,8 @@ public class MainWindowPresenter {
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply("https://software-ab.cs.uni-tuebingen.de/download/phylosketch2"));
-		CheckForUpdate.setupDisableProperty(controller.getCheckForUpdatesMenuItem().disableProperty());
+		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply());
+		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(window.dirtyProperty()));
 
 		SwipeUtils.setConsumeSwipes(controller.getRootPane());
 
@@ -556,6 +556,8 @@ public class MainWindowPresenter {
 				findToolBar.findAgain();
 		});
 
+		controller.getAddLSAEdgeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new AddLSAEdgesCommand(view)));
+		controller.getAddLSAEdgeMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> view.getGraph().nodeStream().filter(v -> v.getInDegree() == 0).count() != 1, view.getGraphFX().lastUpdateProperty()));
 	}
 
 

@@ -34,7 +34,7 @@ public class ChangeNodeLabelsCommand extends UndoableRedoableCommand {
     private final Runnable redo;
 
 	public ChangeNodeLabelsCommand(DrawPane view, List<Data> dataList) {
-        super("Label");
+        super("change label(s)");
 
 		var graph = view.getGraph();
 

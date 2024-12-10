@@ -24,9 +24,12 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import phylosketch.commands.MoveNodesCommand;
 import phylosketch.main.PhyloSketch;
@@ -52,6 +55,9 @@ public class NodeInteraction {
 	 * @param runDoubleClickSelection
 	 */
 	public static void setup(DrawPane view, BooleanProperty resizeMode, Runnable runDoubleClickSelection) {
+		var lines = new Group();
+
+		view.getOtherGroup().getChildren().add(lines);
 
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
@@ -86,6 +92,7 @@ public class NodeInteraction {
 										Platform.runLater(runDoubleClickSelection);
 									}
 								}
+								lines.getChildren().clear();
 								me.consume();
 							});
 
@@ -108,6 +115,7 @@ public class NodeInteraction {
 										}
 										view.getNodeSelection().select(v);
 									}
+									lines.getChildren().clear();
 
 									var previous = view.screenToLocal(mouseX, mouseY);
 									var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -115,6 +123,29 @@ public class NodeInteraction {
 									MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
 									mouseX = me.getScreenX();
 									mouseY = me.getScreenY();
+
+									for (var p : view.getGraph().nodes()) {
+										if (!view.getNodeSelection().isSelected(p)) {
+											var pPoint = view.getPoint(p);
+											for (var q : view.getNodeSelection().getSelectedItems()) {
+												var qPoint = view.getPoint(q);
+												if (Math.abs(qPoint.getX() - pPoint.getX()) <= 1) {
+													var line = new Line(0, -50, 0, 50);
+													lines.getChildren().add(line);
+													line.setTranslateX(pPoint.getX());
+													line.setTranslateY(qPoint.getY());
+													line.setStroke(Color.LIGHTGRAY);
+												}
+												if (Math.abs(qPoint.getY() - pPoint.getY()) <= 1) {
+													var line = new Line(-50, 0, 50, 0);
+													lines.getChildren().add(line);
+													line.setTranslateX(qPoint.getX());
+													line.setTranslateY(pPoint.getY());
+													line.setStroke(Color.LIGHTGRAY);
+												}
+											}
+										}
+									}
 
 									me.consume();
 								}
@@ -127,6 +158,7 @@ public class NodeInteraction {
 									var location = view.screenToLocal(mouseX, mouseY);
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
 									view.getUndoManager().add(new MoveNodesCommand(view, nodes, d.getX(), d.getY()));
+									lines.getChildren().clear();
 									me.consume();
 								}
 							});

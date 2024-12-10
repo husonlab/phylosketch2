@@ -194,7 +194,7 @@ public class SetupSelection {
 			}
 		});
 
-		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors2(graph, nodeSelection.getSelectedItems())));
+		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
 		controller.getSelectLowestStableAncestorMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
 
 

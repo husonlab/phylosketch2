@@ -106,6 +106,9 @@ public class MainWindowController {
 	private MenuItem findAgainMenuItem;
 
 	@FXML
+	private MenuItem addLSAEdgeMenuItem;
+
+	@FXML
 	private ToggleButton findButton;
 
 	@FXML
@@ -602,6 +605,10 @@ public class MainWindowController {
 
 	public MenuItem getFindMenuItem() {
 		return findMenuItem;
+	}
+
+	public MenuItem getAddLSAEdgeMenuItem() {
+		return addLSAEdgeMenuItem;
 	}
 
 	public MenuItem getFullScreenMenuItem() {

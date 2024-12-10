@@ -33,6 +33,10 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * move nodes command
+ * Daniel Huson, 2024
+ */
 public class MoveNodesCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;

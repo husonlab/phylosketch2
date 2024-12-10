@@ -35,6 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * the flip coordinates command
+ * Daniel Huson, 9.2024
+ */
 public class FlipCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
@@ -46,6 +50,12 @@ public class FlipCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
 
+	/**
+	 * flip all or currently selected nodes
+	 *
+	 * @param view       the view
+	 * @param horizontal flip horizontally, if true, otherwise vertically
+	 */
 	public FlipCommand(DrawPane view, boolean horizontal) {
 		super("flip");
 

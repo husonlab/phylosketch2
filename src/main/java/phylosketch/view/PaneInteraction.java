@@ -33,8 +33,8 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
-import phylosketch.commands.AddEdgeCommand;
-import phylosketch.commands.AddNodeCommand;
+import phylosketch.commands.CreateEdgeCommand;
+import phylosketch.commands.CreateNodeCommand;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 
@@ -83,7 +83,7 @@ public class PaneInteraction {
 				var createNodeMenuItem = new MenuItem("New Node");
 				createNodeMenuItem.setOnAction(e -> {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
+					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location));
 				});
 				var menu = new ContextMenu();
 				menu.getItems().add(createNodeMenuItem);
@@ -108,7 +108,7 @@ public class PaneInteraction {
 			if (view.getMode() == DrawPane.Mode.Edit && me.isStillSincePress() && !inMultiTouchGesture.get()) {
 				if (view.getGraph().getNumberOfNodes() == 0 || me.getClickCount() == 2) {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					view.getUndoManager().doAndAdd(new AddNodeCommand(view, location));
+					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location));
 					if (false) {
 						var shape = view.getShape(view.getGraph().getLastNode());
 						shape.setEffect(SelectionEffectBlue.getInstance());
@@ -124,7 +124,7 @@ public class PaneInteraction {
 			if (!inMultiTouchGesture.get() && view.getMode() == DrawPane.Mode.Edit) {
 				path.getElements().clear();
 				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-				if (AddEdgeCommand.findNode(view, location) != null || AddEdgeCommand.findEdge(view, location) != null) {
+				if (CreateEdgeCommand.findNode(view, location) != null || CreateEdgeCommand.findEdge(view, location) != null) {
 					path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
 					inDrawingEdge.set(true);
 
@@ -155,7 +155,7 @@ public class PaneInteraction {
 				if (!path.getElements().isEmpty()) {
 					if (isGoodPath(path)) {
 						path.getElements().setAll(PathUtils.createPath(PathSmoother.apply(PathUtils.extractPoints(path), 10), true).getElements());
-						view.getUndoManager().doAndAdd(new AddEdgeCommand(view, path));
+						view.getUndoManager().doAndAdd(new CreateEdgeCommand(view, path));
 					}
 					path.getElements().clear();
 				}

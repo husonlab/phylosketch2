@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * straighten command
+ * straighten edges command
  * Daniel Huson, 9.2024
  */
 public class StraightenCommand extends UndoableRedoableCommand {

@@ -27,6 +27,10 @@ import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.icons.MaterialIcons;
 import phylosketch.view.LineType;
 
+/**
+ * format pane controller
+ * Daniel Huson, 11.2024
+ */
 public class FormatPaneController {
 	@FXML
 	private Button closeButton;

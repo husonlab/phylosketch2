@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * node label formating
+ * node label formating command
  * Daniel Huson, 11.2024
  */
 public class NodeLabelFormatCommand extends UndoableRedoableCommand {

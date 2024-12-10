@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * rectangular command
+ * rectangular edges command
  * Daniel Huson, 9.2024
  */
 public class RectangularCommand extends UndoableRedoableCommand {

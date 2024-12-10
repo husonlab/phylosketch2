@@ -65,7 +65,6 @@ public class DeleteCommand extends UndoableRedoableCommand {
 			edges.addAll(IteratorUtils.asList(v.adjacentEdges()));
 		}
 
-
 		for (var v : nodes) {
 			nodeDataList.add(new NodeData(view, v));
 		}
