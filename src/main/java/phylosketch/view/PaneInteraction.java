@@ -33,7 +33,6 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
-import phylosketch.commands.CreateEdgeCommand;
 import phylosketch.commands.CreateNodeCommand;
 import phylosketch.commands.DrawEdgeCommand;
 import phylosketch.paths.PathSmoother;
@@ -125,7 +124,7 @@ public class PaneInteraction {
 			if (!inMultiTouchGesture.get() && view.getMode() == DrawPane.Mode.Edit) {
 				path.getElements().clear();
 				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-				if (CreateEdgeCommand.findNode(view, location) != null || CreateEdgeCommand.findEdge(view, location) != null) {
+				if (DrawEdgeCommand.findNode(view, location) != null || DrawEdgeCommand.findEdge(view, location) != null) {
 					path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
 					inDrawingEdge.set(true);
 
