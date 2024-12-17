@@ -45,6 +45,7 @@ import static phylosketch.paths.PathUtils.getCoordinates;
  * creates a new edge from a given path
  * Daniel Huson, 9.2024
  */
+@Deprecated
 public class CreateEdgeCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
