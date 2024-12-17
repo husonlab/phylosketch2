@@ -96,20 +96,24 @@ public class PathUtils {
 	}
 
 	public static Point2D getMiddle(Path path) {
-		var points = extractPoints(path);
-		var first = points.get(0);
-		var last = points.get(points.size() - 1);
-		var best = 0;
-		var bestDistance = 0.0;
-		for (int i = 1; i < points.size() - 1; i++) {
-			var point = points.get(i);
-			var d = Math.min(point.distance(first), point.distance(last));
-			if (d > bestDistance) {
-				bestDistance = d;
-				best = i;
+		if (path.getElements().isEmpty())
+			return null;
+		else {
+			var points = extractPoints(path);
+			var first = points.get(0);
+			var last = points.get(points.size() - 1);
+			var best = 0;
+			var bestDistance = 0.0;
+			for (int i = 1; i < points.size() - 1; i++) {
+				var point = points.get(i);
+				var d = Math.min(point.distance(first), point.distance(last));
+				if (d > bestDistance) {
+					bestDistance = d;
+					best = i;
+				}
 			}
+			return points.get(best);
 		}
-		return points.get(best);
 	}
 
 
@@ -118,4 +122,85 @@ public class PathUtils {
 		points = CollectionUtils.reverse(points);
 		path.getElements().setAll(createPath(points, false).getElements());
 	}
+
+	/**
+	 * split path into two parts
+	 *
+	 * @param path   path
+	 * @param aPoint point along path
+	 * @return two paths
+	 */
+	public static List<Path> split(Path path, Point2D aPoint) {
+		var points = extractPoints(path);
+		var firstIndex = 0;
+		var bestFirstDistance = Double.MAX_VALUE;
+		for (var i = 0; i < points.size(); i++) {
+			var firstDistance = points.get(i).distance(aPoint);
+			if (firstDistance < bestFirstDistance) {
+				bestFirstDistance = firstDistance;
+				firstIndex = i;
+			}
+		}
+		return split(path, true, firstIndex);
+	}
+
+	public static Point2D nudgeOntoPath(Path path, Point2D aPoint) {
+		var points = extractPoints(path);
+		var bestIndex = 0;
+		var bestFirstDistance = Double.MAX_VALUE;
+		for (var i = 0; i < points.size(); i++) {
+			var firstDistance = points.get(i).distance(aPoint);
+			if (firstDistance < bestFirstDistance) {
+				bestFirstDistance = firstDistance;
+				bestIndex = i;
+			}
+		}
+		return points.get(bestIndex);
+	}
+
+	/**
+	 * split path into three parts
+	 *
+	 * @param path   the path
+	 * @param aPoint first point along path
+	 * @param bPoint second point along path
+	 * @return three paths
+	 */
+	public static List<Path> split(Path path, Point2D aPoint, Point2D bPoint) {
+		var points = extractPoints(path);
+		var firstIndex = 0;
+		var bestFirstDistance = Double.MAX_VALUE;
+		var secondIndex = 0;
+		var bestSecondDistance = Double.MAX_VALUE;
+		for (var i = 0; i < points.size(); i++) {
+			var firstDistance = points.get(i).distance(aPoint);
+			if (firstDistance < bestFirstDistance) {
+				bestFirstDistance = firstDistance;
+				firstIndex = i;
+			}
+			var secondDistance = points.get(i).distance(bPoint);
+
+			if (secondDistance < bestSecondDistance) {
+				bestSecondDistance = secondDistance;
+				secondIndex = i;
+			}
+		}
+		return split(path, true, firstIndex, secondIndex);
+	}
+
+
+	public static List<Path> split(Path path, boolean normalize, int... elementIndices) {
+		var points = extractPoints(path);
+		var list = new ArrayList<Path>();
+		var prev = 0;
+		for (int index : elementIndices) {
+			list.add(createPath(points.subList(prev, index), normalize));
+			prev = index;
+		}
+		if (elementIndices.length > 0) {
+			list.add(createPath(points.subList(prev, points.size()), normalize));
+		}
+		return list;
+	}
+
 }

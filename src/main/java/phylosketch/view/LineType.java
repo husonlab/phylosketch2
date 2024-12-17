@@ -45,7 +45,7 @@ public enum LineType {
 
 	public static LineType fromShape(Shape shape) {
 		for (var type : values()) {
-			if (shape.getStrokeDashArray().equals(type.strokeDashArray))
+			if (shape != null && shape.getStrokeDashArray().equals(type.strokeDashArray))
 				return type;
 		}
 		return Solid;

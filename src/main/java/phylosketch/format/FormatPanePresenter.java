@@ -470,12 +470,14 @@ public class FormatPanePresenter {
 	private <S, T> T exactlyOne(Collection<S> nodes, Function<S, T> function) {
 		T first = null;
 		for (var v : nodes) {
-			var value = function.apply(v);
-			if (value != null) {
-				if (first == null) {
-					first = value;
-				} else if (!first.equals(value)) {
-					return null;
+			if (v != null) {
+				var value = function.apply(v);
+				if (value != null) {
+					if (first == null) {
+						first = value;
+					} else if (!first.equals(value)) {
+						return null;
+					}
 				}
 			}
 		}
