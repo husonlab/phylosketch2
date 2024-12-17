@@ -66,12 +66,12 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 				for (var target : reticulation2LSA.keySet()) {
 					if (target.getInDegree() > 1) {
 						var source = reticulation2LSA.get(target);
-						var path = PathUtils.createPath(List.of(view.getPoint(source), view.getPoint(target)), true);
 
 						if (source != target && !target.isChild(source)) {
+							var path = PathUtils.createPath(List.of(view.getPoint(source), view.getPoint(target)), true);
 							var e = view.createEdge(source, target, path);
 							newEdgeIds.add(e.getId());
-							Platform.runLater(() -> view.getPath(e).setStroke(Color.ORANGE));
+							Platform.runLater(() -> view.getPath(e).setStroke(Color.LIGHTGREEN));
 						}
 					}
 				}

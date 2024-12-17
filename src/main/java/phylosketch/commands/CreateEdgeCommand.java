@@ -23,7 +23,10 @@ package phylosketch.commands;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
+import javafx.scene.shape.Shape;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -105,12 +108,6 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 			var graph = view.getGraph();
 			if (newEdgeId != -1) {
 				var f = graph.findEdgeById(newEdgeId);
-				if (f.getSource().getInDegree() > 0 && f.getSource().getOutDegree() == 1 && view.getShape(f.getSource()) instanceof Circle circle) {
-					circle.setRadius(2 * circle.getRadius());
-				}
-				if (f.getTarget().getInDegree() == 1 && f.getTarget().getOutDegree() > 0 && view.getShape(f.getTarget()) instanceof Circle circle) {
-					circle.setRadius(2 * circle.getRadius());
-				}
 				view.deleteEdge(f);
 			}
 
@@ -138,13 +135,13 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 			final Point2D startPoint;
 			final boolean mustCreateStartNode;
 			final boolean mustSplitStartEdge;
-			final Pair<Path, Path> startParts;
+			final List<Path> startParts;
 			int startNodeId = -1;
 
 			final Point2D endPoint;
 			final boolean mustCreateEndNode;
 			final boolean mustSplitEndEdge;
-			final Pair<Path, Path> endParts;
+			final List<Path> endParts;
 			int endNodeId = -1;
 
 			{
@@ -172,8 +169,8 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 					startEdgeSourceId = e.getSource().getId();
 					startEdgeTargetId = e.getTarget().getId();
 					startPath = PathUtils.copy(startEdgeHit.path());
-					startParts = startEdgeHit.splitPath();
-					var splitPoint = getCoordinates(startParts.getSecond().getElements().get(0));
+					startParts = PathUtils.split(startEdgeHit.path(), false, startEdgeHit.elementIndex());
+					var splitPoint = getCoordinates(startParts.get(1).getElements().get(0));
 					var diff = splitPoint.subtract(start);
 					if (diff.magnitude() > 1) {
 						PathReshape.apply(path, 0, diff.getX(), diff.getY());
@@ -202,8 +199,8 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 					endEdgeSourceId = e.getSource().getId();
 					endEdgeTargetId = e.getTarget().getId();
 					endPath = PathUtils.copy(endEdgeHit.path());
-					endParts = endEdgeHit.splitPath();
-					var splitPoint = getCoordinates(endParts.getSecond().getElements().get(0));
+					endParts = PathUtils.split(endEdgeHit.path(), false, endEdgeHit.elementIndex());
+					var splitPoint = getCoordinates(endParts.get(1).getElements().get(0));
 					var diff = splitPoint.subtract(end);
 					if (diff.magnitude() > 1) {
 						PathReshape.apply(path, 0, diff.getX(), diff.getY());
@@ -229,15 +226,15 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 
 				{
 					var v = graph.findNodeById(startEdgeSourceId);
-					var e = view.createEdge(v, s, startParts.getFirst(), newStartEdgeSourcePartId);
+					var e = view.createEdge(v, s, startParts.get(0), newStartEdgeSourcePartId);
 					newStartEdgeSourcePartId = e.getId();
 					if (startEdgeArrow) {
 						redoArrows.add(e);
 					}
 				}
-				{
+				if (startEdgeId != endEdgeId) {
 					var w = graph.findNodeById(startEdgeTargetId);
-					var e = view.createEdge(s, w, startParts.getSecond(), newStartEdgeTargetPartId);
+					var e = view.createEdge(s, w, startParts.get(1), newStartEdgeTargetPartId);
 					newStartEdgeTargetPartId = e.getId();
 					if (startEdgeArrow)
 						redoArrows.add(e);
@@ -255,16 +252,16 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 					t = view.createNode(endPoint, newEndNodeId);
 					newEndNodeId = t.getId();
 				}
-				{
+				if (startEdgeId != endEdgeId) {
 					var v = graph.findNodeById(endEdgeSourceId);
-					var e = view.createEdge(v, t, endParts.getFirst(), newEndEdgeSourcePartId);
+					var e = view.createEdge(v, t, endParts.get(0), newEndEdgeSourcePartId);
 					newEndEdgeSourcePartId = e.getId();
 					if (endEdgeArrow)
 						redoArrows.add(e);
 				}
 				{
 					var w = graph.findNodeById(endEdgeTargetId);
-					var e = view.createEdge(t, w, endParts.getSecond(), newEndEdgeTargetPartId);
+					var e = view.createEdge(t, w, endParts.get(1), newEndEdgeTargetPartId);
 					newEndEdgeTargetPartId = e.getId();
 					if (endEdgeArrow)
 						redoArrows.add(e);
@@ -274,6 +271,17 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 				newEndNodeId = t.getId();
 			} else {
 				t = graph.findNodeById(endNodeId);
+			}
+
+			if (mustSplitStartEdge && mustSplitEndEdge && startEdgeId == endEdgeId) {
+				var edgePath = view.getPath(graph.findEdgeById(startEdgeId));
+				var parts = PathUtils.split(edgePath, startPoint, endPoint);
+				var p = graph.findNodeById(newStartNodeId);
+				var q = graph.findNodeById(newEndNodeId);
+				var e = view.createEdge(p, q, parts.get(1), newEndEdgeSourcePartId);
+				newEndEdgeSourcePartId = e.getId();
+				if (endEdgeArrow)
+					redoArrows.add(e);
 			}
 
 			Edge newEdge; // new edge
@@ -300,10 +308,12 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 				});
 			}
 
-			if (mustSplitStartEdge)
+			if (mustSplitStartEdge) {
 				view.deleteEdge(graph.findEdgeById(startEdgeId));
-			if (mustSplitEndEdge)
+			}
+			if (mustSplitEndEdge && startEdgeId != endEdgeId) {
 				view.deleteEdge(graph.findEdgeById(endEdgeId));
+			}
 		};
 	}
 
@@ -386,22 +396,6 @@ public class CreateEdgeCommand extends UndoableRedoableCommand {
 
 
 	public record EdgeHit(Edge e, Path path, int elementIndex) {
-
-		public Pair<Path, Path> splitPath() {
-			var part1 = new Path();
-			part1.getStyleClass().add("graph-edge");
-			for (var i = 0; i <= elementIndex; i++) {
-				part1.getElements().add(path.getElements().get(i));
-			}
-			var part2 = new Path();
-			part2.getStyleClass().add("graph-edge");
-			var coords = getCoordinates(path.getElements().get(elementIndex));
-			part2.getElements().add(new MoveTo(coords.getX(), coords.getY()));
-			for (var i = elementIndex + 1; i < path.getElements().size(); i++) {
-				part2.getElements().add(path.getElements().get(i));
-			}
-			return new Pair<>(part1, part2);
-		}
 	}
 }
 

@@ -88,7 +88,7 @@ public class EdgeInteraction {
 											}
 										}
 										view.getEdgeSelection().toggleSelection(e);
-										if (!me.isControlDown()) {
+										if (!me.isAltDown()) {
 											view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
 											view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
 										}

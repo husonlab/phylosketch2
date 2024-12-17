@@ -20,42 +20,48 @@
 
 package phylosketch.commands;
 
-import javafx.geometry.Point2D;
+import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.graph.Node;
 import phylosketch.view.DrawPane;
 
 /**
- * creates a new node
- * Daniel Huson, 9.2024
+ * creates a new edge
+ * Daniel Huson, 12.2024
  */
-public class CreateNodeCommand extends UndoableRedoableCommand {
+public class NewEdgeCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private int newNodeId = -1;
+	private final int sourceId;
+	private final int targetId;
+	private int newEdgeId = -1;
 
 	/**
 	 * constructor
 	 *
-	 * @param view     the view
-	 * @param location the location
+	 * @param view the view
+	 * @param path the path
 	 */
-	public CreateNodeCommand(DrawPane view, Point2D location) {
-		super("create node");
+	public NewEdgeCommand(DrawPane view, Node source, Node target, Path path) {
+		super("create edge");
+
+		sourceId = source.getId();
+		targetId = target.getId();
 
 		undo = () -> {
-			if (newNodeId != -1)
-				view.deleteNode(view.getGraph().findNodeById(newNodeId));
+			if (newEdgeId != -1)
+				view.deleteEdge(view.getGraph().findEdgeById(newEdgeId));
 		};
 
 		redo = () -> {
-			var v = view.createNode(location, newNodeId);
-			newNodeId = v.getId();
+			var e = view.createEdge(view.getGraph().findNodeById(sourceId), view.getGraph().findNodeById(targetId), path, newEdgeId);
+			newEdgeId = e.getId();
 		};
 	}
 
-	public int getNewNodeId() {
-		return newNodeId;
+	public int getNewEdgeId() {
+		return newEdgeId;
 	}
 
 	@Override

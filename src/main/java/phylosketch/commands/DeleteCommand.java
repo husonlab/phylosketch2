@@ -82,16 +82,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 				var v = view.getGraph().findNodeById(d.sourceId);
 				var w = view.getGraph().findNodeById(d.targetId);
 				var e = view.createEdge(v, w, d.path, d.id);
-				if (d.weight != null)
-					view.getGraph().setWeight(e, d.weight);
-				if (d.confidence != null)
-					view.getGraph().setWeight(e, d.confidence);
-				if (d.probability != null)
-					view.getGraph().setWeight(e, d.probability);
-				if (d.arrow)
-					view.setShowArrow(e, true);
-				if (d.label != null)
-					view.setLabel(e, d.label);
+				d.apply(view, e);
 			}
 		};
 
@@ -125,6 +116,19 @@ public class DeleteCommand extends UndoableRedoableCommand {
 					view.getGraph().hasEdgeConfidences() ? view.getGraph().getConfidence(e) : null,
 					view.getGraph().hasEdgeProbabilities() ? view.getGraph().getProbability(e) : null,
 					view.getLabel(e).getRawText());
+		}
+
+		public void apply(DrawPane view, Edge e) {
+			if (weight != null)
+				view.getGraph().setWeight(e, weight);
+			if (confidence != null)
+				view.getGraph().setWeight(e, confidence);
+			if (probability != null)
+				view.getGraph().setWeight(e, probability);
+			if (arrow)
+				view.setShowArrow(e, true);
+			if (label != null)
+				view.setLabel(e, label);
 		}
 	}
 }

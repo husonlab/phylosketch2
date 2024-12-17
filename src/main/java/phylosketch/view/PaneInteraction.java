@@ -35,6 +35,7 @@ import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
 import phylosketch.commands.CreateEdgeCommand;
 import phylosketch.commands.CreateNodeCommand;
+import phylosketch.commands.DrawEdgeCommand;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 
@@ -155,7 +156,7 @@ public class PaneInteraction {
 				if (!path.getElements().isEmpty()) {
 					if (isGoodPath(path)) {
 						path.getElements().setAll(PathUtils.createPath(PathSmoother.apply(PathUtils.extractPoints(path), 10), true).getElements());
-						view.getUndoManager().doAndAdd(new CreateEdgeCommand(view, path));
+						view.getUndoManager().doAndAdd(new DrawEdgeCommand(view, path));
 					}
 					path.getElements().clear();
 				}

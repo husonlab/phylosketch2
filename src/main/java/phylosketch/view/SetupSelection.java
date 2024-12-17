@@ -79,6 +79,7 @@ public class SetupSelection {
 
 		controller.getSelectInvertMenuItem().setOnAction(e -> {
 			graph.nodes().forEach(nodeSelection::toggleSelection);
+			graph.edges().forEach(edgeSelection::toggleSelection);
 		});
 		controller.getSelectInvertMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 

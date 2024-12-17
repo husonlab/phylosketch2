@@ -59,7 +59,7 @@ public class SmoothCommand extends UndoableRedoableCommand {
 		undo = () -> {
 			for (var id : edgeIds) {
 				var e = graph.findEdgeById(id);
-				if (e.getData() instanceof Path path) {
+				if (e != null && e.getData() instanceof Path path) {
 					path.getElements().setAll(PathUtils.toPathElements(idOldPointsMap.get(id)));
 				}
 			}
@@ -67,7 +67,7 @@ public class SmoothCommand extends UndoableRedoableCommand {
 		redo = () -> {
 			for (var id : edgeIds) {
 				var e = graph.findEdgeById(id);
-				if (e.getData() instanceof Path path) {
+				if (e != null && e.getData() instanceof Path path) {
 					path.getElements().setAll(PathUtils.toPathElements(idNewPointsMap.get(id)));
 				}
 			}

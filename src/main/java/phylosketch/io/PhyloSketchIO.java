@@ -98,7 +98,8 @@ public class PhyloSketchIO {
 					return (value.isBlank() ? null : value);
 				}, edgeKeyNames, (key, e) -> {
 					var path = (Path) e.getData();
-					var value = String.valueOf(switch (key) {
+
+					var value = (path == null ? "" : String.valueOf(switch (key) {
 						case "path" -> pathToString(path);
 						case "stroke" ->
 								(path.getStroke()!=null
@@ -116,7 +117,7 @@ public class PhyloSketchIO {
 						case "arrow" -> view.getEdgeArrowMap().containsKey(e) ? "1" : "";
 						case "label" -> view.getLabel(e).getText().trim();
 						default -> "";
-					});
+					}));
 					return (value.isBlank() ? null : value);
 				});
 	}
@@ -274,13 +275,15 @@ public class PhyloSketchIO {
 
 	private static String pathToString(Path path) {
 		var buf = new StringBuilder();
-		for (var item : path.getElements()) {
-			var point = PathUtils.getCoordinates(item);
-			if (!buf.isEmpty())
+		if (path != null) {
+			for (var item : path.getElements()) {
+				var point = PathUtils.getCoordinates(item);
+				if (!buf.isEmpty())
+					buf.append(",");
+				buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f", point.getX()));
 				buf.append(",");
-			buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",point.getX()));
-			buf.append(",");
-			buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",point.getY()));
+				buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f", point.getY()));
+			}
 		}
 		return buf.toString();
 	}
