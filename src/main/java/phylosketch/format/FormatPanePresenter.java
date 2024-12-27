@@ -131,7 +131,7 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getNodeLabelSizeChoiceBox().valueProperty().addListener((var, o, n) -> {
+		controller.getNodeLabelSizeCBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null) {
 					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.size, null, n, null));
@@ -139,7 +139,7 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getNodeSizeChoiceBox().valueProperty().addListener((var, o, n) -> {
+		controller.getNodeSizeCBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null) {
 					view.getUndoManager().doAndAdd(new NodeSizeCommand(view, n));
@@ -206,11 +206,11 @@ public class FormatPanePresenter {
 					try {
 						controller.getNodeShapeChoiceBox().setValue(null);
 
-						controller.getNodeSizeChoiceBox().setValue(nodeSize);
+						controller.getNodeSizeCBox().setValue(nodeSize);
 						controller.getNodeColorPicker().setValue(color);
 						controller.getNodeLabelTextField().setText(label);
 						controller.getNodeLabelFontChoiceBox().setValue(labelFont);
-						controller.getNodeLabelSizeChoiceBox().setValue(labelSize);
+						controller.getNodeLabelSizeCBox().setValue(labelSize);
 						controller.getNodeLabelColorPicker().setValue(labelColor);
 						controller.getNodeLabelBackgroundColorPicker().setValue(labelBackground);
 					} finally {
@@ -238,9 +238,9 @@ public class FormatPanePresenter {
 					canUpdate = false;
 					try {
 						controller.getEdgeLineChoiceBox().setValue(lineType);
-						controller.getEdgeWidthChoiceBox().setValue(edgeWidth);
+						controller.getEdgeWidthCBox().setValue(edgeWidth);
 						controller.getEdgeLabelFontChoiceBox().setValue(labelFont);
-						controller.getEdgeLabelSizeChoiceBox().setValue(labelSize);
+						controller.getEdgeLabelSizeCBox().setValue(labelSize);
 						controller.getEdgeColorPicker().setValue(color);
 						if (weight != null)
 							controller.getEdgeWeightTextField().setText(StringUtils.removeTrailingZerosAfterDot(weight));
@@ -306,7 +306,7 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getEdgeLabelSizeChoiceBox().valueProperty().addListener((var, o, n) -> {
+		controller.getEdgeLabelSizeCBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null)
 					view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.size, null, n, null));
@@ -319,7 +319,7 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getEdgeWidthChoiceBox().valueProperty().addListener((var, o, n) -> {
+		controller.getEdgeWidthCBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null)
 					view.getUndoManager().doAndAdd(new EdgeWidthCommand(view, n));

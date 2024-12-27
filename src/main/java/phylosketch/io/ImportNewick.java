@@ -112,11 +112,6 @@ public class ImportNewick {
 							var w = srcTarMap.get(v);
 							if (tree.getLabel(v) != null)
 								view.createLabel(w, tree.getLabel(v));
-							if (w.getInDegree() > 0 && w.getOutDegree() > 0) {
-								if (view.getShape(w) instanceof Circle circle) {
-									circle.setRadius(circle.getRadius() / 2);
-								}
-							}
 						}
 					});
 					for (var e : tree.edges()) {

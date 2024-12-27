@@ -411,12 +411,6 @@ public class DrawPane extends Pane {
 	}
 
 	public Edge createEdge(Node v, Node w, Path path, int recycledId) {
-		if (v.getInDegree() > 0 && v.getOutDegree() == 0 && getShape(v) instanceof Circle circle) {
-			circle.setRadius(0.5 * circle.getRadius());
-		}
-		if (w.getInDegree() == 1 && w.getOutDegree() == 0 && getShape(w) instanceof Circle circle) {
-			circle.setRadius(0.5 * circle.getRadius());
-		}
 		var e = (recycledId != -1 ? graph.newEdge(v, w, null, recycledId) : graph.newEdge(v, w));
 		addPath(e, path);
 		getEdgeSelection().select(e);
@@ -433,13 +427,6 @@ public class DrawPane extends Pane {
 	public void deleteEdge(Edge... edges) {
 		for (var e : edges) {
 			if (e != null && e.getOwner() != null) {
-				if (e.getSource().getInDegree() > 0 && e.getSource().getOutDegree() == 1 && getShape(e.getSource()) instanceof Circle circle) {
-					circle.setRadius(2 * circle.getRadius());
-				}
-				if (e.getTarget().getInDegree() == 1 && e.getTarget().getOutDegree() > 1 && getShape(e.getTarget()) instanceof Circle circle) {
-					circle.setRadius(2 * circle.getRadius());
-				}
-
 				if (e.getInfo() instanceof RichTextLabel label)
 					edgeLabelsGroup.getChildren().remove(label);
 				edgeArrowMap.remove(e);

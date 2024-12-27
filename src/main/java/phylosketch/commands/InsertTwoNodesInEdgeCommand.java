@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
@@ -52,8 +53,8 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 
 	private final Color stroke;
 	private final double strokeWidth;
-	private final List<Double> dashArray = new ArrayList<Double>();
-
+	private final List<Double> dashArray = new ArrayList<>();
+	private final boolean arrow;
 
 	public InsertTwoNodesInEdgeCommand(DrawPane view, Edge e, Point2D location1, Point2D location2) {
 		super("insert nodes");
@@ -65,6 +66,7 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 		stroke = (Color) path.getStroke();
 		strokeWidth = path.getStrokeWidth();
 		dashArray.addAll(path.getStrokeDashArray());
+		arrow = view.isShowArrow(e);
 
 		var split = PathUtils.split(path, location1, location2);
 
@@ -88,24 +90,32 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 			var source = view.getGraph().findNodeById(sourceId);
 			var target = view.getGraph().findNodeById(targetId);
 
-			var startEdge = view.createEdge(source, v, split.get(0), startEdgeId);
+			var startPath = PathUtils.createPath(split.get(0), true);
+			var startEdge = view.createEdge(source, v, startPath, startEdgeId);
 			startEdgeId = startEdge.getId();
-			view.getPath(startEdge).setStroke(stroke);
-			view.getPath(startEdge).setStrokeWidth(strokeWidth);
-			view.getPath(startEdge).getStrokeDashArray().setAll(dashArray);
+			startPath.applyCss();
+			startPath.setStroke(stroke);
+			startPath.setStrokeWidth(strokeWidth);
+			startPath.getStrokeDashArray().setAll(dashArray);
+			view.setShowArrow(startEdge, arrow);
 
-
-			var middleEdge = view.createEdge(v, w, split.get(1), middleEdgeId);
+			var middlePath = PathUtils.createPath(split.get(1), true);
+			var middleEdge = view.createEdge(v, w, middlePath, middleEdgeId);
 			middleEdgeId = middleEdge.getId();
-			view.getPath(middleEdge).setStroke(stroke);
-			view.getPath(middleEdge).setStrokeWidth(strokeWidth);
-			view.getPath(middleEdge).getStrokeDashArray().setAll(dashArray);
+			middlePath.applyCss();
+			middlePath.setStroke(stroke);
+			middlePath.setStrokeWidth(strokeWidth);
+			middlePath.getStrokeDashArray().setAll(dashArray);
+			view.setShowArrow(middleEdge, arrow);
 
-			var endEdge = view.createEdge(w, target, split.get(2), endEdgeId);
+			var endPath = PathUtils.createPath(split.get(2), true);
+			var endEdge = view.createEdge(w, target, endPath, endEdgeId);
 			endEdgeId = endEdge.getId();
-			view.getPath(endEdge).setStroke(stroke);
-			view.getPath(endEdge).setStrokeWidth(strokeWidth);
-			view.getPath(endEdge).getStrokeDashArray().setAll(dashArray);
+			endPath.applyCss();
+			endPath.setStroke(stroke);
+			endPath.setStrokeWidth(strokeWidth);
+			endPath.getStrokeDashArray().setAll(dashArray);
+			view.setShowArrow(endEdge, arrow);
 		};
 	}
 

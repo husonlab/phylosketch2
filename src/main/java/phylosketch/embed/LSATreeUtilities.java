@@ -87,7 +87,7 @@ public class LSATreeUtilities {
 			var intersection = CollectionUtils.intersection(component, reticulations);
 			if (!intersection.isEmpty()) {
 				var lsa = component.stream().filter(v -> v.getInDegree() == 0 || !component.containsAll(IteratorUtils.asSet(v.parents()))).findAny();
-				lsa.ifPresent(node -> intersection.forEach(v -> reticulation2LSA.put(v, node)));
+				lsa.ifPresent(node -> intersection.stream().filter(v -> v != node).forEach(v -> reticulation2LSA.put(v, node)));
 			}
 		}
 

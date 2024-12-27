@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -39,8 +40,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.dialog.ExportImageDialog;
+import jloda.fx.dialog.SetParameterDialog;
 import jloda.fx.find.FindToolBar;
 import jloda.fx.find.Searcher;
 import jloda.fx.icons.MaterialIcons;
@@ -51,9 +54,11 @@ import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
+import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.commands.*;
 import phylosketch.format.FormatPaneView;
+import phylosketch.help.HelpView;
 import phylosketch.io.ExportNewick;
 import phylosketch.io.PhyloSketchIO;
 import phylosketch.io.Save;
@@ -61,6 +66,7 @@ import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
+import phylosketch.main.Version;
 import phylosketch.utils.Clusters;
 import phylosketch.view.*;
 
@@ -294,9 +300,7 @@ public class MainWindowPresenter {
 		controller.getRedoMenuItem().disableProperty().bind(view.getUndoManager().redoableProperty().not());
 
 		controller.getDeleteMenuItem().setOnAction(unused -> {
-			view.getUndoManager().doAndAdd(new DeleteCommand(view,
-					view.getNodeSelection().getSelectedItems(),
-					view.getEdgeSelection().getSelectedItems()));
+			view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems()));
 		});
 		controller.getDeleteMenuItem().disableProperty().bind((view.getNodeSelection().sizeProperty().isEqualTo(0)
 				.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
@@ -484,6 +488,9 @@ public class MainWindowPresenter {
 			}
 		});
 
+		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, view.getSelectedOrAllNodes())));
+		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, false));
@@ -536,6 +543,22 @@ public class MainWindowPresenter {
 				view.getBackgroundGroup().getChildren().remove(backgroundImage);
 		});
 
+		controller.getSetWindowSizeMenuItem().setOnAction(e -> {
+			var result = SetParameterDialog.apply(window.getStage(), "Enter size (width x height)",
+					"%.0f x %.0f".formatted(window.getStage().getWidth(), window.getStage().getHeight()));
+
+			if (result != null) {
+				var tokens = StringUtils.split(result, 'x');
+				if (tokens.length == 2 && NumberUtils.isInteger(tokens[0]) && NumberUtils.isInteger(tokens[1])) {
+					var width = Math.max(50, NumberUtils.parseDouble(tokens[0]));
+					var height = Math.max(50, NumberUtils.parseDouble(tokens[1]));
+					window.getStage().setWidth(width);
+					window.getStage().setHeight(height);
+				}
+			}
+		});
+
+		SetupHelpWindow.apply(window, controller.getShowHelpWindow());
 
 		ImportButtonUtils.setup(controller.getPasteMenuItem(), controller.getImportButton(), s -> {
 			var pasteCommand = new PasteCommand(view, s);

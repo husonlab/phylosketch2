@@ -24,6 +24,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.RunAfterAWhile;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
@@ -47,13 +48,14 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 	private int endEdgeId = -1;
 	private int nodeId = -1;
 
-	private final List<Path> split;
+	private final List<List<Point2D>> split;
 
 	private final DeleteCommand deleteEdgeCommand;
 
 	private final Color stroke;
 	private final double strokeWidth;
 	private final List<Double> dashArray = new ArrayList<Double>();
+	private final boolean arrow;
 
 	public InsertNodeInEdgeCommand(DrawPane view, Edge e, Point2D location) {
 		super("insert node");
@@ -65,6 +67,7 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 		stroke = (Color) path.getStroke();
 		strokeWidth = path.getStrokeWidth();
 		dashArray.addAll(path.getStrokeDashArray());
+		arrow = view.isShowArrow(e);
 
 		split = PathUtils.split(path, location);
 
@@ -84,17 +87,25 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 			var source = view.getGraph().findNodeById(sourceId);
 			var target = view.getGraph().findNodeById(targetId);
 
-			var startEdge = view.createEdge(source, v, split.get(0), startEdgeId);
+			var startPath = PathUtils.createPath(split.get(0), true);
+			var startEdge = view.createEdge(source, v, startPath, startEdgeId);
 			startEdgeId = startEdge.getId();
-			view.getPath(startEdge).setStroke(stroke);
-			view.getPath(startEdge).setStrokeWidth(strokeWidth);
-			view.getPath(startEdge).getStrokeDashArray().setAll(dashArray);
 
-			var endEdge = view.createEdge(v, target, split.get(1), endEdgeId);
+			startPath.applyCss();
+			startPath.setStrokeWidth(strokeWidth);
+			startPath.getStrokeDashArray().setAll(dashArray);
+			startPath.setStroke(stroke);
+			view.setShowArrow(startEdge, arrow);
+
+			var endPath = PathUtils.createPath(split.get(1), true);
+			var endEdge = view.createEdge(v, target, endPath, endEdgeId);
 			endEdgeId = endEdge.getId();
-			view.getPath(endEdge).setStroke(stroke);
-			view.getPath(endEdge).setStrokeWidth(strokeWidth);
-			view.getPath(endEdge).getStrokeDashArray().setAll(dashArray);
+
+			endPath.applyCss();
+			endPath.setStrokeWidth(strokeWidth);
+			endPath.getStrokeDashArray().setAll(dashArray);
+			endPath.setStroke(stroke);
+			view.setShowArrow(endEdge, arrow);
 		};
 	}
 

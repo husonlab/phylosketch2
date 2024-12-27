@@ -30,8 +30,8 @@ import java.util.List;
  */
 public enum LineType {
 	Solid(),
-	Dotted(2.0, 8.0),
-	Dashed(10.0, 10.0);
+	Dot(2.0, 8.0),
+	Dash(10.0, 10.0);
 
 	public final List<Double> strokeDashArray;
 

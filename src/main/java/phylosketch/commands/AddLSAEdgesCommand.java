@@ -27,14 +27,13 @@ import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.util.Basic;
+import jloda.util.Pair;
 import phylosketch.embed.LSATreeUtilities;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * add LSA edges command
@@ -44,7 +43,7 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
-	private final Set<Integer> newEdgeIds = new HashSet<>();
+	private final Map<Pair<Node, Node>, Integer> newMap = new HashMap<>();
 
 	public AddLSAEdgesCommand(DrawPane view) {
 		super("add LSA edges");
@@ -57,26 +56,34 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 
 		graph.setRoot(roots.get(0));
 
-		undo = () -> {
-			view.deleteEdge(newEdgeIds.stream().map(id -> view.getGraph().findEdgeById(id)).filter(Objects::nonNull).toArray(Edge[]::new));
-		};
-		redo = () -> {
-			try (NodeArray<Node> reticulation2LSA = graph.newNodeArray()) {
-				LSATreeUtilities.computeReticulation2LSA(graph, reticulation2LSA, null);
-				for (var target : reticulation2LSA.keySet()) {
-					if (target.getInDegree() > 1) {
-						var source = reticulation2LSA.get(target);
+		var activeReticulations = view.getSelectedOrAllNodes().stream().filter(v -> v.getInDegree() > 1).collect(Collectors.toSet());
 
-						if (source != target && !target.isChild(source)) {
-							var path = PathUtils.createPath(List.of(view.getPoint(source), view.getPoint(target)), true);
-							var e = view.createEdge(source, target, path);
-							newEdgeIds.add(e.getId());
-							Platform.runLater(() -> view.getPath(e).setStroke(Color.LIGHTGREEN));
-						}
+		if (activeReticulations.isEmpty())
+			return;
+
+		try (NodeArray<Node> reticulation2LSA = graph.newNodeArray()) {
+			LSATreeUtilities.computeReticulation2LSA(graph, reticulation2LSA, null);
+			for (var target : reticulation2LSA.keySet()) {
+				if (activeReticulations.contains(target)) {
+					var source = reticulation2LSA.get(target);
+					if (source != target && !source.isChild(target)) {
+						newMap.put(new Pair<>(source, target), -1);
 					}
 				}
-			} catch (Exception e) {
-				Basic.caught(e);
+			}
+		}
+
+		undo = () -> view.deleteEdge(newMap.values().stream().filter(id -> id != -1).map(id -> view.getGraph().findEdgeById(id)).filter(Objects::nonNull).toArray(Edge[]::new));
+
+		redo = () -> {
+			for (var entry : newMap.entrySet()) {
+				var v = entry.getKey().getFirst();
+				var w = entry.getKey().getSecond();
+				var path = PathUtils.createPath(List.of(view.getPoint(v), view.getPoint(w)), true);
+				var e = view.createEdge(v, w, path, entry.getValue());
+				entry.setValue(e.getId());
+				path.applyCss();
+				path.setStroke(Color.LIGHTGREEN);
 			}
 		};
 	}
