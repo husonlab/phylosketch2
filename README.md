@@ -20,4 +20,4 @@ The program runs on MacOS X, Linux and Windows, and is also designed for touch-s
 
 ## User Manual
 
-More details are presented in the [User Manual](https://husonlab.github.io/phylosketch2/manual.html), which is also available as a [pdf]([docs/manual.pdf](https://husonlab.github.io/phylosketch2/manual.pdf).
+More details are presented in the [User Manual](https://husonlab.github.io/phylosketch2/manual.html), which is also available as a [pdf](https://husonlab.github.io/phylosketch2/manual.pdf).
