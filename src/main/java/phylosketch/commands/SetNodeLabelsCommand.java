@@ -20,11 +20,15 @@
 
 package phylosketch.commands;
 
+import javafx.geometry.Point2D;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
+import jloda.graph.NodeSet;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.CollectionUtils;
 import jloda.util.IteratorUtils;
+import jloda.util.Pair;
+import jloda.util.Triplet;
 import phylosketch.view.DrawPane;
 import phylosketch.view.RootLocation;
 
@@ -67,7 +71,11 @@ public class SetNodeLabelsCommand extends UndoableRedoableCommand {
 	private Runnable redo;
 
 	private final Map<Integer, String> oldMap = new HashMap<>();
+	private final Map<Integer, Point2D> oldLocationMap = new HashMap<>();
+
+	private String newLabel;
 	private final Map<Integer, String> newMap = new HashMap<>();
+	private final Map<Integer, Point2D> newLocationMap = new HashMap<>();
 
 	/**
 	 * constructor
@@ -77,22 +85,35 @@ public class SetNodeLabelsCommand extends UndoableRedoableCommand {
 	 */
 	public SetNodeLabelsCommand(DrawPane view, String newLabel) {
 		super("set node labels");
+
+		var nodeComponentMap = new HashMap<Node, Set<Node>>();
 		for (var v : view.getSelectedOrAllNodes()) {
-			oldMap.put(v.getId(), view.getLabel(v).getText());
+			var label = view.getLabel(v);
+			oldMap.put(v.getId(), label.getText());
+			oldLocationMap.put(v.getId(), new Point2D(label.getLayoutX(), label.getLayoutY()));
+			var component = nodeComponentMap.computeIfAbsent(v, k -> ConnectedComponents.component(v));
+			var labelLayout = LayoutLabelsCommand.computeLabelLayout(RootLocation.compute(component), label);
 			newMap.put(v.getId(), newLabel);
+			newLocationMap.put(v.getId(), new Point2D(labelLayout.getX(), labelLayout.getY()));
 		}
 		if (!oldMap.isEmpty()) {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					view.getLabel(v).setText(oldMap.get(id));
+					var label = view.getLabel(v);
+					label.setText(oldMap.get(id));
+					label.setLayoutX(oldLocationMap.get(id).getX());
+					label.setLayoutY(oldLocationMap.get(id).getY());
 					view.getGraph().setLabel(v, view.getLabel(v).getRawText());
 				}
 			};
 			redo = () -> {
-				for (var id : newMap.keySet()) {
+				for (var id : newLocationMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					view.getLabel(v).setText(newMap.get(id));
+					var label = view.getLabel(v);
+					label.setText(newMap.get(id));
+					label.setLayoutX(newLocationMap.get(id).getX());
+					label.setLayoutY(newLocationMap.get(id).getY());
 					view.getGraph().setLabel(v, view.getLabel(v).getRawText());
 				}
 			};
@@ -113,15 +134,31 @@ public class SetNodeLabelsCommand extends UndoableRedoableCommand {
 		var how = How.which(howString);
 		var use = Use.which(useString);
 
-		var nodes = view.getSelectedOrAllNodes().stream().
+		var nodes = view.getNodeSelection().getSelectedItems().stream().
 				filter(v -> switch (use) {
 					case leaves -> v.isLeaf();
 					case internal -> !v.isLeaf();
 					case all -> true;
 				}).collect(Collectors.toSet());
+
+		if (nodes.isEmpty()) {
+			view.getGraph().nodeStream().filter(v -> switch (use) {
+				case leaves -> v.isLeaf();
+				case internal -> !v.isLeaf();
+				case all -> true;
+			}).forEach(nodes::add);
+		}
+
 		if (!nodes.isEmpty()) {
+			var nodeComponentMap = new HashMap<Node, Set<Node>>();
 			for (var v : nodes) {
-				oldMap.put(v.getId(), view.getLabel(v).getText());
+				var label = view.getLabel(v);
+				oldMap.put(v.getId(), label.getText());
+				oldLocationMap.put(v.getId(), new Point2D(label.getLayoutX(), label.getLayoutY()));
+
+				var component = nodeComponentMap.computeIfAbsent(v, k -> ConnectedComponents.component(v));
+				var labelLayout = LayoutLabelsCommand.computeLabelLayout(RootLocation.compute(component), label);
+				newLocationMap.put(v.getId(), new Point2D(labelLayout.getX(), labelLayout.getY()));
 			}
 			var seen = new HashSet<String>();
 			if (unique) {
@@ -132,14 +169,20 @@ public class SetNodeLabelsCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					view.getLabel(v).setText(oldMap.get(id));
+					var label = view.getLabel(v);
+					label.setText(oldMap.get(id));
+					label.setLayoutX(oldLocationMap.get(id).getX());
+					label.setLayoutY(oldLocationMap.get(id).getY());
 					view.getGraph().setLabel(v, view.getLabel(v).getRawText());
 				}
 			};
 			redo = () -> {
-				for (var id : newMap.keySet()) {
+				for (var id : newLocationMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					view.getLabel(v).setText(newMap.get(id));
+					var label = view.getLabel(v);
+					label.setText(newMap.get(id));
+					label.setLayoutX(newLocationMap.get(id).getX());
+					label.setLayoutY(newLocationMap.get(id).getY());
 					view.getGraph().setLabel(v, view.getLabel(v).getRawText());
 				}
 			};

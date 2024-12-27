@@ -46,8 +46,7 @@ public class NodeSizeCommand extends UndoableRedoableCommand {
 			if (view.getShape(v) instanceof Circle circle) {
 				var id = v.getId();
 				oldSizeMap.put(id, circle.getRadius());
-				var radius = (v.getInDegree() == 0 || v.getOutDegree() == 0 ? size : size / 2);
-				newSizeMap.put(id, radius);
+				newSizeMap.put(id, size);
 			}
 		}
 		if (newSizeMap.isEmpty()) {

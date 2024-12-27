@@ -20,10 +20,25 @@
   ~
   -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
 <VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
@@ -55,16 +70,16 @@
                                                     </tooltip>
                                                 </ChoiceBox>
                                                 <Label layoutX="10.0" layoutY="15.0" text="Size"/>
-                                                <ChoiceBox fx:id="nodeSizeChoiceBox" layoutX="51.0" layoutY="10.0"
-                                                           prefWidth="50.0">
+                                                <ComboBox fx:id="nodeSizeCBox" editable="true" layoutX="51.0"
+                                                          layoutY="10.0" prefWidth="60.0">
                                                     <tooltip>
                                                         <Tooltip text="Node size"/>
                                                     </tooltip>
-                                                </ChoiceBox>
+                                                </ComboBox>
                                             </children>
                                         </HBox>
                                         <Label text="Color  " GridPane.rowIndex="1"/>
-                                        <ColorPicker fx:id="nodeColorPicker" prefWidth="134.0" GridPane.columnIndex="1"
+                                        <ColorPicker fx:id="nodeColorPicker" prefWidth="144.0" GridPane.columnIndex="1"
                                                      GridPane.rowIndex="1">
                                                     <tooltip>
                                                         <Tooltip text="Node color"/>
@@ -82,6 +97,9 @@
                                             <opaqueInsets>
                                                 <Insets/>
                                             </opaqueInsets>
+                                            <tooltip>
+                                                <Tooltip text="Revert to default settings"/>
+                                            </tooltip>
                                         </Button>
                                     </children>
                                 </GridPane>
@@ -173,6 +191,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <Label text="Size " GridPane.rowIndex="2"/>
                                 <Button fx:id="clearNodeLabelStyleButton" ellipsisString="" graphicTextGap="0.0"
@@ -186,15 +207,18 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="2">
                                     <children>
-                                        <ChoiceBox fx:id="nodeLabelSizeChoiceBox" prefWidth="50.0">
+                                        <ComboBox fx:id="nodeLabelSizeCBox" editable="true" prefWidth="60.0">
                                             <tooltip>
                                                 <Tooltip text="Node label font size"/>
                                             </tooltip>
-                                        </ChoiceBox>
+                                        </ComboBox>
                                         <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false" text="B">
                                             <tooltip>
                                                 <Tooltip text="Node labels bold"/>
@@ -232,6 +256,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <Label text="Fill     " GridPane.rowIndex="5"/>
                                 <ColorPicker fx:id="nodeLabelBackgroundColorPicker" prefWidth="134.0"
@@ -252,6 +279,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                             </children>
                         </GridPane>
@@ -279,7 +309,7 @@
                                 <Label text="Shape"/>
                                 <Label text="Line    " GridPane.rowIndex="1"/>
                                 <Label text="Color " GridPane.rowIndex="2"/>
-                                <ColorPicker fx:id="edgeColorPicker" prefWidth="134.0" GridPane.columnIndex="1"
+                                <ColorPicker fx:id="edgeColorPicker" prefWidth="144.0" GridPane.columnIndex="1"
                                              GridPane.rowIndex="2"/>
                                 <Button fx:id="clearEdgeColorButton" ellipsisString="" graphicTextGap="0.0"
                                         maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
@@ -292,6 +322,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
                                     <children>
@@ -325,8 +358,8 @@
                                     <children>
                                         <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="50.0"/>
                                         <Label layoutX="10.0" layoutY="15.0" text="Width"/>
-                                        <ChoiceBox fx:id="edgeWidthChoiceBox" layoutX="51.0" layoutY="10.0"
-                                                   prefWidth="50.0"/>
+                                        <ComboBox fx:id="edgeWidthCBox" editable="true" layoutX="51.0" layoutY="10.0"
+                                                  prefWidth="60.0"/>
                                     </children>
                                 </HBox>
                                 <Label text="Show " GridPane.rowIndex="3"/>
@@ -453,6 +486,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <Label text="Size " GridPane.rowIndex="2"/>
                                 <Button fx:id="clearEdgeLabelStyleButton" ellipsisString="" graphicTextGap="0.0"
@@ -466,15 +502,18 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="2">
                                     <children>
-                                        <ChoiceBox fx:id="edgeLabelSizeChoiceBox" prefWidth="50.0">
+                                        <ComboBox fx:id="edgeLabelSizeCBox" editable="true" prefWidth="60.0">
                                             <tooltip>
                                                 <Tooltip text="Edge labels size"/>
                                             </tooltip>
-                                        </ChoiceBox>
+                                        </ComboBox>
                                         <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false" text="B">
                                             <tooltip>
                                                 <Tooltip text="Edge labels bold"/>
@@ -512,6 +551,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                                 <Label text="Fill     " GridPane.rowIndex="5"/>
                                 <ColorPicker fx:id="edgeLabelBackgroundColorPicker" prefWidth="134.0"
@@ -532,6 +574,9 @@
                                     <opaqueInsets>
                                         <Insets/>
                                     </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
                                 </Button>
                             </children>
                         </GridPane>

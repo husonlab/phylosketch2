@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.web.WebView?>
+
+<!--
+  ~ help.fxml Copyright (C) 2024 Daniel H. Huson
+  ~  
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~  
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~  
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~  
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+
+<BorderPane fx:id="rootPane" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="phylosketch.help.HelpController">
+    <center>
+        <AnchorPane>
+            <children>
+                <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                            AnchorPane.topAnchor="0.0">
+                    <top>
+                        <ToolBar>
+                            <items>
+                                <Button fx:id="homeButton" mnemonicParsing="false" text="Home">
+                                    <tooltip>
+                                        <Tooltip text="Got back to beginning"/>
+                                    </tooltip>
+                                </Button>
+                                <ComboBox fx:id="findCBox" editable="true" prefWidth="150.0" promptText="Search">
+                                    <tooltip>
+                                        <Tooltip text="Search in text"/>
+                                    </tooltip>
+                                </ComboBox>
+                                <Button fx:id="clearButton" mnemonicParsing="false" text="Clear"/>
+                                <Label fx:id="countLabel" minHeight="24.0" prefWidth="60.0" textFill="GREY"/>
+                                <Button fx:id="previousButton" layoutX="233.0" layoutY="12.0" mnemonicParsing="false"
+                                        text="&lt;">
+                                    <tooltip>
+                                        <Tooltip text="Go to previous"/>
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="nextButton" layoutX="279.0" layoutY="12.0" mnemonicParsing="false"
+                                        text="&gt;">
+                                    <tooltip>
+                                        <Tooltip text="Go to next"/>
+                                    </tooltip>
+                                </Button>
+                            </items>
+                        </ToolBar>
+                    </top>
+                    <center>
+                        <AnchorPane>
+                            <children>
+                                <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0"
+                                         AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="4.0"
+                                         AnchorPane.rightAnchor="4.0" AnchorPane.topAnchor="4.0"/>
+                            </children>
+                        </AnchorPane>
+                    </center>
+                    <bottom>
+                        <ButtonBar prefHeight="20.0" BorderPane.alignment="CENTER">
+                            <BorderPane.margin>
+                                <Insets/>
+                            </BorderPane.margin>
+                        </ButtonBar>
+                    </bottom>
+                </BorderPane>
+                <Button fx:id="hideButton" mnemonicParsing="false" text="Hide" AnchorPane.rightAnchor="5.0"
+                        AnchorPane.topAnchor="5.0"/>
+            </children>
+        </AnchorPane>
+    </center>
+    <top>
+        <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem fx:id="cutMenuItem" mnemonicParsing="false" text="Cut">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="X" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <MenuItem fx:id="copyMenuItem" mnemonicParsing="false" text="Copy">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <MenuItem fx:id="pasteMenuItem" mnemonicParsing="false" text="Paste">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="V" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <MenuItem fx:id="deleteMenuItem" mnemonicParsing="false" text="Delete">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="DELETE" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="homeMenuItem" mnemonicParsing="false" text="Home">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="DIGIT0" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <MenuItem fx:id="nextMenuItem" mnemonicParsing="false" text="Next">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="N" control="UP" meta="UP" shift="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <MenuItem fx:id="previousMenuItem" mnemonicParsing="false" text="Previous"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+</BorderPane>

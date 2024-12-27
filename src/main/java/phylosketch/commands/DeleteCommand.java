@@ -20,6 +20,8 @@
 
 package phylosketch.commands;
 
+import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.control.RichTextLabel;
@@ -27,11 +29,13 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.IteratorUtils;
+import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * delete the provided nodes and/or edges
@@ -81,7 +85,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 			for (var d : edgeDataList) {
 				var v = view.getGraph().findNodeById(d.sourceId);
 				var w = view.getGraph().findNodeById(d.targetId);
-				var e = view.createEdge(v, w, d.path, d.id);
+				var e = view.createEdge(v, w, new Path(), d.id);
 				d.apply(view, e);
 			}
 		};
@@ -108,14 +112,16 @@ public class DeleteCommand extends UndoableRedoableCommand {
 		}
 	}
 
-	public record EdgeData(int id, int sourceId, int targetId, Path path, boolean arrow, Double weight,
-						   Double confidence, Double probability, String label) {
+	public record EdgeData(int id, int sourceId, int targetId, boolean arrow, Double weight,
+						   Double confidence, Double probability, String label, List<Point2D> points,
+						   Color stroke, double strokeWidth, List<Double> dashArray) {
 		public EdgeData(DrawPane view, Edge e) {
-			this(e.getId(), e.getSource().getId(), e.getTarget().getId(), view.getPath(e), view.getEdgeArrowMap().containsKey(e),
+			this(e.getId(), e.getSource().getId(), e.getTarget().getId(), view.getEdgeArrowMap().containsKey(e),
 					view.getGraph().hasEdgeWeights() ? view.getGraph().getWeight(e) : null,
 					view.getGraph().hasEdgeConfidences() ? view.getGraph().getConfidence(e) : null,
 					view.getGraph().hasEdgeProbabilities() ? view.getGraph().getProbability(e) : null,
-					view.getLabel(e).getRawText());
+					view.getLabel(e).getRawText(), PathUtils.extractPoints(view.getPath(e)), (Color) view.getPath(e).getStroke(),
+					view.getPath(e).getStrokeWidth(), new ArrayList<>(view.getPath(e).getStrokeDashArray()));
 		}
 
 		public void apply(DrawPane view, Edge e) {
@@ -129,6 +135,10 @@ public class DeleteCommand extends UndoableRedoableCommand {
 				view.setShowArrow(e, true);
 			if (label != null)
 				view.setLabel(e, label);
+			view.getPath(e).getElements().setAll(PathUtils.toPathElements(points));
+			view.getPath(e).setStroke(stroke);
+			view.getPath(e).setStrokeWidth(strokeWidth);
+			view.getPath(e).getStrokeDashArray().setAll(dashArray);
 		}
 	}
 }

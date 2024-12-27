@@ -24,10 +24,12 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -118,16 +120,15 @@ public class PaneInteraction {
 			me.consume();
 		});
 
+
 		view.setOnMousePressed(me -> {
 			inDrawingEdge.set(false);
-
 			if (!inMultiTouchGesture.get() && view.getMode() == DrawPane.Mode.Edit) {
 				path.getElements().clear();
 				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 				if (DrawEdgeCommand.findNode(view, location) != null || DrawEdgeCommand.findEdge(view, location) != null) {
 					path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
 					inDrawingEdge.set(true);
-
 				}
 			}
 			me.consume();
@@ -145,11 +146,27 @@ public class PaneInteraction {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					path.getElements().add(new LineTo(location.getX(), location.getY()));
 				}
+
+
+				{
+					view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
+					var qPoint = view.screenToLocal(me.getScreenX(), me.getScreenY());
+					var hasX = view.getGraph().nodeStream().mapToDouble(u -> view.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) <= 1);
+					if (hasX) {
+						view.getOtherGroup().getChildren().add(createDragLine(true, qPoint.getX(), qPoint.getY()));
+					}
+					var hasY = view.getGraph().nodeStream().mapToDouble(u -> view.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) <= 1);
+					if (hasY) {
+						view.getOtherGroup().getChildren().add(createDragLine(false, qPoint.getX(), qPoint.getY()));
+					}
+				}
 			}
 			me.consume();
 		});
 
 		view.setOnMouseReleased(me -> {
+			view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
+
 			if (inDrawingEdge.get()) {
 				view.getEdgesGroup().getChildren().remove(path);
 				if (!path.getElements().isEmpty()) {
@@ -180,5 +197,12 @@ public class PaneInteraction {
 			}
 		}
 		return false;
+	}
+
+	public static Line createDragLine(boolean horizontal, double translateX, double translateY) {
+		var line = NodeInteraction.createDragLine(horizontal);
+		line.setTranslateX(translateX);
+		line.setTranslateY(translateY);
+		return line;
 	}
 }

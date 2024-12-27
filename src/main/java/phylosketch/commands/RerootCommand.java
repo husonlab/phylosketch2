@@ -146,14 +146,14 @@ public class RerootCommand extends UndoableRedoableCommand {
 					var index = oldEdgePath.getElements().size() / 2;
 					var edgeHit = new DrawEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
 					var parts = PathUtils.split(edgeHit.path(), false, edgeHit.elementIndex());
-					var location = PathUtils.getCoordinates(parts.get(1).getElements().get(0));
+					var location = parts.get(1).get(0);
 					var w = view.createNode(location, newNodeId);
 					newNodeId = w.getId();
 
-					var firstPath = PathUtils.createPath(CollectionUtils.reverse(PathUtils.extractPoints(parts.get(0))), false);
+					var firstPath = PathUtils.createPath(CollectionUtils.reverse(parts.get(0)), false);
 					var e1 = view.createEdge(w, graph.findNodeById(oldSourceId), firstPath, newEdgeAtSourceId);
 					newEdgeAtSourceId = e1.getId();
-					var e2 = view.createEdge(w, graph.findNodeById(oldTargetId), parts.get(1), newEdgeAtTargetId);
+					var e2 = view.createEdge(w, graph.findNodeById(oldTargetId), PathUtils.createPath(parts.get(1), true), newEdgeAtTargetId);
 					newEdgeAtTargetId = e2.getId();
 
 					view.getNodeSelection().select(w);

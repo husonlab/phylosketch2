@@ -130,7 +130,7 @@ public class PathUtils {
 	 * @param aPoint point along path
 	 * @return two paths
 	 */
-	public static List<Path> split(Path path, Point2D aPoint) {
+	public static List<List<Point2D>> split(Path path, Point2D aPoint) {
 		var points = extractPoints(path);
 		var firstIndex = 0;
 		var bestFirstDistance = Double.MAX_VALUE;
@@ -166,7 +166,7 @@ public class PathUtils {
 	 * @param bPoint second point along path
 	 * @return three paths
 	 */
-	public static List<Path> split(Path path, Point2D aPoint, Point2D bPoint) {
+	public static List<List<Point2D>> split(Path path, Point2D aPoint, Point2D bPoint) {
 		var points = extractPoints(path);
 		var firstIndex = 0;
 		var bestFirstDistance = Double.MAX_VALUE;
@@ -189,17 +189,15 @@ public class PathUtils {
 	}
 
 
-	public static List<Path> split(Path path, boolean normalize, int... elementIndices) {
+	public static List<List<Point2D>> split(Path path, boolean normalize, int... elementIndices) {
 		var points = extractPoints(path);
-		var list = new ArrayList<Path>();
+		var list = new ArrayList<List<Point2D>>();
 		var prev = 0;
 		for (int index : elementIndices) {
-			list.add(createPath(points.subList(prev, index), normalize));
+			list.add(new ArrayList<>(points.subList(prev, index)));
 			prev = index;
 		}
-		if (elementIndices.length > 0) {
-			list.add(createPath(points.subList(prev, points.size()), normalize));
-		}
+		list.add(new ArrayList<>(points.subList(prev, points.size())));
 		return list;
 	}
 

@@ -25,6 +25,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.icons.MaterialIcons;
+import phylosketch.utils.ComboBoxUtils;
 import phylosketch.view.LineType;
 
 /**
@@ -53,7 +54,6 @@ public class FormatPaneController {
 	@FXML
 	private Button clearEdgeLabelBackgroundColorButton;
 
-
 	@FXML
 	private Button edgeLabelBoldButton;
 
@@ -74,7 +74,7 @@ public class FormatPaneController {
 	private Button edgeLabelItalicButton;
 
 	@FXML
-	private ChoiceBox<Double> edgeLabelSizeChoiceBox;
+	private ComboBox<Double> edgeLabelSizeCBox;
 
 	@FXML
 	private Button edgeLabelUnderlineButton;
@@ -92,7 +92,7 @@ public class FormatPaneController {
 	private Button edgeStraightButton;
 
 	@FXML
-	private ChoiceBox<Double> edgeWidthChoiceBox;
+	private ComboBox<Double> edgeWidthCBox;
 
 	@FXML
 	private ToggleButton showWeightToggleButton;
@@ -132,7 +132,7 @@ public class FormatPaneController {
 	private Button clearNodeLabelFontButton;
 
 	@FXML
-	private ChoiceBox<Double> nodeLabelSizeChoiceBox;
+	private ComboBox<Double> nodeLabelSizeCBox;
 
 	@FXML
 	private Button nodeLabelItalicButton;
@@ -147,7 +147,7 @@ public class FormatPaneController {
 	private ChoiceBox<?> nodeShapeChoiceBox;
 
 	@FXML
-	private ChoiceBox<Double> nodeSizeChoiceBox;
+	private ComboBox<Double> nodeSizeCBox;
 
 	@FXML
 	private VBox rootPane;
@@ -202,11 +202,25 @@ public class FormatPaneController {
 
 		MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
 
-		nodeLabelSizeChoiceBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
-		edgeLabelSizeChoiceBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
+		MaterialIcons.setIcon(clearNodeColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearNodeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearNodeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearNodeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearNodeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearEdgeColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearEdgeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearEdgeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearEdgeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearEdgeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 
-		nodeSizeChoiceBox.getItems().addAll(1.0, 2.0, 4.0, 6.0, 10.0, 16.0, 24.0);
-		edgeWidthChoiceBox.getItems().addAll(1.0, 2.0, 4.0, 6.0, 10.0, 16.0, 24.0);
+		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
+		ComboBoxUtils.ensureDoubleInput(nodeLabelSizeCBox);
+		edgeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
+		ComboBoxUtils.ensureDoubleInput(edgeLabelSizeCBox);
+		nodeSizeCBox.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 8.0, 10.0, 16.0, 24.0);
+		ComboBoxUtils.ensureDoubleInput(nodeSizeCBox);
+		edgeWidthCBox.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 8.0, 10.0, 16.0, 24.0);
+		ComboBoxUtils.ensureDoubleInput(edgeWidthCBox);
 
 		getEdgeLineChoiceBox().getItems().addAll(LineType.values());
 		getEdgeLineChoiceBox().setValue(LineType.Solid);
@@ -221,10 +235,11 @@ public class FormatPaneController {
 		howToLabelNodesCBox.getItems().addAll("A,B,C", "a,b,c", "t1,2,3", "x1,2,3", "None");
 		howToLabelNodesCBox.setValue(null);
 		useNodesToLabelCBox.getItems().addAll("Leaves", "Internal", "All");
-		useNodesToLabelCBox.setValue(null);
+		useNodesToLabelCBox.setValue("Leaves");
 
 		uniqueLabelsToggleButton.setSelected(true);
 	}
+
 
 	public ColorPicker getEdgeColorPicker() {
 		return edgeColorPicker;
@@ -258,8 +273,8 @@ public class FormatPaneController {
 		return edgeLabelItalicButton;
 	}
 
-	public ChoiceBox<Double> getEdgeLabelSizeChoiceBox() {
-		return edgeLabelSizeChoiceBox;
+	public ComboBox<Double> getEdgeLabelSizeCBox() {
+		return edgeLabelSizeCBox;
 	}
 
 	public Button getEdgeLabelUnderlineButton() {
@@ -282,8 +297,8 @@ public class FormatPaneController {
 		return edgeStraightButton;
 	}
 
-	public ChoiceBox<Double> getEdgeWidthChoiceBox() {
-		return edgeWidthChoiceBox;
+	public ComboBox<Double> getEdgeWidthCBox() {
+		return edgeWidthCBox;
 	}
 
 	public ColorPicker getNodeColorPicker() {
@@ -322,8 +337,8 @@ public class FormatPaneController {
 		return clearNodeLabelFontButton;
 	}
 
-	public ChoiceBox<Double> getNodeLabelSizeChoiceBox() {
-		return nodeLabelSizeChoiceBox;
+	public ComboBox<Double> getNodeLabelSizeCBox() {
+		return nodeLabelSizeCBox;
 	}
 
 	public Button getNodeLabelItalicButton() {
@@ -342,8 +357,8 @@ public class FormatPaneController {
 		return nodeShapeChoiceBox;
 	}
 
-	public ChoiceBox<Double> getNodeSizeChoiceBox() {
-		return nodeSizeChoiceBox;
+	public ComboBox<Double> getNodeSizeCBox() {
+		return nodeSizeCBox;
 	}
 
 	public VBox getRootPane() {

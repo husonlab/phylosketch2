@@ -445,6 +445,14 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </CheckMenuItem>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="layoutLabelMenuItem" mnemonicParsing="false"
+                                          text="Layout Labels">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="L" control="UP" meta="DOWN" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
                             </Menu>
 
                             <Menu mnemonicParsing="false" text="View">
@@ -495,11 +503,20 @@
                             </Menu>
                             <Menu fx:id="windowMenu" mnemonicParsing="false" text="Window">
                                 <items>
-                                    <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About..."/>
+                                    <MenuItem fx:id="setWindowSizeMenuItem" mnemonicParsing="false"
+                                              text="Set Window Size..."/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
+                                </items>
+                            </Menu>
+                            <Menu mnemonicParsing="false" text="Help">
+                                <items>
                                     <MenuItem fx:id="checkForUpdatesMenuItem" mnemonicParsing="false"
                                               text="Check for Updates..."/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About..."/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <CheckMenuItem fx:id="showHelpWindow" mnemonicParsing="false"
+                                                   text="Help Window..."/>
                                 </items>
                             </Menu>
                         </menus>

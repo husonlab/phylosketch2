@@ -30,6 +30,7 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import phylosketch.commands.MoveNodesCommand;
 import phylosketch.main.PhyloSketch;
@@ -47,6 +48,9 @@ public class NodeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
+	private static final Line lineX = createDragLine(true);
+	private static final Line lineY = createDragLine(false);
+
 	/**
 	 * setup node interactions
 	 * Note that creation of new nodes is setup in PaneInteraction
@@ -55,10 +59,6 @@ public class NodeInteraction {
 	 * @param runDoubleClickSelection
 	 */
 	public static void setup(DrawPane view, BooleanProperty resizeMode, Runnable runDoubleClickSelection) {
-		var lines = new Group();
-
-		view.getOtherGroup().getChildren().add(lines);
-
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
@@ -92,7 +92,6 @@ public class NodeInteraction {
 										Platform.runLater(runDoubleClickSelection);
 									}
 								}
-								lines.getChildren().clear();
 								me.consume();
 							});
 
@@ -115,7 +114,6 @@ public class NodeInteraction {
 										}
 										view.getNodeSelection().select(v);
 									}
-									lines.getChildren().clear();
 
 									var previous = view.screenToLocal(mouseX, mouseY);
 									var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -124,41 +122,44 @@ public class NodeInteraction {
 									mouseX = me.getScreenX();
 									mouseY = me.getScreenY();
 
-									for (var p : view.getGraph().nodes()) {
-										if (!view.getNodeSelection().isSelected(p)) {
-											var pPoint = view.getPoint(p);
-											for (var q : view.getNodeSelection().getSelectedItems()) {
-												var qPoint = view.getPoint(q);
-												if (Math.abs(qPoint.getX() - pPoint.getX()) <= 1) {
-													var line = new Line(0, -50, 0, 50);
-													lines.getChildren().add(line);
-													line.setTranslateX(pPoint.getX());
-													line.setTranslateY(qPoint.getY());
-													line.setStroke(Color.LIGHTGRAY);
-												}
-												if (Math.abs(qPoint.getY() - pPoint.getY()) <= 1) {
-													var line = new Line(-50, 0, 50, 0);
-													lines.getChildren().add(line);
-													line.setTranslateX(qPoint.getX());
-													line.setTranslateY(pPoint.getY());
-													line.setStroke(Color.LIGHTGRAY);
-												}
-											}
-										}
-									}
+									view.getOtherGroup().getChildren().remove(lineX);
+									view.getOtherGroup().getChildren().remove(lineY);
 
+									for (var q : view.getNodeSelection().getSelectedItems()) {
+										var qPoint = view.getPoint(q);
+										var hasX = view.getGraph().nodeStream().filter(u -> !view.getNodeSelection().isSelected(u)).mapToDouble(u -> view.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) < 2);
+										if (hasX) {
+											if (!view.getOtherGroup().getChildren().contains(lineX))
+												view.getOtherGroup().getChildren().add(lineX);
+											lineX.setTranslateX(qPoint.getX());
+											lineX.setTranslateY(qPoint.getY());
+										} else
+											view.getOtherGroup().getChildren().remove(lineX);
+
+										var hasY = view.getGraph().nodeStream().filter(u -> !view.getNodeSelection().isSelected(u)).mapToDouble(u -> view.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) < 2);
+
+										if (hasY) {
+											if (!view.getOtherGroup().getChildren().contains(lineY))
+												view.getOtherGroup().getChildren().add(lineY);
+											lineY.setTranslateX(qPoint.getX());
+											lineY.setTranslateY(qPoint.getY());
+										} else
+											view.getOtherGroup().getChildren().remove(lineY);
+									}
 									me.consume();
 								}
 							});
 
 							shape.setOnMouseReleased(me -> {
+								view.getOtherGroup().getChildren().remove(lineX);
+								view.getOtherGroup().getChildren().remove(lineY);
+
 								if (view.getMode() == DrawPane.Mode.Move) {
 									var nodes = new HashSet<>(view.getNodeSelection().getSelectedItems());
 									var previous = view.screenToLocal(mouseDownX, mouseDownY);
 									var location = view.screenToLocal(mouseX, mouseY);
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
 									view.getUndoManager().add(new MoveNodesCommand(view, nodes, d.getX(), d.getY()));
-									lines.getChildren().clear();
 									me.consume();
 								}
 							});
@@ -177,4 +178,11 @@ public class NodeInteraction {
 		});
 	}
 
+	public static Line createDragLine(boolean horizontal) {
+		var line = (horizontal ? new Line(0, -50, 0, 50) : new Line(-50, 0, 50, 0));
+		line.setId("drag-line");
+		line.getStrokeDashArray().setAll(3.0, 3.0);
+		line.setStroke(Color.LIGHTGRAY);
+		return line;
+	}
 }

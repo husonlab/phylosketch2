@@ -9,13 +9,16 @@ module phylosketch {
 	requires org.apache.commons.collections4;
 	requires org.apache.commons.math4.legacy;
 	requires java.desktop;
+	requires javafx.web;
 
 	opens phylosketch.format;
+	opens phylosketch.help;
 	opens phylosketch.main;
 	opens phylosketch.view;
 	opens phylosketch.window;
 
 	exports phylosketch.format;
+	exports phylosketch.help;
 	exports phylosketch.window;
 	exports phylosketch.io;
 	exports phylosketch.main;

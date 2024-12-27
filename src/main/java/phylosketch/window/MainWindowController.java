@@ -43,7 +43,13 @@ public class MainWindowController {
 	private FlowPane bottomFlowPane;
 
 	@FXML
+	private MenuItem setWindowSizeMenuItem;
+
+	@FXML
 	private MenuItem checkForUpdatesMenuItem;
+
+	@FXML
+	private CheckMenuItem showHelpWindow;
 
 	@FXML
 	private MenuItem clearMenuItem;
@@ -325,6 +331,9 @@ public class MainWindowController {
 
 	@FXML
 	private CheckMenuItem resizeModeCheckMenuItem;
+
+	@FXML
+	private MenuItem layoutLabelMenuItem;
 
 	@FXML
 	private MenuItem rotateLeftMenuItem;
@@ -853,6 +862,10 @@ public class MainWindowController {
 		return resizeModeCheckMenuItem;
 	}
 
+	public MenuItem getLayoutLabelMenuItem() {
+		return layoutLabelMenuItem;
+	}
+
 	public MenuItem getRotateLeftMenuItem() {
 		return rotateLeftMenuItem;
 	}
@@ -908,5 +921,13 @@ public class MainWindowController {
 
 	public CheckMenuItem getOutlineEdgesMenuItem() {
 		return outlineEdgesMenuItem;
+	}
+
+	public MenuItem getSetWindowSizeMenuItem() {
+		return setWindowSizeMenuItem;
+	}
+
+	public CheckMenuItem getShowHelpWindow() {
+		return showHelpWindow;
 	}
 }
