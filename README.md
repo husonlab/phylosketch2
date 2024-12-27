@@ -20,4 +20,4 @@ The program runs on MacOS X, Linux and Windows, and is also designed for touch-s
 
 ## User Manual
 
-More details are presented in the [User Manual](manual.html), which is also available as a [pdf](manual.pdf).
+More details are presented in the [User Manual](doc/manual.html), which is also available as a [pdf](doc/manual.pdf).
