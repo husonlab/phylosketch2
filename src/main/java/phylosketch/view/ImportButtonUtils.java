@@ -31,6 +31,7 @@ import jloda.util.StringUtils;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import static jloda.fx.util.ClipboardUtils.isImageFile;
 import static jloda.fx.util.ClipboardUtils.isTextFile;
 
 /**
@@ -45,13 +46,17 @@ public class ImportButtonUtils {
 
 		importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
 		importButton.setOnAction(e -> {
-			if (ClipboardUtils.hasString() || ClipboardUtils.hasFiles())
-				importString.accept(ClipboardUtils.getTextFilesContentOrString(100000));
-			else if (ClipboardUtils.hasImage())
-				importImage.accept(ClipboardUtils.getImage());
+			var text = ClipboardUtils.getTextFilesContentOrString(100000);
+			if (text != null)
+				importString.accept(text);
+			var image = ClipboardUtils.getImageFileContentOrImage();
+			if (image != null)
+				importImage.accept(image);
 		});
-		pasteMenuItem.setOnAction(importButton.getOnAction());
-		pasteMenuItem.disableProperty().bind((ClipboardUtils.hasStringProperty().or(ClipboardUtils.hasFilesProperty()).or(ClipboardUtils.hasImageProperty()).not()));
+		if (pasteMenuItem != null) {
+			pasteMenuItem.setOnAction(importButton.getOnAction());
+			pasteMenuItem.disableProperty().bind((ClipboardUtils.hasStringProperty().or(ClipboardUtils.hasFilesProperty()).or(ClipboardUtils.hasImageProperty()).not()));
+		}
 
 		importButton.setOnDragOver(e -> {
 			var db = e.getDragboard();
@@ -70,16 +75,26 @@ public class ImportButtonUtils {
 				importString.accept(db.getString());
 				success = true;
 			} else if (db.hasFiles()) {
-				var buf = new StringBuilder();
+				var done = false;
 				for (var file : db.getFiles()) {
-					if (FileUtils.fileExistsAndIsNonEmpty(file) && isTextFile(file)) {
-						try {
-							buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
-						} catch (IOException ignored) {
-						}
+					if (FileUtils.fileExistsAndIsNonEmpty(file) && isImageFile(file)) {
+						importImage.accept(new Image(file.toURI().toString()));
+						done = true;
+						break;
 					}
 				}
-				importString.accept(buf.toString());
+				if (!done) {
+					var buf = new StringBuilder();
+					for (var file : db.getFiles()) {
+						if (FileUtils.fileExistsAndIsNonEmpty(file) && isTextFile(file)) {
+							try {
+								buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
+							} catch (IOException ignored) {
+							}
+						}
+					}
+					importString.accept(buf.toString());
+				}
 				success = true;
 			}
 			e.setDropCompleted(success);

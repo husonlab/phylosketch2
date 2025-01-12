@@ -25,7 +25,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.icons.MaterialIcons;
-import phylosketch.utils.ComboBoxUtils;
+import jloda.fx.util.ComboBoxUtils;
 import phylosketch.view.LineType;
 
 /**

@@ -22,11 +22,7 @@ package phylosketch.help;
 
 import javafx.beans.InvalidationListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebView;
@@ -36,13 +32,15 @@ import jloda.util.ProgramProperties;
 import phylosketch.main.PhyloSketch;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * the help tab controller
  * Daniel Huson, 12.2024
  */
 public class HelpController {
+	@FXML
+	private ToolBar toolBar;
+
 
 	@FXML
 	private Button clearButton;
@@ -78,6 +76,12 @@ public class HelpController {
 	private Button nextButton;
 
 	@FXML
+	private Button zoomInButton;
+
+	@FXML
+	private Button zoomOutButton;
+
+	@FXML
 	private MenuItem nextMenuItem;
 
 	@FXML
@@ -102,14 +106,20 @@ public class HelpController {
 		MaterialIcons.setIcon(clearButton, MaterialIcons.backspace);
 		MaterialIcons.setIcon(nextButton, MaterialIcons.arrow_forward_ios);
 		MaterialIcons.setIcon(previousButton, MaterialIcons.arrow_back_ios_new);
+		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
+		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
 		MaterialIcons.setIcon(hideButton, MaterialIcons.close);
 
 		findCBox.getItems().addAll(Arrays.asList(ProgramProperties.get("HelpSearchTerms", new String[0])));
 		findCBox.getItems().addListener((InvalidationListener) e -> RunAfterAWhile.applyInFXThread(findCBox, () -> ProgramProperties.put("HelpSearchTerms",
 				findCBox.getItems().subList(Math.max(0, findCBox.getItems().size() - 20), findCBox.getItems().size()).toArray(new String[0]))));
 
-		var url = Objects.requireNonNull(getClass().getResource("help.html")).toExternalForm();
-		webView.getEngine().load(url);
+		{
+			var url = HelpController.class.getResource("help.html");
+			if (url != null) {
+				webView.getEngine().load(url.toExternalForm());
+			} else System.err.println("File not found: help.html");
+		}
 
 		if (!PhyloSketch.isDesktop()) {
 			if (hideButton.getParent() instanceof Pane pane) {
@@ -128,6 +138,11 @@ public class HelpController {
 		nextMenuItem.disableProperty().bind(nextButton.disableProperty());
 		previousMenuItem.setOnAction(e -> previousButton.fire());
 		previousMenuItem.disableProperty().bind(previousButton.disableProperty());
+
+		zoomInButton.setOnAction(e -> webView.setZoom(1.2 * webView.getZoom()));
+		zoomInButton.disableProperty().bind(webView.zoomProperty().greaterThan(4));
+		zoomOutButton.setOnAction(e -> webView.setZoom(1 / 1.2 * webView.getZoom()));
+		zoomOutButton.disableProperty().bind(webView.zoomProperty().lessThan(0.25));
 	}
 
 	public BorderPane getRootPane() {
@@ -176,5 +191,9 @@ public class HelpController {
 
 	public MenuItem getPasteMenuItem() {
 		return pasteMenuItem;
+	}
+
+	public ToolBar getToolBar() {
+		return toolBar;
 	}
 }

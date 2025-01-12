@@ -29,7 +29,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -40,7 +39,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.dialog.SetParameterDialog;
@@ -58,7 +56,6 @@ import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.commands.*;
 import phylosketch.format.FormatPaneView;
-import phylosketch.help.HelpView;
 import phylosketch.io.ExportNewick;
 import phylosketch.io.PhyloSketchIO;
 import phylosketch.io.Save;
@@ -66,7 +63,6 @@ import phylosketch.io.SaveBeforeClosingDialog;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
-import phylosketch.main.Version;
 import phylosketch.utils.Clusters;
 import phylosketch.view.*;
 
@@ -558,7 +554,8 @@ public class MainWindowPresenter {
 			}
 		});
 
-		SetupHelpWindow.apply(window, controller.getShowHelpWindow());
+		if (PhyloSketch.isDesktop())
+			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
 
 		ImportButtonUtils.setup(controller.getPasteMenuItem(), controller.getImportButton(), s -> {
 			var pasteCommand = new PasteCommand(view, s);

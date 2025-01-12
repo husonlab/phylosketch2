@@ -22,7 +22,6 @@ package phylosketch.main;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.FileOpenManager;
@@ -35,7 +34,6 @@ import jloda.util.Basic;
 import jloda.util.CanceledException;
 import jloda.util.ProgramExecutorService;
 import jloda.util.UsageException;
-import phylosketch.help.HelpView;
 import phylosketch.io.PhyloSketchIO;
 import phylosketch.window.MainWindow;
 
