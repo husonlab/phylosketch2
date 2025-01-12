@@ -72,8 +72,12 @@
             <artifactId>install4j-runtime</artifactId>
             <version>10.0.8</version>
         </dependency>
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.11.0</version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

@@ -73,7 +73,7 @@ public class PathNormalize {
 	}
 
 	/**
-	 * reduces superfluous points from path to ensure that no two nodes are  too close together
+	 * reduces superfluous points from path to ensure that no two nodes are  too isCloseTo together
 	 *
 	 * @param points the original points
 	 * @param dMin   the max distance between points
