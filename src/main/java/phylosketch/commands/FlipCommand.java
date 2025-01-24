@@ -53,7 +53,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 	/**
 	 * flip all or currently selected nodes
 	 *
-	 * @param view       the view
+	 * @param view       the window
 	 * @param horizontal flip horizontally, if true, otherwise vertically
 	 */
 	public FlipCommand(DrawPane view, boolean horizontal) {

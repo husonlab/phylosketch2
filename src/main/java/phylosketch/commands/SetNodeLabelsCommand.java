@@ -23,12 +23,9 @@ package phylosketch.commands;
 import javafx.geometry.Point2D;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
-import jloda.graph.NodeSet;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.CollectionUtils;
 import jloda.util.IteratorUtils;
-import jloda.util.Pair;
-import jloda.util.Triplet;
 import phylosketch.view.DrawPane;
 import phylosketch.view.RootLocation;
 
@@ -80,14 +77,15 @@ public class SetNodeLabelsCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view     the view
-	 * @param newLabel the new label to be applied to all (selected) nodes
+	 * @param view     the window
+	 * @param nodes the nodes
+	 * @param newLabel the new label to be applied to all given nodes
 	 */
-	public SetNodeLabelsCommand(DrawPane view, String newLabel) {
+	public SetNodeLabelsCommand(DrawPane view, Collection<Node> nodes, String newLabel) {
 		super("set node labels");
 
 		var nodeComponentMap = new HashMap<Node, Set<Node>>();
-		for (var v : view.getSelectedOrAllNodes()) {
+		for (var v : nodes) {
 			var label = view.getLabel(v);
 			oldMap.put(v.getId(), label.getText());
 			oldLocationMap.put(v.getId(), new Point2D(label.getLayoutX(), label.getLayoutY()));

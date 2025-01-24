@@ -26,7 +26,7 @@ import jloda.graph.Node;
 import java.util.Collection;
 
 public enum RootLocation {
-	Top, Bottom, Left, Right;
+	Top, Bottom, Left, Right, Center;
 
 	public boolean isHorizontal() {
 		return this == Left || this == Right;

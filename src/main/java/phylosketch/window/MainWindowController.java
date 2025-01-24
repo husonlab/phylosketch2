@@ -20,6 +20,7 @@
 package phylosketch.window;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -31,6 +32,7 @@ import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
+import phylosketch.view.DrawPane;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem removeThruNodesMenuItem;
+
+	@FXML
+	private MenuItem fixCrossingEdgesMenuItem;
 
 	@FXML
 	private MenuItem closeMenuItem;
@@ -306,6 +311,30 @@ public class MainWindowController {
 	private Button deleteButton;
 
 	@FXML
+	private MenuButton captureMenuButton;
+
+	@FXML
+	MenuItem loadImageMenuItem;
+
+	@FXML
+	MenuItem clearImageMenuItem;
+
+	@FXML
+	MenuItem captureResetMenuItem;
+
+	@FXML
+	CheckMenuItem captureRootLocationMenuItem;
+
+	@FXML
+	CheckMenuItem captureLinesMenuItem;
+
+	@FXML
+	CheckMenuItem captureLabelsMenuItem;
+
+	@FXML
+	CheckMenuItem capturePhylogenyMenuItem;
+
+	@FXML
 	private Menu layoutMenu;
 
 	@FXML
@@ -324,10 +353,16 @@ public class MainWindowController {
 	private Menu modeMenu;
 
 	@FXML
-	private CheckMenuItem editModeCheckMenuItem;
+	private RadioMenuItem editModeItem;
 
 	@FXML
-	private CheckMenuItem moveModeCheckMenuItem;
+	private RadioMenuItem moveModeItem;
+
+	@FXML
+	private RadioMenuItem viewModeItem;
+
+	@FXML
+	private RadioMenuItem captureModeItem;
 
 	@FXML
 	private CheckMenuItem resizeModeCheckMenuItem;
@@ -348,7 +383,7 @@ public class MainWindowController {
 	private MenuItem flipVerticalMenuItem;
 
 	@FXML
-	private ToggleButton editModeToggleButton;
+	private MenuButton modeMenuButton;
 
 	@FXML
 	private Button importButton;
@@ -380,8 +415,10 @@ public class MainWindowController {
 
 	@FXML
 	private void initialize() {
+
+
 		MaterialIcons.setIcon(fileMenuButton, MaterialIcons.file_open);
-		MaterialIcons.setIcon(editModeToggleButton, MaterialIcons.edit_off);
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off);
 
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 
@@ -401,6 +438,8 @@ public class MainWindowController {
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
 		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
+
+		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.rocket_launch);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -483,7 +522,7 @@ public class MainWindowController {
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem, rerootMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem, fixCrossingEdgesMenuItem, rerootMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -508,6 +547,28 @@ public class MainWindowController {
 		bottomAnchorPane.prefHeightProperty().bind(bottomFlowPane.heightProperty());
 
 		rootPane.widthProperty().addListener(getWidthChangeListener());
+	}
+
+	public static MaterialIcons getIcon(DrawPane.Mode mode) {
+		return switch (mode) {
+			case Edit -> MaterialIcons.edit;
+			case Move -> MaterialIcons.transform;
+			case Capture -> MaterialIcons.image;
+			case View -> MaterialIcons.lock;
+		};
+	}
+
+	public void setupModeMenu(ObjectProperty<DrawPane.Mode> modeProperty) {
+		var toggleGroup = new ToggleGroup();
+		toggleGroup.getToggles().addAll(editModeItem, moveModeItem, viewModeItem, captureModeItem);
+		modeProperty.addListener((v, o, n) -> {
+			switch (n) {
+				case Edit -> editModeItem.setSelected(true);
+				case Move -> moveModeItem.setSelected(true);
+				case View -> viewModeItem.setSelected(true);
+				case Capture -> captureModeItem.setSelected(true);
+			}
+		});
 	}
 
 	public ChangeListener<Number> getWidthChangeListener() {
@@ -849,15 +910,6 @@ public class MainWindowController {
 		return rerootMenuItem;
 	}
 
-
-	public CheckMenuItem getEditModeCheckMenuItem() {
-		return editModeCheckMenuItem;
-	}
-
-	public CheckMenuItem getMoveModeCheckMenuItem() {
-		return moveModeCheckMenuItem;
-	}
-
 	public CheckMenuItem getResizeModeCheckMenuItem() {
 		return resizeModeCheckMenuItem;
 	}
@@ -882,14 +934,17 @@ public class MainWindowController {
 		return flipVerticalMenuItem;
 	}
 
-	public ToggleButton getEditModeToggleButton() {
-		return editModeToggleButton;
+	public MenuButton getModeMenuButton() {
+		return modeMenuButton;
 	}
 
 	public MenuItem getRemoveThruNodesMenuItem() {
 		return removeThruNodesMenuItem;
 	}
 
+	public MenuItem getFixCrossingEdgesMenuItem() {
+		return fixCrossingEdgesMenuItem;
+	}
 
 	public Button getImportButton() {
 		return importButton;
@@ -929,5 +984,37 @@ public class MainWindowController {
 
 	public CheckMenuItem getShowHelpWindow() {
 		return showHelpWindow;
+	}
+
+	public MenuButton getCaptureMenuButton() {
+		return captureMenuButton;
+	}
+
+	public MenuItem getLoadImageMenuItem() {
+		return loadImageMenuItem;
+	}
+
+	public MenuItem getClearImageMenuItem() {
+		return clearImageMenuItem;
+	}
+
+	public MenuItem getCaptureResetMenuItem() {
+		return captureResetMenuItem;
+	}
+
+	public CheckMenuItem getCaptureRootLocationMenuItem() {
+		return captureRootLocationMenuItem;
+	}
+
+	public CheckMenuItem getCaptureLinesMenuItem() {
+		return captureLinesMenuItem;
+	}
+
+	public CheckMenuItem getCaptureLabelsMenuItem() {
+		return captureLabelsMenuItem;
+	}
+
+	public CheckMenuItem getCapturePhylogenyMenuItem() {
+		return capturePhylogenyMenuItem;
 	}
 }

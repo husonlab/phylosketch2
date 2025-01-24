@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 public class LSATreeUtilities {
 	/**
-	 * given a reticulate network, returns a mapping of each node to a list of its children in the LSA tree
+	 * given a reticulate network, returns a mapping of each node to a list of its children in the LSA getTree
 	 */
 	public static NodeArray<Node> computeLSAOrdering(PhyloTree tree) {
 		NodeArray<Node> reticulation2LSA = new NodeArray<>(tree);
@@ -44,7 +44,7 @@ public class LSATreeUtilities {
 
 
 	/**
-	 * given a rooted network, returns a mapping of each node to a list of its children in the LSA tree
+	 * given a rooted network, returns a mapping of each node to a list of its children in the LSA getTree
 	 *
 	 * @param reticulation2LSA is returned here
 	 */
@@ -53,7 +53,7 @@ public class LSATreeUtilities {
 	}
 
 	/**
-	 * given a rooted network, returns a mapping of each node to a list of its children in the LSA tree
+	 * given a rooted network, returns a mapping of each node to a list of its children in the LSA getTree
 	 *
 	 * @param reticulation2LSA is returned here
 	 */
@@ -144,9 +144,9 @@ public class LSATreeUtilities {
 	}
 
 	/**
-	 * given a rooted phylogenetic network, returns the LSA tree
+	 * given a rooted phylogenetic network, returns the LSA getTree
 	 *
-	 * @return LSA tree
+	 * @return LSA getTree
 	 */
 	public static PhyloTree computeLSA(PhyloTree network) {
 		var tree = new PhyloTree(network);
@@ -176,7 +176,7 @@ public class LSATreeUtilities {
 					Edge e = tree.newEdge(lsa, v);
 					tree.setWeight(e, reticulation2LSAEdgeLength.get(v));
 					// System.err.println("WEIGHT: " + (float) reticulation2LSAEdgeLength.get(v));
-					// tree.setLabel(v,tree.getLabel(v)!=null?tree.getLabel(v)+"/"+(float)tree.getWeight(e):""+(float)tree.getWeight(e));
+					// getTree.setLabel(v,getTree.getLabel(v)!=null?getTree.getLabel(v)+"/"+(float)getTree.getWeight(e):""+(float)getTree.getWeight(e));
 				}
 			}
 			for (var e : toDelete)
@@ -227,7 +227,7 @@ public class LSATreeUtilities {
 				}
 			}
 		}
-		//System.err.println("tree: " + tree.toBracketString());
+		//System.err.println("getTree: " + getTree.toBracketString());
 		return tree;
 	}
 }

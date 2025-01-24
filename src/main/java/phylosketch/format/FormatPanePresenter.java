@@ -73,7 +73,7 @@ public class FormatPanePresenter {
 		controller.getNodeLabelTextField().setFocusTraversable(false);
 		controller.getNodeLabelTextField().setOnAction(a -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, controller.getNodeLabelTextField().getText()));
+				view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, view.getSelectedOrAllNodes(), controller.getNodeLabelTextField().getText()));
 			}
 		});
 		setupTriggerOnEnter(controller.getNodeLabelTextField());
@@ -97,31 +97,31 @@ public class FormatPanePresenter {
 
 		controller.getNodeLabelFontChoiceBox().valueProperty().addListener((v, o, n) -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.font, null, null, n));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.font, null, null, n));
 			}
 		});
 		controller.getClearNodeLabelFontButton().setOnAction(a -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.font, null, null, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.font, null, null, null));
 			}
 		});
 
 		controller.getNodeLabelBoldButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).anyMatch(t -> t != null && !t.isBold());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.bold, select, null, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.bold, select, null, null));
 			}
 		});
 		controller.getNodeLabelItalicButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.italic, select, null, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.italic, select, null, null));
 			}
 		});
 		controller.getNodeLabelUnderlineButton().setOnAction(e -> {
 			if (canUpdate) {
 				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
-				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.underlined, select, null, null));
+				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.underlined, select, null, null));
 			}
 		});
 
@@ -134,7 +134,7 @@ public class FormatPanePresenter {
 		controller.getNodeLabelSizeCBox().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null) {
-					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, NodeLabelFormatCommand.Which.size, null, n, null));
+					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, n, null));
 				}
 			}
 		});
@@ -347,7 +347,7 @@ public class FormatPanePresenter {
 
 		controller.getSmoothButton().setOnAction(a -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new SmoothCommand(view.getGraph(), view.getSelectedOrAllEdges()));
+				view.getUndoManager().doAndAdd(new SmoothCommand(view, view.getSelectedOrAllEdges()));
 			}
 		});
 		controller.getSmoothButton().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
@@ -375,7 +375,7 @@ public class FormatPanePresenter {
 			if (canUpdate) {
 				var select = !view.getSelectedOrAllEdges().stream().allMatch(view::isShowArrow);
 				controller.getShowArrowsButton().setSelected(select);
-				view.getUndoManager().doAndAdd(new ShowArrowsCommand(view, select));
+				view.getUndoManager().doAndAdd(new ShowArrowsCommand(view, view.getSelectedOrAllEdges(), select));
 			}
 		});
 

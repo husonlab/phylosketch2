@@ -20,6 +20,8 @@
 
 package phylocap.capture;
 
+import javafx.geometry.Point2D;
+
 /**
  * integer point
  * Daniel Huson, 1.2025
@@ -30,5 +32,13 @@ package phylocap.capture;
 public record Point(int x, int y) {
 	public double distance(Point other) {
 		return Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2));
+	}
+
+	public double distance(Point2D other) {
+		return Math.sqrt(Math.pow(x - other.getX(), 2) + Math.pow(y - other.getY(), 2));
+	}
+
+	public Point2D point2D() {
+		return new Point2D(x, y);
 	}
 }

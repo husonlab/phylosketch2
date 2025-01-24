@@ -22,19 +22,18 @@ package phylocap.capture;
 
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import jloda.fx.util.AService;
+import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
-import net.sourceforge.tess4j.ITessAPI;
-import net.sourceforge.tess4j.Tesseract;
+import jloda.util.StringUtils;
 import net.sourceforge.tess4j.Word;
 
 import java.util.ArrayList;
 
 
 /**
- * phylogenetic tree or network capture service
+ * captures segments and words from a picture of a phylogentic tree or network
  * Daniel Huson, 1.2025
  */
 public class CaptureService extends AService<Boolean> {
@@ -51,11 +50,7 @@ public class CaptureService extends AService<Boolean> {
 	private final IntegerProperty maxDustDistance = new SimpleIntegerProperty(this, "maxDustDistance");
 	private final IntegerProperty minDustExtent = new SimpleIntegerProperty(this, "minDustExtent");
 
-
-	private Point2D rootLocation;
-
 	private Image inputImage;
-	private Image workingImage;
 	private Image greyScaleImage;
 	private Image maskedImage;
 
@@ -99,57 +94,29 @@ public class CaptureService extends AService<Boolean> {
 
 			if (getGoal() >= WORDS && theStatus < WORDS) {
 				greyScaleImage = ImageUtils.convertToGrayScale(getInputImage());
-				workingImage = ImageUtils.replaceTransparentBackground(greyScaleImage);
-				var binaryMatrix = ImageUtils.convertToBinaryArray(workingImage, 0.95);
+				var binaryMatrix = ImageUtils.convertToBinaryArray(greyScaleImage, 0.95);
 				if (ImageUtils.tooMuchBlack(binaryMatrix, 0.30))
 					throw new RuntimeException("Image has too much foreground");
 
 				var awtBufferedImage = ImageUtils.convertToBufferedImage(greyScaleImage);
 
-				var tesseract = new Tesseract();
-				tesseract.setDatapath("tessdata");
-				tesseract.setLanguage("eng");
+				var tesseract = TesseractManager.createInstance();
 
 				if (false) {
-					var text = tesseract.doOCR(awtBufferedImage);
-					System.err.println("Extracted Text:\n" + text);
+					var lines = StringUtils.getLinesFromString(tesseract.doOCR(awtBufferedImage));
+					System.err.println("Extracted Text:\n" + StringUtils.toString(lines, ""));
 				}
 
 				// filter words and update rectangles:
-				{
-					words.clear();
-					for (var word : tesseract.getWords(awtBufferedImage, ITessAPI.TessPageIteratorLevel.RIL_WORD)) {
-						var awtRect = word.getBoundingBox();
-						if (word.getConfidence() > 0.3 && awtRect.getHeight() <= getMaxTextHeight()) {
-							ProcessingUtils.tightenRect(binaryMatrix, awtRect);
-							words.add(new Word(word.getText(), word.getConfidence(), awtRect));
-						}
-					}
-				}
+				CaptureWords.apply(tesseract, binaryMatrix, awtBufferedImage, false, getMaxTextHeight(), words);
+
 				theStatus = WORDS;
 				updatePhase(theStatus);
 			}
 
 			if (getGoal() >= SEGMENTS && theStatus < SEGMENTS) {
 				getProgressListener().setTasks("Capture", "Detecting segments");
-
-				endPoints.clear();
-				segments.clear();
-
-				// detect terminal points and paths:
-				{
-					var theMaskedImage = ImageUtils.replaceRectanglesWithWhite(workingImage, words.stream().map(Word::getBoundingBox).toList(), 2);
-					var matrix = ImageUtils.convertToBinaryArray(theMaskedImage, 0.95);
-					Skeletonization.apply(matrix);
-					var points = ProcessingUtils.detectEndPoints(matrix);
-					points.addAll(ProcessingUtils.detectBranchPoints(matrix));
-					points = ProcessingUtils.removeClosePoints(points, 5);
-
-					endPoints.addAll(points);
-
-					maskedImage = ImageUtils.convertToImage(matrix);
-					segments.addAll(ProcessingUtils.findPaths(matrix, points));
-				}
+				maskedImage = CapturePointsSegments.apply(getProgressListener(), greyScaleImage, words, 0, endPoints, segments);
 				theStatus = SEGMENTS;
 				updatePhase(theStatus);
 			}
@@ -163,7 +130,6 @@ public class CaptureService extends AService<Boolean> {
 			}
 
 			if (getGoal() >= PHYLOGENY && theStatus < PHYLOGENY) {
-				getProgressListener().setTasks("Capture", "Extracting phylogeny");
 				theStatus = PHYLOGENY;
 				updatePhase(theStatus);
 			}
@@ -207,7 +173,7 @@ public class CaptureService extends AService<Boolean> {
 	}
 
 	/**
-	 * set the maximum text height, to avoid parts of the actual tree or network being converted to text
+	 * set the maximum text height, to avoid parts of the actual getTree or network being converted to text
 	 *
 	 * @param maxTextHeight max text height used in OCR
 	 */
@@ -331,15 +297,6 @@ public class CaptureService extends AService<Boolean> {
 		return dustedSegments;
 	}
 
-	public Point2D getRootLocation() {
-		return rootLocation;
-	}
-
-
-	public void setRootLocation(Point2D rootLocation) {
-		this.rootLocation = rootLocation;
-	}
-
 	public int getGoal() {
 		return goal.get();
 	}
@@ -358,5 +315,4 @@ public class CaptureService extends AService<Boolean> {
 			restart();
 		}
 	}
-
 }

@@ -119,6 +119,7 @@ public class SetupSelection {
 				nodes.forEach(nodeSelection::select);
 			}
 		});
+		controller.getSelectArticulationNodesMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
 
 		controller.getSelectVisibleNodesMenuItem().setOnAction(e -> {
 			try (var nodes = RootedNetworkProperties.computeAllVisibleNodes(graph, null)) {
@@ -194,14 +195,13 @@ public class SetupSelection {
 				}
 			}
 		});
+		controller.getSelectPossibleRootLocationsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
 		controller.getSelectLowestStableAncestorMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
 
-
 		controller.getSelectThruNodesMenuItem().setOnAction(c -> graph.nodeStream().filter(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()).forEach(nodeSelection::select));
 		controller.getSelectThruNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
 	}
 
 }

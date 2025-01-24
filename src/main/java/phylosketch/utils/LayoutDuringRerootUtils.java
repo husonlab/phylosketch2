@@ -48,7 +48,7 @@ public class LayoutDuringRerootUtils {
 	 * Alpha is the max angle of a node, as viewed from the reference between 0 and 180 in positive direction
 	 * and beta is the max angle in negative direction (between 0 and 180)
 	 *
-	 * @param view      the view
+	 * @param view      the window
 	 * @param reference the reference node (usually the root of a component)
 	 * @return alpha and beta for reference node
 	 */
@@ -72,6 +72,7 @@ public class LayoutDuringRerootUtils {
 			case Right -> 180;
 			case Top -> 90;
 			case Bottom -> 270;
+			case Center -> 360;
 		};
 		var ref = view.getPoint(reference);
 		var alpha = 0.0;
@@ -99,6 +100,7 @@ public class LayoutDuringRerootUtils {
 			case Right -> 180;
 			case Top -> 90;
 			case Bottom -> 270;
+			case Center -> 360;
 		};
 
 		var alpha1 = Math.max(1, alpha / beta) * newAlpha;

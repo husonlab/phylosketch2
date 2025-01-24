@@ -48,11 +48,13 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 	private Runnable redo;
 
 	private int startNodeId = -1;
+
+	private CreateNodeCommand newSourceNodeCommand;
 	private InsertNodeInEdgeCommand insertSourceNodeCommand;
 
 	private int endNodeId = -1;
-	private InsertNodeInEdgeCommand insertTargetNodeCommand;
 	private CreateNodeCommand newTargetNodeCommand;
+	private InsertNodeInEdgeCommand insertTargetNodeCommand;
 
 	private InsertTwoNodesInEdgeCommand insertTwoNodesInEdgeCommand;
 
@@ -61,7 +63,7 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view  the view
+	 * @param view  the window
 	 * @param path0 the drawn path
 	 */
 	public DrawEdgeCommand(DrawPane view, Path path0) {
@@ -76,7 +78,6 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 
 		var startNode = findNode(view, startPoint);
 		var startEdgeHit = (startNode == null ? findEdge(view, startPoint) : null);
-
 
 		var endNode = findNode(view, endPoint);
 		var endEdgeHit = (endNode == null ? findEdge(view, endPoint) : null);
@@ -104,7 +105,9 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 			if (!sameStartAndEndEdge) {
 				insertSourceNodeCommand = new InsertNodeInEdgeCommand(view, startEdgeHit.e(), startPoint);
 			}
-		} else return; // need to start on node or edge
+		} else {
+			newSourceNodeCommand = new CreateNodeCommand(view, startPoint);
+		}
 
 		if (endNode != null) {
 			endNodeId = endNode.getId();
@@ -131,6 +134,9 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 
 
 		undo = () -> {
+			if (newSourceNodeCommand != null) {
+				newSourceNodeCommand.undo();
+			}
 			if (insertSourceNodeCommand != null) {
 				insertSourceNodeCommand.undo();
 			}
@@ -152,6 +158,9 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 			int sourceId;
 			if (startNodeId != -1) {
 				sourceId = startNodeId;
+			} else if (newSourceNodeCommand != null) {
+				newSourceNodeCommand.redo();
+				sourceId = newSourceNodeCommand.getNewNodeId();
 			} else if (insertSourceNodeCommand != null) {
 				insertSourceNodeCommand.redo();
 				sourceId = insertSourceNodeCommand.getNodeId(); // always the same value

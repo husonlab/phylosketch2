@@ -24,7 +24,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jloda.fx.util.ProgramProperties;
-import phylocap.view.CaptureView;
+import phylocap.window.CaptureView;
 
 public class Main extends Application {
 	@Override

@@ -55,7 +55,7 @@ public class PhyloSketchIO {
 	/**
 	 * save the phylo sketch in GML format
 	 * @param w writer
-	 * @param view the draw view
+	 * @param view the draw window
 	 * @throws IOException  something went wrong
 	 */
 	public static void save(Writer w, DrawPane view) throws IOException {
@@ -123,9 +123,9 @@ public class PhyloSketchIO {
 	}
 
 	/**
-	 * open a file and load it into the draw view
+	 * open a file and load it into the draw window
 	 * @param file file
-	 * @param drawPane draw view
+	 * @param drawPane draw window
 	 * @throws IOException
 	 */
 	public static void open(String file,DrawPane drawPane) throws IOException {
@@ -138,7 +138,7 @@ public class PhyloSketchIO {
 	/**
 	 * load a a phylo-sketch, previously saved in GML format
 	 * @param r reader
-	 * @param view the draw view
+	 * @param view the draw window
 	 * @throws IOException something went wrong
 	 */
 	public static void load(Reader r, DrawPane view) throws IOException {

@@ -57,16 +57,15 @@ import java.io.StringWriter;
 import java.util.*;
 
 /**
- * the draw view
+ * the draw window
  * todo: This needs refactoring to separated MVP
  * Daniel Huson, 9.2024
  */
 public class DrawPane extends Pane {
-	public enum Mode {View, Move, Edit}
+	public enum Mode {Edit, Move, View, Capture}
 
 	public static final double DEFAULT_NODE_RADIUS = 3.0;
 	public static final double DEFAULT_EDGE_WIDTH = 1.0;
-
 
 	private final PhyloTree graph;
 	private final GraphFX<PhyloTree> graphFX;
@@ -101,6 +100,7 @@ public class DrawPane extends Pane {
 	private final BooleanProperty showWeight = new SimpleBooleanProperty(this, "showWeight", false);
 	private final BooleanProperty showConfidence = new SimpleBooleanProperty(this, "showConfidence", false);
 	private final BooleanProperty showProbability = new SimpleBooleanProperty(this, "showProbability", false);
+
 
 	private final UndoManager undoManager = new UndoManager();
 
@@ -449,12 +449,12 @@ public class DrawPane extends Pane {
 		nodeLabelsGroup.getChildren().add(label);
 		label.applyCss();
 
-		label.setOnMouseClicked(shape.getOnMouseClicked());
+		label.setOnMouseClicked(e -> shape.getOnMouseClicked().handle(e));
 
 		var labelLayout = LayoutLabelsCommand.computeLabelLayout(RootLocation.compute(ConnectedComponents.component(v)), label);
 		label.setLayoutX(labelLayout.getX());
 		label.setLayoutY(labelLayout.getY());
-		LabelUtils.makeDraggable(label, movable, this);
+		LabelUtils.makeDraggable(label, movable, this, this.getUndoManager());
 		return label;
 	}
 
@@ -484,7 +484,7 @@ public class DrawPane extends Pane {
 			}
 			getEdgeSelection().toggleSelection(e);
 		});
-		LabelUtils.makeDraggable(label, movable, this);
+		LabelUtils.makeDraggable(label, movable, this, this.getUndoManager());
 		return label;
 	}
 

@@ -201,4 +201,7 @@ public class PathUtils {
 		return list;
 	}
 
+	public static Path concatenate(Path path1, Path path2, boolean normalize) {
+		return createPath(CollectionUtils.concatenate(extractPoints(path1), extractPoints(path2)), normalize);
+	}
 }

@@ -54,7 +54,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view the view
+	 * @param view the window
 	 */
 	public PasteCommand(DrawPane view, String pastedString) {
 		super("paste");

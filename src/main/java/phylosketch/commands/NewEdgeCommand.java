@@ -40,7 +40,7 @@ public class NewEdgeCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view the view
+	 * @param view the window
 	 * @param path the path
 	 */
 	public NewEdgeCommand(DrawPane view, Node source, Node target, Path path) {

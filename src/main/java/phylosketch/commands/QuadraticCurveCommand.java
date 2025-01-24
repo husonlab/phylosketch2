@@ -69,7 +69,7 @@ public class QuadraticCurveCommand extends UndoableRedoableCommand {
 
 					var control = switch (nodeRootLocationMap.get(e.getSource())) {
 						case Top, Bottom -> new Point2D(last.getX(), first.getY());
-						case Left, Right -> new Point2D(first.getX(), last.getY());
+						case Left, Right, Center -> new Point2D(first.getX(), last.getY());
 					};
 					idNewPointsMap.put(e.getId(), QuadraticCurve.apply(first, control, last, 5));
 				}

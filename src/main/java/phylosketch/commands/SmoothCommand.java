@@ -24,9 +24,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
-import jloda.graph.Graph;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
+import phylosketch.view.DrawPane;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,8 +45,9 @@ public class SmoothCommand extends UndoableRedoableCommand {
 	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
 
-	public SmoothCommand(Graph graph, Collection<Edge> edges) {
+	public SmoothCommand(DrawPane view, Collection<Edge> edges) {
 		super("smooth");
+		var graph = view.getGraph();
 		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
 
 		for (var e : edges) {

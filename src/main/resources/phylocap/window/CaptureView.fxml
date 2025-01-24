@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+  ~ CaptureView.fxml Copyright (C) 2025 Daniel H. Huson
+  ~
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<AnchorPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="phylocap.window.CaptureViewController">
+    <children>
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
+            <center>
+                <ScrollPane fx:id="scrollPane" BorderPane.alignment="CENTER">
+                    <content>
+                        <Group>
+                            <children>
+                                <Pane fx:id="centerPane"/>
+                            </children>
+                        </Group>
+                    </content>
+                </ScrollPane>
+            </center>
+            <top>
+                <AnchorPane BorderPane.alignment="CENTER">
+                    <children>
+                        <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <ToolBar>
+                                    <items>
+                                        <Button fx:id="importButton" mnemonicParsing="false" text="Import">
+                                            <tooltip>
+                                                <Tooltip text="Load the image of a phylogenetic tree or rooted network">
+                                                    <graphic>
+                                                        <ToggleButton mnemonicParsing="false" text="ToggleButton"/>
+                                                    </graphic>
+                                                </Tooltip>
+                                            </tooltip>
+                                        </Button>
+                                        <ToggleButton fx:id="settingsButton" mnemonicParsing="false" text="Settings"/>
+                                        <MenuButton fx:id="selectMenuButton" mnemonicParsing="false" text="Select">
+                                            <items>
+                                                <MenuItem fx:id="selectAllMenuItem" mnemonicParsing="false"
+                                                          text="Select All"/>
+                                                <MenuItem fx:id="selectNoneMenuItem" mnemonicParsing="false"
+                                                          text="Select None"/>
+                                                <MenuItem fx:id="selectInvertMenuItem" mnemonicParsing="false"
+                                                          text="Select Invert"/>
+                                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                                <MenuItem fx:id="deleteMenuItem" mnemonicParsing="false" text="Delete"/>
+                                            </items>
+                                        </MenuButton>
+                                        <ToggleButton fx:id="setRootLocationToggleButton" mnemonicParsing="false"
+                                                      text="Set Root ">
+                                            <tooltip>
+                                                <Tooltip text="Set the root location"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <MenuButton fx:id="runMenuButton" mnemonicParsing="false" text="Run">
+                                            <items>
+                                                <MenuItem fx:id="detectAllMenuItem" mnemonicParsing="false"
+                                                          text="Detect All"/>
+                                                <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" text="Clear"/>
+                                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                                <CheckMenuItem fx:id="detectWordsMenuItem" mnemonicParsing="false"
+                                                               text="Detect Labels"/>
+                                                <CheckMenuItem fx:id="detectSegmentsMenuItem" mnemonicParsing="false"
+                                                               text="Detect  Segments"/>
+                                                <CheckMenuItem fx:id="removeDustMenuItem" mnemonicParsing="false"
+                                                               text="Remove Dust"/>
+                                                <CheckMenuItem fx:id="detectPhylogenyMenuItem" mnemonicParsing="false"
+                                                               text="Detect Phylogeny"/>
+                                            </items>
+                                        </MenuButton>
+                                    </items>
+                                </ToolBar>
+                                <ToolBar fx:id="settingsToolBar" prefHeight="40.0" prefWidth="200.0">
+                                    <items>
+                                        <Label text="White Threshold:"/>
+                                        <ComboBox fx:id="whiteThresholdCBox" editable="true" prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Set the brightness threshold (0-1) for conversion to black-and-white"/>
+                                            </tooltip>
+                                        </ComboBox>
+                                        <Label text="Max Font Size:"/>
+                                        <ComboBox fx:id="maxLabelHeightCBox" editable="true" prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip text="Seet the max text character height"/>
+                                            </tooltip>
+                                        </ComboBox>
+                                        <Label layoutX="10.0" layoutY="16.0" text="Dust Max Dist:"/>
+                                        <ComboBox fx:id="dustMaxDistCBox" editable="true" layoutX="108.0" layoutY="12.0"
+                                                  prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Set the brightness threshold (0-1) for conversion to black-and-white"/>
+                                            </tooltip>
+                                        </ComboBox>
+                                        <Label layoutX="327.0" layoutY="16.0" text="Dust Min Extent:"/>
+                                        <ComboBox fx:id="dustMinExtentCBox" editable="true" layoutX="424.0"
+                                                  layoutY="12.0" prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Set the brightness threshold (0-1) for conversion to black-and-white"/>
+                                            </tooltip>
+                                        </ComboBox>
+                                    </items>
+                                </ToolBar>
+                            </children>
+                        </VBox>
+                        <HBox layoutX="741.0" layoutY="5.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="5.0">
+                            <children>
+                                <Button fx:id="zoomInButton" mnemonicParsing="false" text="Zoom in"/>
+                                <Button fx:id="zoomOutButton" mnemonicParsing="false" text="Zoom out"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </AnchorPane>
+            </top>
+            <bottom>
+                <VBox maxHeight="-Infinity" minHeight="-Infinity" BorderPane.alignment="CENTER">
+                    <Separator prefWidth="200.0"/>
+                    <FlowPane fx:id="statusPane" hgap="10.0" minHeight="24.0" vgap="10.0" AnchorPane.bottomAnchor="0.0"
+                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                        <padding>
+                            <Insets bottom="2.0" left="2.0" right="2.0"/>
+                        </padding>
+                        <children>
+                            <Label fx:id="infoLabel" text="InfoLabel"/>
+                        </children>
+                        <VBox.margin>
+                            <Insets left="2.0" right="2.0"/>
+                        </VBox.margin>
+                    </FlowPane>
+                </VBox>
+            </bottom>
+        </BorderPane>
+    </children>
+</AnchorPane>

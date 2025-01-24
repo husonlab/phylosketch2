@@ -47,7 +47,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view  the view
+	 * @param view  the window
 	 * @param what  what to set
 	 * @param value the value to set to. If what is Weight and value=-1, will set to weights graphical edge lengths
 	 */
@@ -138,6 +138,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 		return switch (rootLocation) {
 			case Left, Right -> Math.abs(a.getX() - b.getX());
 			case Top, Bottom -> Math.abs(a.getY() - b.getY());
+			case Center -> a.distance(b);
 		};
 	}
 

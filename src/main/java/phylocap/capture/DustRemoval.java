@@ -89,7 +89,7 @@ public class DustRemoval {
 
 	public static boolean close(Segment segment, List<Segment> list, double maxDistance) {
 		for (var other : list) {
-			if (segment.isCloseTo(other, maxDistance))
+			if (segment.proximal(other, maxDistance))
 				return true;
 		}
 		return false;

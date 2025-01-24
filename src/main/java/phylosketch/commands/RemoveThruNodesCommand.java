@@ -25,14 +25,12 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
+import jloda.graph.Node;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * remove all or selected "true nodes" (di-vertices) from graph
@@ -50,10 +48,10 @@ public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view
 	 */
-	public RemoveThruNodesCommand(DrawPane view) {
-		super("remove di-vertices");
+	public RemoveThruNodesCommand(DrawPane view, Collection<Node> nodes) {
+		super("remove thru nodes");
 
-		for (var v : view.getNodeSelection().getSelectedItems()) {
+		for (var v : nodes) {
 			if (v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()) {
 				var path1 = PathUtils.extractPoints((Path) v.getFirstInEdge().getData());
 				var path2 = PathUtils.extractPoints((Path) v.getFirstOutEdge().getData());

@@ -69,7 +69,7 @@ public class RectangularCommand extends UndoableRedoableCommand {
 
 					var points = switch (nodeRootLocationMap.get(e.getSource())) {
 						case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
-						case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
+						case Left, Right, Center -> List.of(first, new Point2D(first.getX(), last.getY()), last);
 					};
 
 					idNewPointsMap.put(e.getId(), PathNormalize.refine(points, 5));

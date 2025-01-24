@@ -48,7 +48,7 @@ public class ImportNewickDialog {
 			fileChooser.setTitle("Open File");
 		}
 
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Newick format", "*.tree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile"), TextFileFilter.getInstance());
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Newick format", "*.getTree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile"), TextFileFilter.getInstance());
 
 		File selectedFile = fileChooser.showOpenDialog(window.getStage());
 		if (selectedFile != null && getFileOpener() != null) {
