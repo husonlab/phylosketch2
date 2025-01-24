@@ -1,5 +1,5 @@
 /*
- * SmoothCommand.java Copyright (C) 2024 Daniel H. Huson
+ * AddLSAEdgesCommand.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -20,19 +20,20 @@
 
 package phylosketch.commands;
 
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
-import jloda.util.Basic;
 import jloda.util.Pair;
 import phylosketch.embed.LSATreeUtilities;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

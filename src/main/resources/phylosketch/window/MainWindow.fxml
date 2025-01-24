@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~  MainWindow.fxml Copyright (C) 2024 Daniel H. Huson
+  ~ MainWindow.fxml Copyright (C) 2025 Daniel H. Huson
   ~
   ~  (Some files contain contributions from other authors, who are then mentioned separately.)
   ~
@@ -17,6 +17,7 @@
   ~
   ~  You should have received a copy of the GNU General Public License
   ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~
   -->
 
 <?import javafx.geometry.Insets?>

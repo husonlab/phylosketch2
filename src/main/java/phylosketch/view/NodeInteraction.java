@@ -1,5 +1,5 @@
 /*
- * NodeInteraction.java Copyright (C) 2024 Daniel H. Huson
+ * NodeInteraction.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -24,13 +24,11 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import phylosketch.commands.MoveNodesCommand;
 import phylosketch.main.PhyloSketch;

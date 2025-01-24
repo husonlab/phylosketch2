@@ -1,5 +1,5 @@
 /*
- * InsertNodeInEdgeCommand.java Copyright (C) 2024 Daniel H. Huson
+ * InsertTwoNodesInEdgeCommand.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -22,7 +22,6 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
