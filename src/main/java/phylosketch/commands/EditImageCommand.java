@@ -1,5 +1,5 @@
 /*
- * DeleteInImageCommand.java Copyright (C) 2025 Daniel H. Huson
+ * EditImageCommand.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *

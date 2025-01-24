@@ -1,5 +1,5 @@
 /*
- * RemoveThruNodesCommand.java Copyright (C) 2024 Daniel H. Huson
+ * FixCrossingEdgesCommand.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -22,19 +22,18 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.Shape;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
-import jloda.fx.util.GeometryUtilsFX;
-import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.CollectionUtils;
-import phylocap.phylogeny.Phylogeny;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * remove all or selected "true nodes" (di-vertices) from graph
