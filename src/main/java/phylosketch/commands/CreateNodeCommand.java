@@ -37,7 +37,7 @@ public class CreateNodeCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view     the view
+	 * @param view     the window
 	 * @param location the location
 	 */
 	public CreateNodeCommand(DrawPane view, Point2D location) {

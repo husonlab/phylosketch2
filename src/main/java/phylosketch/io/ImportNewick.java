@@ -22,7 +22,6 @@ package phylosketch.io;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.shape.Circle;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.NewickIO;
@@ -48,7 +47,7 @@ public class ImportNewick {
 	 * import from file
 	 *
 	 * @param fileName file
-	 * @param view     the view to import into
+	 * @param view     the window to import into
 	 * @throws IOException
 	 */
 	public static void apply(String fileName, DrawPane view) throws IOException {
@@ -61,7 +60,7 @@ public class ImportNewick {
 	 * import from a buffered reader
 	 *
 	 * @param r        reader
-	 * @param view     view
+	 * @param view     window
 	 * @return set of new nodes
 	 * @throws IOException
 	 */
@@ -126,7 +125,8 @@ public class ImportNewick {
 						} else {
 							points = switch (rootLocation) {
 								case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
-								case Left, Right -> List.of(first, new Point2D(first.getX(), last.getY()), last);
+								case Left, Right, Center ->
+										List.of(first, new Point2D(first.getX(), last.getY()), last);
 							};
 						}
 						var f = view.createEdge(v, w, PathUtils.createPath(points, true));

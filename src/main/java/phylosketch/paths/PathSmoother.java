@@ -21,6 +21,7 @@
 package phylosketch.paths;
 
 import javafx.geometry.Point2D;
+import javafx.scene.shape.Path;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
  */
 public class PathSmoother {
 	/**
-	 * use  Chaikin's algorithm to setup a path
+	 * use  Chaikin's algorithm to smooth a path
 	 *
 	 * @param points     the original points
 	 * @param iterations number of iterations
@@ -54,9 +55,14 @@ public class PathSmoother {
 
 			newPoints.add(points.get(points.size() - 1));
 
-			points = PathNormalize.reduce(newPoints, 2);
+			points = PathNormalize.reduce(newPoints, 3);
 		}
-		points = PathNormalize.refine(points, 5);
+		points = PathNormalize.refine(points, 7);
 		return points;
+	}
+
+	public static void apply(Path path, int iterations) {
+		var points = PathUtils.getPoints(path);
+		path.getElements().setAll(PathUtils.toPathElements(apply(points, iterations)));
 	}
 }

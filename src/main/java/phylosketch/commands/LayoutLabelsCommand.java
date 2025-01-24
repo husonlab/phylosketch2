@@ -43,6 +43,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	private final Runnable redo;
 
 	private final Map<Integer, Point2D> nodeOldLayoutMap = new HashMap<>();
+	private final Map<Integer, Point2D> nodeNewLayoutMap = new HashMap<>();
 
 	public LayoutLabelsCommand(DrawPane view, Collection<Node> nodes) {
 		super("layout labels");
@@ -53,36 +54,53 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			}
 		}
 
-		undo = () -> {
-			for (var entry : nodeOldLayoutMap.entrySet()) {
-				var label = view.getLabel(view.getGraph().findNodeById(entry.getKey()));
-				label.setLayoutX(entry.getValue().getX());
-				label.setLayoutY(entry.getValue().getY());
-			}
-		};
-		redo = () -> {
-			{
-				var nodeRootLocationMap = new HashMap<Node, RootLocation>();
-				{
-					var components = ConnectedComponents.components(view.getGraph());
-					for (var component : components) {
-						var intersection = CollectionUtils.intersection(component, nodes);
-						if (!intersection.isEmpty()) {
-							var rootLocation = RootLocation.compute(component);
-							for (var v : intersection) {
-								nodeRootLocationMap.put(v, rootLocation);
-							}
-						}
+		var nodeRootLocationMap = new HashMap<Node, RootLocation>();
+		{
+			var components = ConnectedComponents.components(view.getGraph());
+			for (var component : components) {
+				var intersection = CollectionUtils.intersection(component, nodes);
+				if (!intersection.isEmpty()) {
+					var rootLocation = RootLocation.compute(component);
+					for (var v : intersection) {
+						nodeRootLocationMap.put(v, rootLocation);
 					}
 				}
-				for (var v : nodes) {
-					var label = view.getLabel(v);
-					var layout = computeLabelLayout(nodeRootLocationMap.get(v), label);
-					label.setLayoutX(layout.getX());
-					label.setLayoutY(layout.getY());
-				}
 			}
-		};
+		}
+		for (var v : nodes) {
+			var label = view.getLabel(v);
+			var layout = computeLabelLayout(nodeRootLocationMap.get(v), label);
+			nodeNewLayoutMap.put(v.getId(), layout);
+		}
+
+		if (nodeOldLayoutMap.isEmpty()) {
+			undo = null;
+		} else {
+			undo = () -> {
+				for (var entry : nodeOldLayoutMap.entrySet()) {
+					var v = view.getGraph().findNodeById(entry.getKey());
+					if (v != null) {
+						var label = view.getLabel(v);
+						label.setLayoutX(entry.getValue().getX());
+						label.setLayoutY(entry.getValue().getY());
+					}
+				}
+			};
+		}
+		if (nodeNewLayoutMap.isEmpty()) {
+			redo = null;
+		} else {
+			redo = () -> {
+				for (var entry : nodeNewLayoutMap.entrySet()) {
+					var v = view.getGraph().findNodeById(entry.getKey());
+					if (v != null) {
+						var label = view.getLabel(v);
+						label.setLayoutX(entry.getValue().getX());
+						label.setLayoutY(entry.getValue().getY());
+					}
+				}
+			};
+		}
 	}
 
 	/**
@@ -96,11 +114,21 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	public static Point2D computeLabelLayout(RootLocation rootLocation, RichTextLabel label) {
 		label.applyCss();
 		return switch (rootLocation) {
-			case Top -> new Point2D(-Math.max(10, label.getWidth() / 2), 5);
+			case Top, Center -> new Point2D(-Math.max(10, label.getWidth() / 2), 5);
 			case Bottom -> new Point2D(-Math.max(10, label.getWidth() / 2), -5 - Math.max(14, label.getHeight()));
 			case Right -> new Point2D(-label.getWidth() - 5, -Math.max(7, label.getHeight() / 2));
 			case Left -> new Point2D(10, -Math.max(7, label.getHeight() / 2));
 		};
+	}
+
+	@Override
+	public boolean isUndoable() {
+		return undo != null;
+	}
+
+	@Override
+	public boolean isRedoable() {
+		return redo != null;
 	}
 
 	@Override

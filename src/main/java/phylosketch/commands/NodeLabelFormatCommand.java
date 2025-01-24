@@ -21,8 +21,10 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.graph.Node;
 import phylosketch.view.DrawPane;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,10 +40,10 @@ public class NodeLabelFormatCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Formatting> oldMap = new HashMap<>();
 	private final Map<Integer, Formatting> newMap = new HashMap<>();
 
-	public NodeLabelFormatCommand(DrawPane view, Which which, Boolean newValue, Double newSize, String newFontFamily) {
-		super("format");
+	public NodeLabelFormatCommand(DrawPane view, Collection<Node> nodes, Which which, Boolean newValue, Double newSize, String newFontFamily) {
+		super("format " + which.name());
 
-		for (var v : view.getSelectedOrAllNodes()) {
+		for (var v : nodes) {
 			var id = v.getId();
 			var label = view.getLabel(v);
 			if (label != null) {
@@ -50,7 +52,12 @@ public class NodeLabelFormatCommand extends UndoableRedoableCommand {
 					newMap.put(id, new Formatting(which, null, null, newFontFamily));
 				} else if (which == Which.size) {
 					oldMap.put(id, new Formatting(which, null, label.getFontSize(), null));
-					newMap.put(id, new Formatting(which, null, newSize, null));
+					if (newSize == Double.MAX_VALUE) {
+						newMap.put(id, new Formatting(which, null, 1.1 * label.getFontSize(), null));
+					} else if (newSize == Double.MIN_VALUE) {
+						newMap.put(id, new Formatting(which, null, (1 / 1.1) * label.getFontSize(), null));
+					} else
+						newMap.put(id, new Formatting(which, null, newSize, null));
 				} else {
 					var oldValue = switch (which) {
 						case bold -> label.isBold();

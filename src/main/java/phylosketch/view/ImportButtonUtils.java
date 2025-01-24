@@ -44,18 +44,26 @@ public class ImportButtonUtils {
 							 Consumer<Image> importImage) {
 		var dragOver = new SimpleBooleanProperty(false);
 
-		importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
+		if (importString != null)
+			importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
+		else if (importImage != null)
+			importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasImageProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
+
 		importButton.setOnAction(e -> {
-			var text = ClipboardUtils.getTextFilesContentOrString(100000);
-			if (text != null)
-				importString.accept(text);
-			var image = ClipboardUtils.getImageFileContentOrImage();
-			if (image != null)
-				importImage.accept(image);
+			if (importString != null) {
+				var text = ClipboardUtils.getTextFilesContentOrString(100000);
+				if (text != null)
+					importString.accept(text);
+			}
+			if (importImage != null) {
+				var image = ClipboardUtils.getImageFileContentOrImage();
+				if (image != null)
+					importImage.accept(image);
+			}
 		});
 		if (pasteMenuItem != null) {
 			pasteMenuItem.setOnAction(importButton.getOnAction());
-			pasteMenuItem.disableProperty().bind((ClipboardUtils.hasStringProperty().or(ClipboardUtils.hasFilesProperty()).or(ClipboardUtils.hasImageProperty()).not()));
+			pasteMenuItem.disableProperty().bind(importButton.disableProperty());
 		}
 
 		importButton.setOnDragOver(e -> {
@@ -71,31 +79,32 @@ public class ImportButtonUtils {
 		importButton.setOnDragDropped(e -> {
 			var db = e.getDragboard();
 			boolean success = false;
-			if (db.getString() != null) {
+			if (db.getString() != null && importString != null) {
 				importString.accept(db.getString());
 				success = true;
 			} else if (db.hasFiles()) {
-				var done = false;
+				var buf = new StringBuilder();
 				for (var file : db.getFiles()) {
-					if (FileUtils.fileExistsAndIsNonEmpty(file) && isImageFile(file)) {
-						importImage.accept(new Image(file.toURI().toString()));
-						done = true;
-						break;
-					}
-				}
-				if (!done) {
-					var buf = new StringBuilder();
-					for (var file : db.getFiles()) {
-						if (FileUtils.fileExistsAndIsNonEmpty(file) && isTextFile(file)) {
-							try {
-								buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
-							} catch (IOException ignored) {
+					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
+						if (importString != null) {
+							if (isTextFile(file)) {
+								try {
+									buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
+									success = true;
+								} catch (IOException ignored) {
+								}
+							}
+						} else if (importImage != null) {
+							if (isImageFile(file)) {
+								importImage.accept(new Image(file.toURI().toString()));
+								success = true;
+								break;
 							}
 						}
 					}
-					importString.accept(buf.toString());
 				}
-				success = true;
+				if (!buf.isEmpty() && importString != null)
+					importString.accept(buf.toString());
 			}
 			e.setDropCompleted(success);
 			e.consume();

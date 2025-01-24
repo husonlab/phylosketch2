@@ -27,7 +27,7 @@ public class NewickFileFilter {
 
 	public static FileChooser.ExtensionFilter getInstance() {
 		if (instance == null)
-			instance = new FileChooser.ExtensionFilter("Newick file", "*.tree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile");
+			instance = new FileChooser.ExtensionFilter("Newick file", "*.getTree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile");
 		return instance;
 	}
 }

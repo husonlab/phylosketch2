@@ -12,7 +12,7 @@ module phylosketch {
 	requires javafx.web;
 	requires tess4j;
 	requires org.apache.commons.numbers.gamma;
-
+	requires java.management;
 
 	opens phylosketch.format;
 	opens phylosketch.help;
@@ -22,12 +22,20 @@ module phylosketch {
 	opens phylosketch.window;
 
 	opens phylocap;
-	opens phylocap.view;
+	opens phylocap.panel;
+	opens phylocap.window;
 	opens phylocap.capture;
+	exports phylocap.capture;
 
 	exports phylosketch.format;
 	exports phylosketch.window;
 	exports phylosketch.io;
 	exports phylosketch.main;
 	exports phylosketch.view;
+	opens phylocap.phylogeny;
+	exports phylosketch.capture;
+	opens phylosketch.capture;
+
+	exports xtra;
+
 }

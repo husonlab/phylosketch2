@@ -21,6 +21,8 @@ package phylosketch.view;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.layout.Pane;
+import jloda.fx.undo.UndoManager;
 
 public class LabelUtils {
 	private static double mouseDownX;
@@ -29,7 +31,7 @@ public class LabelUtils {
 	private static double mouseY;
 	private static boolean wasDragged;
 
-	public static void makeDraggable(javafx.scene.Node label, ReadOnlyBooleanProperty allow, DrawPane drawPane) {
+	public static void makeDraggable(javafx.scene.Node label, ReadOnlyBooleanProperty allow, Pane pane, UndoManager undoManager) {
 		label.setOnMousePressed(e -> {
 			mouseDownX = e.getScreenX();
 			mouseDownY = e.getScreenY();
@@ -41,8 +43,8 @@ public class LabelUtils {
 		});
 		label.setOnMouseDragged(e -> {
 			if(allow.get()) {
-				var previous = drawPane.screenToLocal(mouseX, mouseY);
-				var current = drawPane.screenToLocal(e.getScreenX(), e.getScreenY());
+				var previous = pane.screenToLocal(mouseX, mouseY);
+				var current = pane.screenToLocal(e.getScreenX(), e.getScreenY());
 				var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());
 				label.setLayoutX(label.getLayoutX() + delta.getX());
 				label.setLayoutY(label.getLayoutY() + delta.getY());
@@ -54,16 +56,16 @@ public class LabelUtils {
 		});
 		label.setOnMouseReleased(e -> {
 			if (wasDragged) {
-				drawPane.getUndoManager().add("move label", () -> {
-					var previous = drawPane.screenToLocal(mouseDownX, mouseDownY);
-					var current = drawPane.screenToLocal(e.getScreenX(), e.getScreenY());
+				undoManager.add("move label", () -> {
+					var previous = pane.screenToLocal(mouseDownX, mouseDownY);
+					var current = pane.screenToLocal(e.getScreenX(), e.getScreenY());
 					var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());
 
 					label.setLayoutX(label.getLayoutX() - delta.getX());
 					label.setLayoutY(label.getLayoutY() - delta.getY());
 				}, () -> {
-					var previous = drawPane.screenToLocal(mouseDownX, mouseDownY);
-					var current = drawPane.screenToLocal(e.getScreenX(), e.getScreenY());
+					var previous = pane.screenToLocal(mouseDownX, mouseDownY);
+					var current = pane.screenToLocal(e.getScreenX(), e.getScreenY());
 					var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());
 					label.setLayoutX(label.getLayoutX() + delta.getX());
 					label.setLayoutY(label.getLayoutY() + delta.getY());

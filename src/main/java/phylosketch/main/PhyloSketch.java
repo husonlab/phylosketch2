@@ -53,6 +53,9 @@ public class PhyloSketch extends Application {
 
     @Override
     public void init() {
+		if (ProgramProperties.isMacOS())
+			System.setProperty("jna.library.path", "lib/macos");
+
         Runtime.getRuntime().addShutdownHook(new Thread(ProgramProperties::store));
         ProgramProperties.setUseGUI(true);
     }

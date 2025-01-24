@@ -86,6 +86,7 @@ public class ImageUtils {
 		return writableImage; // Return the modified image
 	}
 
+
 	public static Image convertToGrayScale(Image image) {
 		var width = (int) image.getWidth();
 		var height = (int) image.getHeight();
@@ -96,8 +97,12 @@ public class ImageUtils {
 		for (var y = 0; y < height; y++) {
 			for (var x = 0; x < width; x++) {
 				var color = reader.getColor(x, y);
-				var gray = (color.getRed() + color.getGreen() + color.getBlue()) / 3; // Average grayscale
-				grayImage.getPixelWriter().setColor(x, y, new Color(gray, gray, gray, 1));
+				if (color.getOpacity() > 0) {
+					var gray = (color.getRed() + color.getGreen() + color.getBlue()) / 3; // Average grayscale
+					grayImage.getPixelWriter().setColor(x, y, new Color(gray, gray, gray, color.getOpacity()));
+				} else {
+					grayImage.getPixelWriter().setColor(x, y, Color.WHITE);
+				}
 			}
 		}
 		return grayImage;
@@ -136,7 +141,7 @@ public class ImageUtils {
 				var color = pixelReader.getColor(x, y);
 
 				// Check if the pixel is transparent (alpha < 1.0)
-				if (color.getOpacity() < 0.5) {
+				if (color.getOpacity() == 0) {
 					// Replace it with white
 					pixelWriter.setColor(x, y, Color.WHITE);
 				} else {

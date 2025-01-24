@@ -20,7 +20,12 @@
 
 package phylocap.capture;
 
+import javafx.geometry.Point2D;
+import jloda.util.CollectionUtils;
+import phylosketch.paths.PathNormalize;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * line segment with integer points
@@ -33,46 +38,70 @@ public record Segment(ArrayList<Point> points) {
 		this(new ArrayList<>());
 	}
 
-	public boolean similar(Segment that, double epsilon) {
-		// Check if each point in set1 has a isCloseTo point in set2
-		for (var point1 : points()) {
-			boolean foundClose = false;
-			for (var point2 : that.points()) {
-				if (point1.distance(point2) <= epsilon) {
-					foundClose = true;
-					break;
-				}
-			}
-			if (!foundClose) {
-				return false; // No isCloseTo point found in set2 for point1
-			}
-		}
+	public boolean same(Segment that, double epsilon) {
+		return this.contains(that, epsilon) && that.contains(this, epsilon);
+	}
 
-		// Check if each point in set2 has a isCloseTo point in set1
-		for (var point2 : that.points()) {
-			boolean foundClose = false;
-			for (var point1 : points()) {
-				if (point2.distance(point1) <= epsilon) {
-					foundClose = true;
-					break;
-				}
-			}
-			if (!foundClose) {
-				return false; // No isCloseTo point found in set1 for point2
-			}
+	public boolean contains(Segment that, double epsilon) {
+		for (var p : that.points) {
+			if (this.points.stream().noneMatch(q -> p.distance(q) <= epsilon))
+				return false;
 		}
-
-		// If all points in both sets have isCloseTo counterparts, return true
 		return true;
 	}
 
-	public boolean isCloseTo(Segment that, double maxDistance) {
+	public boolean proximal(Segment that, double maxDistance) {
 		for (var p : this.points) {
-			for (var q : that.points) {
-				if (p.distance(q) <= maxDistance)
-					return true;
-			}
+			if (that.points.stream().anyMatch(q -> p.distance(q) <= maxDistance))
+				return true;
 		}
 		return false;
+	}
+
+	public boolean proximal(Point2D point, double maxDistance) {
+		return points.stream().anyMatch(p -> point.distance(p.point2D()) <= maxDistance);
+	}
+
+	public List<Point2D> point2Ds() {
+		return new ArrayList<>(points.stream().map(Point::point2D).toList());
+	}
+
+	public Segment reverse() {
+		return new Segment(CollectionUtils.reverse(points));
+	}
+
+	public Point first() {
+		return points.get(0);
+	}
+
+	public Point last() {
+		return points.get(points.size() - 1);
+	}
+
+	public List<Segment> split(Point2D point) {
+		var best = 0;
+		var bestDistance = Double.MAX_VALUE;
+		for (var i = 0; i < points.size(); i++) {
+			var distance = point.distance(points.get(i).point2D());
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				best = i;
+			}
+		}
+		if (best > 0 && best < points.size() - 1) {
+			var part1 = CollectionUtils.reverse(new ArrayList<>(points.subList(0, best + 1)));
+			var part2 = new ArrayList<>(points.subList(best, points.size()));
+			return List.of(new Segment(part1), new Segment(part2));
+		} else
+			return List.of(this);
+	}
+
+	public Segment refine(int gap) {
+		var points2D = PathNormalize.refine(point2Ds(), gap);
+		var points = new ArrayList<Point>();
+		for (var p : points2D) {
+			points.add(new Point((int) Math.round(p.getX()), (int) Math.round(p.getY())));
+		}
+		return new Segment(points);
 	}
 }

@@ -57,7 +57,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor. Either v or e must be non-null
 	 *
-	 * @param view the view
+	 * @param view the window
 	 * @param v    the new root node
 	 * @param e    the new edge node
 	 */

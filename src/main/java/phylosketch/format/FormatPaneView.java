@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * the format pane view
+ * the format pane window
  * Daniel Huson, 11.2024
  */
 public class FormatPaneView {

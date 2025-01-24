@@ -44,8 +44,8 @@
                                     <HBox fx:id="leftHBox" alignment="CENTER" spacing="5.0"
                                           BorderPane.alignment="CENTER">
                                         <children>
-                                            <ToggleButton fx:id="editModeToggleButton" mnemonicParsing="false"
-                                                          text="Edit Mode"/>
+                                            <MenuButton fx:id="modeMenuButton" mnemonicParsing="false"
+                                                        text="Edit Mode"/>
                                             <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"/>
                                             <Button fx:id="importButton" text="Import"/>
                                             <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"/>
@@ -87,6 +87,29 @@
                                                     <Tooltip text="Delete selected nodes and edges"/>
                                                 </tooltip>
                                             </Button>
+                                            <MenuButton fx:id="captureMenuButton" mnemonicParsing="false"
+                                                        text="Capture">
+                                                <tooltip>
+                                                    <Tooltip text="Capture phylogeny from image"/>
+                                                </tooltip>
+                                                <items>
+                                                    <MenuItem fx:id="loadImageMenuItem" mnemonicParsing="false"
+                                                              text="Load Image..."/>
+                                                    <MenuItem fx:id="clearImageMenuItem" mnemonicParsing="false"
+                                                              text="Remove Image"/>
+                                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                                    <MenuItem fx:id="captureResetMenuItem" mnemonicParsing="false"
+                                                              text="Reset"/>
+                                                    <CheckMenuItem fx:id="captureRootLocationMenuItem"
+                                                                   mnemonicParsing="false" text="Place Root"/>
+                                                    <CheckMenuItem fx:id="captureLinesMenuItem" mnemonicParsing="false"
+                                                                   text="Capture Lines"/>
+                                                    <CheckMenuItem fx:id="captureLabelsMenuItem" mnemonicParsing="false"
+                                                                   text="Capture Labels"/>
+                                                    <CheckMenuItem fx:id="capturePhylogenyMenuItem"
+                                                                   mnemonicParsing="false" text="Capture Phylogeny"/>
+                                                </items>
+                                            </MenuButton>
                                         </children>
                                     </HBox>
                                 </left>
@@ -254,24 +277,25 @@
                                     <MenuItem fx:id="removeThruNodesMenuItem" mnemonicParsing="false"
                                               text="Remove Thru Nodes">
                                     </MenuItem>
+                                    <MenuItem fx:id="fixCrossingEdgesMenuItem" mnemonicParsing="false"
+                                              text="Fix Crossing Edges">
+                                    </MenuItem>
                                     <MenuItem fx:id="rerootMenuItem" text="Set Root"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
                                         <items>
-                                            <CheckMenuItem fx:id="editModeCheckMenuItem" mnemonicParsing="false"
+                                            <RadioMenuItem fx:id="editModeItem" mnemonicParsing="false"
                                                            text="Edit Mode">
-                                                <accelerator>
-                                                    <KeyCodeCombination alt="UP" code="M" control="UP" meta="DOWN"
-                                                                        shift="UP" shortcut="UP"/>
-                                                </accelerator>
-                                            </CheckMenuItem>
-                                            <CheckMenuItem fx:id="moveModeCheckMenuItem" mnemonicParsing="false"
+                                            </RadioMenuItem>
+                                            <RadioMenuItem fx:id="moveModeItem" mnemonicParsing="false"
                                                            text="Move Mode">
-                                                <accelerator>
-                                                    <KeyCodeCombination alt="UP" code="M" control="UP" meta="DOWN"
-                                                                        shift="DOWN" shortcut="UP"/>
-                                                </accelerator>
-                                            </CheckMenuItem>
+                                            </RadioMenuItem>
+                                            <RadioMenuItem fx:id="viewModeItem" mnemonicParsing="false"
+                                                           text="View Mode">
+                                            </RadioMenuItem>
+                                            <RadioMenuItem fx:id="captureModeItem" mnemonicParsing="false"
+                                                           text="Capture Mode">
+                                            </RadioMenuItem>
                                         </items>
                                     </Menu>
 
@@ -446,8 +470,7 @@
                                     </accelerator>
                                 </CheckMenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem fx:id="layoutLabelMenuItem" mnemonicParsing="false"
-                                          text="Layout Labels">
+                                <MenuItem fx:id="layoutLabelMenuItem" mnemonicParsing="false" text="Layout Labels">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="L" control="UP" meta="DOWN" shift="UP"
                                                             shortcut="UP"/>

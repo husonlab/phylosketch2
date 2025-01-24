@@ -45,7 +45,7 @@ public class ExportNewick {
 			fileChooser.setInitialFileName(mainWindow.getName());
 		}
 		fileChooser.setSelectedExtensionFilter(TextFileFilter.getInstance());
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Newick format", "*.tree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile"), TextFileFilter.getInstance());
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Newick format", "*.getTree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile"), TextFileFilter.getInstance());
 		var file = fileChooser.showSaveDialog(mainWindow.getStage());
 		if (file != null) {
 			try (var w = FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {

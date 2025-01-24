@@ -22,12 +22,16 @@ package phylocap.capture;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import jloda.fx.selection.SelectionModel;
 import net.sourceforge.tess4j.Word;
 import phylosketch.main.PhyloSketch;
+import phylosketch.paths.PathNormalize;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -36,6 +40,17 @@ import java.util.function.Supplier;
 public class DrawUtils {
 	public static void createCircles(List<Point> points, Group group) {
 		group.getChildren().setAll(points.stream().map(DrawUtils::createCircle).toList());
+		if (false)
+			group.getChildren().addAll(points.stream().map(
+					p -> {
+						var text = new Text(p.x() + "," + p.y());
+						text.setLayoutX(p.x() + 5 + (50 * Math.random() - 25));
+						text.setLayoutY(p.y() - 5 + (50 * Math.random() - 25));
+						;
+						text.setStroke(Color.DARKRED);
+						return text;
+					}
+			).toList());
 	}
 
 	public static Shape createCircle(Point point) {
@@ -51,6 +66,9 @@ public class DrawUtils {
 		group.getChildren().clear();
 		for (var segment : segments) {
 			var path = createPath(segment);
+			path.setTranslateX(30 * Math.random() - 15);
+			path.setTranslateY(30 * Math.random() - 15);
+
 			path.setOnMouseClicked(e -> {
 				if (canSelect.get()) {
 					if (!e.isShiftDown() && PhyloSketch.isDesktop()) {
@@ -84,20 +102,19 @@ public class DrawUtils {
 		group.getChildren().clear();
 		for (var word : wordList) {
 			var awtRect = word.getBoundingBox();
-			System.err.printf("Text: '%s', Location: [x=%d, y=%d, width=%d, height=%d]\n",
-					word.getText(), awtRect.x, awtRect.y, awtRect.width, awtRect.height);
 			var rectangle = new Rectangle(awtRect.x, awtRect.y, awtRect.width, awtRect.height);
 			rectangle.setFill(Color.WHITE);
 			rectangle.setStroke(Color.GREEN);
 			rectangle.setUserData(word);
 
-			var text = new Text(word.getText());
-			text.setStroke(Color.GREEN);
-			text.setLayoutX(awtRect.x + 1);
-			text.setLayoutY(awtRect.y + 10);
-			text.setUserData(word);
+			var label = new Label(word.getText());
+			label.setFont(new Font(label.getFont().getFamily(), 14));
+			label.setTextFill(Color.DARKGREEN);
+			label.setLayoutX(awtRect.x + 1);
+			label.setLayoutY(awtRect.y + 1);
+			label.setUserData(word);
 
-			group.getChildren().addAll(rectangle, text);
+			group.getChildren().addAll(rectangle, label);
 
 			rectangle.setOnMouseClicked(e -> {
 				if (canSelect.get()) {
@@ -108,7 +125,7 @@ public class DrawUtils {
 					e.consume();
 				}
 			});
-			text.setOnMouseClicked(rectangle.getOnMouseClicked());
+			label.setOnMouseClicked(rectangle.getOnMouseClicked());
 		}
 	}
 
@@ -119,12 +136,14 @@ public class DrawUtils {
 		circle.setOnMousePressed(e -> {
 			mouseX = e.getScreenX();
 			mouseY = e.getScreenY();
+			e.consume();
 		});
 		circle.setOnMouseDragged(e -> {
 			circle.setCenterX(circle.getCenterX() + e.getScreenX() - mouseX);
 			circle.setCenterY(circle.getCenterY() + e.getScreenY() - mouseY);
 			mouseX = e.getScreenX();
 			mouseY = e.getScreenY();
+			e.consume();
 		});
 
 		if (runOnRelease != null) {
@@ -132,6 +151,7 @@ public class DrawUtils {
 				if (!e.isStillSincePress()) {
 					runOnRelease.accept(new Point2D(circle.getCenterX(), circle.getCenterY()));
 				}
+				e.consume();
 			});
 		}
 	}

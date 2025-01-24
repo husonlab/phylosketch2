@@ -106,7 +106,7 @@ public class RootedNetworkEmbedder {
 
 
 	/**
-	 * compute the levels in the tree or network (max number of edges from node to a leaf)
+	 * compute the levels in the getTree or network (max number of edges from node to a leaf)
 	 *
 	 * @return levels
 	 */
@@ -145,7 +145,7 @@ public class RootedNetworkEmbedder {
 	}
 
 	/**
-	 * compute the y-coordinates for the parallel view
+	 * compute the y-coordinates for the parallel window
 	 *
 	 * @return y-coordinates
 	 */
@@ -169,7 +169,7 @@ public class RootedNetworkEmbedder {
 		List<Node> list = node2LSAChildren.get(v);
 
 		if (list.isEmpty()) {
-			// String taxonName = tree.getLabel(v);
+			// String taxonName = getTree.getLabel(v);
 			yCoord.put(v, (double) ++leafNumber);
 			nodeOrder.add(v);
 		} else {

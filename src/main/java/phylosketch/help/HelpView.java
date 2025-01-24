@@ -21,7 +21,6 @@
 package phylosketch.help;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import jloda.fx.util.StatementFilter;
 import phylosketch.main.PhyloSketch;
@@ -30,7 +29,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * the help tab view
+ * the help tab window
  * Daniel Huson, 12.2024
  */
 public class HelpView {

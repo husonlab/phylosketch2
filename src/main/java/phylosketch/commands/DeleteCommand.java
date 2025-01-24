@@ -32,10 +32,7 @@ import jloda.util.IteratorUtils;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawPane;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * delete the provided nodes and/or edges
@@ -91,8 +88,8 @@ public class DeleteCommand extends UndoableRedoableCommand {
 		};
 
 		redo = () -> {
-			view.deleteEdge(edgeDataList.stream().map(d -> d.id).map(view.getGraph()::findEdgeById).toArray(Edge[]::new));
-			view.deleteNode(nodeDataList.stream().map(d -> d.id).map(view.getGraph()::findNodeById).toArray(Node[]::new));
+			view.deleteEdge(edgeDataList.stream().map(d -> d.id).map(view.getGraph()::findEdgeById).filter(Objects::nonNull).toArray(Edge[]::new));
+			view.deleteNode(nodeDataList.stream().map(d -> d.id).map(view.getGraph()::findNodeById).filter(Objects::nonNull).toArray(Node[]::new));
 		};
 	}
 
