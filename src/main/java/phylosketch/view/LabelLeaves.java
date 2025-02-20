@@ -20,62 +20,49 @@
 
 package phylosketch.view;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
-import jloda.util.Pair;
-import phylosketch.main.PhyloSketch;
+import phylosketch.utils.NodeLabelEditBox;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * label all leaves
+ * interactively label all leaves
  * Daniel Huson, 1.2020
  */
 public class LabelLeaves {
-    public static void labelLeaves(Stage owner, DrawPane drawPane) {
-        final List<Node> leaves = sortLeaves(drawPane);
+	public static void labelLeaves(Stage owner, DrawView drawView) {
 
-        if(drawPane.getNodeSelection().size()>0) {
-			leaves.removeIf(v -> !drawPane.getNodeSelection().isSelected(v));
-        }
+		var canceled = new SimpleBooleanProperty(false);
 
-        if (false && PhyloSketch.isDesktop()) { // use the small dialog
-            for (var v : leaves) {
-                drawPane.getNodeSelection().clearSelection();
-                drawPane.getNodeSelection().select(v);
-                if (!NodeLabelDialog.apply(owner, drawPane, v))
-                    break;
-            }
-        } else {
-            relabelRec(drawPane, leaves);
+		for (var component : ConnectedComponents.components(drawView.getGraph())) {
+			var nodes = new ArrayList<>(component.stream().filter(Node::isLeaf)
+					.filter(v -> drawView.getNodeSelection().size() == 0 || drawView.getNodeSelection().isSelected(v)).toList());
+
+			if (!nodes.isEmpty()) {
+				var rootPosition = RootPosition.compute(component);
+				var leaves = new ArrayList<Node>();
+				TraversalByLayout.apply(component.stream().filter(v -> v.getInDegree() == 0).toList(), nodes, rootPosition, leaves::add);
+
+				relabelRec(drawView, leaves, canceled);
+				if (canceled.get()) {
+					return;
+				}
+			}
         }
     }
 
-    private static void relabelRec(DrawPane drawPane, List<Node> leaves) {
+	private static void relabelRec(DrawView drawView, List<Node> leaves, BooleanProperty canceled) {
         if (!leaves.isEmpty()) {
             var v = leaves.remove(0);
-            var shape = drawPane.getShape(v);
+			var shape = DrawView.getShape(v);
             var bounds = shape.getBoundsInLocal();
             var location = shape.localToScreen(bounds.getMinX(), bounds.getMinY());
-            NodeLabelDialog.apply(drawPane, location.getX(), location.getY(), v, () -> relabelRec(drawPane, leaves));
-        }
-    }
-
-    private static List<Node> sortLeaves(DrawPane drawPane) {
-        var graph = drawPane.getGraph();
-
-        var list=new ArrayList<Pair<Node, Double>>();
-       for(var component: ConnectedComponents.components(graph)) {
-           if (RootLocation.compute(component).isHorizontal())
-               list.addAll(component.stream().filter(v -> v.getOutDegree() == 0).map(v -> new Pair<>(v, DrawPane.getY(v))).toList());
-           else
-               list.addAll(component.stream().filter(v -> v.getOutDegree() == 0).map(v -> new Pair<>(v, DrawPane.getX(v))).toList());
-       }
-
-        return list.stream().sorted(Comparator.comparingDouble(Pair::getSecond)).map(Pair::getFirst).collect(Collectors.toList());
+			NodeLabelEditBox.show(drawView, location.getX(), location.getY(), v, canceled, () -> relabelRec(drawView, leaves, canceled));
+		}
     }
 }

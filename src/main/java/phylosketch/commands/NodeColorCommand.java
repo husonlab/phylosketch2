@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,12 +42,12 @@ public class NodeColorCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Color> oldMap = new HashMap<>();
 	private final Map<Integer, Color> newMap = new HashMap<>();
 
-	public NodeColorCommand(DrawPane view, Which which, Color color) {
+	public NodeColorCommand(DrawView view, Which which, Color color) {
 		super("color");
 
 		for (var v : view.getSelectedOrAllNodes()) {
 			var id = v.getId();
-			var shape = view.getShape(v);
+			var shape = DrawView.getShape(v);
 			if (shape != null) {
 				oldMap.put(id, (Color) (which == Which.stroke ? shape.getStroke() : shape.getFill()));
 				newMap.put(id, color);
@@ -57,7 +57,7 @@ public class NodeColorCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					var shape = view.getShape(v);
+					var shape = DrawView.getShape(v);
 					if (shape != null) {
 						if (which == Which.stroke) {
 							shape.setStroke(oldMap.get(id));
@@ -70,7 +70,7 @@ public class NodeColorCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var id : newMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					var shape = view.getShape(v);
+					var shape = DrawView.getShape(v);
 					if (shape != null) {
 						if (which == Which.stroke) {
 							shape.setStroke(newMap.get(id));

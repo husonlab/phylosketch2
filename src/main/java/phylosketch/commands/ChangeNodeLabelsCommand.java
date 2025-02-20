@@ -21,7 +21,7 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.List;
 
@@ -33,13 +33,13 @@ public class ChangeNodeLabelsCommand extends UndoableRedoableCommand {
     private final Runnable undo;
     private final Runnable redo;
 
-	public ChangeNodeLabelsCommand(DrawPane view, List<Data> dataList) {
+	public ChangeNodeLabelsCommand(DrawView view, List<Data> dataList) {
         super("change label(s)");
 
 		var graph = view.getGraph();
 
-		undo = () -> dataList.forEach(data -> view.setLabel(graph.findNodeById(data.getNodeId()), data.getOldLabel()));
-		redo = () -> dataList.forEach(data -> view.setLabel(graph.findNodeById(data.getNodeId()), data.getNewLabel()));
+		undo = () -> dataList.forEach(data -> view.setLabel(graph.findNodeById(data.nodeId()), data.oldLabel()));
+		redo = () -> dataList.forEach(data -> view.setLabel(graph.findNodeById(data.nodeId()), data.newLabel()));
     }
 
     @Override
@@ -52,28 +52,6 @@ public class ChangeNodeLabelsCommand extends UndoableRedoableCommand {
         redo.run();
     }
 
-    public static class Data {
-        private final int nodeId;
-        private final String oldLabel;
-        private final String newLabel;
-
-
-        public Data(int nodeId, String oldLabel, String newLabel) {
-            this.nodeId = nodeId;
-            this.oldLabel = oldLabel;
-            this.newLabel = newLabel;
-        }
-
-        public int getNodeId() {
-            return nodeId;
-        }
-
-        public String getOldLabel() {
-            return oldLabel;
-        }
-
-        public String getNewLabel() {
-            return newLabel;
-        }
+	public record Data(int nodeId, String oldLabel, String newLabel) {
     }
 }

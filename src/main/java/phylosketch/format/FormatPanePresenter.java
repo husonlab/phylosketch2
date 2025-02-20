@@ -31,18 +31,21 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Path;
+import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.RunAfterAWhile;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.commands.*;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 import phylosketch.view.LineType;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * format pane presenter
@@ -51,7 +54,7 @@ import java.util.function.Function;
 public class FormatPanePresenter {
 	private boolean canUpdate = true;
 
-	public FormatPanePresenter(DrawPane view, FormatPaneController controller, BooleanProperty show) {
+	public FormatPanePresenter(DrawView view, FormatPaneController controller, BooleanProperty show) {
 		controller.getCloseButton().setOnAction(e -> show.set(false));
 
 
@@ -73,7 +76,7 @@ public class FormatPanePresenter {
 		controller.getNodeLabelTextField().setFocusTraversable(false);
 		controller.getNodeLabelTextField().setOnAction(a -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, view.getSelectedOrAllNodes(), controller.getNodeLabelTextField().getText()));
+				view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, null, view.getSelectedOrAllNodes(), controller.getNodeLabelTextField().getText()));
 			}
 		});
 		setupTriggerOnEnter(controller.getNodeLabelTextField());
@@ -83,8 +86,8 @@ public class FormatPanePresenter {
 				String label = null;
 				for (var v : view.getNodeSelection().getSelectedItems()) {
 					if (label == null)
-						label = view.getLabel(v).getText();
-					else if (!label.equals(view.getLabel(v).getText())) {
+						label = DrawView.getLabel(v).getText();
+					else if (!label.equals(DrawView.getLabel(v).getText())) {
 						label = null;
 						break;
 					}
@@ -108,19 +111,19 @@ public class FormatPanePresenter {
 
 		controller.getNodeLabelBoldButton().setOnAction(e -> {
 			if (canUpdate) {
-				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).anyMatch(t -> t != null && !t.isBold());
+				var select = view.getSelectedOrAllNodes().stream().map(DrawView::getLabel).anyMatch(t -> t != null && !t.isBold());
 				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.bold, select, null, null));
 			}
 		});
 		controller.getNodeLabelItalicButton().setOnAction(e -> {
 			if (canUpdate) {
-				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
+				var select = view.getSelectedOrAllNodes().stream().map(DrawView::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
 				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.italic, select, null, null));
 			}
 		});
 		controller.getNodeLabelUnderlineButton().setOnAction(e -> {
 			if (canUpdate) {
-				var select = view.getSelectedOrAllNodes().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
+				var select = view.getSelectedOrAllNodes().stream().map(DrawView::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
 				view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.underlined, select, null, null));
 			}
 		});
@@ -147,18 +150,33 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getNodeColorPicker().valueProperty().addListener((var, o, n) -> {
+		controller.getNodeFillPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				view.getUndoManager().doAndAdd(new NodeColorCommand(view, NodeColorCommand.Which.fill, n));
 			}
 		});
 
-		controller.getClearNodeColorButton().setOnAction(a -> {
+		controller.getClearNodeFillButton().setOnAction(a -> {
 			if (canUpdate) {
 				canUpdate = false;
-				controller.getNodeColorPicker().setValue(null);
+				controller.getNodeFillPicker().setValue(null);
 				canUpdate = true;
 				view.getUndoManager().doAndAdd(new NodeColorCommand(view, NodeColorCommand.Which.fill, null));
+			}
+		});
+
+		controller.getNodeStrokePicker().valueProperty().addListener((var, o, n) -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new NodeColorCommand(view, NodeColorCommand.Which.stroke, n));
+			}
+		});
+
+		controller.getClearNodeStrokeButton().setOnAction(a -> {
+			if (canUpdate) {
+				canUpdate = false;
+				controller.getNodeStrokePicker().setValue(null);
+				canUpdate = true;
+				view.getUndoManager().doAndAdd(new NodeColorCommand(view, NodeColorCommand.Which.stroke, null));
 			}
 		});
 
@@ -194,20 +212,20 @@ public class FormatPanePresenter {
 		{
 			var object = new Object();
 			InvalidationListener updateShowNodesListener = e -> {
-				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> ((Circle) view.getShape(v)).getRadius());
-				var color = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) view.getShape(v).getFill());
-				var label = exactlyOne(view.getSelectedOrAllNodes(), v -> view.getLabel(v).getText());
-				var labelFont = exactlyOne(view.getSelectedOrAllNodes(), v -> view.getLabel(v).getFontFamily());
-				var labelSize = exactlyOne(view.getSelectedOrAllNodes(), v -> view.getLabel(v).getFontSize());
-				var labelColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) view.getLabel(v).getTextFill());
-				var labelBackground = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) view.getLabel(v).getBackgroundColor());
+				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> ((Circle) notNullOrElse(v, DrawView::getShape, () -> new Circle(3))).getRadius());
+				var color = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(3)).getFill());
+				var label = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getText());
+				var labelFont = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontFamily());
+				var labelSize = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontSize());
+				var labelColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getTextFill());
+				var labelBackground = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getBackgroundColor());
 				RunAfterAWhile.applyInFXThread(object, () -> {
 					canUpdate = false;
 					try {
 						controller.getNodeShapeChoiceBox().setValue(null);
 
 						controller.getNodeSizeCBox().setValue(nodeSize);
-						controller.getNodeColorPicker().setValue(color);
+						controller.getNodeFillPicker().setValue(color);
 						controller.getNodeLabelTextField().setText(label);
 						controller.getNodeLabelFontChoiceBox().setValue(labelFont);
 						controller.getNodeLabelSizeCBox().setValue(labelSize);
@@ -224,16 +242,16 @@ public class FormatPanePresenter {
 		{
 			var object = new Object();
 			InvalidationListener updateShowEdgesListener = a -> {
-				var lineType = exactlyOne(view.getSelectedOrAllEdges(), e -> LineType.fromShape(view.getPath(e)));
-				var edgeWidth = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getPath(e).getStrokeWidth());
-				var color = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) view.getPath(e).getFill());
+				var lineType = exactlyOne(view.getSelectedOrAllEdges(), e -> LineType.fromShape(notNullOrElse(e, DrawView::getPath, Path::new)));
+				var edgeWidth = exactlyOne(view.getSelectedOrAllEdges(), e -> notNullOrElse(e, DrawView::getPath, Path::new).getStrokeWidth());
+				var color = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) notNullOrElse(e, DrawView::getPath, Path::new).getFill());
 				var weight = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getGraph().hasEdgeWeights() ? view.getGraph().getWeight(e) : null);
 				var support = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getGraph().hasEdgeWeights() ? view.getGraph().getConfidence(e) : null);
 				var probability = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getGraph().hasEdgeWeights() ? view.getGraph().getProbability(e) : null);
-				var labelFont = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getLabel(e).getFontFamily());
-				var labelSize = exactlyOne(view.getSelectedOrAllEdges(), e -> view.getLabel(e).getFontSize());
-				var labelColor = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) view.getLabel(e).getTextFill());
-				var labelBackground = exactlyOne(view.getSelectedOrAllEdges(), v -> (Color) view.getLabel(v).getBackgroundColor());
+				var labelFont = exactlyOne(view.getSelectedOrAllEdges(), e -> notNullOrElse(e, DrawView::getLabel, RichTextLabel::new).getFontFamily());
+				var labelSize = exactlyOne(view.getSelectedOrAllEdges(), e -> notNullOrElse(e, DrawView::getLabel, RichTextLabel::new).getFontSize());
+				var labelColor = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) notNullOrElse(e, DrawView::getLabel, RichTextLabel::new).getTextFill());
+				var labelBackground = exactlyOne(view.getSelectedOrAllEdges(), e -> (Color) notNullOrElse(e, DrawView::getLabel, RichTextLabel::new).getBackgroundColor());
 				RunAfterAWhile.applyInFXThread(object, () -> {
 					canUpdate = false;
 					try {
@@ -289,19 +307,19 @@ public class FormatPanePresenter {
 
 		controller.getEdgeLabelBoldButton().setOnAction(e -> {
 			if (canUpdate) {
-				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isBold());
+				var select = view.getSelectedOrAllEdges().stream().map(DrawView::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isBold());
 				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.bold, select, null, null));
 			}
 		});
 		controller.getEdgeLabelItalicButton().setOnAction(e -> {
 			if (canUpdate) {
-				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
+				var select = view.getSelectedOrAllEdges().stream().map(DrawView::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isItalic());
 				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.italic, select, null, null));
 			}
 		});
 		controller.getEdgeLabelUnderlineButton().setOnAction(e -> {
 			if (canUpdate) {
-				var select = view.getSelectedOrAllEdges().stream().map(view::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
+				var select = view.getSelectedOrAllEdges().stream().map(DrawView::getLabel).filter(Objects::nonNull).anyMatch(label -> !label.isUnderline());
 				view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.underlined, select, null, null));
 			}
 		});
@@ -464,7 +482,19 @@ public class FormatPanePresenter {
 			}
 		});
 
+		controller.getDeclareRootButton().setOnAction(e -> {
+		});
+
 		AccordionManager.apply(controller.getRootPane(), BasicFX.getAllRecursively(controller.getRootPane(), Accordion.class), 3);
+	}
+
+	private static <S, T> T notNullOrElse(S key, Function<? super S, ? extends T> function, Supplier<? extends T> alternative) {
+		if (key != null) {
+			var result = function.apply(key);
+			if (result != null)
+				return result;
+		}
+		return alternative.get();
 	}
 
 	private <S, T> T exactlyOne(Collection<S> nodes, Function<S, T> function) {

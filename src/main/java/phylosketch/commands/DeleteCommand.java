@@ -24,13 +24,12 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
-import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.IteratorUtils;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.*;
 
@@ -52,7 +51,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 	 * @param nodes
 	 * @param edges0
 	 */
-	public DeleteCommand(DrawPane view, Collection<Node> nodes, Collection<Edge> edges0) {
+	public DeleteCommand(DrawView view, Collection<Node> nodes, Collection<Edge> edges0) {
 		super("delete");
 
 		if (nodes.isEmpty() && edges0.isEmpty()) {
@@ -94,6 +93,16 @@ public class DeleteCommand extends UndoableRedoableCommand {
 	}
 
 	@Override
+	public boolean isUndoable() {
+		return undo != null;
+	}
+
+	@Override
+	public boolean isRedoable() {
+		return redo != null;
+	}
+
+	@Override
 	public void undo() {
 		undo.run();
 	}
@@ -103,25 +112,25 @@ public class DeleteCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	public record NodeData(int id, String text, Shape shape, RichTextLabel label) {
-		public NodeData(DrawPane view, Node v) {
-			this(v.getId(), view.getGraph().getLabel(v), view.getShape(v), view.getLabel(v));
+	public record NodeData(int id, String text, Shape shape, String label) {
+		public NodeData(DrawView view, Node v) {
+			this(v.getId(), view.getGraph().getLabel(v), DrawView.getShape(v), DrawView.getLabel(v).getText());
 		}
 	}
 
 	public record EdgeData(int id, int sourceId, int targetId, boolean arrow, Double weight,
 						   Double confidence, Double probability, String label, List<Point2D> points,
 						   Color stroke, double strokeWidth, List<Double> dashArray) {
-		public EdgeData(DrawPane view, Edge e) {
+		public EdgeData(DrawView view, Edge e) {
 			this(e.getId(), e.getSource().getId(), e.getTarget().getId(), view.getEdgeArrowMap().containsKey(e),
 					view.getGraph().hasEdgeWeights() ? view.getGraph().getWeight(e) : null,
 					view.getGraph().hasEdgeConfidences() ? view.getGraph().getConfidence(e) : null,
 					view.getGraph().hasEdgeProbabilities() ? view.getGraph().getProbability(e) : null,
-					view.getLabel(e).getRawText(), PathUtils.extractPoints(view.getPath(e)), (Color) view.getPath(e).getStroke(),
-					view.getPath(e).getStrokeWidth(), new ArrayList<>(view.getPath(e).getStrokeDashArray()));
+					DrawView.getLabel(e).getRawText(), PathUtils.extractPoints(DrawView.getPath(e)), (Color) DrawView.getPath(e).getStroke(),
+					DrawView.getPath(e).getStrokeWidth(), new ArrayList<>(DrawView.getPath(e).getStrokeDashArray()));
 		}
 
-		public void apply(DrawPane view, Edge e) {
+		public void apply(DrawView view, Edge e) {
 			if (weight != null)
 				view.getGraph().setWeight(e, weight);
 			if (confidence != null)
@@ -132,10 +141,10 @@ public class DeleteCommand extends UndoableRedoableCommand {
 				view.setShowArrow(e, true);
 			if (label != null)
 				view.setLabel(e, label);
-			view.getPath(e).getElements().setAll(PathUtils.toPathElements(points));
-			view.getPath(e).setStroke(stroke);
-			view.getPath(e).setStrokeWidth(strokeWidth);
-			view.getPath(e).getStrokeDashArray().setAll(dashArray);
+			DrawView.getPath(e).getElements().setAll(PathUtils.toPathElements(points));
+			DrawView.getPath(e).setStroke(stroke);
+			DrawView.getPath(e).setStrokeWidth(strokeWidth);
+			DrawView.getPath(e).getStrokeDashArray().setAll(dashArray);
 		}
 	}
 }

@@ -43,6 +43,7 @@
                                     <rowConstraints>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                         <RowConstraints/>
                                     </rowConstraints>
                                     <children>
@@ -63,19 +64,46 @@
                                                 </ComboBox>
                                             </children>
                                         </HBox>
-                                        <Label text="Color  " GridPane.rowIndex="1"/>
-                                        <ColorPicker fx:id="nodeColorPicker" prefWidth="144.0" GridPane.columnIndex="1"
+                                        <Label text="Fill" GridPane.rowIndex="1"/>
+                                        <ColorPicker fx:id="nodeFillPicker" prefWidth="144.0" GridPane.columnIndex="1"
                                                      GridPane.rowIndex="1">
-                                                    <tooltip>
-                                                        <Tooltip text="Node color"/>
-                                                    </tooltip>
-                                                </ColorPicker>
-                                        <Button fx:id="clearNodeColorButton" ellipsisString="" graphicTextGap="0.0"
+                                            <tooltip>
+                                                <Tooltip text="Node color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                        <Button fx:id="clearNodeFillButton" ellipsisString="" graphicTextGap="0.0"
                                                 maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
                                                 minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0"
                                                 prefWidth="24.0"
                                                 style="-fx-background-color: transparent; -fx-border-style: null;"
                                                 text="↻" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                            <font>
+                                                <Font size="10.0"/>
+                                            </font>
+                                            <opaqueInsets>
+                                                <Insets/>
+                                            </opaqueInsets>
+                                            <tooltip>
+                                                <Tooltip text="Revert to default settings"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Label text="Stroke" GridPane.rowIndex="2">
+                                            <font>
+                                                <Font size="12.0"/>
+                                            </font>
+                                        </Label>
+                                        <ColorPicker fx:id="nodeStrokePicker" layoutX="61.0" layoutY="56.0"
+                                                     prefWidth="144.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                            <tooltip>
+                                                <Tooltip text="Node color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                        <Button fx:id="clearNodeStrokeButton" ellipsisString="" graphicTextGap="0.0"
+                                                layoutX="219.0" layoutY="57.0" maxHeight="-Infinity"
+                                                maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                                mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                                style="-fx-background-color: transparent; -fx-border-style: null;"
+                                                text="↻" GridPane.columnIndex="2" GridPane.rowIndex="2">
                                             <font>
                                                 <Font size="10.0"/>
                                             </font>
@@ -223,11 +251,11 @@
                                         </Button>
                                     </children>
                                 </HBox>
-                                <Label text="Color" GridPane.rowIndex="3"/>
+                                <Label text="Stroke" GridPane.rowIndex="3"/>
                                 <ColorPicker fx:id="nodeLabelColorPicker" prefWidth="134.0" GridPane.columnIndex="1"
                                              GridPane.rowIndex="3">
                                     <tooltip>
-                                        <Tooltip text="Node label color"/>
+                                        <Tooltip text="Node label stroke color"/>
                                     </tooltip>
                                 </ColorPicker>
                                 <Button fx:id="clearNodeLabelColorButton" ellipsisString="" graphicTextGap="0.0"
@@ -518,11 +546,11 @@
                                         </Button>
                                     </children>
                                 </HBox>
-                                <Label text="Color" GridPane.rowIndex="3"/>
+                                <Label text="Stroke" GridPane.rowIndex="3"/>
                                 <ColorPicker fx:id="edgeLabelColorPicker" prefWidth="134.0" GridPane.columnIndex="1"
                                              GridPane.rowIndex="3">
                                     <tooltip>
-                                        <Tooltip text="Edge labels color"/>
+                                        <Tooltip text="Edge labels stroke color"/>
                                     </tooltip>
                                 </ColorPicker>
                                 <Button fx:id="clearEdgeLabelColorButton" ellipsisString="" graphicTextGap="0.0"
@@ -563,6 +591,67 @@
                                         <Tooltip text="Revert to default settings"/>
                                     </tooltip>
                                 </Button>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion>
+            <panes>
+                <TitledPane animated="false" text="Edit Nodes and Edges">
+                    <content>
+                        <GridPane>
+                            <columnConstraints>
+                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                   prefWidth="100.0"/>
+                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                   prefWidth="100.0"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                                <Button fx:id="declareRootButton" mnemonicParsing="false" text="Declare Root">
+                                    <tooltip>
+                                        <Tooltip text="Declare the selected node as root, and direct edges away"/>
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="deleteThruNodesButton" layoutX="21.0" layoutY="23.0"
+                                        mnemonicParsing="false" text="Del. Thru Nodes" GridPane.columnIndex="1"
+                                        GridPane.rowIndex="1">
+                                    <tooltip>
+                                        <Tooltip
+                                                text="Remove selected thru nodes (with both  indegree and outdegree 1)"/>
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="reverseEdgesButton" layoutX="21.0" layoutY="23.0" mnemonicParsing="false"
+                                        text="Reverse Edges" GridPane.rowIndex="2">
+                                    <tooltip>
+                                        <Tooltip text="Reverse the diredtion of selected edges"/>
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="crossEdgesButton" layoutX="21.0" layoutY="53.0" mnemonicParsing="false"
+                                        text="Cross Edges" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <tooltip>
+                                        <Tooltip
+                                                text="For a node of in- and outdegree 2, separate into two crossing edges"/>
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="mergeNodesButton" layoutX="24.0" layoutY="53.0" mnemonicParsing="false"
+                                        text="Merge Nodes" GridPane.rowIndex="1">
+                                    <tooltip>
+                                        <Tooltip text="Merge all selected nodes into one"/>
+                                    </tooltip>
+                                </Button>
+                                <ToggleButton fx:id="resizeModeToggle" mnemonicParsing="false" text="Resize Mode"
+                                              GridPane.columnIndex="1">
+                                    <tooltip>
+                                        <Tooltip text="Active resize mode "/>
+                                    </tooltip>
+                                </ToggleButton>
                             </children>
                         </GridPane>
                     </content>

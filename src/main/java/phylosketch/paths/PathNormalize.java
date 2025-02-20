@@ -40,15 +40,26 @@ public class PathNormalize {
 	 * @param path the original path
 	 * @param dMin min distance between consecutive points
 	 * @param dMax max distance between consecutive points
-	 * @return normalized points
+	 * @return normalized path elements
 	 */
 	public static List<PathElement> apply(Path path, double dMin, double dMax) {
+		return PathUtils.toPathElements(apply(PathUtils.getPoints(path), dMin, dMax));
+	}
+
+	/**
+	 * normalizes points by ensuring that all consecutive points have distance between dMin and dMax
+	 *
+	 * @param points the original points
+	 * @param dMin   min distance between consecutive points
+	 * @param dMax   max distance between consecutive points
+	 * @return normalized points
+	 */
+	public static List<Point2D> apply(List<Point2D> points, double dMin, double dMax) {
 		if (dMin >= dMax)
 			throw new IllegalArgumentException();
-		var points = PathUtils.getPoints(path);
 		points = refine(points, dMax);
 		points = reduce(points, dMin);
-		return PathUtils.toPathElements(points);
+		return points;
 	}
 
 	/**

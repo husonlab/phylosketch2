@@ -31,8 +31,8 @@ import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.Pair;
 import phylosketch.commands.MoveNodesCommand;
-import phylosketch.view.DrawPane;
-import phylosketch.view.RootLocation;
+import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +52,9 @@ public class LayoutDuringRerootUtils {
 	 * @param reference the reference node (usually the root of a component)
 	 * @return alpha and beta for reference node
 	 */
-	public static Pair<Double, Double> computeAlphaBeta(DrawPane view, Node reference) {
+	public static Pair<Double, Double> computeAlphaBeta(DrawView view, Node reference) {
 		var component = ConnectedComponents.component(reference);
-		var rootLocation = RootLocation.compute(component);
+		var rootLocation = RootPosition.compute(component);
 		return computeAlphaBeta(view, reference, component, rootLocation);
 	}
 
@@ -66,19 +66,19 @@ public class LayoutDuringRerootUtils {
 	 * @param reference the reference node (usually the root of a component)
 	 * @return alpha and beta for reference node
 	 */
-	public static Pair<Double, Double> computeAlphaBeta(DrawPane view, Node reference, Set<Node> component, RootLocation rootLocation) {
-		var delta = switch (rootLocation) {
+	public static Pair<Double, Double> computeAlphaBeta(DrawView view, Node reference, Set<Node> component, RootPosition rootLocation) {
+		var delta = switch (rootLocation.side()) {
 			case Left -> 0.0;
 			case Right -> 180;
 			case Top -> 90;
 			case Bottom -> 270;
 			case Center -> 360;
 		};
-		var ref = view.getPoint(reference);
+		var ref = DrawView.getPoint(reference);
 		var alpha = 0.0;
 		var beta = 0.0;
 		for (var v : component) {
-			var position = view.getPoint(v);
+			var position = DrawView.getPoint(v);
 			var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(position.subtract(ref)) + delta);
 			if (angle >= 0 && angle <= 180) {
 				alpha = Math.max(alpha, angle);
@@ -89,13 +89,13 @@ public class LayoutDuringRerootUtils {
 		return new Pair<>(alpha, beta);
 	}
 
-	public static void apply(DrawPane view, Node reference, double newAlpha, double newBeta, boolean handleDegree2Case, boolean animate) {
+	public static void apply(DrawView view, Node reference, double newAlpha, double newBeta, boolean handleDegree2Case, boolean animate) {
 		var component = ConnectedComponents.component(reference);
-		var rootLocation = RootLocation.compute(component);
+		var rootLocation = RootPosition.compute(component);
 		var pair = computeAlphaBeta(view, reference, component, rootLocation);
 		var alpha = pair.getFirst();
 		var beta = pair.getSecond();
-		var delta = switch (rootLocation) {
+		var delta = switch (rootLocation.side()) {
 			case Left -> 0.0;
 			case Right -> 180;
 			case Top -> 90;
@@ -109,10 +109,10 @@ public class LayoutDuringRerootUtils {
 		var a = alpha1 / alpha;
 		var b = beta1 / beta;
 
-		var refPoint = view.getPoint(reference);
+		var refPoint = DrawView.getPoint(reference);
 		if (handleDegree2Case && reference.getDegree() == 2) {
 			for (var v : reference.adjacentNodes()) {
-				var position = view.getPoint(v);
+				var position = DrawView.getPoint(v);
 				var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(position.subtract(refPoint)) + delta);
 				if (angle > 0 && angle <= 180) {
 					a = Math.min(a, 90 / angle);
@@ -125,7 +125,7 @@ public class LayoutDuringRerootUtils {
 
 		var keyValues = new ArrayList<KeyValue>();
 		for (var v : component) {
-			var position = view.getPoint(v);
+			var position = DrawView.getPoint(v);
 			var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(position.subtract(refPoint)) + delta);
 			Point2D newPosition;
 			if (angle >= 0 && angle <= 180) {
@@ -136,15 +136,11 @@ public class LayoutDuringRerootUtils {
 				newPosition = GeometryUtilsFX.rotateAbout(rotateBack, 360 - b * (alpha - 360), refPoint);
 			}
 			if (!newPosition.equals(position)) {
-				var shape = view.getShape(v);
+				var shape = DrawView.getShape(v);
 				var x = new SimpleDoubleProperty(shape.getTranslateX());
-				x.addListener((var, o, n) -> {
-					MoveNodesCommand.moveNodesAndEdges(view.getGraph(), List.of(v), n.doubleValue() - o.doubleValue(), 0, false);
-				});
+				x.addListener((var, o, n) -> MoveNodesCommand.moveNodesAndEdges(view.getGraph(), List.of(v), n.doubleValue() - o.doubleValue(), 0, false));
 				var y = new SimpleDoubleProperty(shape.getTranslateY());
-				y.addListener((var, o, n) -> {
-					MoveNodesCommand.moveNodesAndEdges(view.getGraph(), List.of(v), 0, n.doubleValue() - o.doubleValue(), false);
-				});
+				y.addListener((var, o, n) -> MoveNodesCommand.moveNodesAndEdges(view.getGraph(), List.of(v), 0, n.doubleValue() - o.doubleValue(), false));
 
 				keyValues.add(new KeyValue(x, newPosition.getX()));
 				keyValues.add(new KeyValue(y, newPosition.getY()));

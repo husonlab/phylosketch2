@@ -58,9 +58,9 @@ public class EdgeInteraction {
 	 * Note that interactive creation of new edges ist setup in PaneInteraction
 	 *
 	 * @param view
-	 * @param runDoubleClickSelection
+	 * @param runSelectionButton
 	 */
-	public static void setup(DrawPane view, BooleanProperty resizeMode, Runnable runDoubleClickSelection) {
+	public static void setup(DrawView view, BooleanProperty resizeMode, Runnable runSelectionButton) {
 		view.getEdgesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
@@ -68,7 +68,7 @@ public class EdgeInteraction {
 						if (n instanceof Path path && path.getUserData() instanceof jloda.graph.Edge e) {
 
 							path.setOnContextMenuRequested(a -> {
-								if (view.getEdgeSelection().isSelected(e) && view.getMode() == DrawPane.Mode.Move) {
+								if (view.getEdgeSelection().isSelected(e) && view.getMode() == DrawView.Mode.Move) {
 									var resizeItem = new CheckMenuItem("Resize Mode");
 									resizeItem.setSelected(resizeMode.get());
 									resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
@@ -80,27 +80,23 @@ public class EdgeInteraction {
 
 							path.setOnMouseClicked(me -> {
 								if (me.isStillSincePress() && !me.isControlDown()) {
-									if (me.getClickCount() == 1) {
-										if (!me.isAltDown() && PhyloSketch.isDesktop()) {
-											if (!me.isShiftDown()) {
-												view.getNodeSelection().clearSelection();
-												view.getEdgeSelection().clearSelection();
-											}
-										}
+									if (PhyloSketch.isDesktop() && me.isShiftDown()) {
 										view.getEdgeSelection().toggleSelection(e);
-										if (!me.isAltDown()) {
-											view.getNodeSelection().setSelected(e.getSource(), view.getEdgeSelection().isSelected(e));
-											view.getNodeSelection().setSelected(e.getTarget(), view.getEdgeSelection().isSelected(e));
+									} else if (!view.getEdgeSelection().isSelected(e)) {
+										if (PhyloSketch.isDesktop()) {
+											view.getEdgeSelection().clearSelection();
+											view.getNodeSelection().clearSelection();
 										}
-									} else if (me.getClickCount() == 2) {
-										Platform.runLater(runDoubleClickSelection);
+										view.getEdgeSelection().select(e);
+									} else {
+										Platform.runLater(runSelectionButton);
 									}
 								}
 								me.consume();
 							});
 
 							path.setOnMousePressed(me -> {
-								if (view.getMode() == DrawPane.Mode.Move) {
+								if (view.getMode() == DrawView.Mode.Move) {
 									mouseDownX = me.getScreenX();
 									mouseDownY = me.getScreenY();
 									var local = view.screenToLocal(mouseDownX, mouseDownY);
@@ -113,7 +109,7 @@ public class EdgeInteraction {
 									pathIndex = -1;
 							});
 							path.setOnMouseDragged(me -> {
-								if (view.getMode() == DrawPane.Mode.Move) {
+								if (view.getMode() == DrawView.Mode.Move) {
 									if (!view.getEdgeSelection().isSelected(e)) {
 										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -133,7 +129,7 @@ public class EdgeInteraction {
 								}
 							});
 							path.setOnMouseReleased(me -> {
-								if (view.getMode() == DrawPane.Mode.Move) {
+								if (view.getMode() == DrawView.Mode.Move) {
 									if (pathIndex != -1 && !me.isStillSincePress()) {
 										var theOriginalElements = originalElements;
 										var refinedElements = PathNormalize.apply(path, 2, 5);
@@ -146,12 +142,8 @@ public class EdgeInteraction {
 									me.consume();
 								}
 							});
-							path.setOnMouseEntered(me -> {
-								path.setStrokeWidth(path.getStrokeWidth() + 4);
-							});
-							path.setOnMouseExited(me -> {
-								path.setStrokeWidth(path.getStrokeWidth() - 4);
-							});
+							path.setOnMouseEntered(me -> path.setStrokeWidth(path.getStrokeWidth() + 4));
+							path.setOnMouseExited(me -> path.setStrokeWidth(path.getStrokeWidth() - 4));
 						}
 					}
 				}

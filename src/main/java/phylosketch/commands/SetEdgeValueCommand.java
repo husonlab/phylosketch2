@@ -24,8 +24,8 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
-import phylosketch.view.DrawPane;
-import phylosketch.view.RootLocation;
+import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 	 * @param what  what to set
 	 * @param value the value to set to. If what is Weight and value=-1, will set to weights graphical edge lengths
 	 */
-	public SetEdgeValueCommand(DrawPane view, What what, double value) {
+	public SetEdgeValueCommand(DrawView view, What what, double value) {
 		super("set " + what.toString().toLowerCase());
 
 		var graph = view.getGraph();
@@ -59,11 +59,11 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 		if (view.getEdgeSelection().size() == 0)
 			view.getEdgeSelection().selectAll(view.getGraphFX().getEdgeList());
 
-		final Map<Node, RootLocation> nodeRootOrientationMap;
+		final Map<Node, RootPosition> nodeRootOrientationMap;
 		if (what == What.Weight && value == -1) {
 			nodeRootOrientationMap = new HashMap<>();
 			for (var component : ConnectedComponents.components(graph)) {
-				var rootLocation = RootLocation.compute(component);
+				var rootLocation = RootPosition.compute(component);
 				for (var e : view.getEdgeSelection().getSelectedItems()) {
 					if (component.contains(e.getSource())) {
 						nodeRootOrientationMap.put(e.getSource(), rootLocation);
@@ -76,7 +76,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 		for (var e : view.getEdgeSelection().getSelectedItems()) {
 			switch (what) {
 				case Weight -> {
-					var useValue = (value == -1 ? (int) Math.round(computeGraphicalEdgeLength(view, nodeRootOrientationMap.get(e.getSource()), e)) : value);
+					var useValue = (value == -1 ? (int) Math.round(computeGraphicalEdgeLength(nodeRootOrientationMap.get(e.getSource()), e)) : value);
 					edgeOldMap.put(e.getId(), graph.getWeight(e));
 					edgeNewMap.put(e.getId(), useValue);
 				}
@@ -132,10 +132,10 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 		}
 	}
 
-	public Double computeGraphicalEdgeLength(DrawPane view, RootLocation rootLocation, Edge e) {
-		var a = view.getPoint(e.getSource());
-		var b = view.getPoint(e.getTarget());
-		return switch (rootLocation) {
+	public static Double computeGraphicalEdgeLength(RootPosition rootPosition, Edge e) {
+		var a = DrawView.getPoint(e.getSource());
+		var b = DrawView.getPoint(e.getTarget());
+		return switch (rootPosition.side()) {
 			case Left, Right -> Math.abs(a.getX() - b.getX());
 			case Top, Bottom -> Math.abs(a.getY() - b.getY());
 			case Center -> a.distance(b);

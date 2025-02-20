@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,12 +40,12 @@ public class EdgeLabelColorCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Color> oldMap = new HashMap<>();
 	private final Map<Integer, Color> newMap = new HashMap<>();
 
-	public EdgeLabelColorCommand(DrawPane view, Which which, Color color) {
+	public EdgeLabelColorCommand(DrawView view, Which which, Color color) {
 		super("color");
 
 		for (var e : view.getSelectedOrAllEdges()) {
 			var id = e.getId();
-			var label = view.getLabel(e);
+			var label = DrawView.getLabel(e);
 			if (label != null) {
 				oldMap.put(id, (Color) (which == Which.textFill ? label.getTextFill() : label.getBackgroundColor()));
 				newMap.put(id, color);
@@ -55,7 +55,7 @@ public class EdgeLabelColorCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					var label = view.getLabel(e);
+					var label = DrawView.getLabel(e);
 					if (label != null) {
 						if (which == Which.textFill) {
 							label.setTextFill(oldMap.get(id));
@@ -68,7 +68,7 @@ public class EdgeLabelColorCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var id : newMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					var label = view.getLabel(e);
+					var label = DrawView.getLabel(e);
 					if (label != null) {
 						if (which == Which.textFill) {
 							label.setTextFill(newMap.get(id));

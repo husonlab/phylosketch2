@@ -28,12 +28,14 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import jloda.fx.control.ZoomableScrollPane;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +60,16 @@ public class MainWindowController {
 	private MenuItem clearMenuItem;
 
 	@FXML
-	private MenuItem removeThruNodesMenuItem;
+	private MenuItem mergeNodesMenuItem;
 
 	@FXML
-	private MenuItem fixCrossingEdgesMenuItem;
+	private MenuItem deleteThruNodesMenuItem;
+
+	@FXML
+	private MenuItem reverseEdgesMenuItem;
+
+	@FXML
+	private MenuItem crossEdgesMenuItem;
 
 	@FXML
 	private MenuItem closeMenuItem;
@@ -107,6 +115,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem exportImageMenuItem;
+
+	@FXML
+	private MenuItem openImageFileItem;
 
 	@FXML
 	private Menu fileMenu;
@@ -315,31 +326,31 @@ public class MainWindowController {
 	private MenuButton captureMenuButton;
 
 	@FXML
-	MenuItem loadImageMenuItem;
+	CheckMenuItem showCaptureParametersItem;
 
 	@FXML
-	MenuItem clearImageMenuItem;
+	MenuItem loadCaptureImageItem;
 
 	@FXML
-	MenuItem captureResetMenuItem;
+	MenuItem clearCaptureImageItem;
 
 	@FXML
-	CheckMenuItem captureRootLocationMenuItem;
+	CheckMenuItem showCaptureRootLocationItem;
 
 	@FXML
-	CheckMenuItem captureLinesMenuItem;
+	CheckMenuItem captureLinesItem;
 
 	@FXML
-	CheckMenuItem captureLabelsMenuItem;
+	CheckMenuItem captureLabelsItem;
 
 	@FXML
-	CheckMenuItem capturePhylogenyMenuItem;
+	CheckMenuItem capturePhylogenyItem;
 
 	@FXML
 	private Menu layoutMenu;
 
 	@FXML
-	private MenuItem rerootMenuItem;
+	private MenuItem declareRootMenuItem;
 
 	@FXML
 	private AnchorPane bottomAnchorPane;
@@ -411,8 +422,9 @@ public class MainWindowController {
 	@FXML
 	private VBox firstVBox;
 
-	@FXML
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
+
+	private final Rectangle selectionRectangle = new Rectangle();
 
 	@FXML
 	private void initialize() {
@@ -462,19 +474,25 @@ public class MainWindowController {
 				if (mainWindow.getStage() != null) {
 					var title = mainWindow.getStage().getTitle();
 					if (title != null) {
-						var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
-						menuItem.setOnAction(e -> mainWindow.getStage().toFront());
-						menuItem.setAccelerator(new KeyCharacterCombination("" + (++count), KeyCombination.SHORTCUT_DOWN));
-						windowMenu.getItems().add(menuItem);
+						try {
+							var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
+							menuItem.setOnAction(e -> mainWindow.getStage().toFront());
+							menuItem.setAccelerator(new KeyCharacterCombination("" + (++count), KeyCombination.SHORTCUT_DOWN));
+							windowMenu.getItems().add(menuItem);
+						} catch (Exception ignored) {
+						}
 					}
 				}
 				if (MainWindowManager.getInstance().getAuxiliaryWindows(mainWindow) != null) {
 					for (var auxStage : MainWindowManager.getInstance().getAuxiliaryWindows(mainWindow)) {
 						var title = auxStage.getTitle();
 						if (title != null) {
-							var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
+							try {
+								var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
 							menuItem.setOnAction(e -> auxStage.toFront());
 							windowMenu.getItems().add(menuItem);
+							} catch (Exception ignored) {
+							}
 						}
 					}
 				}
@@ -523,7 +541,7 @@ public class MainWindowController {
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(removeThruNodesMenuItem, fixCrossingEdgesMenuItem, rerootMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -548,9 +566,21 @@ public class MainWindowController {
 		bottomAnchorPane.prefHeightProperty().bind(bottomFlowPane.heightProperty());
 
 		rootPane.widthProperty().addListener(getWidthChangeListener());
+
+		selectionRectangle.setStroke(Color.GREEN);
+		selectionRectangle.setFill(Color.TRANSPARENT);
+		selectionRectangle.getStrokeDashArray().setAll(3.0, 3.0);
+
+		showCaptureParametersItem.setGraphic(MaterialIcons.graphic(MaterialIcons.settings));
+		loadCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.file_open));
+		clearCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.hide_image));
+		showCaptureRootLocationItem.setGraphic(MaterialIcons.graphic(MaterialIcons.rocket, "-fx-rotate: 90;"));
+		captureLinesItem.setGraphic(MaterialIcons.graphic(MaterialIcons.water));
+		captureLabelsItem.setGraphic(MaterialIcons.graphic(MaterialIcons.text_fields));
+		capturePhylogenyItem.setGraphic(MaterialIcons.graphic(MaterialIcons.account_tree));
 	}
 
-	public static MaterialIcons getIcon(DrawPane.Mode mode) {
+	public static MaterialIcons getIcon(DrawView.Mode mode) {
 		return switch (mode) {
 			case Edit -> MaterialIcons.edit;
 			case Move -> MaterialIcons.transform;
@@ -559,7 +589,7 @@ public class MainWindowController {
 		};
 	}
 
-	public void setupModeMenu(ObjectProperty<DrawPane.Mode> modeProperty) {
+	public void setupModeMenu(ObjectProperty<DrawView.Mode> modeProperty) {
 		var toggleGroup = new ToggleGroup();
 		toggleGroup.getToggles().addAll(editModeItem, moveModeItem, viewModeItem, captureModeItem);
 		modeProperty.addListener((v, o, n) -> {
@@ -907,8 +937,8 @@ public class MainWindowController {
 		return selectButton;
 	}
 
-	public MenuItem getRerootMenuItem() {
-		return rerootMenuItem;
+	public MenuItem getDeclareRootMenuItem() {
+		return declareRootMenuItem;
 	}
 
 	public CheckMenuItem getResizeModeCheckMenuItem() {
@@ -939,12 +969,20 @@ public class MainWindowController {
 		return modeMenuButton;
 	}
 
-	public MenuItem getRemoveThruNodesMenuItem() {
-		return removeThruNodesMenuItem;
+	public MenuItem getMergeNodesMenuItem() {
+		return mergeNodesMenuItem;
 	}
 
-	public MenuItem getFixCrossingEdgesMenuItem() {
-		return fixCrossingEdgesMenuItem;
+	public MenuItem getDeleteThruNodesMenuItem() {
+		return deleteThruNodesMenuItem;
+	}
+
+	public MenuItem getReverseEdgesMenuItem() {
+		return reverseEdgesMenuItem;
+	}
+
+	public MenuItem getCrossEdgesMenuItem() {
+		return crossEdgesMenuItem;
 	}
 
 	public Button getImportButton() {
@@ -987,35 +1025,43 @@ public class MainWindowController {
 		return showHelpWindow;
 	}
 
+	public MenuItem getOpenImageFileItem() {
+		return openImageFileItem;
+	}
+
 	public MenuButton getCaptureMenuButton() {
 		return captureMenuButton;
 	}
 
-	public MenuItem getLoadImageMenuItem() {
-		return loadImageMenuItem;
+	public CheckMenuItem getShowCaptureParametersItem() {
+		return showCaptureParametersItem;
 	}
 
-	public MenuItem getClearImageMenuItem() {
-		return clearImageMenuItem;
+	public MenuItem getLoadCaptureImageItem() {
+		return loadCaptureImageItem;
 	}
 
-	public MenuItem getCaptureResetMenuItem() {
-		return captureResetMenuItem;
+	public MenuItem getClearCaptureImageItem() {
+		return clearCaptureImageItem;
 	}
 
-	public CheckMenuItem getCaptureRootLocationMenuItem() {
-		return captureRootLocationMenuItem;
+	public CheckMenuItem getShowCaptureRootLocationItem() {
+		return showCaptureRootLocationItem;
 	}
 
-	public CheckMenuItem getCaptureLinesMenuItem() {
-		return captureLinesMenuItem;
+	public CheckMenuItem getCaptureLinesItem() {
+		return captureLinesItem;
 	}
 
-	public CheckMenuItem getCaptureLabelsMenuItem() {
-		return captureLabelsMenuItem;
+	public CheckMenuItem getCaptureLabelsItem() {
+		return captureLabelsItem;
 	}
 
-	public CheckMenuItem getCapturePhylogenyMenuItem() {
-		return capturePhylogenyMenuItem;
+	public CheckMenuItem getCapturePhylogenyItem() {
+		return capturePhylogenyItem;
+	}
+
+	public Rectangle getSelectionRectangle() {
+		return selectionRectangle;
 	}
 }

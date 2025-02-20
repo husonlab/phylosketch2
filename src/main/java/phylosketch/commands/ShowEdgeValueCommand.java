@@ -23,7 +23,7 @@ package phylosketch.commands;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.util.StringUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,13 +39,13 @@ public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Show> oldMap = new HashMap<>();
 	private final Map<Integer, Show> newMap = new HashMap<>();
 
-	public ShowEdgeValueCommand(DrawPane view, Boolean showWeights, Boolean showSupport, Boolean showProbability) {
+	public ShowEdgeValueCommand(DrawView view, Boolean showWeights, Boolean showSupport, Boolean showProbability) {
 		super("edge labels");
 
 		var graph = view.getGraph();
 
 		for (var e : view.getSelectedOrAllEdges()) {
-			var label = view.getLabel(e);
+			var label = DrawView.getLabel(e);
 			if (label != null) {
 				var oldLabel = label.getText();
 				var oldShow = new Show(hasWeights(oldLabel), hasSupport(oldLabel), hasProbability(oldLabel));
@@ -98,7 +98,7 @@ public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 	}
 
 	private record Show(boolean weights, boolean support, boolean probability) {
-		public String makeLabel(DrawPane view, Edge e) {
+		public String makeLabel(DrawView view, Edge e) {
 			var graph = view.getGraph();
 			var buf = new StringBuilder();
 			if (weights && graph.hasEdgeWeights())

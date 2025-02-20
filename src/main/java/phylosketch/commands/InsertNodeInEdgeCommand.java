@@ -23,9 +23,10 @@ package phylosketch.commands;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,16 +53,16 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 
 	private final Color stroke;
 	private final double strokeWidth;
-	private final List<Double> dashArray = new ArrayList<Double>();
+	private final List<Double> dashArray = new ArrayList<>();
 	private final boolean arrow;
 
-	public InsertNodeInEdgeCommand(DrawPane view, Edge e, Point2D location) {
+	public InsertNodeInEdgeCommand(DrawView view, Edge e, Point2D location) {
 		super("insert node");
 
 		sourceId = e.getSource().getId();
 		targetId = e.getTarget().getId();
 
-		var path = view.getPath(e);
+		var path = DrawView.getPath(e);
 		stroke = (Color) path.getStroke();
 		strokeWidth = path.getStrokeWidth();
 		dashArray.addAll(path.getStrokeDashArray());
@@ -92,7 +93,8 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 			startPath.applyCss();
 			startPath.setStrokeWidth(strokeWidth);
 			startPath.getStrokeDashArray().setAll(dashArray);
-			startPath.setStroke(stroke);
+			if (!MainWindowManager.isUseDarkTheme() && stroke != Color.BLACK || MainWindowManager.isUseDarkTheme() && stroke != Color.WHITE)
+				startPath.setStroke(stroke);
 			view.setShowArrow(startEdge, arrow);
 
 			var endPath = PathUtils.createPath(split.get(1), true);
@@ -102,7 +104,8 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 			endPath.applyCss();
 			endPath.setStrokeWidth(strokeWidth);
 			endPath.getStrokeDashArray().setAll(dashArray);
-			endPath.setStroke(stroke);
+			if (!MainWindowManager.isUseDarkTheme() && stroke != Color.BLACK || MainWindowManager.isUseDarkTheme() && stroke != Color.WHITE)
+				endPath.setStroke(stroke);
 			view.setShowArrow(endEdge, arrow);
 		};
 	}

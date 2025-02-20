@@ -41,6 +41,7 @@ import phylosketch.commands.MoveNodesCommand;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.ScrollPaneUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class SetupResize {
 	private static double mouseX;
 	private static double mouseY;
 
-	public static void apply(DrawPane view, BooleanProperty resizeMode) {
+	public static void apply(DrawView view, BooleanProperty resizeMode) {
 		final var rectangle = new Rectangle();
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
 
@@ -75,7 +76,7 @@ public class SetupResize {
 					view.getOtherGroup().getChildren().add(resizeGroup);
 				}
 			} else {
-				view.getOtherGroup().getChildren().remove(resizeGroup);
+				ScrollPaneUtils.runRemoveAndKeepScrollPositions(view, () -> view.getOtherGroup().getChildren().remove(resizeGroup));
 			}
 		};
 
@@ -203,7 +204,7 @@ public class SetupResize {
 		});
 	}
 
-	private static void updateSizeAndLocation(DrawPane view, Rectangle rectangle, javafx.scene.Node resizeHandle) {
+	private static void updateSizeAndLocation(DrawView view, Rectangle rectangle, javafx.scene.Node resizeHandle) {
 		var bbox = computeBoundingBox(view.getNodeSelection().getSelectedItems());
 		rectangle.setX(bbox.xMin() - 12);
 		rectangle.setY(bbox.yMin() - 12);

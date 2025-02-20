@@ -21,7 +21,7 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,11 +38,11 @@ public class EdgeWidthCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Double> newSizeMap = new HashMap<>();
 
 
-	public EdgeWidthCommand(DrawPane view, double width) {
+	public EdgeWidthCommand(DrawView view, double width) {
 		super("edge width");
 
 		for (var e : view.getSelectedOrAllEdges()) {
-			var path = view.getPath(e);
+			var path = DrawView.getPath(e);
 			if (path != null) {
 				var id = e.getId();
 				oldSizeMap.put(id, path.getStrokeWidth());
@@ -53,13 +53,13 @@ public class EdgeWidthCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var entry : oldSizeMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).setStrokeWidth(entry.getValue());
+					DrawView.getPath(e).setStrokeWidth(entry.getValue());
 				}
 			};
 			redo = () -> {
 				for (var entry : newSizeMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).setStrokeWidth(entry.getValue());
+					DrawView.getPath(e).setStrokeWidth(entry.getValue());
 				}
 			};
 		}

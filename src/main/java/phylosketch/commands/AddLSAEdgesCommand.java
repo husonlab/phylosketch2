@@ -25,10 +25,10 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
+import jloda.phylo.LSAUtils;
 import jloda.util.Pair;
-import phylosketch.embed.LSATreeUtilities;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +46,7 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 
 	private final Map<Pair<Node, Node>, Integer> newMap = new HashMap<>();
 
-	public AddLSAEdgesCommand(DrawPane view) {
+	public AddLSAEdgesCommand(DrawView view) {
 		super("add LSA edges");
 
 		var graph = view.getGraph();
@@ -63,7 +63,7 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 			return;
 
 		try (NodeArray<Node> reticulation2LSA = graph.newNodeArray()) {
-			LSATreeUtilities.computeReticulation2LSA(graph, reticulation2LSA, null);
+			LSAUtils.computeReticulation2LSA(graph, reticulation2LSA);
 			for (var target : reticulation2LSA.keySet()) {
 				if (activeReticulations.contains(target)) {
 					var source = reticulation2LSA.get(target);
@@ -80,7 +80,7 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 			for (var entry : newMap.entrySet()) {
 				var v = entry.getKey().getFirst();
 				var w = entry.getKey().getSecond();
-				var path = PathUtils.createPath(List.of(view.getPoint(v), view.getPoint(w)), true);
+				var path = PathUtils.createPath(List.of(DrawView.getPoint(v), DrawView.getPoint(w)), true);
 				var e = view.createEdge(v, w, path, entry.getValue());
 				entry.setValue(e.getId());
 				path.applyCss();

@@ -32,7 +32,7 @@ import jloda.graph.algorithms.IsDAG;
 import jloda.util.Pair;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 	 * @param view  the window
 	 * @param path0 the drawn path
 	 */
-	public DrawEdgeCommand(DrawPane view, Path path0) {
+	public DrawEdgeCommand(DrawView view, Path path0) {
 		super("draw edge");
 
 		var points = PathUtils.extractPoints(path0);
@@ -99,26 +99,26 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 
 		if (startNode != null) {
 			startNodeId = startNode.getId();
-			startPoint = view.getPoint(startNode);
+			startPoint = DrawView.getPoint(startNode);
 		} else if (startEdgeHit != null) {
 			startPoint = PathUtils.nudgeOntoPath(startEdgeHit.path(), startPoint);
 			if (!sameStartAndEndEdge) {
 				insertSourceNodeCommand = new InsertNodeInEdgeCommand(view, startEdgeHit.e(), startPoint);
 			}
 		} else {
-			newSourceNodeCommand = new CreateNodeCommand(view, startPoint);
+			newSourceNodeCommand = new CreateNodeCommand(view, startPoint, null);
 		}
 
 		if (endNode != null) {
 			endNodeId = endNode.getId();
-			endPoint = view.getPoint(endNode);
+			endPoint = DrawView.getPoint(endNode);
 		} else if (endEdgeHit != null) {
 			endPoint = PathUtils.nudgeOntoPath(endEdgeHit.path(), endPoint);
 			if (!sameStartAndEndEdge) {
 				insertTargetNodeCommand = new InsertNodeInEdgeCommand(view, endEdgeHit.e(), endPoint);
 			}
 		} else {
-			newTargetNodeCommand = new CreateNodeCommand(view, endPoint);
+			newTargetNodeCommand = new CreateNodeCommand(view, endPoint, null);
 		}
 
 		if (sameStartAndEndEdge) {
@@ -210,7 +210,7 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	public static Node findNode(DrawPane view, Point2D local) {
+	public static Node findNode(DrawView view, Point2D local) {
 		var bestDistance = 10.0;
 		Node best = null;
 
@@ -225,7 +225,7 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 		return best;
 	}
 
-	public static EdgeHit findEdge(DrawPane view, Point2D local) {
+	public static EdgeHit findEdge(DrawView view, Point2D local) {
 		var bestDistance = 10.0;
 		Edge bestEdge = null;
 		Path bestPath = null;

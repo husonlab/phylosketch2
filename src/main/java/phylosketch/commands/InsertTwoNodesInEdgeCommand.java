@@ -25,7 +25,7 @@ import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,13 +55,13 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 	private final List<Double> dashArray = new ArrayList<>();
 	private final boolean arrow;
 
-	public InsertTwoNodesInEdgeCommand(DrawPane view, Edge e, Point2D location1, Point2D location2) {
+	public InsertTwoNodesInEdgeCommand(DrawView view, Edge e, Point2D location1, Point2D location2) {
 		super("insert nodes");
 
 		sourceId = e.getSource().getId();
 		targetId = e.getTarget().getId();
 
-		var path = view.getPath(e);
+		var path = DrawView.getPath(e);
 		stroke = (Color) path.getStroke();
 		strokeWidth = path.getStrokeWidth();
 		dashArray.addAll(path.getStrokeDashArray());

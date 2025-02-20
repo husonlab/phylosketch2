@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class ShowArrowsCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Boolean> oldMap = new HashMap<>();
 	private final Map<Integer, Boolean> newMap = new HashMap<>();
 
-	public ShowArrowsCommand(DrawPane view, Collection<Edge> edges, boolean show) {
+	public ShowArrowsCommand(DrawView view, Collection<Edge> edges, boolean show) {
 		super("arrows");
 
 		for (var e : edges) {

@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,12 +40,12 @@ public class NodeLabelColorCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Color> oldMap = new HashMap<>();
 	private final Map<Integer, Color> newMap = new HashMap<>();
 
-	public NodeLabelColorCommand(DrawPane view, Which which, Color color) {
+	public NodeLabelColorCommand(DrawView view, Which which, Color color) {
 		super("color");
 
 		for (var v : view.getSelectedOrAllNodes()) {
 			var id = v.getId();
-			var label = view.getLabel(v);
+			var label = DrawView.getLabel(v);
 			if (label != null) {
 				oldMap.put(id, (Color) (which == Which.textFill ? label.getTextFill() : label.getBackgroundColor()));
 				newMap.put(id, color);
@@ -55,7 +55,7 @@ public class NodeLabelColorCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					var label = view.getLabel(v);
+					var label = DrawView.getLabel(v);
 					if (label != null) {
 						if (which == Which.textFill) {
 							label.setTextFill(oldMap.get(id));
@@ -68,7 +68,7 @@ public class NodeLabelColorCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var id : newMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					var label = view.getLabel(v);
+					var label = DrawView.getLabel(v);
 					if (label != null) {
 						if (which == Which.textFill) {
 							label.setTextFill(newMap.get(id));

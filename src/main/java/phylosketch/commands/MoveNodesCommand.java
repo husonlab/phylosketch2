@@ -27,7 +27,7 @@ import jloda.graph.Graph;
 import jloda.graph.Node;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathReshape;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.Collection;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class MoveNodesCommand extends UndoableRedoableCommand {
 
 	private final Set<Integer> nodeIds;
 
-	public MoveNodesCommand(DrawPane view, Collection<Node> nodes, double dx, double dy) {
+	public MoveNodesCommand(DrawView view, Collection<Node> nodes, double dx, double dy) {
 		super("move");
 
 		nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toSet());

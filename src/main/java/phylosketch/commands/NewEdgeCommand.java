@@ -23,7 +23,7 @@ package phylosketch.commands;
 import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 /**
  * creates a new edge
@@ -43,7 +43,7 @@ public class NewEdgeCommand extends UndoableRedoableCommand {
 	 * @param view the window
 	 * @param path the path
 	 */
-	public NewEdgeCommand(DrawPane view, Node source, Node target, Path path) {
+	public NewEdgeCommand(DrawView view, Node source, Node target, Path path) {
 		super("create edge");
 
 		sourceId = source.getId();

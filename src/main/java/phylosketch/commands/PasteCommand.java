@@ -27,7 +27,7 @@ import jloda.phylo.PhyloTree;
 import jloda.util.Pair;
 import jloda.util.StringUtils;
 import phylosketch.io.ImportNewick;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view the window
 	 */
-	public PasteCommand(DrawPane view, String pastedString) {
+	public PasteCommand(DrawView view, String pastedString) {
 		super("paste");
 
 		var pastedLines = StringUtils.getLinesFromString(pastedString, 1000);
@@ -92,7 +92,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 					if (count < pastedLines.size()) {
 						var id = v.getId();
 						var graphLabel = view.getGraph().getLabel(v);
-						var displayLabel = view.getLabel(v).getText();
+						var displayLabel = DrawView.getLabel(v).getText();
 						nodeOldLabelMap.put(id, new Pair<>(graphLabel, displayLabel));
 						var line = pastedLines.get(count);
 						if (line.length() > 1024)
@@ -108,7 +108,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 							var v = view.getGraph().findNodeById(entry.getKey());
 							var pair = entry.getValue();
 							view.getGraph().setLabel(v, pair.getFirst());
-							view.getLabel(v).setText(pair.getSecond());
+							DrawView.getLabel(v).setText(pair.getSecond());
 						}
 					};
 					redo = () -> {
@@ -116,7 +116,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 							var v = view.getGraph().findNodeById(entry.getKey());
 							var pair = entry.getValue();
 							view.getGraph().setLabel(v, pair.getFirst());
-							view.getLabel(v).setText(pair.getSecond());
+							DrawView.getLabel(v).setText(pair.getSecond());
 						}
 					};
 				}

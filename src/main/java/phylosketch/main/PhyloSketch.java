@@ -32,7 +32,6 @@ import jloda.fx.window.NotificationManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
 import jloda.util.Basic;
-import jloda.util.CanceledException;
 import jloda.util.ProgramExecutorService;
 import jloda.util.UsageException;
 import phylosketch.io.PhyloSketchIO;
@@ -54,9 +53,6 @@ public class PhyloSketch extends Application {
 
     @Override
     public void init() {
-		if (ProgramProperties.isMacOS())
-			System.setProperty("jna.library.path", "lib/macos");
-
         Runtime.getRuntime().addShutdownHook(new Thread(ProgramProperties::store));
         ProgramProperties.setUseGUI(true);
     }
@@ -74,7 +70,7 @@ public class PhyloSketch extends Application {
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
         ProgramProperties.setProgramLicence("""
-                Copyright (C) 2024. This program comes with ABSOLUTELY NO WARRANTY.
+                Copyright (C) 2025. This program comes with ABSOLUTELY NO WARRANTY.
                 This is free software, licensed under the terms of the GNU General Public License, Version 3.
                 Sources available at: https://github.com/husonlab/phylosketch
                 """);
@@ -96,7 +92,7 @@ public class PhyloSketch extends Application {
         launch(args);
     }
 
-    protected static void parseArguments(String[] args) throws CanceledException, UsageException {
+    protected static void parseArguments(String[] args) throws UsageException {
         var options = new ArgsOptions(args, PhyloSketch.class, "Sketch phylogenetic trees and networks");
         options.setAuthors("Daniel H. Huson");
         options.setLicense(ProgramProperties.getProgramLicence());

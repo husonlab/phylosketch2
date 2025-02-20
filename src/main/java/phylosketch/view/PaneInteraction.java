@@ -20,29 +20,42 @@
 
 package phylosketch.view;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
-import javafx.scene.control.ContextMenu;
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.util.Duration;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
+import jloda.graph.Edge;
 import phylosketch.commands.CreateNodeCommand;
 import phylosketch.commands.DrawEdgeCommand;
+import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
+import phylosketch.window.MainWindowController;
+
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import static phylosketch.paths.PathUtils.getCoordinates;
 
 public class PaneInteraction {
+	private static double mouseX;
+	private static double mouseY;
+	private static double mouseDownX;
+	private static double mouseDownY;
+
 	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(PaneInteraction.class, "inDrawingEdge", false);
+	public static final BooleanProperty inRubberBandSelection = new SimpleBooleanProperty(PaneInteraction.class, "inRubberBandSelection", false);
 	public static final BooleanProperty inMultiTouchGesture = new SimpleBooleanProperty(PaneInteraction.class, "inMultiTouchGesture", false);
 
 	private final static Path path = new Path();
@@ -54,7 +67,7 @@ public class PaneInteraction {
 	/**
 	 * setup the interaction
 	 */
-	public static void setup(DrawPane view, BooleanProperty allowResize) {
+	public static void setup(DrawView view, MainWindowController controller, BooleanProperty allowResize) {
 		if (false) { // for debugging zoom and pan interference
 			var inMultiTouchLabel = new Label("multi-touch");
 			var inDrawingEdgeLabel = new Label("drawing edge");
@@ -75,22 +88,9 @@ public class PaneInteraction {
 		}
 
 		inMultiTouchGesture.addListener((v, o, n) -> {
-			if (n)
+			if (n) {
 				inDrawingEdge.set(false);
-		});
-
-		view.setOnContextMenuRequested(me -> {
-			if (view.getMode() == DrawPane.Mode.Edit) {
-				var createNodeMenuItem = new MenuItem("New Node");
-				createNodeMenuItem.setOnAction(e -> {
-					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location));
-				});
-				var menu = new ContextMenu();
-				menu.getItems().add(createNodeMenuItem);
-				menu.show(view, me.getScreenX(), me.getScreenY());
 			}
-			me.consume();
 		});
 
 		view.setOnMouseClicked(me -> {
@@ -106,12 +106,12 @@ public class PaneInteraction {
 				view.getEdgeSelection().clearSelection();
 			}
 
-			if (view.getMode() == DrawPane.Mode.Edit && me.isStillSincePress() && !inMultiTouchGesture.get()) {
+			if (view.getMode() == DrawView.Mode.Edit && me.isStillSincePress() && !inMultiTouchGesture.get()) {
 				if (view.getGraph().getNumberOfNodes() == 0 || me.getClickCount() == 2) {
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location));
+					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
 					if (false) {
-						var shape = view.getShape(view.getGraph().getLastNode());
+						var shape = DrawView.getShape(view.getGraph().getLastNode());
 						shape.setEffect(SelectionEffectBlue.getInstance());
 					}
 				}
@@ -119,52 +119,84 @@ public class PaneInteraction {
 			me.consume();
 		});
 
+		// will create a node if mouse is pressed and then not moved or released within two seconds
+		var createNodeTransition = new PauseTransition(Duration.seconds(1.5));
+		createNodeTransition.setOnFinished(e -> {
+			var location = view.screenToLocal(mouseX, mouseY);
+			view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
+			path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
+			view.setCursor(Cursor.CROSSHAIR);
+			inDrawingEdge.set(true);
+			inRubberBandSelection.set(false);
+		});
 
 		view.setOnMousePressed(me -> {
 			inDrawingEdge.set(false);
-			if (!inMultiTouchGesture.get() && view.getMode() == DrawPane.Mode.Edit) {
-				path.getElements().clear();
-				var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-				if (DrawEdgeCommand.findNode(view, location) != null || DrawEdgeCommand.findEdge(view, location) != null) {
-					path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
-					inDrawingEdge.set(true);
+			inRubberBandSelection.set(false);
+			mouseX = mouseDownX = me.getScreenX();
+			mouseY = mouseDownY = me.getScreenY();
+
+			if (!inMultiTouchGesture.get()) {
+				if (view.getMode() == DrawView.Mode.Edit) {
+					path.getElements().clear();
+					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
+					if (DrawEdgeCommand.findNode(view, location) != null || DrawEdgeCommand.findEdge(view, location) != null) {
+						path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
+						inDrawingEdge.set(true);
+						view.setCursor(Cursor.CROSSHAIR);
+					}
+					createNodeTransition.playFromStart();
+				}
+				if (view.getMode() != DrawView.Mode.Capture && !inDrawingEdge.get()) {
+					inRubberBandSelection.set(true);
+					me.consume();
 				}
 			}
 			me.consume();
 		});
 
 		view.setOnMouseDragged(me -> {
+			createNodeTransition.stop();
+
 			if (inDrawingEdge.get()) {
 				if (!path.getElements().isEmpty()) {
 					if (!view.getEdgesGroup().getChildren().contains(path))
 						view.getEdgesGroup().getChildren().add(path);
-					if (false) {
-						view.getNodeSelection().clearSelection();
-						view.getEdgeSelection().clearSelection();
-					}
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					path.getElements().add(new LineTo(location.getX(), location.getY()));
 				}
-
-
 				{
 					view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
 					var qPoint = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					var hasX = view.getGraph().nodeStream().mapToDouble(u -> view.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) <= 1);
+					var hasX = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) <= 1);
 					if (hasX) {
 						view.getOtherGroup().getChildren().add(createDragLine(true, qPoint.getX(), qPoint.getY()));
 					}
-					var hasY = view.getGraph().nodeStream().mapToDouble(u -> view.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) <= 1);
+					var hasY = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) <= 1);
 					if (hasY) {
 						view.getOtherGroup().getChildren().add(createDragLine(false, qPoint.getX(), qPoint.getY()));
 					}
 				}
+			} else if (inRubberBandSelection.get()) {
+				var selectionRectangle = controller.getSelectionRectangle();
+				if (!view.getOtherGroup().getChildren().contains(selectionRectangle)) {
+					view.getOtherGroup().getChildren().add(selectionRectangle);
+					selectionRectangle.applyCss();
+				}
+				var down = selectionRectangle.screenToLocal(mouseDownX, mouseDownY);
+				var now = selectionRectangle.screenToLocal(me.getScreenX(), me.getScreenY());
+				var delta = now.subtract(down);
+				selectionRectangle.setX(delta.getX() > 0 ? down.getX() : now.getX());
+				selectionRectangle.setWidth(Math.abs(delta.getX()));
+				selectionRectangle.setY(delta.getY() > 0 ? down.getY() : now.getY());
+				selectionRectangle.setHeight(Math.abs(delta.getY()));
 			}
 			me.consume();
 		});
 
 		view.setOnMouseReleased(me -> {
-			view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
+			createNodeTransition.stop();
+			view.setCursor(Cursor.DEFAULT);
 
 			if (inDrawingEdge.get()) {
 				view.getEdgesGroup().getChildren().remove(path);
@@ -175,7 +207,28 @@ public class PaneInteraction {
 					}
 					path.getElements().clear();
 				}
+			} else if (inRubberBandSelection.get()) {
+				if (!me.isStillSincePress()) {
+					if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+						view.getNodeSelection().clearSelection();
+						view.getEdgeSelection().clearSelection();
+					}
+					var bounds = controller.getSelectionRectangle().getLayoutBounds();
+
+					var nodes = view.getGraph().nodeStream().filter(v -> bounds.contains(DrawView.getPoint(v))).collect(Collectors.toSet());
+					nodes.forEach(v -> view.getNodeSelection().toggleSelection(v));
+
+					var edges = new HashSet<Edge>();
+					for (var e : view.getGraph().edges()) {
+						if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget()) && DrawView.getPoints(e).stream().allMatch(bounds::contains))
+							edges.add(e);
+					}
+					edges.forEach(e -> view.getEdgeSelection().toggleSelection(e));
+				}
 			}
+
+			view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
+			view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
 			me.consume();
 		});
 

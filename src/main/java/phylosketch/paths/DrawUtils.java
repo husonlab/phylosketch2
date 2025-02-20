@@ -52,8 +52,8 @@ public class DrawUtils {
 		var y0 = first.getY();
 		var y1 = last.getY();
 
-		var p = new Point2D(x0 <= x1 ? x0 : x1, x0 <= x1 ? y0 : y1);
-		var q = new Point2D(x0 <= x1 ? x1 : x0, x0 <= x1 ? y1 : y0);
+		var p = new Point2D(Math.min(x0, x1), x0 <= x1 ? y0 : y1);
+		var q = new Point2D(Math.max(x0, x1), x0 <= x1 ? y1 : y0);
 
 
 		var dx = Math.abs(x0 - x1);

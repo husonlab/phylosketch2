@@ -27,8 +27,9 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.CollectionUtils;
-import phylosketch.view.DrawPane;
-import phylosketch.view.RootLocation;
+import phylosketch.paths.PathUtils;
+import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Point2D> nodeOldLayoutMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeNewLayoutMap = new HashMap<>();
 
-	public LayoutLabelsCommand(DrawPane view, Collection<Node> nodes) {
+	public LayoutLabelsCommand(DrawView view, RootPosition rootPosition, Collection<Node> nodes) {
 		super("layout labels");
 
 		for (var v : nodes) {
@@ -54,13 +55,13 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			}
 		}
 
-		var nodeRootLocationMap = new HashMap<Node, RootLocation>();
-		{
+		var nodeRootLocationMap = new HashMap<Node, RootPosition>();
+		if (rootPosition == null) {
 			var components = ConnectedComponents.components(view.getGraph());
 			for (var component : components) {
 				var intersection = CollectionUtils.intersection(component, nodes);
 				if (!intersection.isEmpty()) {
-					var rootLocation = RootLocation.compute(component);
+					var rootLocation = RootPosition.compute(component);
 					for (var v : intersection) {
 						nodeRootLocationMap.put(v, rootLocation);
 					}
@@ -68,8 +69,8 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			}
 		}
 		for (var v : nodes) {
-			var label = view.getLabel(v);
-			var layout = computeLabelLayout(nodeRootLocationMap.get(v), label);
+			var label = DrawView.getLabel(v);
+			var layout = computeLabelLayout(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
 			nodeNewLayoutMap.put(v.getId(), layout);
 		}
 
@@ -80,7 +81,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 				for (var entry : nodeOldLayoutMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
 					if (v != null) {
-						var label = view.getLabel(v);
+						var label = DrawView.getLabel(v);
 						label.setLayoutX(entry.getValue().getX());
 						label.setLayoutY(entry.getValue().getY());
 					}
@@ -94,7 +95,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 				for (var entry : nodeNewLayoutMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
 					if (v != null) {
-						var label = view.getLabel(v);
+						var label = DrawView.getLabel(v);
 						label.setLayoutX(entry.getValue().getX());
 						label.setLayoutY(entry.getValue().getY());
 					}
@@ -106,18 +107,28 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	/**
 	 * compute label layout coordinates based on root location
 	 *
-	 * @param rootLocation root location
+	 * @param rootPosition root location
 	 * @param label        label
 	 * @return layout coordinates (relative to node position)
-	 * todo: add support for central root
 	 */
-	public static Point2D computeLabelLayout(RootLocation rootLocation, RichTextLabel label) {
+	public static Point2D computeLabelLayout(RootPosition rootPosition, Node v, RichTextLabel label) {
 		label.applyCss();
-		return switch (rootLocation) {
-			case Top, Center -> new Point2D(-Math.max(10, label.getWidth() / 2), 5);
+		return switch (rootPosition.side()) {
+			case Top -> new Point2D(-Math.max(10, label.getWidth() / 2), 5);
 			case Bottom -> new Point2D(-Math.max(10, label.getWidth() / 2), -5 - Math.max(14, label.getHeight()));
 			case Right -> new Point2D(-label.getWidth() - 5, -Math.max(7, label.getHeight() / 2));
 			case Left -> new Point2D(10, -Math.max(7, label.getHeight() / 2));
+			case Center -> {
+				var points = v.adjacentEdgesStream(false)
+						.map(e -> (v == e.getTarget() ? PathUtils.getPointAwayFromEnd(DrawView.getPath(e), 5) : PathUtils.getPointAwayFromStart(DrawView.getPath(e), 5)))
+						.toList();
+				var referenceLocation = (points.isEmpty() ? rootPosition.location() :
+						new Point2D(points.stream().mapToDouble(Point2D::getX).average().orElse(0.0), points.stream().mapToDouble(Point2D::getY).average().orElse(0.0)));
+				var direction = DrawView.getPoint(v).subtract(referenceLocation);
+				var offset = direction.multiply(20 / Math.max(1, direction.magnitude()));
+				offset.subtract(0.5 * label.getWidth(), 0.5 * label.getHeight());
+				yield offset;
+			}
 		};
 	}
 

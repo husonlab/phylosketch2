@@ -26,7 +26,7 @@ import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,8 +36,8 @@ import java.util.Set;
  * Daniel Huson, 2024
  */
 public class RerootCommand extends UndoableRedoableCommand {
-	private final Runnable undo;
-	private final Runnable redo;
+	private Runnable undo;
+	private Runnable redo;
 
 	private Integer oldRootId;
 	private final Integer oldNodeId;
@@ -54,6 +54,8 @@ public class RerootCommand extends UndoableRedoableCommand {
 
 	private final Set<Integer> edgesToChange = new HashSet<>();
 
+	private ReverseEdgesCommand reverseEdgesCommand;
+
 	/**
 	 * constructor. Either v or e must be non-null
 	 *
@@ -61,7 +63,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 	 * @param v    the new root node
 	 * @param e    the new edge node
 	 */
-	public RerootCommand(DrawPane view, Node v, Edge e) {
+	public RerootCommand(DrawView view, Node v, Edge e) {
 		super("reroot");
 
 		if ((v != null) == (e != null))
@@ -86,97 +88,116 @@ public class RerootCommand extends UndoableRedoableCommand {
 			newRootId = v.getId();
 		}
 
-		var graph = view.getGraph();
-		if (v.getInDegree() > 0 && isOkAsRoot(v)) {
-			{
-				var f = v.getFirstInEdge();
-				while (f != null) {
-					edgesToChange.add(f.getId());
-					if (f.getSource().getInDegree() == 1)
-						f = f.getSource().getFirstInEdge();
-					else {
-						if (f.getTarget() == graph.getRoot()) {
-							oldRootId = f.getTarget().getId();
+		if (isOkAsRoot(v)) {
+			var graph = view.getGraph();
+
+			if (v.getInDegree() > 0) { // is not currently root
+				{
+					var f = v.getFirstInEdge();
+					while (f != null) {
+						edgesToChange.add(f.getId());
+						if (f.getSource().getInDegree() == 1)
+							f = f.getSource().getFirstInEdge();
+						else {
+							if (f.getTarget() == graph.getRoot()) {
+								oldRootId = f.getTarget().getId();
+							}
+							f = null;
 						}
-						f = null;
 					}
+				}
+
+				undo = () -> {
+					if (reverseEdgesCommand.isUndoable())
+						reverseEdgesCommand.undo();
+
+					view.getNodeSelection().clearSelection();
+					view.getEdgeSelection().clearSelection();
+
+					for (var id : edgesToChange) {
+						var f = graph.findEdgeById(id);
+						if (f.getData() instanceof Path path) {
+							PathUtils.reverse(path);
+						}
+						f.reverse();
+					}
+					if (newNodeId != -1)
+						view.deleteNode(graph.findNodeById(newNodeId));
+					if (oldEdgeId != -1) {
+						var f = view.createEdge(graph.findNodeById(oldSourceId), graph.findNodeById(oldTargetId), oldEdgePath, oldEdgeId);
+						view.setShowArrow(f, true);
+						view.getEdgeSelection().select(f);
+					} else {
+						view.getNodeSelection().select(graph.findNodeById(oldNodeId));
+					}
+					if (oldRootId != null)
+						graph.setRoot(graph.findNodeById(oldRootId));
+
+				};
+
+				redo = () -> {
+					view.getNodeSelection().clearSelection();
+					view.getEdgeSelection().clearSelection();
+
+					for (var id : edgesToChange) {
+						var f = graph.findEdgeById(id);
+						if (f.getData() instanceof Path path) {
+							PathUtils.reverse(path);
+							view.getEdgeSelection().select(f);
+							view.getNodeSelection().select(f.getSource());
+							view.getNodeSelection().select(f.getTarget());
+						}
+						f.reverse();
+					}
+					if (oldEdgeId != -1) {
+						var index = oldEdgePath.getElements().size() / 2;
+						var edgeHit = new DrawEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
+						var parts = PathUtils.split(edgeHit.path(), false, edgeHit.elementIndex());
+						var location = parts.get(1).get(0);
+						var w = view.createNode(location, newNodeId);
+						newNodeId = w.getId();
+
+						var firstPath = PathUtils.createPath(CollectionUtils.reverse(parts.get(0)), false);
+						var e1 = view.createEdge(w, graph.findNodeById(oldSourceId), firstPath, newEdgeAtSourceId);
+						newEdgeAtSourceId = e1.getId();
+						var e2 = view.createEdge(w, graph.findNodeById(oldTargetId), PathUtils.createPath(parts.get(1), true), newEdgeAtTargetId);
+						newEdgeAtTargetId = e2.getId();
+
+						view.getNodeSelection().select(w);
+						view.getEdgeSelection().select(e1);
+						view.getNodeSelection().select(e1.getTarget());
+						view.getEdgeSelection().select(e2);
+						view.getNodeSelection().select(e2.getTarget());
+
+						if (oldEdgeArrow) {
+							view.setShowArrow(e1, true);
+							view.setShowArrow(e2, true);
+						}
+						view.deleteEdge(graph.findEdgeById(oldEdgeId));
+						if (oldRootId != null) {
+							newRootId = newNodeId;
+						}
+					}
+					if (newRootId != -1) {
+						var newRoot = graph.findNodeById(newRootId);
+						graph.setRoot(newRoot);
+						reverseEdgesCommand = new ReverseEdgesCommand(view, newRoot);
+						if (reverseEdgesCommand.isRedoable())
+							reverseEdgesCommand.redo();
+					}
+				};
+			} else if (v.getInDegree() == 0) { // is already root, just need to redirect some inconsistent edges
+				if (new ReverseEdgesCommand(view, view.getGraph().findNodeById(oldNodeId)).isRedoable()) {
+					undo = () -> {
+						if (reverseEdgesCommand != null && reverseEdgesCommand.isUndoable())
+							reverseEdgesCommand.undo();
+					};
+					redo = () -> {
+						reverseEdgesCommand = new ReverseEdgesCommand(view, view.getGraph().findNodeById(oldNodeId));
+						reverseEdgesCommand.redo();
+					};
 				}
 			}
-
-			undo = () -> {
-				view.getNodeSelection().clearSelection();
-				view.getEdgeSelection().clearSelection();
-
-				for (var id : edgesToChange) {
-					var f = graph.findEdgeById(id);
-					if (f.getData() instanceof Path path) {
-						PathUtils.reverse(path);
-					}
-					f.reverse();
-				}
-				if (newNodeId != -1)
-					view.deleteNode(graph.findNodeById(newNodeId));
-				if (oldEdgeId != -1) {
-					var f = view.createEdge(graph.findNodeById(oldSourceId), graph.findNodeById(oldTargetId), oldEdgePath, oldEdgeId);
-					view.setShowArrow(f, true);
-					view.getEdgeSelection().select(f);
-				} else {
-					view.getNodeSelection().select(graph.findNodeById(oldNodeId));
-				}
-				if (oldRootId != null)
-					graph.setRoot(graph.findNodeById(oldRootId));
-
-			};
-
-			redo = () -> {
-				view.getNodeSelection().clearSelection();
-				view.getEdgeSelection().clearSelection();
-
-				for (var id : edgesToChange) {
-					var f = graph.findEdgeById(id);
-					if (f.getData() instanceof Path path) {
-						PathUtils.reverse(path);
-						view.getEdgeSelection().select(f);
-						view.getNodeSelection().select(f.getSource());
-						view.getNodeSelection().select(f.getTarget());
-					}
-					f.reverse();
-				}
-				if (oldEdgeId != -1) {
-					var index = oldEdgePath.getElements().size() / 2;
-					var edgeHit = new DrawEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
-					var parts = PathUtils.split(edgeHit.path(), false, edgeHit.elementIndex());
-					var location = parts.get(1).get(0);
-					var w = view.createNode(location, newNodeId);
-					newNodeId = w.getId();
-
-					var firstPath = PathUtils.createPath(CollectionUtils.reverse(parts.get(0)), false);
-					var e1 = view.createEdge(w, graph.findNodeById(oldSourceId), firstPath, newEdgeAtSourceId);
-					newEdgeAtSourceId = e1.getId();
-					var e2 = view.createEdge(w, graph.findNodeById(oldTargetId), PathUtils.createPath(parts.get(1), true), newEdgeAtTargetId);
-					newEdgeAtTargetId = e2.getId();
-
-					view.getNodeSelection().select(w);
-					view.getEdgeSelection().select(e1);
-					view.getNodeSelection().select(e1.getTarget());
-					view.getEdgeSelection().select(e2);
-					view.getNodeSelection().select(e2.getTarget());
-
-					if (oldEdgeArrow) {
-						view.setShowArrow(e1, true);
-						view.setShowArrow(e2, true);
-					}
-					view.deleteEdge(graph.findEdgeById(oldEdgeId));
-					if (oldRootId != null) {
-						newRootId = newNodeId;
-					}
-				}
-				if (newRootId != -1)
-					graph.setRoot(graph.findNodeById(newRootId));
-			};
-		} else {
-			undo = null;
-			redo = null;
 		}
 	}
 

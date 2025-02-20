@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +39,11 @@ public class EdgeStrokeCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Color> newSizeMap = new HashMap<>();
 
 
-	public EdgeStrokeCommand(DrawPane view, Color stroke) {
+	public EdgeStrokeCommand(DrawView view, Color stroke) {
 		super("edge stroke");
 
 		for (var e : view.getSelectedOrAllEdges()) {
-			var path = view.getPath(e);
+			var path = DrawView.getPath(e);
 			if (path != null) {
 				var id = e.getId();
 				if (path.getStroke() instanceof Color old) {
@@ -56,13 +56,13 @@ public class EdgeStrokeCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var entry : oldSizeMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).setStroke(entry.getValue());
+					DrawView.getPath(e).setStroke(entry.getValue());
 				}
 			};
 			redo = () -> {
 				for (var entry : newSizeMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).setStroke(entry.getValue());
+					DrawView.getPath(e).setStroke(entry.getValue());
 				}
 			};
 		}

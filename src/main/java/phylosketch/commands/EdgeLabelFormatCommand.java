@@ -21,7 +21,7 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +38,12 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Formatting> oldMap = new HashMap<>();
 	private final Map<Integer, Formatting> newMap = new HashMap<>();
 
-	public EdgeLabelFormatCommand(DrawPane view, Which which, Boolean newValue, Double newSize, String newFontFamily) {
+	public EdgeLabelFormatCommand(DrawView view, Which which, Boolean newValue, Double newSize, String newFontFamily) {
 		super("format");
 
 		for (var e : view.getSelectedOrAllEdges()) {
 			var id = e.getId();
-			var label = view.getLabel(e);
+			var label = DrawView.getLabel(e);
 			if (label != null) {
 				if (which == EdgeLabelFormatCommand.Which.font) {
 					oldMap.put(id, new EdgeLabelFormatCommand.Formatting(which, null, null, label.getFontFamily()));
@@ -72,7 +72,7 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					var label = view.getLabel(e);
+					var label = DrawView.getLabel(e);
 					if (label != null) {
 						var formatting = oldMap.get(id);
 						switch (formatting.which()) {
@@ -89,7 +89,7 @@ public class EdgeLabelFormatCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var id : newMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					var label = view.getLabel(e);
+					var label = DrawView.getLabel(e);
 					if (label != null) {
 						var formatting = newMap.get(id);
 						switch (formatting.which()) {

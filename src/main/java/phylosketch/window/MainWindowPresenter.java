@@ -29,6 +29,7 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
@@ -37,6 +38,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.control.StateToggleButton;
 import jloda.fx.dialog.ExportImageDialog;
@@ -53,7 +56,8 @@ import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
-import phylosketch.capture.SetupCapturePane;
+import phylosketch.capturepane.pane.CapturePane;
+import phylosketch.capturepane.pane.SetupCaptureMenuItems;
 import phylosketch.commands.*;
 import phylosketch.format.FormatPaneView;
 import phylosketch.io.ExportNewick;
@@ -64,13 +68,16 @@ import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
 import phylosketch.utils.Clusters;
+import phylosketch.utils.NodeLabelEditBox;
 import phylosketch.view.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -82,7 +89,8 @@ public class MainWindowPresenter {
 	private final FormatPaneView formatPaneView;
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
-	private final BooleanProperty allowRemoveSuperfluous = new SimpleBooleanProperty(this, "allowRemoveSuperfluous", false);
+	private final BooleanProperty allowMergeNodes = new SimpleBooleanProperty(this, "allowMergeNodes", false);
+	private final BooleanProperty allowRemoveThruNodes = new SimpleBooleanProperty(this, "allowRemoveThruNodes", false);
 	private final BooleanProperty allowFixCrossingEdges = new SimpleBooleanProperty(this, "allowFixCrossingEdges", false);
 	private final BooleanProperty allowReRoot = new SimpleBooleanProperty(this, "allowReRoot", false);
 
@@ -121,12 +129,9 @@ public class MainWindowPresenter {
 		formatPaneView = new FormatPaneView(view, controller.getShowSettingsButton().selectedProperty());
 		AnchorPane.setTopAnchor(formatPaneView.getPane(), 10.0);
 		AnchorPane.setRightAnchor(formatPaneView.getPane(), 20.0);
-		controller.getShowSettingsButton().selectedProperty().addListener((v, o, n) -> {
-			if (n)
-				controller.getCenterAnchorPane().getChildren().add(formatPaneView.getPane());
-			else
-				controller.getCenterAnchorPane().getChildren().remove(formatPaneView.getPane());
-		});
+		controller.getCenterAnchorPane().getChildren().add(formatPaneView.getPane());
+		formatPaneView.getPane().setVisible(false);
+		controller.getShowSettingsButton().selectedProperty().bindBidirectional(formatPaneView.getPane().visibleProperty());
 
 
 		if (false) {
@@ -152,13 +157,11 @@ public class MainWindowPresenter {
 			});
 		}
 
-		PaneInteraction.setup(view, allowResize);
+		PaneInteraction.setup(view, controller, allowResize);
 		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
 		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
 
-		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> {
-			window.dirtyProperty().set(n.intValue() > 0);
-		});
+		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> window.dirtyProperty().set(n.intValue() > 0));
 
 		view.minWidthProperty().bind(Bindings.createDoubleBinding(() ->
 				controller.getScrollPane().getViewportBounds().getWidth(), controller.getScrollPane().viewportBoundsProperty()));
@@ -180,27 +183,24 @@ public class MainWindowPresenter {
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
-		new StateToggleButton<>(List.of(DrawPane.Mode.values()), MainWindowController::getIcon, false, true, view.modeProperty(), controller.getModeMenuButton());
+		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, false, true, view.modeProperty(), controller.getModeMenuButton());
 		controller.setupModeMenu(view.modeProperty());
 
-		var captureImagePane = SetupCapturePane.apply(view, controller);
+		var capturePane = new CapturePane(view, controller);
+		SetupCaptureMenuItems.apply(view, controller, capturePane);
 
-		ChangeListener<DrawPane.Mode> listener = (v, o, n) -> {
-			if (n == DrawPane.Mode.Edit) {
-				controller.getDeleteMenuItem().setOnAction(e -> {
-					view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems()));
-				});
+		ChangeListener<DrawView.Mode> listener = (v, o, n) -> {
+			if (n == DrawView.Mode.Edit) {
+				controller.getDeleteMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems())));
 				controller.getDeleteMenuItem().disableProperty().bind((view.getNodeSelection().sizeProperty().isEqualTo(0)
-						.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
+						.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit)));
 				controller.getModeMenuButton().setTooltip(new Tooltip("Edit mode on, allows interactive creation of new nodes and edges"));
-			} else if (n == DrawPane.Mode.Move) {
+			} else if (n == DrawView.Mode.Move) {
 				controller.getDeleteMenuItem().disableProperty().bind(new SimpleBooleanProperty(false));
-				controller.getModeMenuButton().setTooltip(new Tooltip("Transform mode on, allows interactive relocation of nodes and reshaping of edges"));
-			} else if (n == DrawPane.Mode.Capture) {
-				controller.getDeleteMenuItem().setOnAction(e -> controller.getClearImageMenuItem().getOnAction().handle(e));
-				controller.getDeleteMenuItem().disableProperty().bind(controller.getClearImageMenuItem().disableProperty());
+				controller.getModeMenuButton().setTooltip(new Tooltip("Move mode on, allows interactive relocation of nodes and reshaping of edges"));
+			} else if (n == DrawView.Mode.Capture) {
+				controller.getModeMenuButton().setTooltip(new Tooltip("Capture mode on, allows capture of phylogeny from image"));
 			} else {
-				controller.getDeleteMenuItem().disableProperty().bind(new SimpleBooleanProperty(false));
 				controller.getModeMenuButton().setTooltip(new Tooltip("Edit mode off, press to allow editing"));
 			}
 		};
@@ -215,7 +215,7 @@ public class MainWindowPresenter {
 					if (node instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
 						shape.setOnContextMenuRequested(cm -> {
 							var setLabel = new MenuItem("Edit Label");
-							setLabel.setOnAction(x -> NodeLabelDialog.apply(view, cm.getScreenX(), cm.getScreenY(), v, null));
+							setLabel.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
 							new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
 						});
 					}
@@ -228,13 +228,12 @@ public class MainWindowPresenter {
 				for (var node : e.getAddedSubList()) {
 					if (node instanceof RichTextLabel richTextLabel && richTextLabel.getUserData() instanceof Integer nodeId) {
 						richTextLabel.setOnContextMenuRequested(cm -> {
-							var v = view.getGraph().findNodeById(nodeId);
-							var setLabel = new MenuItem("Edit Label");
-							if (false || PhyloSketch.isDesktop())
-								setLabel.setOnAction(x -> NodeLabelDialog.apply(window.getStage(), view, v));
-							else
-								setLabel.setOnAction(x -> NodeLabelDialog.apply(view, cm.getScreenX(), cm.getScreenY(), v, null));
-							new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
+							if (view.getMode() == DrawView.Mode.Edit || view.getMode() == DrawView.Mode.Move) {
+								var v = view.getGraph().findNodeById(nodeId);
+								var editLabelItem = new MenuItem("Edit Label");
+								editLabelItem.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
+								new ContextMenu(editLabelItem).show(node, cm.getScreenX(), cm.getScreenY());
+							}
 						});
 					}
 				}
@@ -283,48 +282,38 @@ public class MainWindowPresenter {
 		controller.getRedoMenuItem().disableProperty().bind(view.getUndoManager().redoableProperty().not());
 
 
-		controller.getClearMenuItem().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getGraph().getNodesAsList(),
-					Collections.emptyList()));
-		});
-		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit)));
+		controller.getClearMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getGraph().getNodesAsList(),
+				Collections.emptyList())));
+		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit)));
 
-		controller.getZoomInMenuItem().setOnAction(e -> {
-			controller.getScrollPane().zoomBy(1.1, 1.1);
-		});
-		controller.getZoomOutMenuItem().setOnAction(e -> {
-			controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1);
-		});
+		controller.getZoomInMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.1, 1.1));
+		controller.getZoomOutMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1));
 
 
 		controller.getOutlineEdgesMenuItem().selectedProperty().addListener((v, o, n) -> {
 			if (n)
-				view.setMode(DrawPane.Mode.View);
+				view.setMode(DrawView.Mode.View);
 			view.showOutlinesProperty().set(n);
 		});
 		controller.getOutlineEdgesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 		view.modeProperty().addListener((v, o, n) -> {
-			if (n != DrawPane.Mode.View && view.isShowOutlines())
+			if (n != DrawView.Mode.View && view.isShowOutlines())
 				controller.getOutlineEdgesMenuItem().setSelected(false);
 		});
 		MainWindowManager.useDarkThemeProperty().addListener(e -> controller.getOutlineEdgesMenuItem().setSelected(false));
 
 		controller.getCopyMenuItem().setOnAction(e -> {
 			if (view.getSelectedOrAllNodes().size() == 1) {
-				ClipboardUtils.putString(view.getLabel(view.getSelectedOrAllNodes().iterator().next()).getRawText());
+				ClipboardUtils.putString(DrawView.getLabel(view.getSelectedOrAllNodes().iterator().next()).getRawText());
 			} else
 				ClipboardUtils.putString(view.toBracketString());
 		});
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getExportImageMenuItem().setOnAction(e -> {
-			ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawPane());
-		});
+		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawPane()));
 		controller.getExportImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getExportNewickMenuItem().setOnAction(e -> {
-			ExportNewick.apply(window);
-		});
+		controller.getExportNewickMenuItem().setOnAction(e -> ExportNewick.apply(window));
 		controller.getExportNewickMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getCopyImageMenuItem().setOnAction(e -> {
@@ -335,32 +324,40 @@ public class MainWindowPresenter {
 			var snapshot = view.snapshot(params, writableImage);
 			ClipboardUtils.putImage(snapshot);
 		});
-		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().and(capturePane.hasImageProperty().not()));
 
 		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e ->
-				RunAfterAWhile.applyInFXThread(allowRemoveSuperfluous, () -> {
-					allowRemoveSuperfluous.set(false);
+				RunAfterAWhile.applyInFXThread(allowRemoveThruNodes, () -> {
+					allowRemoveThruNodes.set(false);
 					allowFixCrossingEdges.set(false);
 					for (var v : view.getSelectedOrAllNodes()) {
-						if (v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()) {
-							allowRemoveSuperfluous.set(true);
+						if (v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank()) {
+							allowRemoveThruNodes.set(true);
 							if (allowFixCrossingEdges.get())
 								return;
 						}
-						if (v.getInDegree() == 2 && v.getOutDegree() == 2 && view.getLabel(v).getRawText().isBlank()) {
+						if (v.getInDegree() == 2 && v.getOutDegree() == 2 && DrawView.getLabel(v).getRawText().isBlank()) {
 							allowFixCrossingEdges.set(true);
-							if (allowRemoveSuperfluous.get())
+							if (allowRemoveThruNodes.get())
 								return;
 						}
 					}
+					allowMergeNodes.set(view.getNodeSelection().size() >= 2);
 				})
 		);
 
-		controller.getRemoveThruNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RemoveThruNodesCommand(view, view.getSelectedOrAllNodes())));
-		controller.getRemoveThruNodesMenuItem().disableProperty().bind(allowRemoveSuperfluous.not());
+		controller.getMergeNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new MergeNodesCommand(view, view.getNodeSelection().getSelectedItems())));
+		controller.getDeleteThruNodesMenuItem().disableProperty().bind(allowRemoveThruNodes.not());
 
-		controller.getFixCrossingEdgesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(FixCrossingEdgesCommand.create(view, view.getSelectedOrAllNodes())));
-		controller.getFixCrossingEdgesMenuItem().disableProperty().bind(allowFixCrossingEdges.not());
+
+		controller.getDeleteThruNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RemoveThruNodesCommand(view, view.getSelectedOrAllNodes())));
+		controller.getDeleteThruNodesMenuItem().disableProperty().bind(allowRemoveThruNodes.not());
+
+		controller.getReverseEdgesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new ReverseEdgesCommand(view, view.getEdgeSelection().getSelectedItems())));
+		controller.getReverseEdgesMenuItem().disableProperty().bind(Bindings.isEmpty(view.getEdgeSelection().getSelectedItems()));
+
+		controller.getCrossEdgesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new FixCrossingEdgesCommand(view, view.getSelectedOrAllNodes())));
+		controller.getCrossEdgesMenuItem().disableProperty().bind(allowFixCrossingEdges.not());
 
 		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "leaves", "ABC", true)));
 		controller.getLabelLeavesABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
@@ -383,13 +380,13 @@ public class MainWindowPresenter {
 		controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
 		BasicFX.setupFullScreenMenuSupport(window.getStage(), controller.getFullScreenMenuItem());
 
-		controller.getRerootMenuItem().setOnAction(a -> {
+		controller.getDeclareRootMenuItem().setOnAction(a -> {
 			var e = (view.getEdgeSelection().size() == 1 ? view.getEdgeSelection().getSelectedItem() : null);
 			var v = (e == null && view.getNodeSelection().size() == 1 ? view.getNodeSelection().getSelectedItem() : null);
 			if (e != null || v != null)
 				view.getUndoManager().doAndAdd(new RerootCommand(view, v, e));
 		});
-		controller.getRerootMenuItem().disableProperty().bind(allowReRoot.not());
+		controller.getDeclareRootMenuItem().disableProperty().bind(allowReRoot.not());
 
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
 			window.getStatusPane().getChildren().removeAll(BasicFX.findRecursively(window.getStatusPane(), n -> "info".equals(n.getUserData())));
@@ -406,36 +403,48 @@ public class MainWindowPresenter {
 		});
 
 		var waitObject = new Object();
-		InvalidationListener selectionInvalidationListener = e -> {
-			RunAfterAWhile.applyInFXThread(waitObject, () -> {
-				var toRemove = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
-						.filter(t -> t.getText().contains("selected")).toList();
-				window.getStatusPane().getChildren().removeAll(toRemove);
-				if (view.getNodeSelection().size() > 0) {
-					var nodeText = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
-							.filter(t -> t.getText().startsWith("nodes=")).findAny();
-					if (nodeText.isPresent()) {
-						var index = window.getStatusPane().getChildren().indexOf(nodeText.get());
-						var text = new Text("(" + view.getNodeSelection().size() + " selected)");
-						text.setUserData("info");
-						text.getStyleClass().add("rich-text-label");
-						window.getStatusPane().getChildren().add(index + 1, text);
-					}
+		InvalidationListener selectionInvalidationListener = e -> RunAfterAWhile.applyInFXThread(waitObject, () -> {
+			var toRemove = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
+					.filter(t -> t.getText().contains("selected")).toList();
+			window.getStatusPane().getChildren().removeAll(toRemove);
+			if (view.getNodeSelection().size() > 0) {
+				var nodeText = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
+						.filter(t -> t.getText().startsWith("nodes=")).findAny();
+				if (nodeText.isPresent()) {
+					var index = window.getStatusPane().getChildren().indexOf(nodeText.get());
+					var text = new Text("(" + view.getNodeSelection().size() + " selected)");
+					text.setUserData("info");
+					text.getStyleClass().add("rich-text-label");
+					window.getStatusPane().getChildren().add(index + 1, text);
 				}
-				if (view.getEdgeSelection().size() > 0) {
-					var edgeText = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
-							.filter(t -> t.getText().startsWith("edges=")).findAny();
-					if (edgeText.isPresent()) {
-						var index = window.getStatusPane().getChildren().indexOf(edgeText.get());
-						var text = new Text("(" + view.getEdgeSelection().size() + " selected)");
-						text.setUserData("info");
-						text.getStyleClass().add("rich-text-label");
-						window.getStatusPane().getChildren().add(index + 1, text);
-					}
+			}
+			if (view.getEdgeSelection().size() > 0) {
+				var edgeText = window.getStatusPane().getChildren().stream().filter(c -> c instanceof Text).map(c -> (Text) c)
+						.filter(t -> t.getText().startsWith("edges=")).findAny();
+				if (edgeText.isPresent()) {
+					var index = window.getStatusPane().getChildren().indexOf(edgeText.get());
+					var text = new Text("(" + view.getEdgeSelection().size() + " selected)");
+					text.setUserData("info");
+					text.getStyleClass().add("rich-text-label");
+					window.getStatusPane().getChildren().add(index + 1, text);
 				}
+			}
 
-				if (view.getNodeSelection().size() == 1) {
-					var v = view.getNodeSelection().getSelectedItem();
+			if (view.getNodeSelection().size() == 1) {
+				var v = view.getNodeSelection().getSelectedItem();
+				while (true) {
+					if (v.getInDegree() == 1)
+						v = v.getParent();
+					else {
+						allowReRoot.set(v.getInDegree() == 0);
+						return;
+					}
+				}
+			} else if (view.getEdgeSelection().size() == 1) {
+				var f = view.getEdgeSelection().getSelectedItem();
+				if (f.nodes().containsAll(view.getNodeSelection().getSelectedItems())) {
+					var v = f.getTarget();
+
 					while (true) {
 						if (v.getInDegree() == 1)
 							v = v.getParent();
@@ -444,23 +453,9 @@ public class MainWindowPresenter {
 							return;
 						}
 					}
-				} else if (view.getEdgeSelection().size() == 1) {
-					var f = view.getEdgeSelection().getSelectedItem();
-					if (f.nodes().containsAll(view.getNodeSelection().getSelectedItems())) {
-						var v = f.getTarget();
-
-						while (true) {
-							if (v.getInDegree() == 1)
-								v = v.getParent();
-							else {
-								allowReRoot.set(v.getInDegree() == 0);
-								return;
-							}
-						}
-					}
-				} else allowReRoot.set(false);
-			});
-		};
+				}
+			} else allowReRoot.set(false);
+		});
 		view.getNodeSelection().getSelectedItems().addListener(selectionInvalidationListener);
 		view.getEdgeSelection().getSelectedItems().addListener(selectionInvalidationListener);
 
@@ -478,18 +473,24 @@ public class MainWindowPresenter {
 				}
 			}
 		});
+		controller.getResizeModeCheckMenuItem().disableProperty().bind(
+				(controller.getResizeModeCheckMenuItem().selectedProperty()
+						.or(view.modeProperty().isEqualTo(DrawView.Mode.Edit))
+						.or(view.modeProperty().isEqualTo(DrawView.Mode.Move))
+				).not().or(view.getGraphFX().emptyProperty())
+		);
 
-		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, view.getSelectedOrAllNodes())));
+		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new RotateCommand(view, false));
+			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), false));
 		});
 		controller.getRotateLeftMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 		controller.getRotateRightMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new RotateCommand(view, true));
+			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), true));
 		});
 		controller.getRotateRightMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
@@ -553,15 +554,23 @@ public class MainWindowPresenter {
 				},
 				image -> {
 					var pasteCommand = UndoableRedoableCommand.create("image", () -> {
-						captureImagePane.getImageView().setImage(null);
-						view.setMode(DrawPane.Mode.Edit);
+						capturePane.getImageView().setImage(null);
+						view.setMode(DrawView.Mode.Edit);
 					}, () -> {
-						view.setMode(DrawPane.Mode.Capture);
-						captureImagePane.getImageView().setImage(image);
+						view.setMode(DrawView.Mode.Capture);
+						capturePane.getImageView().setImage(image);
 					});
 					view.getUndoManager().doAndAdd(pasteCommand);
 				});
-		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawPane.Mode.Edit).and(view.modeProperty().isNotEqualTo(DrawPane.Mode.Capture)));
+		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
+
+
+		controller.getOpenImageFileItem().setOnAction(e -> loadImageDialog(window.getStage(), image -> {
+					view.setMode(DrawView.Mode.Capture);
+					capturePane.getImageView().setImage(image);
+				})
+		);
+		controller.getOpenImageFileItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
 
 		controller.getFindAgainMenuItem().setOnAction(e -> {
 			if (false)
@@ -572,18 +581,32 @@ public class MainWindowPresenter {
 
 		var factor = new SimpleDoubleProperty(1.0);
 
-		controller.getIncreaseFontSizeMenuItem().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, Double.MAX_VALUE, null));
-		});
+		controller.getIncreaseFontSizeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, Double.MAX_VALUE, null)));
 		controller.getIncreaseFontSizeMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(factor.greaterThanOrEqualTo(10.0)));
 
-		controller.getDecreaseFontSizeMenuItem().setOnAction(e -> {
-			view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, Double.MIN_VALUE, null));
-		});
+		controller.getDecreaseFontSizeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, Double.MIN_VALUE, null)));
 		controller.getDecreaseFontSizeMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(factor.lessThanOrEqualTo(0.1)));
 
 		controller.getAddLSAEdgeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new AddLSAEdgesCommand(view)));
 		controller.getAddLSAEdgeMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> view.getGraph().nodeStream().filter(v -> v.getInDegree() == 0).count() != 1, view.getGraphFX().lastUpdateProperty()));
+
+		formatPaneView.getController().getDeclareRootButton().setOnAction(controller.getDeclareRootMenuItem().getOnAction());
+		formatPaneView.getController().getDeclareRootButton().disableProperty().bind(controller.getDeclareRootMenuItem().disableProperty());
+
+		formatPaneView.getController().getMergeNodesButton().setOnAction(controller.getMergeNodesMenuItem().getOnAction());
+		formatPaneView.getController().getMergeNodesButton().disableProperty().bind(controller.getMergeNodesMenuItem().disableProperty());
+
+		formatPaneView.getController().getReverseEdgesButton().setOnAction(controller.getReverseEdgesMenuItem().getOnAction());
+		formatPaneView.getController().getReverseEdgesButton().disableProperty().bind(controller.getReverseEdgesMenuItem().disableProperty());
+
+		formatPaneView.getController().getDeleteThruNodesButton().setOnAction(controller.getDeleteThruNodesMenuItem().getOnAction());
+		formatPaneView.getController().getDeleteThruNodesButton().disableProperty().bind(controller.getDeleteThruNodesMenuItem().disableProperty());
+
+		formatPaneView.getController().getCrossEdgesButton().setOnAction(controller.getCrossEdgesMenuItem().getOnAction());
+		formatPaneView.getController().getCrossEdgesButton().disableProperty().bind(controller.getCrossEdgesMenuItem().disableProperty());
+
+		formatPaneView.getController().getResizeModeToggle().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
+		formatPaneView.getController().getResizeModeToggle().disableProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().disableProperty());
 	}
 
 	public static void openString(String string) {
@@ -606,8 +629,7 @@ public class MainWindowPresenter {
 		});
 	}
 
-
-	private Searcher<Node> setupSearcher(DrawPane view) {
+	private Searcher<Node> setupSearcher(DrawView view) {
 		var graph = view.getGraph();
 
 		Function<Integer, jloda.graph.Node> index2node = index -> (jloda.graph.Node) view.getNodesGroup().getChildren().get(index).getUserData();
@@ -632,5 +654,27 @@ public class MainWindowPresenter {
 
 	public FormatPaneView getFormatPaneView() {
 		return formatPaneView;
+	}
+
+
+	public static void loadImageDialog(Stage stage, Consumer<Image> imageConsumer) {
+		var fileChooser = new FileChooser();
+		var dir = ProgramProperties.get("LoadImageDirectory", "");
+		if (FileUtils.isDirectory(dir))
+			fileChooser.setInitialDirectory(new File(dir));
+		fileChooser.setTitle("Open Image File");
+		fileChooser.getExtensionFilters().addAll(
+				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+		);
+
+		// Show dialog and get file
+		var file = fileChooser.showOpenDialog(stage);
+		if (file != null && file.exists()) {
+			var image = new Image(file.toURI().toString());
+			imageConsumer.accept(image);
+			if (!file.getParent().isBlank()) {
+				ProgramProperties.put("LoadImageDirectory", file.getParent());
+			}
+		}
 	}
 }
