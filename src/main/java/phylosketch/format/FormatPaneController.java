@@ -103,12 +103,17 @@ public class FormatPaneController {
 	@FXML
 	private ToggleButton showProbabilityToggleButton;
 
+	@FXML
+	private ColorPicker nodeFillPicker;
 
 	@FXML
-	private ColorPicker nodeColorPicker;
+	private Button clearNodeFillButton;
 
 	@FXML
-	private Button clearNodeColorButton;
+	private ColorPicker nodeStrokePicker;
+
+	@FXML
+	private Button clearNodeStrokeButton;
 
 	@FXML
 	private Button nodeLabelBoldButton;
@@ -180,6 +185,25 @@ public class FormatPaneController {
 	private TextField nodeLabelTextField;
 
 	@FXML
+	private Button declareRootButton;
+
+	@FXML
+	private Button mergeNodesButton;
+
+	@FXML
+	private Button deleteThruNodesButton;
+
+	@FXML
+	private Button reverseEdgesButton;
+
+	@FXML
+	private Button crossEdgesButton;
+
+	@FXML
+	private ToggleButton resizeModeToggle;
+
+
+	@FXML
 	private void initialize() {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
@@ -202,7 +226,7 @@ public class FormatPaneController {
 
 		MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
 
-		MaterialIcons.setIcon(clearNodeColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearNodeFillButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearNodeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearNodeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearNodeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
@@ -301,12 +325,20 @@ public class FormatPaneController {
 		return edgeWidthCBox;
 	}
 
-	public ColorPicker getNodeColorPicker() {
-		return nodeColorPicker;
+	public ColorPicker getNodeFillPicker() {
+		return nodeFillPicker;
 	}
 
-	public Button getClearNodeColorButton() {
-		return clearNodeColorButton;
+	public Button getClearNodeFillButton() {
+		return clearNodeFillButton;
+	}
+
+	public ColorPicker getNodeStrokePicker() {
+		return nodeStrokePicker;
+	}
+
+	public Button getClearNodeStrokeButton() {
+		return clearNodeStrokeButton;
 	}
 
 	public Button getNodeLabelBoldButton() {
@@ -431,5 +463,29 @@ public class FormatPaneController {
 
 	public Button getClearEdgeLabelColorButton() {
 		return clearEdgeLabelColorButton;
+	}
+
+	public Button getDeclareRootButton() {
+		return declareRootButton;
+	}
+
+	public Button getMergeNodesButton() {
+		return mergeNodesButton;
+	}
+
+	public Button getDeleteThruNodesButton() {
+		return deleteThruNodesButton;
+	}
+
+	public Button getReverseEdgesButton() {
+		return reverseEdgesButton;
+	}
+
+	public ToggleButton getResizeModeToggle() {
+		return resizeModeToggle;
+	}
+
+	public Button getCrossEdgesButton() {
+		return crossEdgesButton;
 	}
 }

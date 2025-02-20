@@ -13,6 +13,7 @@ module phylosketch {
 	requires tess4j;
 	requires org.apache.commons.numbers.gamma;
 	requires java.management;
+	requires java.scripting;
 
 	opens phylosketch.format;
 	opens phylosketch.help;
@@ -21,21 +22,16 @@ module phylosketch {
 	opens phylosketch.view;
 	opens phylosketch.window;
 
-	opens phylocap;
-	opens phylocap.panel;
-	opens phylocap.window;
-	opens phylocap.capture;
-	exports phylocap.capture;
-
 	exports phylosketch.format;
 	exports phylosketch.window;
 	exports phylosketch.io;
 	exports phylosketch.main;
 	exports phylosketch.view;
-	opens phylocap.phylogeny;
-	exports phylosketch.capture;
-	opens phylosketch.capture;
 
 	exports xtra;
 
+	opens phylosketch.capturepane.capture;
+	opens phylosketch.capturepane.pane;
+	exports phylosketch.capturepane.capture;
+	exports phylosketch.capturepane.pane;
 }

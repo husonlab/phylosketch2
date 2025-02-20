@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 /**
  * creates a new node
@@ -39,8 +39,9 @@ public class CreateNodeCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view     the window
 	 * @param location the location
+	 * @param label label or null
 	 */
-	public CreateNodeCommand(DrawPane view, Point2D location) {
+	public CreateNodeCommand(DrawView view, Point2D location, String label) {
 		super("create node");
 
 		undo = () -> {
@@ -50,6 +51,8 @@ public class CreateNodeCommand extends UndoableRedoableCommand {
 
 		redo = () -> {
 			var v = view.createNode(location, newNodeId);
+			if (label != null)
+				view.setLabel(v, label);
 			newNodeId = v.getId();
 		};
 	}

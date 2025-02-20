@@ -54,47 +54,46 @@ public class NodeInteraction {
 	 * Note that creation of new nodes is setup in PaneInteraction
 	 *
 	 * @param view
-	 * @param runDoubleClickSelection
+	 * @param runSelectionButton
 	 */
-	public static void setup(DrawPane view, BooleanProperty resizeMode, Runnable runDoubleClickSelection) {
+	public static void setup(DrawView view, BooleanProperty resizeMode, Runnable runSelectionButton) {
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
 					for (javafx.scene.Node n : c.getAddedSubList()) {
 						if (n instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
-
-							shape.setOnContextMenuRequested(a -> {
-								if (view.getNodeSelection().isSelected(v) && view.getMode() == DrawPane.Mode.Move) {
-									var resizeItem = new CheckMenuItem("Resize Mode");
-									resizeItem.setSelected(resizeMode.get());
-									resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
-									var contextMenu = new ContextMenu(resizeItem);
-									contextMenu.show(shape, a.getScreenX(), a.getScreenY());
-								}
-								a.consume();
-							});
+							if (false) { // todo: don't want this
+								shape.setOnContextMenuRequested(a -> {
+									if (view.getNodeSelection().isSelected(v) && view.getMode() == DrawView.Mode.Move) {
+										var resizeItem = new CheckMenuItem("Resize Mode");
+										resizeItem.setSelected(resizeMode.get());
+										resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
+										var contextMenu = new ContextMenu(resizeItem);
+										contextMenu.show(shape, a.getScreenX(), a.getScreenY());
+									}
+									a.consume();
+								});
+							}
 
 							shape.setOnMouseClicked(me -> {
 								if (me.isStillSincePress() && !me.isControlDown()) {
-									if (me.getClickCount() == 1) {
-										if (!me.isAltDown() && PhyloSketch.isDesktop()) {
-											if (!me.isShiftDown()) {
-												view.getNodeSelection().clearSelection();
-												view.getEdgeSelection().clearSelection();
-											}
-										}
+									if (PhyloSketch.isDesktop() && me.isShiftDown()) {
 										view.getNodeSelection().toggleSelection(v);
-										me.consume();
-									} else if (me.getClickCount() == 2) {
+									} else if (!view.getNodeSelection().isSelected(v)) {
+										if (PhyloSketch.isDesktop()) {
+											view.getEdgeSelection().clearSelection();
+											view.getNodeSelection().clearSelection();
+										}
 										view.getNodeSelection().select(v);
-										Platform.runLater(runDoubleClickSelection);
+									} else {
+										Platform.runLater(runSelectionButton);
 									}
 								}
 								me.consume();
 							});
 
 							shape.setOnMousePressed(me -> {
-								if (view.getMode() == DrawPane.Mode.Move) {
+								if (view.getMode() == DrawView.Mode.Move) {
 									mouseDownX = me.getScreenX();
 									mouseDownY = me.getScreenY();
 									mouseX = mouseDownX;
@@ -104,7 +103,7 @@ public class NodeInteraction {
 							});
 
 							shape.setOnMouseDragged(me -> {
-								if (view.getMode() == DrawPane.Mode.Move) {
+								if (view.getMode() == DrawView.Mode.Move) {
 									if (!view.getNodeSelection().isSelected(v)) {
 										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -124,8 +123,8 @@ public class NodeInteraction {
 									view.getOtherGroup().getChildren().remove(lineY);
 
 									for (var q : view.getNodeSelection().getSelectedItems()) {
-										var qPoint = view.getPoint(q);
-										var hasX = view.getGraph().nodeStream().filter(u -> !view.getNodeSelection().isSelected(u)).mapToDouble(u -> view.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) < 2);
+										var qPoint = DrawView.getPoint(q);
+										var hasX = view.getGraph().nodeStream().filter(u -> !view.getNodeSelection().isSelected(u)).mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) < 2);
 										if (hasX) {
 											if (!view.getOtherGroup().getChildren().contains(lineX))
 												view.getOtherGroup().getChildren().add(lineX);
@@ -134,7 +133,7 @@ public class NodeInteraction {
 										} else
 											view.getOtherGroup().getChildren().remove(lineX);
 
-										var hasY = view.getGraph().nodeStream().filter(u -> !view.getNodeSelection().isSelected(u)).mapToDouble(u -> view.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) < 2);
+										var hasY = view.getGraph().nodeStream().filter(u -> !view.getNodeSelection().isSelected(u)).mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) < 2);
 
 										if (hasY) {
 											if (!view.getOtherGroup().getChildren().contains(lineY))
@@ -152,7 +151,7 @@ public class NodeInteraction {
 								view.getOtherGroup().getChildren().remove(lineX);
 								view.getOtherGroup().getChildren().remove(lineY);
 
-								if (view.getMode() == DrawPane.Mode.Move) {
+								if (view.getMode() == DrawView.Mode.Move) {
 									var nodes = new HashSet<>(view.getNodeSelection().getSelectedItems());
 									var previous = view.screenToLocal(mouseDownX, mouseDownY);
 									var location = view.screenToLocal(mouseX, mouseY);
@@ -162,13 +161,9 @@ public class NodeInteraction {
 								}
 							});
 
-							shape.setOnMouseEntered(me -> {
-								shape.setStrokeWidth(shape.getStrokeWidth() + 4);
-							});
+							shape.setOnMouseEntered(me -> shape.setStrokeWidth(shape.getStrokeWidth() + 4));
 
-							shape.setOnMouseExited(me -> {
-								shape.setStrokeWidth(shape.getStrokeWidth() - 4);
-							});
+							shape.setOnMouseExited(me -> shape.setStrokeWidth(shape.getStrokeWidth() - 4));
 						}
 					}
 				}

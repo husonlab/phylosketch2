@@ -28,7 +28,7 @@
             fx:controller="phylosketch.window.MainWindowController">
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <center>
-            <BorderPane fx:id="centerBorderPane">
+            <BorderPane>
                 <center>
                     <AnchorPane fx:id="centerAnchorPane" BorderPane.alignment="CENTER">
                         <children>
@@ -94,20 +94,20 @@
                                                     <Tooltip text="Capture phylogeny from image"/>
                                                 </tooltip>
                                                 <items>
-                                                    <MenuItem fx:id="loadImageMenuItem" mnemonicParsing="false"
+                                                    <CheckMenuItem fx:id="showCaptureParametersItem"
+                                                                   text="Parameters..."/>
+                                                    <MenuItem fx:id="loadCaptureImageItem" mnemonicParsing="false"
                                                               text="Load Image..."/>
-                                                    <MenuItem fx:id="clearImageMenuItem" mnemonicParsing="false"
+                                                    <MenuItem fx:id="clearCaptureImageItem" mnemonicParsing="false"
                                                               text="Remove Image"/>
                                                     <SeparatorMenuItem mnemonicParsing="false"/>
-                                                    <MenuItem fx:id="captureResetMenuItem" mnemonicParsing="false"
-                                                              text="Reset"/>
-                                                    <CheckMenuItem fx:id="captureRootLocationMenuItem"
+                                                    <CheckMenuItem fx:id="showCaptureRootLocationItem"
                                                                    mnemonicParsing="false" text="Place Root"/>
-                                                    <CheckMenuItem fx:id="captureLinesMenuItem" mnemonicParsing="false"
-                                                                   text="Capture Lines"/>
-                                                    <CheckMenuItem fx:id="captureLabelsMenuItem" mnemonicParsing="false"
+                                                    <CheckMenuItem fx:id="captureLabelsItem" mnemonicParsing="false"
                                                                    text="Capture Labels"/>
-                                                    <CheckMenuItem fx:id="capturePhylogenyMenuItem"
+                                                    <CheckMenuItem fx:id="captureLinesItem" mnemonicParsing="false"
+                                                                   text="Capture Lines"/>
+                                                    <CheckMenuItem fx:id="capturePhylogenyItem"
                                                                    mnemonicParsing="false" text="Capture Phylogeny"/>
                                                 </items>
                                             </MenuButton>
@@ -187,6 +187,9 @@
                                         </accelerator>
                                     </MenuItem>
                                     <Menu fx:id="recentFilesMenu" mnemonicParsing="false" text="Recent"/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <MenuItem fx:id="openImageFileItem" mnemonicParsing="false" text="Load Image..."/>
+
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
                                         <items>
@@ -275,13 +278,35 @@
                                     <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" text="Clear">
                                     </MenuItem>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
-                                    <MenuItem fx:id="removeThruNodesMenuItem" mnemonicParsing="false"
+                                    <MenuItem fx:id="mergeNodesMenuItem" mnemonicParsing="false"
+                                              text="Merge Nodes">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP"
+                                                                shift="UP" shortcut="DOWN"/>
+                                        </accelerator>
+                                    </MenuItem>
+                                    <MenuItem fx:id="deleteThruNodesMenuItem" mnemonicParsing="false"
                                               text="Remove Thru Nodes">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="UP"
+                                                                shortcut="DOWN"/>
+                                        </accelerator>
                                     </MenuItem>
-                                    <MenuItem fx:id="fixCrossingEdgesMenuItem" mnemonicParsing="false"
+                                    <MenuItem fx:id="reverseEdgesMenuItem" mnemonicParsing="false"
+                                              text="Reverse Edges">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
+                                                                shortcut="DOWN"/>
+                                        </accelerator>
+                                    </MenuItem>
+                                    <MenuItem fx:id="crossEdgesMenuItem" mnemonicParsing="false"
                                               text="Fix Crossing Edges">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN"
+                                                                shortcut="DOWN"/>
+                                        </accelerator>
                                     </MenuItem>
-                                    <MenuItem fx:id="rerootMenuItem" text="Set Root"/>
+                                    <MenuItem fx:id="declareRootMenuItem" text="Declare Root"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
                                         <items>
@@ -333,10 +358,6 @@
                                         </accelerator>
                                     </MenuItem>
                                     <MenuItem fx:id="extendSelectionMenuItem" text="Extend">
-                                        <accelerator>
-                                            <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
-                                                                shortcut="DOWN"/>
-                                        </accelerator>
                                     </MenuItem>
                                     <MenuItem fx:id="selectInvertMenuItem" text="Invert">
                                         <accelerator>
@@ -355,10 +376,6 @@
                                         </accelerator>
                                     </MenuItem>
                                     <MenuItem fx:id="selectTreeNodesMenuItem" text="Tree Nodes">
-                                        <accelerator>
-                                            <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="UP"
-                                                                shortcut="DOWN"/>
-                                        </accelerator>
                                     </MenuItem>
                                     <MenuItem fx:id="selectReticulateNodesMenuitem" text="Reticulate Nodes"/>
                                     <MenuItem fx:id="selectThruNodesMenuItem" text="Thru Nodes"/>
@@ -372,7 +389,7 @@
                                     </MenuItem>
                                     <MenuItem fx:id="selectReticulateEdgesMenuItem" text="Reticulate Edges">
                                         <accelerator>
-                                            <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN"
+                                            <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="DOWN"
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
@@ -401,10 +418,6 @@
                                     </MenuItem>
                                     <MenuItem fx:id="selectPossibleRootLocationsMenuItem"
                                               text="Possible Root Locations">
-                                        <accelerator>
-                                            <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="DOWN"
-                                                                shortcut="DOWN"/>
-                                        </accelerator>
                                     </MenuItem>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="selectLowestStableAncestorMenuItem" text="Lowest Stable Ancestor"/>

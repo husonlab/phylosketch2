@@ -24,10 +24,12 @@ import javafx.beans.binding.Bindings;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ArticulationPoints;
+import jloda.phylo.LSAUtils;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.IteratorUtils;
 import phylosketch.window.MainWindowController;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -37,12 +39,26 @@ import java.util.Stack;
  * Daniel Huson, 9.2024
  */
 public class SetupSelection {
-	public static void apply(DrawPane view, MainWindowController controller) {
+	/**
+	 * setup selection items
+	 *
+	 * @param view       the view
+	 * @param controller the controller
+	 */
+	public static void apply(DrawView view, MainWindowController controller) {
 		var graph = view.getGraph();
 		var nodeSelection = view.getNodeSelection();
 		var edgeSelection = view.getEdgeSelection();
 
 		controller.getSelectButton().setOnAction(a -> {
+			if (nodeSelection.size() == 0 && edgeSelection.size() > 0) {
+				var nodes = new HashSet<Node>();
+				for (var e : edgeSelection.getSelectedItems()) {
+					nodes.addAll(e.nodes());
+				}
+				nodeSelection.selectAll(nodes);
+				return;
+			}
 			for (var e : graph.edges()) {
 				if (nodeSelection.isSelected(e.getSource()) && !nodeSelection.isSelected(e.getTarget())) {
 					controller.getSelectAllBelowMenuItem().fire();
@@ -198,11 +214,10 @@ public class SetupSelection {
 		});
 		controller.getSelectPossibleRootLocationsMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(RootedNetworkProperties.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
+		controller.getSelectLowestStableAncestorMenuItem().setOnAction(e -> nodeSelection.selectAll(LSAUtils.computeAllLowestStableAncestors(graph, nodeSelection.getSelectedItems())));
 		controller.getSelectLowestStableAncestorMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
 
-		controller.getSelectThruNodesMenuItem().setOnAction(c -> graph.nodeStream().filter(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()).forEach(nodeSelection::select));
+		controller.getSelectThruNodesMenuItem().setOnAction(c -> graph.nodeStream().filter(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank()).forEach(nodeSelection::select));
 		controller.getSelectThruNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 	}
-
 }

@@ -34,7 +34,7 @@ import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.io.*;
 import java.util.Arrays;
@@ -47,9 +47,9 @@ import java.util.List;
  * Daniel Huson, 9.2024
  */
 public class PhyloSketchIO {
-	public static void save (File file, DrawPane drawPane)  throws IOException {
+	public static void save(File file, DrawView drawView) throws IOException {
 		try(var w= FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {
-			save(w,drawPane);
+			save(w, drawView);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class PhyloSketchIO {
 	 * @param view the draw window
 	 * @throws IOException  something went wrong
 	 */
-	public static void save(Writer w, DrawPane view) throws IOException {
+	public static void save(Writer w, DrawView view) throws IOException {
 		var graph = view.getGraph();
 		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_dx", "label_dy");
 		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label");
@@ -91,7 +91,7 @@ public class PhyloSketchIO {
 										   && !(MainWindowManager.isUseDarkTheme() && shape.getFill()==Color.WHITE))? shape.getFill():"";
 						case "x" -> StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateX());
 						case "y" ->  StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateY());
-						case "label" -> view.getLabel(v).getText().trim();
+						case "label" -> DrawView.getLabel(v).getText().trim();
 						case "label_dx" -> label != null ?  StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutX()) : "";
 						case "label_dy" -> label != null ? StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutY()) : "";
 						default -> "";
@@ -116,7 +116,7 @@ public class PhyloSketchIO {
 						case "probability" ->
 								graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getProbability(e)) : "";
 						case "arrow" -> view.getEdgeArrowMap().containsKey(e) ? "1" : "";
-						case "label" -> view.getLabel(e).getText().trim();
+						case "label" -> DrawView.getLabel(e).getText().trim();
 						default -> "";
 					}));
 					return (value.isBlank() ? null : value);
@@ -126,13 +126,13 @@ public class PhyloSketchIO {
 	/**
 	 * open a file and load it into the draw window
 	 * @param file file
-	 * @param drawPane draw window
+	 * @param drawView draw window
 	 * @throws IOException
 	 */
-	public static void open(String file,DrawPane drawPane) throws IOException {
+	public static void open(String file, DrawView drawView) throws IOException {
 		 try(var r=new InputStreamReader(FileUtils.getInputStreamPossiblyZIPorGZIP(file))) {
-			 load(r,drawPane);
-			 drawPane.getUndoManager().clear();
+			 load(r, drawView);
+			 drawView.getUndoManager().clear();
 		 }
 	}
 
@@ -142,7 +142,7 @@ public class PhyloSketchIO {
 	 * @param view the draw window
 	 * @throws IOException something went wrong
 	 */
-	public static void load(Reader r, DrawPane view) throws IOException {
+	public static void load(Reader r, DrawView view) throws IOException {
 		view.clear();
 		var graph = view.getGraph();
 		var arrowEdges = new HashSet<Edge>();
@@ -193,15 +193,20 @@ public class PhyloSketchIO {
 						shape.setTranslateY(NumberUtils.parseDouble(value));
 					}
 				}
-				case "label" -> view.getLabel(v).setText(value);
+				case "label" -> {
+					view.ensureLabelExists(v);
+					view.setLabel(v, value);
+				}
 				case "label_dx" -> {
 					if (NumberUtils.isDouble(value)) {
-						view.getLabel(v).setLayoutX(NumberUtils.parseDouble(value));
+						view.ensureLabelExists(v);
+						DrawView.getLabel(v).setLayoutX(NumberUtils.parseDouble(value));
 					}
 				}
 				case "label_dy" -> {
 					if (NumberUtils.isDouble(value)) {
-						view.getLabel(v).setLayoutY(NumberUtils.parseDouble(value));
+						view.ensureLabelExists(v);
+						DrawView.getLabel(v).setLayoutY(NumberUtils.parseDouble(value));
 					}
 				}
 			}
@@ -236,15 +241,18 @@ public class PhyloSketchIO {
 				}
 				case "stroke_dash_array" -> {
 					var items = StringUtils.split(value, ',');
-					if (Arrays.stream(items).allMatch(NumberUtils::isDouble) && view.getPath(e) != null) {
-						view.getPath(e).getStrokeDashArray().setAll(Arrays.stream(items).map(NumberUtils::parseDouble).toList());
+					if (Arrays.stream(items).allMatch(NumberUtils::isDouble) && DrawView.getPath(e) != null) {
+						DrawView.getPath(e).getStrokeDashArray().setAll(Arrays.stream(items).map(NumberUtils::parseDouble).toList());
 					}
 				}
 				case "arrow" -> {
 					if (value.equals("1"))
 						arrowEdges.add(e);
 				}
-				case "label" -> view.getLabel(e).setText(value);
+				case "label" -> {
+					view.ensureLabelExists(e);
+					view.setLabel(e, value);
+				}
 			}
 		});
 
@@ -252,7 +260,9 @@ public class PhyloSketchIO {
 		for(var v:graph.nodes()) {
 			if(!(v.getData() instanceof Shape)) {
 				view.setShape(v, new Circle(3));
+				view.ensureLabelExists(v);
 			}
+			view.ensureLabelExists(v);
 		}
 		// create paths for any edges for which path not given
 		for(var e:graph.edges()) {
@@ -262,6 +272,7 @@ public class PhyloSketchIO {
 				var path = PathUtils.createPath(List.of(a, b), true);
 				view.addPath(e, path);
 			}
+			view.ensureLabelExists(e);
 		}
 
 		graph.setName(gmlInfo.label());
@@ -293,6 +304,7 @@ public class PhyloSketchIO {
 		var tokens = text.split(",");
 
 		var path = new Path();
+		path.getStyleClass().add("graph-edge");
 		for (var i = 0; i + 1 < tokens.length; i += 2) {
 			var x = Double.parseDouble(tokens[i]);
 			var y = Double.parseDouble(tokens[i + 1]);

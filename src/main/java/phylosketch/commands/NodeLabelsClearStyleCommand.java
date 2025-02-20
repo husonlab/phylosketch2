@@ -21,7 +21,7 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,11 +37,11 @@ public class NodeLabelsClearStyleCommand extends UndoableRedoableCommand {
 	private final Map<Integer, String> oldMap = new HashMap<>();
 	private final Map<Integer, String> newMap = new HashMap<>();
 
-	public NodeLabelsClearStyleCommand(DrawPane view) {
+	public NodeLabelsClearStyleCommand(DrawView view) {
 		super("clear labels");
 		for (var v : view.getSelectedOrAllNodes()) {
-			oldMap.put(v.getId(), view.getLabel(v).getText());
-			newMap.put(v.getId(), view.getLabel(v).getRawText());
+			oldMap.put(v.getId(), DrawView.getLabel(v).getText());
+			newMap.put(v.getId(), DrawView.getLabel(v).getRawText());
 		}
 		if (!oldMap.isEmpty()) {
 			undo = () -> {

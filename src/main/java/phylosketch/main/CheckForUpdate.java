@@ -34,8 +34,8 @@ import java.util.concurrent.Executors;
  * Daniel Huson, 5.2018
  */
 public class CheckForUpdate {
-	public static String programURL = "https://software-ab.cs.uni-tuebingen.de/download/phylosketch2";
-	public static String applicationId = "1691242391";
+	public static final String programURL = "https://software-ab.cs.uni-tuebingen.de/download/phylosketch2";
+	public static final String applicationId = "1691242391";
 
 	/**
 	 * check for update, download and install, if present

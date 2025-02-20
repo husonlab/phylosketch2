@@ -8,8 +8,6 @@ PhyloSketch App is an application for interactively creating and editing phyloge
 drawing them.
 The program runs on MacOS X, Linux and Windows, and is also designed for touch-screen devices running iOS or Android.
 
-![example.png](docs/figs/example.png)
-
 ## Installation
 
 * The MacOS X, Linux and Windows are available from here: [software-ab.cs.uni-tuebingen.de](https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html).

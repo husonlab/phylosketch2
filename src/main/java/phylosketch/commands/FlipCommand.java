@@ -28,7 +28,7 @@ import javafx.util.Duration;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,18 +56,18 @@ public class FlipCommand extends UndoableRedoableCommand {
 	 * @param view       the window
 	 * @param horizontal flip horizontally, if true, otherwise vertically
 	 */
-	public FlipCommand(DrawPane view, boolean horizontal) {
+	public FlipCommand(DrawView view, boolean horizontal) {
 		super("flip");
 
 		var nodes = view.getSelectedOrAllNodes();
 
-		var layoutCommmand = new LayoutLabelsCommand(view, nodes);
+		var layoutCommmand = new LayoutLabelsCommand(view, null, nodes);
 
-		var x = nodes.stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
-		var y = nodes.stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
+		var x = nodes.stream().map(DrawView::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
+		var y = nodes.stream().map(DrawView::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
 
 		for (var v : nodes) {
-			var point = view.getPoint(v);
+			var point = DrawView.getPoint(v);
 			nodeOldPointMap.put(v.getId(), point);
 			var mid = new Point2D(horizontal ? x : point.getX(), horizontal ? point.getY() : y);
 			nodeMidPointMap.put(v.getId(), mid);
@@ -76,7 +76,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 		}
 		for (var e : view.getGraph().edges()) {
 			if (nodes.contains(e.getSource()) || nodes.contains(e.getTarget())) {
-				var points = view.getPoints(e);
+				var points = DrawView.getPoints(e);
 				edgeOldPointsMap.put(e.getId(), points);
 				if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget())) {
 					var midPoints = new ArrayList<Point2D>();
@@ -122,7 +122,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 				for (var entry : edgeMidPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
 				}
 			});
 			var second = new PauseTransition(Duration.seconds(0.1));
@@ -135,7 +135,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 				for (var entry : edgeOldPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
@@ -154,7 +154,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 				for (var entry : edgeMidPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
 				}
 			});
 			var second = new PauseTransition(Duration.seconds(0.1));
@@ -168,7 +168,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 				for (var entry : edgeNewPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
 				}
 			});
 			var sequential = new SequentialTransition(first, second);

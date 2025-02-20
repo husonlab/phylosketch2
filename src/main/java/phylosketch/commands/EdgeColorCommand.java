@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +38,12 @@ public class EdgeColorCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Color> oldMap = new HashMap<>();
 	private final Map<Integer, Color> newMap = new HashMap<>();
 
-	public EdgeColorCommand(DrawPane view, Color color) {
+	public EdgeColorCommand(DrawView view, Color color) {
 		super("color");
 
 		for (var e : view.getSelectedOrAllEdges()) {
 			var id = e.getId();
-			var path = view.getPath(e);
+			var path = DrawView.getPath(e);
 			if (path != null) {
 				oldMap.put(id, (Color) path.getStroke());
 				newMap.put(id, color);
@@ -53,7 +53,7 @@ public class EdgeColorCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					var path = view.getPath(e);
+					var path = DrawView.getPath(e);
 					if (path != null) {
 						path.setStroke(oldMap.get(id));
 					}
@@ -62,7 +62,7 @@ public class EdgeColorCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var id : newMap.keySet()) {
 					var e = view.getGraph().findEdgeById(id);
-					var path = view.getPath(e);
+					var path = DrawView.getPath(e);
 					if (path != null) {
 						path.setStroke(newMap.get(id));
 					}

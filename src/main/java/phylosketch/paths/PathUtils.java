@@ -204,4 +204,26 @@ public class PathUtils {
 	public static Path concatenate(Path path1, Path path2, boolean normalize) {
 		return createPath(CollectionUtils.concatenate(extractPoints(path1), extractPoints(path2)), normalize);
 	}
+
+	public static Point2D getPointAwayFromEnd(Path path, double minDistance) {
+		var points = CollectionUtils.reverse(extractPoints(path));
+		var start = points.get(0);
+		for (var point : points) {
+			if (point.distance(start) > minDistance) {
+				return point;
+			}
+		}
+		return points.get(points.size() - 1);
+	}
+
+	public static Point2D getPointAwayFromStart(Path path, double minDistance) {
+		var points = extractPoints(path);
+		var start = points.get(0);
+		for (var point : points) {
+			if (point.distance(start) > minDistance) {
+				return point;
+			}
+		}
+		return points.get(points.size() - 1);
+	}
 }

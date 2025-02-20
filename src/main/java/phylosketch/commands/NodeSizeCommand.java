@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.shape.Circle;
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +39,11 @@ public class NodeSizeCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Double> newSizeMap = new HashMap<>();
 
 
-	public NodeSizeCommand(DrawPane view, double size) {
+	public NodeSizeCommand(DrawView view, double size) {
 		super("node size");
 
 		for (var v : view.getSelectedOrAllNodes()) {
-			if (view.getShape(v) instanceof Circle circle) {
+			if (DrawView.getShape(v) instanceof Circle circle) {
 				var id = v.getId();
 				oldSizeMap.put(id, circle.getRadius());
 				newSizeMap.put(id, size);
@@ -56,7 +56,7 @@ public class NodeSizeCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var entry : oldSizeMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
-					if (view.getShape(v) instanceof Circle circle) {
+					if (DrawView.getShape(v) instanceof Circle circle) {
 						circle.setRadius(entry.getValue());
 					}
 				}
@@ -64,7 +64,7 @@ public class NodeSizeCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var entry : newSizeMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
-					if (view.getShape(v) instanceof Circle circle) {
+					if (DrawView.getShape(v) instanceof Circle circle) {
 						circle.setRadius(entry.getValue());
 					}
 				}

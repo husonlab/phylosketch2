@@ -20,23 +20,23 @@
 
 package phylosketch.io;
 
-import javafx.application.Platform;
-import javafx.geometry.Point2D;
 import jloda.graph.Node;
-import jloda.graph.NodeArray;
+import jloda.phylo.LSAUtils;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
 import jloda.util.IteratorUtils;
-import phylosketch.embed.RootedNetworkEmbedder;
-import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
-import phylosketch.view.RootLocation;
+import phylosketch.draw.DrawNetwork;
+import phylosketch.embed.HeightAndAngles;
+import phylosketch.embed.LayoutTreeRectangular;
+import phylosketch.utils.ScaleUtils;
+import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
+import xtra.OptimizeLayout;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * newick import
@@ -50,7 +50,7 @@ public class ImportNewick {
 	 * @param view     the window to import into
 	 * @throws IOException
 	 */
-	public static void apply(String fileName, DrawPane view) throws IOException {
+	public static void apply(String fileName, DrawView view) throws IOException {
 		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
 			apply(r, view);
 		}
@@ -59,13 +59,13 @@ public class ImportNewick {
 	/**
 	 * import from a buffered reader
 	 *
-	 * @param r        reader
-	 * @param view     window
+	 * @param r    reader
+	 * @param view window
 	 * @return set of new nodes
 	 * @throws IOException
 	 */
-	public static Collection<Node> apply(BufferedReader r, DrawPane view) throws IOException {
-		var rootLocation = RootLocation.Left;
+	public static Collection<Node> apply(BufferedReader r, DrawView view) throws IOException {
+		var rootSide = RootPosition.Side.Left;
 
 		view.applyCss();
 
@@ -76,7 +76,7 @@ public class ImportNewick {
 		var xMin = gap;
 		var yMin = gap;
 
-		var oldNodes = IteratorUtils.asSet(view.getGraph().nodes());
+		var originalNodes = IteratorUtils.asSet(view.getGraph().nodes());
 
 		while (r.ready()) {
 			var line = r.readLine();
@@ -85,9 +85,13 @@ public class ImportNewick {
 			if (!line.isBlank() && line.trim().startsWith("(")) {
 				var tree = new PhyloTree();
 				(new NewickIO()).parseBracketNotation(tree, line, true, false);
-				tree.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(e -> tree.setReticulate(e, true));
+				LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-				try (var nodePointMap = RootedNetworkEmbedder.apply(tree); NodeArray<Node> srcTarMap = tree.newNodeArray()) {
+				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
+
+				try (var points = LayoutTreeRectangular.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage)) {
+					OptimizeLayout.optimizeOrdering(tree, points);
+
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
 
 					if (yMin + gap + height > totalHeight) {
@@ -99,44 +103,14 @@ public class ImportNewick {
 
 					var xMax = xMin + width;
 					var yMax = yMin + height;
-					scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+					ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 					yMin += height + gap;
-
-					for (var v : tree.nodes()) {
-						srcTarMap.put(v, view.createNode(nodePointMap.get(v)));
-					}
-					// need to run this later otherwise labels will be placed incorrectly
-					Platform.runLater(() -> {
-						for (var v : tree.nodes()) {
-							var w = srcTarMap.get(v);
-							if (tree.getLabel(v) != null)
-								view.createLabel(w, tree.getLabel(v));
-						}
-					});
-					for (var e : tree.edges()) {
-						var v = srcTarMap.get(e.getSource());
-						var w = srcTarMap.get(e.getTarget());
-						var first = view.getPoint(v);
-						var last = view.getPoint(w);
-
-						List<Point2D> points;
-						if (e.getTarget().getInDegree() >= 2) {
-							points = List.of(first, last);
-						} else {
-							points = switch (rootLocation) {
-								case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
-								case Left, Right, Center ->
-										List.of(first, new Point2D(first.getX(), last.getY()), last);
-							};
-						}
-						var f = view.createEdge(v, w, PathUtils.createPath(points, true));
-						view.setShowArrow(f, true);
-					}
+					DrawNetwork.apply(view, tree, points);
 				}
 			}
 		}
 		var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
-		newNodes.removeAll(oldNodes);
+		newNodes.removeAll(originalNodes);
 
 		view.getNodeSelection().clearSelection();
 		view.getEdgeSelection().clearSelection();
@@ -146,24 +120,5 @@ public class ImportNewick {
 				view.getEdgeSelection().select(e);
 		}
 		return newNodes;
-	}
-
-	private static void scaleToBox(NodeArray<Point2D> nodePointMap, double xMin, double xMax, double yMin, double yMax) {
-		var pxMin = nodePointMap.values().stream().mapToDouble(Point2D::getX).min().orElse(0);
-		var pxMax = nodePointMap.values().stream().mapToDouble(Point2D::getX).max().orElse(0);
-		var pyMin = nodePointMap.values().stream().mapToDouble(Point2D::getY).min().orElse(0);
-		var pyMax = nodePointMap.values().stream().mapToDouble(Point2D::getY).max().orElse(0);
-
-		for (var v : nodePointMap.keySet()) {
-			var point = nodePointMap.get(v);
-			var px = point.getX();
-			var py = point.getY();
-
-			var x = xMin + (px - pxMin) * (xMax - xMin) / (pxMax - pxMin);
-
-			var y = yMin + (py - pyMin) * (yMax - yMin) / (pyMax - pyMin);
-
-			nodePointMap.put(v, new Point2D(x, y));
-		}
 	}
 }

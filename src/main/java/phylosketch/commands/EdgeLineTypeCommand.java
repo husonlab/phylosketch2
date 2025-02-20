@@ -21,7 +21,7 @@
 package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +39,11 @@ public class EdgeLineTypeCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Double[]> newMap = new HashMap<>();
 
 
-	public EdgeLineTypeCommand(DrawPane view, Double[] strokeDashArray) {
+	public EdgeLineTypeCommand(DrawView view, Double[] strokeDashArray) {
 		super("line type");
 
 		for (var e : view.getSelectedOrAllEdges()) {
-			var path = view.getPath(e);
+			var path = DrawView.getPath(e);
 			if (path != null) {
 				var id = e.getId();
 				oldMap.put(id, path.getStrokeDashArray().toArray(new Double[0]));
@@ -55,13 +55,13 @@ public class EdgeLineTypeCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var entry : oldMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getStrokeDashArray().setAll(List.of(entry.getValue()));
+					DrawView.getPath(e).getStrokeDashArray().setAll(List.of(entry.getValue()));
 				}
 			};
 			redo = () -> {
 				for (var entry : newMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getStrokeDashArray().setAll(List.of(entry.getValue()));
+					DrawView.getPath(e).getStrokeDashArray().setAll(List.of(entry.getValue()));
 				}
 			};
 		}

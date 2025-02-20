@@ -22,20 +22,17 @@ package phylosketch.commands;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.GeometryUtilsFX;
+import jloda.graph.Node;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Rotate command
@@ -52,20 +49,18 @@ public class RotateCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
 
-	public RotateCommand(DrawPane view, boolean positiveRotation) {
+	private boolean undoLabelCommand;
+
+	public RotateCommand(DrawView view, Collection<Node> nodes, boolean positiveRotation) {
 		super("rotate");
 
 		var angle = (positiveRotation ? 90 : -90);
 
-		var nodes = view.getSelectedOrAllNodes();
-
-		var layoutCommmand = new LayoutLabelsCommand(view, nodes);
-
-		var x = nodes.stream().map(view::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
-		var y = nodes.stream().map(view::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
+		var x = nodes.stream().map(DrawView::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
+		var y = nodes.stream().map(DrawView::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
 		var center = new Point2D(x, y);
 		for (var v : nodes) {
-			var point = view.getPoint(v);
+			var point = DrawView.getPoint(v);
 			nodeOldPointMap.put(v.getId(), point);
 			var mid = GeometryUtilsFX.rotateAbout(point, 0.5 * angle, center);
 			nodeMidPointMap.put(v.getId(), mid);
@@ -74,7 +69,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 		}
 		for (var e : view.getGraph().edges()) {
 			if (nodes.contains(e.getSource()) || nodes.contains(e.getTarget())) {
-				var points = view.getPoints(e);
+				var points = DrawView.getPoints(e);
 				edgeOldPointsMap.put(e.getId(), points);
 				if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget())) {
 					var mid = new ArrayList<Point2D>();
@@ -107,32 +102,35 @@ public class RotateCommand extends UndoableRedoableCommand {
 		undo = () -> {
 			var first = new PauseTransition(Duration.seconds(0.1));
 			first.setOnFinished(a -> {
-				for (var entry : nodeMidPointMap.entrySet()) {
-					if (view.getGraph().findNodeById(entry.getKey()).getData() instanceof Shape shape) {
-						shape.setTranslateX(entry.getValue().getX());
-						shape.setTranslateY(entry.getValue().getY());
+				nodeMidPointMap.forEach((key, value) -> {
+					if (view.getGraph().findNodeById(key).getData() instanceof Shape shape) {
+						shape.setTranslateX(value.getX());
+						shape.setTranslateY(value.getY());
 					}
-				}
-				for (var entry : edgeMidPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+				});
+				edgeMidPointsMap.forEach((key, value) -> {
+					var e = view.getGraph().findEdgeById(key);
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(value, false).getElements());
+				});
 			});
 			var second = new PauseTransition(Duration.seconds(0.1));
 			second.setOnFinished(a -> {
-				for (var entry : nodeOldPointMap.entrySet()) {
-					if (view.getGraph().findNodeById(entry.getKey()).getData() instanceof Shape shape) {
-						shape.setTranslateX(entry.getValue().getX());
-						shape.setTranslateY(entry.getValue().getY());
+				nodeOldPointMap.forEach((key, value) -> {
+					if (view.getGraph().findNodeById(key).getData() instanceof Shape shape) {
+						shape.setTranslateX(value.getX());
+						shape.setTranslateY(value.getY());
 					}
-				}
-				for (var entry : edgeOldPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+				});
+				edgeOldPointsMap.forEach((key, value) -> {
+					var e = view.getGraph().findEdgeById(key);
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(value, false).getElements());
+				});
 			});
 			var sequential = new SequentialTransition(first, second);
-			sequential.setOnFinished(e -> Platform.runLater(layoutCommmand::undo));
+			sequential.setOnFinished(a -> {
+				if (undoLabelCommand)
+					view.getUndoManager().undo();
+			});
 			sequential.play();
 		};
 
@@ -147,27 +145,37 @@ public class RotateCommand extends UndoableRedoableCommand {
 				}
 				for (var entry : edgeMidPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
+					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
 				}
 			});
-			var second = new PauseTransition(Duration.seconds(0.1));
-			second.setOnFinished(a -> {
-				for (var entry : nodeNewPointMap.entrySet()) {
-					var v = view.getGraph().findNodeById(entry.getKey());
-					if (v.getData() instanceof Shape shape) {
-						shape.setTranslateX(entry.getValue().getX());
-						shape.setTranslateY(entry.getValue().getY());
-					}
-				}
-				for (var entry : edgeNewPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					view.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+			var sequential = getSequentialTransition(view, first);
+			sequential.setOnFinished(a -> {
+				var command = new LayoutLabelsCommand(view, null, nodes);
+				if (command.isUndoable() && command.isRedoable()) {
+					undoLabelCommand = true;
+					view.getUndoManager().doAndAdd(command);
+				} else undoLabelCommand = false;
 			});
-			var sequential = new SequentialTransition(first, second);
-			sequential.setOnFinished(a -> layoutCommmand.redo());
 			sequential.play();
 		};
+	}
+
+	private SequentialTransition getSequentialTransition(DrawView view, PauseTransition first) {
+		var second = new PauseTransition(Duration.seconds(0.1));
+		second.setOnFinished(a -> {
+			nodeNewPointMap.forEach((key, value) -> {
+				var v = view.getGraph().findNodeById(key);
+				if (v.getData() instanceof Shape shape) {
+					shape.setTranslateX(value.getX());
+					shape.setTranslateY(value.getY());
+				}
+			});
+			edgeNewPointsMap.forEach((key, value) -> {
+				var e = view.getGraph().findEdgeById(key);
+				DrawView.getPath(e).getElements().setAll(PathUtils.createPath(value, false).getElements());
+			});
+		});
+		return new SequentialTransition(first, second);
 	}
 
 	@Override

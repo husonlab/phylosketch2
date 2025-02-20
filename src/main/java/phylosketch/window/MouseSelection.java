@@ -44,13 +44,11 @@ public class MouseSelection {
 					nodeSelectionModel.toggleSelection(v);
 					me.consume();
 				} else if(me.getClickCount()==2) {
-					Platform.runLater(()-> {
-						GraphTraversals.traverseReachable(v, e -> true, w -> {
-							nodeSelectionModel.select(w);
-							for (var e : w.outEdges())
-								edgeSelectionModel.select(e);
-						});
-					});
+					Platform.runLater(() -> GraphTraversals.traverseReachable(v, e -> true, w -> {
+						nodeSelectionModel.select(w);
+						for (var e : w.outEdges())
+							edgeSelectionModel.select(e);
+					}));
 				}
 			}
 		});

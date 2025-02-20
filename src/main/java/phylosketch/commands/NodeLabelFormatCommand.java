@@ -22,7 +22,7 @@ package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,12 +40,12 @@ public class NodeLabelFormatCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Formatting> oldMap = new HashMap<>();
 	private final Map<Integer, Formatting> newMap = new HashMap<>();
 
-	public NodeLabelFormatCommand(DrawPane view, Collection<Node> nodes, Which which, Boolean newValue, Double newSize, String newFontFamily) {
+	public NodeLabelFormatCommand(DrawView view, Collection<Node> nodes, Which which, Boolean newValue, Double newSize, String newFontFamily) {
 		super("format " + which.name());
 
 		for (var v : nodes) {
 			var id = v.getId();
-			var label = view.getLabel(v);
+			var label = DrawView.getLabel(v);
 			if (label != null) {
 				if (which == Which.font) {
 					oldMap.put(id, new Formatting(which, null, null, label.getFontFamily()));
@@ -79,7 +79,7 @@ public class NodeLabelFormatCommand extends UndoableRedoableCommand {
 			undo = () -> {
 				for (var id : oldMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					var label = view.getLabel(v);
+					var label = DrawView.getLabel(v);
 					if (label != null) {
 						var formatting = oldMap.get(id);
 						switch (which) {
@@ -96,7 +96,7 @@ public class NodeLabelFormatCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				for (var id : newMap.keySet()) {
 					var v = view.getGraph().findNodeById(id);
-					var label = view.getLabel(v);
+					var label = DrawView.getLabel(v);
 					if (label != null) {
 						var formatting = newMap.get(id);
 						switch (which) {

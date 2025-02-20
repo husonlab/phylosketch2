@@ -40,7 +40,7 @@ import phylosketch.io.FileOpener;
 import phylosketch.io.NewickFileFilter;
 import phylosketch.io.PhyloSketchFileFilter;
 import phylosketch.main.PhyloSketch;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.io.IOException;
 import java.util.List;
@@ -69,7 +69,7 @@ public class MainWindow implements IMainWindow {
 
     private final StringProperty name = new SimpleStringProperty(this, "name", "Untitled");
 
-    private final DrawPane drawPane = new DrawPane();
+    private final DrawView drawView = new DrawView();
 
     static {
         PhyloTree.SUPPORT_RICH_NEWICK = true;
@@ -141,7 +141,7 @@ public class MainWindow implements IMainWindow {
 
         stage.show();
 
-        empty.bind(drawPane.getGraphFX().emptyProperty());
+        empty.bind(drawView.getGraphFX().emptyProperty());
     }
 
     @Override
@@ -179,8 +179,8 @@ public class MainWindow implements IMainWindow {
         this.name.set(name);
     }
 
-    public DrawPane getDrawPane() {
-        return drawPane;
+    public DrawView getDrawPane() {
+        return drawView;
     }
 
     public String getFileName() {

@@ -26,7 +26,7 @@ import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.util.FileUtils;
 import phylosketch.main.NewWindow;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 import phylosketch.window.MainWindow;
 
 import java.io.File;
@@ -56,7 +56,7 @@ public class FileOpener implements Consumer<String> {
 			if(firstLine.startsWith("graph")) {
 				PhyloSketchIO.open(fileName, window.getDrawPane());
 				window.fileNameProperty().set(fileName);
-				window.getDrawPane().setMode(DrawPane.Mode.View);
+				window.getDrawPane().setMode(DrawView.Mode.View);
 			}
 			else if (firstLine.startsWith("#nexus")) {
 				NotificationManager.showWarning("Nexus: not implemented");
@@ -66,7 +66,7 @@ public class FileOpener implements Consumer<String> {
 			else if (firstLine.startsWith("(") || firstLine.contains(")")) {
 				ImportNewick.apply(fileName, window.getDrawPane());
 				window.dirtyProperty().set(true);
-				window.getDrawPane().setMode(DrawPane.Mode.View);
+				window.getDrawPane().setMode(DrawView.Mode.View);
 			}
 
 			RecentFilesManager.getInstance().insertRecentFile(fileName);

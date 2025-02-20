@@ -29,7 +29,7 @@ import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.RootLocation;
+import phylosketch.view.RootPosition;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,9 +52,9 @@ public class RectangularCommand extends UndoableRedoableCommand {
 		super("rectangular");
 		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
 
-		try (NodeArray<RootLocation> nodeRootLocationMap = graph.newNodeArray()) {
+		try (NodeArray<RootPosition> nodeRootLocationMap = graph.newNodeArray()) {
 			for (var component : ConnectedComponents.components(graph)) {
-				var rootLocation = RootLocation.compute(component);
+				var rootLocation = RootPosition.compute(component);
 				for (var v : component) {
 					nodeRootLocationMap.put(v, rootLocation);
 				}
@@ -67,7 +67,7 @@ public class RectangularCommand extends UndoableRedoableCommand {
 					var first = PathUtils.getCoordinates(path.getElements().get(0));
 					var last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
 
-					var points = switch (nodeRootLocationMap.get(e.getSource())) {
+					var points = switch (nodeRootLocationMap.get(e.getSource()).side()) {
 						case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
 						case Left, Right, Center -> List.of(first, new Point2D(first.getX(), last.getY()), last);
 					};

@@ -37,13 +37,9 @@ public class HelpPresenter {
 	public HelpPresenter(HelpController controller) {
 		webEngine = controller.getWebView().getEngine();
 
-		webEngine.setOnAlert(event -> {
-			System.out.println("JavaScript Alert: " + event.getData());
-		});
+		webEngine.setOnAlert(event -> System.out.println("JavaScript Alert: " + event.getData()));
 
-		webEngine.setOnError(event -> {
-			System.err.println("JavaScript Error: " + event.getMessage());
-		});
+		webEngine.setOnError(event -> System.err.println("JavaScript Error: " + event.getMessage()));
 
 		webEngine.executeScript("""
 				    console.log = function(message) {
@@ -89,9 +85,7 @@ public class HelpPresenter {
 		});
 		controller.getPreviousButton().disableProperty().bind(controller.getNextButton().disableProperty());
 
-		controller.getHideButton().setOnAction(e -> {
-			controller.getRootPane().getScene().getWindow().hide();
-		});
+		controller.getHideButton().setOnAction(e -> controller.getRootPane().getScene().getWindow().hide());
 
 		controller.getClearButton().setOnAction(e -> {
 			controller.getFindCBox().setValue("");

@@ -21,14 +21,12 @@
 package phylosketch.commands;
 
 import javafx.geometry.Point2D;
-import javafx.scene.shape.Path;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
-import jloda.util.CollectionUtils;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +41,7 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
-	private final CompositeCommand compositeCommand = new CompositeCommand("fix crossing edges");
+	private CompositeCommand compositeCommand = new CompositeCommand("fix crossing edges");
 
 	private int vId;
 
@@ -52,10 +50,10 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view
 	 */
-	public FixCrossingEdgesCommand(DrawPane view, Node v0) {
+	public FixCrossingEdgesCommand(DrawView view, Node v0) {
 		super("fix crossing edges");
 
-		if (v0.getInDegree() == 2 && v0.getOutDegree() == 2 && view.getLabel(v0).getRawText().isBlank()) {
+		if (v0.getInDegree() == 2 && v0.getOutDegree() == 2 && DrawView.getLabel(v0).getRawText().isBlank()) {
 			vId = v0.getId();
 
 
@@ -65,32 +63,31 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 				compositeCommand.clear();
 
 				var v = view.getGraph().findNodeById(vId);
-				var vPoint = view.getPoint(v);
+				var vPoint = DrawView.getPoint(v);
 				var inEdge1 = v.getFirstInEdge();
-				var inPoint1 = getPointAwayFromEnd(view.getPath(inEdge1), 5);
+				var inPoint1 = PathUtils.getPointAwayFromEnd(DrawView.getPath(inEdge1), 5);
 				var inEdge2 = v.getLastInEdge();
-				var inPoint2 = getPointAwayFromEnd(view.getPath(inEdge2), 5);
+				var inPoint2 = PathUtils.getPointAwayFromEnd(DrawView.getPath(inEdge2), 5);
 				var outEdge1 = v.getFirstOutEdge();
-				var outPoint1 = getPointAwayFromStart(view.getPath(outEdge1), 5);
+				var outPoint1 = PathUtils.getPointAwayFromStart(DrawView.getPath(outEdge1), 5);
 				var outEdge2 = v.getLastOutEdge();
-				var outPoint2 = getPointAwayFromStart(view.getPath(outEdge2), 5);
-
+				var outPoint2 = PathUtils.getPointAwayFromStart(DrawView.getPath(outEdge2), 5);
 
 				var commands = new ArrayList<UndoableRedoableCommand>();
 
 				if (isConvex(inPoint1, inPoint2, outPoint1, outPoint2)) {
-					var path1 = PathUtils.concatenate(view.getPath(inEdge1), view.getPath(outEdge1), true);
+					var path1 = PathUtils.concatenate(DrawView.getPath(inEdge1), DrawView.getPath(outEdge1), true);
 					PathSmoother.apply(path1, 10);
 					commands.add(new DrawEdgeCommand(view, path1));
-					var path2 = PathUtils.concatenate(view.getPath(inEdge2), view.getPath(outEdge2), true);
+					var path2 = PathUtils.concatenate(DrawView.getPath(inEdge2), DrawView.getPath(outEdge2), true);
 					PathSmoother.apply(path2, 10);
 					commands.add(new DrawEdgeCommand(view, path2));
 					commands.add(new DeleteCommand(view, List.of(v), Collections.emptyList()));
 				} else {
-					var path1 = PathUtils.concatenate(view.getPath(inEdge1), view.getPath(outEdge2), true);
+					var path1 = PathUtils.concatenate(DrawView.getPath(inEdge1), DrawView.getPath(outEdge2), true);
 					PathSmoother.apply(path1, 10);
 					commands.add(new DrawEdgeCommand(view, path1));
-					var path2 = PathUtils.concatenate(view.getPath(inEdge2), view.getPath(outEdge1), true);
+					var path2 = PathUtils.concatenate(DrawView.getPath(inEdge2), DrawView.getPath(outEdge1), true);
 					PathSmoother.apply(path2, 10);
 					commands.add(new DrawEdgeCommand(view, path2));
 					commands.add(new DeleteCommand(view, List.of(v), Collections.emptyList()));
@@ -98,6 +95,34 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 				compositeCommand.add(commands.toArray(new UndoableRedoableCommand[0]));
 				compositeCommand.redo();
 			};
+		}
+	}
+
+	public FixCrossingEdgesCommand(DrawView view, Collection<Node> nodes) {
+		super("fix crossing edges");
+
+		var ids = nodes.stream().filter(v -> v.getInDegree() == 2 && v.getOutDegree() == 2 && DrawView.getLabel(v).getRawText().isBlank())
+				.mapToInt(v -> v.getId()).toArray();
+
+		if (ids.length > 0) {
+
+			undo = () -> {
+				if (compositeCommand != null && compositeCommand.isUndoable())
+					compositeCommand.undo();
+			};
+
+			redo = () -> {
+				compositeCommand = new CompositeCommand(getName());
+				for (var id : ids) {
+					var v = view.getGraph().findNodeById(id);
+					compositeCommand.add(new FixCrossingEdgesCommand(view, v));
+				}
+				if (compositeCommand.isRedoable())
+					compositeCommand.redo();
+			};
+		} else {
+			undo = null;
+			redo = null;
 		}
 	}
 
@@ -122,37 +147,6 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	private static Point2D getPointAwayFromStart(Path path, double minDistance) {
-		var points = PathUtils.extractPoints(path);
-		var start = points.get(0);
-		for (var point : points) {
-			if (point.distance(start) > minDistance) {
-				return point;
-			}
-		}
-		return points.get(points.size() - 1);
-	}
-
-	private static Point2D getPointAwayFromEnd(Path path, double minDistance) {
-		var points = CollectionUtils.reverse(PathUtils.extractPoints(path));
-		var start = points.get(0);
-		for (var point : points) {
-			if (point.distance(start) > minDistance) {
-				return point;
-			}
-		}
-		return points.get(points.size() - 1);
-	}
-
-	public static UndoableRedoableCommand create(DrawPane view, Collection<Node> nodes) {
-		var commands = nodes.stream().filter(v -> v.getInDegree() == 2 && v.getOutDegree() == 2 && view.getLabel(v).getRawText().isBlank())
-				.map(v -> new FixCrossingEdgesCommand(view, v)).toList();
-		if (commands.isEmpty()) {
-			return UndoableRedoableCommand.create("null", null, null);
-		} else {
-			return new CompositeCommand("fix crossing edges", commands.toArray(new UndoableRedoableCommand[0]));
-		}
-	}
 
 	public static boolean isConvex(Point2D a, Point2D b, Point2D c, Point2D d) {
 		// Compute cross products

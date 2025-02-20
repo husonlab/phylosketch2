@@ -25,7 +25,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.Pane;
 import jloda.fx.util.StatementFilter;
 import phylosketch.main.PhyloSketch;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class FormatPaneView {
 	private final FormatPaneController controller;
 	private final FormatPanePresenter presenter;
 
-	public FormatPaneView(DrawPane drawPane, BooleanProperty show) {
+	public FormatPaneView(DrawView drawView, BooleanProperty show) {
 		var fxmlLoader = new FXMLLoader();
 		try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(FormatPaneController.class.getResource("FormatPane.fxml")).openStream(), PhyloSketch.isDesktop())) {
 			fxmlLoader.load(ins);
@@ -49,7 +49,7 @@ public class FormatPaneView {
 		controller = fxmlLoader.getController();
 		pane = controller.getRootPane();
 
-		presenter = new FormatPanePresenter(drawPane, controller, show);
+		presenter = new FormatPanePresenter(drawView, controller, show);
 
 	}
 

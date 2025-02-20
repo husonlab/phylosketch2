@@ -20,78 +20,105 @@
 
 package phylosketch.commands;
 
-import javafx.geometry.Point2D;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Shape;
+import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
-import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathUtils;
-import phylosketch.view.DrawPane;
+import phylosketch.view.DrawView;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * remove all or selected "true nodes" (di-vertices) from graph
- * Daniel Huson, 9.2024
+ * Daniel Huson, 9.2024, 1.2025
  */
 public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private final List<Data> dataList = new ArrayList<>();
-	private final Map<Integer, Integer> nodeNewEdgeMap = new HashMap<>();
+	private int vId;
+
+	private CompositeCommand compositeCommand;
 
 	/**
 	 * constructor
 	 *
-	 * @param view
+	 * @param view the draw view
+	 * @param v the node
 	 */
-	public RemoveThruNodesCommand(DrawPane view, Collection<Node> nodes) {
+	public RemoveThruNodesCommand(DrawView view, Node v) {
 		super("remove thru nodes");
 
-		for (var v : nodes) {
-			if (v.getInDegree() == 1 && v.getOutDegree() == 1 && view.getLabel(v).getRawText().isBlank()) {
-				var path1 = PathUtils.extractPoints((Path) v.getFirstInEdge().getData());
-				var path2 = PathUtils.extractPoints((Path) v.getFirstOutEdge().getData());
-				dataList.add(new Data(v.getParent().getId(), v.getFirstInEdge().getId(), path1, v.getFirstOutEdge().getTarget().getId(),
-						v.getFirstOutEdge().getId(), path2, v.getId(), view.getPoint(v), (Shape) v.getData()));
-			}
+		if (v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank()) {
+			vId = v.getId();
+
+			undo = () -> {
+				if (compositeCommand != null && compositeCommand.isUndoable())
+					compositeCommand.undo();
+			};
+
+			redo = () -> {
+				var u = view.getGraph().findNodeById(vId);
+
+				var e = u.getFirstInEdge();
+				var f = u.getFirstOutEdge();
+				var points = CollectionUtils.concatenate(PathUtils.extractPoints(DrawView.getPath(e)), PathUtils.extractPoints(DrawView.getPath(f)));
+				var createEdges = new DrawEdgeCommand(view, PathUtils.createPath(points, true));
+				var deleteNode = new DeleteCommand(view, List.of(v), List.of());
+				compositeCommand = new CompositeCommand("remove thru node", createEdges, deleteNode);
+				if (compositeCommand.isRedoable())
+					compositeCommand.redo();
+			};
+		} else {
+			undo = null;
+			redo = null;
 		}
+	}
 
-		undo = () -> {
-			var graph = view.getGraph();
-			for (var id : nodeNewEdgeMap.values()) {
-				graph.deleteEdge(graph.findEdgeById(id));
-			}
-			for (var data : dataList) {
-				data.nodeShape.setTranslateX(data.nodeLocation.getX());
-				data.nodeShape.setTranslateY(data.nodeLocation.getY());
-				var v = view.createNode(data.nodeShape, null, data.nodeId);
-				view.createEdge(graph.findNodeById(data.parentId), v, PathUtils.createPath(data.inPoints, false), data.inEdgeId);
-				view.createEdge(v, graph.findNodeById(data.childId), PathUtils.createPath(data.outPoints, false), data.outEdgeId);
-			}
-		};
+	/**
+	 * constructor
+	 *
+	 * @param view  the draw view
+	 * @param nodes the node s
+	 */
+	public RemoveThruNodesCommand(DrawView view, Collection<Node> nodes) {
+		super("remove thru nodes");
 
-		redo = () -> {
-			view.getNodeSelection().clearSelection();
-			view.getEdgeSelection().clearSelection();
-			var graph = view.getGraph();
-			for (var data : dataList) {
-				view.deleteNode(graph.findNodeById(data.nodeId));
-				var merge = CollectionUtils.concatenate(data.inPoints.subList(0, data.inPoints.size()), data.outPoints);
-				Edge e;
-				if (!nodeNewEdgeMap.containsKey(data.nodeId)) {
-					e = view.createEdge(graph.findNodeById(data.parentId), graph.findNodeById(data.childId), PathUtils.createPath(merge, false));
-					nodeNewEdgeMap.put(data.nodeId, e.getId());
-				} else {
-					e = view.createEdge(graph.findNodeById(data.parentId), graph.findNodeById(data.childId), PathUtils.createPath(merge, false),
-							nodeNewEdgeMap.get(data.nodeId));
+		var ids = nodes.stream().filter(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank())
+				.mapToInt(v -> v.getId()).toArray();
+
+		if (ids.length > 0) {
+
+			undo = () -> {
+				if (compositeCommand != null && compositeCommand.isUndoable())
+					compositeCommand.undo();
+			};
+
+			redo = () -> {
+				compositeCommand = new CompositeCommand("remove thru nodes");
+				for (var id : ids) {
+					var v = view.getGraph().findNodeById(id);
+					compositeCommand.add(new RemoveThruNodesCommand(view, v));
 				}
-				view.getEdgeSelection().select(e);
-			}
-		};
+				if (compositeCommand.isRedoable())
+					compositeCommand.redo();
+			};
+		} else {
+			undo = null;
+			redo = null;
+		}
+	}
+
+	@Override
+	public boolean isUndoable() {
+		return undo != null;
+	}
+
+	@Override
+	public boolean isRedoable() {
+		return redo != null;
 	}
 
 	@Override
@@ -103,10 +130,5 @@ public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 	@Override
 	public void redo() {
 		redo.run();
-	}
-
-	public record Data(int parentId, int inEdgeId, List<Point2D> inPoints, int childId, int outEdgeId,
-					   List<Point2D> outPoints,
-					   int nodeId, Point2D nodeLocation, Shape nodeShape) {
 	}
 }
