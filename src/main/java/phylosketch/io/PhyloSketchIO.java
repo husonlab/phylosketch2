@@ -34,6 +34,7 @@ import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 
 import java.io.*;
@@ -61,7 +62,7 @@ public class PhyloSketchIO {
 	 */
 	public static void save(Writer w, DrawView view) throws IOException {
 		var graph = view.getGraph();
-		var nodeKeyNames = List.of("taxon", "shape", "size", "fill", "x", "y", "label", "label_dx", "label_dy");
+		var nodeKeyNames = List.of("taxon", "shape", "size", "stroke", "fill", "x", "y", "label", "label_dx", "label_dy");
 		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
@@ -86,6 +87,9 @@ public class PhyloSketchIO {
 							}
 							yield buf.toString();
 						}
+						case "stroke" -> (shape.getFill() != null
+										  && !(!MainWindowManager.isUseDarkTheme() && shape.getFill() == Color.WHITE)
+										  && !(MainWindowManager.isUseDarkTheme() && shape.getFill() == Color.BLACK)) ? shape.getStroke() : "";
 						case "fill" ->	(shape.getFill()!=null
 										   && !(!MainWindowManager.isUseDarkTheme() && shape.getFill() == Color.BLACK)
 										   && !(MainWindowManager.isUseDarkTheme() && shape.getFill()==Color.WHITE))? shape.getFill():"";
@@ -154,6 +158,9 @@ public class PhyloSketchIO {
 				}
 				case "shape" -> {
 					var shape = value.equals("square") ? new Rectangle(3, 3) : new Circle(3);
+					shape.strokeProperty().addListener((a, o, n) -> {
+						System.err.println("Stroke changed: " + o + " -> " + n);
+					});
 					view.setShape(v, shape);
 				}
 				case "size" -> {
@@ -178,9 +185,14 @@ public class PhyloSketchIO {
 						}
 					}
 				}
+				case "stroke" -> {
+					if (v.getData() instanceof Shape shape && ColorUtilsFX.isColor(value)) {
+						ColorUtils.setStroke(shape, ColorUtilsFX.parseColor(value), "graph-node");
+					}
+				}
 				case "fill" -> {
 					if (v.getData() instanceof Shape shape && ColorUtilsFX.isColor(value)) {
-						shape.setFill(ColorUtilsFX.parseColor(value));
+						ColorUtils.setFill(shape, ColorUtilsFX.parseColor(value), "graph-node");
 					}
 				}
 				case "x" -> {
@@ -226,12 +238,11 @@ public class PhyloSketchIO {
 				}
 				case "path" -> {
 					var path = stringToPath(value);
-					path.getStyleClass().add("graph-edge");
 					view.addPath(e, path);
 				}
 				case "stroke" -> {
 					if (e.getData() instanceof Path path && ColorUtilsFX.isColor(value)) {
-						path.setStroke(ColorUtilsFX.parseColor(value));
+						ColorUtils.setStroke(path, ColorUtilsFX.parseColor(value), "graph-edge");
 					}
 				}
 				case "stroke_width" -> {
@@ -304,7 +315,6 @@ public class PhyloSketchIO {
 		var tokens = text.split(",");
 
 		var path = new Path();
-		path.getStyleClass().add("graph-edge");
 		for (var i = 0; i + 1 < tokens.length; i += 2) {
 			var x = Double.parseDouble(tokens[i]);
 			var y = Double.parseDouble(tokens[i + 1]);

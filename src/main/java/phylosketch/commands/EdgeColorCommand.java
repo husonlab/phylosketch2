@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
+import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 
 import java.util.HashMap;
@@ -55,7 +56,7 @@ public class EdgeColorCommand extends UndoableRedoableCommand {
 					var e = view.getGraph().findEdgeById(id);
 					var path = DrawView.getPath(e);
 					if (path != null) {
-						path.setStroke(oldMap.get(id));
+						ColorUtils.setStroke(path, oldMap.get(id), "graph-edge");
 					}
 				}
 			};
@@ -64,7 +65,7 @@ public class EdgeColorCommand extends UndoableRedoableCommand {
 					var e = view.getGraph().findEdgeById(id);
 					var path = DrawView.getPath(e);
 					if (path != null) {
-						path.setStroke(newMap.get(id));
+						ColorUtils.setStroke(path, newMap.get(id), "graph-edge");
 					}
 				}
 			};

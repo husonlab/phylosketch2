@@ -25,6 +25,7 @@ import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 			var startEdge = view.createEdge(source, v, startPath, startEdgeId);
 			startEdgeId = startEdge.getId();
 			startPath.applyCss();
-			startPath.setStroke(stroke);
+			ColorUtils.setStroke(startPath, stroke, "graph-edge");
 			startPath.setStrokeWidth(strokeWidth);
 			startPath.getStrokeDashArray().setAll(dashArray);
 			view.setShowArrow(startEdge, arrow);
@@ -102,7 +103,7 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 			var middleEdge = view.createEdge(v, w, middlePath, middleEdgeId);
 			middleEdgeId = middleEdge.getId();
 			middlePath.applyCss();
-			middlePath.setStroke(stroke);
+			ColorUtils.setStroke(middlePath, stroke, "graph-edge");
 			middlePath.setStrokeWidth(strokeWidth);
 			middlePath.getStrokeDashArray().setAll(dashArray);
 			view.setShowArrow(middleEdge, arrow);
@@ -111,7 +112,7 @@ public class InsertTwoNodesInEdgeCommand extends UndoableRedoableCommand {
 			var endEdge = view.createEdge(w, target, endPath, endEdgeId);
 			endEdgeId = endEdge.getId();
 			endPath.applyCss();
-			endPath.setStroke(stroke);
+			ColorUtils.setStroke(endPath, stroke, "graph-edge");
 			endPath.setStrokeWidth(strokeWidth);
 			endPath.getStrokeDashArray().setAll(dashArray);
 			view.setShowArrow(endEdge, arrow);

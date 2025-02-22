@@ -68,7 +68,6 @@ public class FileOpener implements Consumer<String> {
 				window.dirtyProperty().set(true);
 				window.getDrawPane().setMode(DrawView.Mode.View);
 			}
-
 			RecentFilesManager.getInstance().insertRecentFile(fileName);
 		} catch (IOException e) {
 			NotificationManager.showError("Open file failed: " + e.getMessage());
