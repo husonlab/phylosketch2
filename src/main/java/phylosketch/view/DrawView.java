@@ -422,11 +422,13 @@ public class DrawView extends Pane {
 	public void addPath(Edge e, Path path) {
 		e.setData(path);
 		path.setUserData(e);
-		if (!path.getStyleClass().contains("graph-edge"))
-			path.getStyleClass().add("graph-edge");
+		path.getStyleClass().add("graph-edge");
+
+
 		if (!edgesGroup.getChildren().contains(path))
 			edgesGroup.getChildren().add(path);
 	}
+
 
 	public void deleteEdge(Edge... edges) {
 		for (var e : edges) {
@@ -677,6 +679,7 @@ public class DrawView extends Pane {
 				if (e.getData() instanceof Path path) {
 					var arrowHead = new Polygon(7.0, 0.0, -7.0, 4.0, -7.0, -4.0);
 					arrowHead.getStyleClass().add("graph-node");
+
 					arrowHead.strokeProperty().bind(path.strokeProperty());
 					arrowHead.fillProperty().bind(arrowHead.strokeProperty());
 					arrowHead.setOnMouseClicked(path.getOnMouseClicked());

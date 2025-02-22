@@ -29,6 +29,7 @@ import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.IteratorUtils;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 
 import java.util.*;
@@ -142,7 +143,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 			if (label != null)
 				view.setLabel(e, label);
 			DrawView.getPath(e).getElements().setAll(PathUtils.toPathElements(points));
-			DrawView.getPath(e).setStroke(stroke);
+			ColorUtils.setStroke(DrawView.getPath(e), stroke, "graph-edge");
 			DrawView.getPath(e).setStrokeWidth(strokeWidth);
 			DrawView.getPath(e).getStrokeDashArray().setAll(dashArray);
 		}

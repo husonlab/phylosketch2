@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
+import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 
 import java.util.HashMap;
@@ -60,9 +61,9 @@ public class NodeColorCommand extends UndoableRedoableCommand {
 					var shape = DrawView.getShape(v);
 					if (shape != null) {
 						if (which == Which.stroke) {
-							shape.setStroke(oldMap.get(id));
+							ColorUtils.setStroke(shape, oldMap.get(id), "graph-node");
 						} else if (which == Which.fill) {
-							shape.setFill(oldMap.get(id));
+							ColorUtils.setFill(shape, oldMap.get(id), "graph-node");
 						}
 					}
 				}
@@ -73,9 +74,9 @@ public class NodeColorCommand extends UndoableRedoableCommand {
 					var shape = DrawView.getShape(v);
 					if (shape != null) {
 						if (which == Which.stroke) {
-							shape.setStroke(newMap.get(id));
+							ColorUtils.setStroke(shape, newMap.get(id), "graph-node");
 						} else if (which == Which.fill) {
-							shape.setFill(newMap.get(id));
+							ColorUtils.setFill(shape, newMap.get(id), "graph-node");
 						}
 					}
 				}
