@@ -30,6 +30,7 @@ import javafx.scene.shape.Shape;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.SelectionEffect;
 import jloda.graph.Node;
+import phylosketch.embed.optimize.OrderingGraph;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.QuadraticCurve;
 

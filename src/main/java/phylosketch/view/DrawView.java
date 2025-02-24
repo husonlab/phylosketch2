@@ -391,6 +391,11 @@ public class DrawView extends Pane {
 		shape.setTranslateY(location.getY());
 	}
 
+	public Point2D getLocation(Node v) {
+		var shape = getShape(v);
+		return new Point2D(shape.getTranslateX(), shape.getTranslateY());
+	}
+
 	public void deleteNode(Node... nodes) {
 		for (var v : nodes) {
 			for (var e : IteratorUtils.asList(v.adjacentEdges())) {
