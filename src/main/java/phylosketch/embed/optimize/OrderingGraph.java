@@ -18,7 +18,7 @@
  *
  */
 
-package xtra;
+package phylosketch.embed.optimize;
 
 import javafx.geometry.Point2D;
 import jloda.graph.*;

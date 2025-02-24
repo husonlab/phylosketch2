@@ -18,7 +18,7 @@
  *
  */
 
-package xtra;
+package phylosketch.embed.optimize;
 
 import javafx.geometry.Point2D;
 import jloda.graph.Edge;
@@ -28,6 +28,7 @@ import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import jloda.util.IteratorUtils;
 import jloda.util.Single;
+import phylosketch.embed.HeightAndAngles;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -53,9 +54,12 @@ public class OptimizeLayout {
 					.mapToDouble(e -> Math.abs(points.get(e.getSource()).getY() - points.get(e.getTarget()).getY())).sum();
 			var lsaChildren = tree.getLSAChildrenMap();
 			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> optimizeOrdering(v, lsaChildren, points));
+			HeightAndAngles.fixSpacing(tree, points);
 			var newScore = tree.edgeStream().filter(e -> e.getTarget().getInDegree() >= 2)
 					.mapToDouble(e -> Math.abs(points.get(e.getSource()).getY() - points.get(e.getTarget()).getY())).sum();
 			System.err.println("Optimize: " + Math.round(origScore) + " -> " + Math.round(newScore));
+
+
 		}
 	}
 

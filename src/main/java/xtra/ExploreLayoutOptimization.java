@@ -37,6 +37,7 @@ import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import phylosketch.embed.HeightAndAngles;
 import phylosketch.embed.LayoutTreeRectangular;
+import phylosketch.embed.optimize.OptimizeLayout;
 
 import java.io.IOException;
 import java.util.ArrayList;
