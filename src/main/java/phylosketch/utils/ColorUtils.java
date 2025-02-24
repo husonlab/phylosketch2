@@ -32,6 +32,10 @@ import java.util.regex.Pattern;
  * Daniel Huson, 2.2025
  */
 public class ColorUtils {
+	public static void setStroke(Shape shape, String color, String StyleClass) {
+		setStroke(shape, color == null ? null : ColorUtilsFX.parseColor(color), StyleClass);
+	}
+	
 	/**
 	 * set the stroke in such a way that day/night mode works as expected
 	 *
@@ -54,6 +58,10 @@ public class ColorUtils {
 			shape.getStyleClass().remove(styleClass);
 			setOrReplaceStroke(shape, color);
 		}
+	}
+
+	public static void setFill(Shape shape, String color, String StyleClass) {
+		setFill(shape, color == null ? null : ColorUtilsFX.parseColor(color), StyleClass);
 	}
 
 	/**

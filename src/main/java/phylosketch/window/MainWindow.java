@@ -31,19 +31,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
-import jloda.fx.util.*;
+import jloda.fx.util.FileOpenManager;
+import jloda.fx.util.MemoryUsage;
+import jloda.fx.util.ProgramProperties;
+import jloda.fx.util.StatementFilter;
 import jloda.fx.window.IMainWindow;
 import jloda.fx.window.MainWindowManager;
 import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
+import phylosketch.io.ExtensionFilters;
 import phylosketch.io.FileOpener;
-import phylosketch.io.NewickFileFilter;
-import phylosketch.io.PhyloSketchFileFilter;
 import phylosketch.main.PhyloSketch;
 import phylosketch.view.DrawView;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -94,7 +95,7 @@ public class MainWindow implements IMainWindow {
             statusPane = controller.getBottomFlowPane();
         }
 
-        FileOpenManager.setExtensions(List.of(PhyloSketchFileFilter.getInstance(), NewickFileFilter.getInstance(), TextFileFilter.getInstance()));
+        FileOpenManager.setExtensions(ExtensionFilters.allSupported());
         FileOpenManager.setFileOpener(new FileOpener());
 
         final InvalidationListener listener = (e -> {
