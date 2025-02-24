@@ -175,9 +175,9 @@ public class PhyloSketch extends Application {
 
     public static String getDefaultPropertiesFile() {
         if (ProgramProperties.isMacOS())
-            return System.getProperty("user.home") + "/Library/Preferences/PhyloSketch.def";
+            return System.getProperty("user.home") + "/Library/Preferences/PhyloSketch2.def";
         else
-            return System.getProperty("user.home") + File.separator + ".PhyloSketch.def";
+            return System.getProperty("user.home") + File.separator + ".PhyloSketch2.def";
     }
 
     public static boolean isDesktop() {

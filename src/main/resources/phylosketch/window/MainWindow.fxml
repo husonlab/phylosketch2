@@ -307,6 +307,7 @@
                                         </accelerator>
                                     </MenuItem>
                                     <MenuItem fx:id="declareRootMenuItem" text="Declare Root"/>
+                                    <MenuItem fx:id="induceMenuItem" text="Induce"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
                                         <items>

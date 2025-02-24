@@ -353,6 +353,9 @@ public class MainWindowController {
 	private MenuItem declareRootMenuItem;
 
 	@FXML
+	private MenuItem induceMenuItem;
+
+	@FXML
 	private AnchorPane bottomAnchorPane;
 
 	@FXML
@@ -541,7 +544,7 @@ public class MainWindowController {
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, induceMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -939,6 +942,10 @@ public class MainWindowController {
 
 	public MenuItem getDeclareRootMenuItem() {
 		return declareRootMenuItem;
+	}
+
+	public MenuItem getInduceMenuItem() {
+		return induceMenuItem;
 	}
 
 	public CheckMenuItem getResizeModeCheckMenuItem() {

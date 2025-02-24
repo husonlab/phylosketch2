@@ -22,7 +22,6 @@ package phylosketch.io;
 
 import javafx.stage.FileChooser;
 import jloda.fx.util.ProgramProperties;
-import jloda.fx.util.TextFileFilter;
 import jloda.fx.window.NotificationManager;
 import jloda.util.FileUtils;
 import phylosketch.window.MainWindow;
@@ -44,8 +43,8 @@ public class ExportNewick {
 			fileChooser.setInitialDirectory(previousFile.getParentFile());
 			fileChooser.setInitialFileName(mainWindow.getName());
 		}
-		fileChooser.setSelectedExtensionFilter(TextFileFilter.getInstance());
-		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Newick format", "*.getTree", "*.tre", "*.trees", "*.new", "*.newick", "*.nwk", "*.treefile"), TextFileFilter.getInstance());
+		fileChooser.setSelectedExtensionFilter(ExtensionFilters.newick());
+		fileChooser.getExtensionFilters().addAll(ExtensionFilters.newick(), ExtensionFilters.createText());
 		var file = fileChooser.showSaveDialog(mainWindow.getStage());
 		if (file != null) {
 			try (var w = FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {

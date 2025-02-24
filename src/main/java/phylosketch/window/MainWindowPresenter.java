@@ -90,6 +90,7 @@ public class MainWindowPresenter {
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 	private final BooleanProperty allowMergeNodes = new SimpleBooleanProperty(this, "allowMergeNodes", false);
+	private final BooleanProperty allowInduce = new SimpleBooleanProperty(this, "allowInduce", false);
 	private final BooleanProperty allowRemoveThruNodes = new SimpleBooleanProperty(this, "allowRemoveThruNodes", false);
 	private final BooleanProperty allowFixCrossingEdges = new SimpleBooleanProperty(this, "allowFixCrossingEdges", false);
 	private final BooleanProperty allowReRoot = new SimpleBooleanProperty(this, "allowReRoot", false);
@@ -343,12 +344,15 @@ public class MainWindowPresenter {
 						}
 					}
 					allowMergeNodes.set(view.getNodeSelection().size() >= 2);
+					allowInduce.set(view.getNodeSelection().size() >= 2 && view.getNodeSelection().size() < view.getGraph().getNumberOfNodes());
 				})
 		);
 
 		controller.getMergeNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new MergeNodesCommand(view, view.getNodeSelection().getSelectedItems())));
-		controller.getDeleteThruNodesMenuItem().disableProperty().bind(allowRemoveThruNodes.not());
+		controller.getMergeNodesMenuItem().disableProperty().bind(allowMergeNodes.not());
 
+		controller.getInduceMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new InduceCommand(view, view.getNodeSelection().getSelectedItems())));
+		controller.getMergeNodesMenuItem().disableProperty().bind(allowInduce.not());
 
 		controller.getDeleteThruNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RemoveThruNodesCommand(view, view.getSelectedOrAllNodes())));
 		controller.getDeleteThruNodesMenuItem().disableProperty().bind(allowRemoveThruNodes.not());

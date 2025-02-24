@@ -22,7 +22,7 @@ package phylosketch.capturepane.capture;
 
 import net.sourceforge.tess4j.Tesseract;
 
-import java.util.Locale;
+import java.io.File;
 
 /**
  * setup and manage tesseract
@@ -56,15 +56,31 @@ public class TesseractManager {
 
 	public static void loadTesseractLibrary() {
 		if (!loaded) {
-			var os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-			if (os.contains("nix") || os.contains("nux") || os.contains("linux")) {
-				System.setProperty("jna.library.path", "lib/linux");
-			} else if (os.contains("mac")) {
-				System.setProperty("jna.library.path", "lib/macos");
-			} else if (os.contains("win")) {
-				System.setProperty("jna.library.path", "lib/windows");
-			} else {
-				throw new RuntimeException("Unsupported OS: " + os);
+			// use something like -Djava.library.path=/Users/huson/IdeaProjects/apps/phylosketch2/lib/macos
+			var libPath = System.getProperty("java.library.path");
+
+			/*
+			todo: need to figure out what to use from these:
+			        /usr/local/opt/tesseract/lib/libtesseract.5.dylib (compatibility version 6.0.0, current version 6.4.0)
+        			/usr/local/opt/leptonica/lib/libleptonica.6.dylib (compatibility version 7.0.0, current version 7.0.0)
+			 */
+
+			String libName;
+			var os = System.getProperty("os.name").toLowerCase();
+			{
+				if (os.contains("mac")) {
+					libName = "libtesseract.dylib";
+				} else if (os.contains("linux")) {
+					libName = "libtesseract.so";
+				} else if (os.contains("win")) {
+					libName = "tesseract.dll";
+				} else {
+					throw new RuntimeException("Unsupported OS: " + os);
+				}
+				var libFile = new File(libPath, libName);
+				System.err.println("Loading library from: " + libFile.getAbsolutePath());
+				System.load(libFile.getAbsolutePath());
+				System.err.println("Library loaded successfully!");
 			}
 			loaded = true;
 		}

@@ -90,7 +90,6 @@ public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 				.mapToInt(v -> v.getId()).toArray();
 
 		if (ids.length > 0) {
-
 			undo = () -> {
 				if (compositeCommand != null && compositeCommand.isUndoable())
 					compositeCommand.undo();
