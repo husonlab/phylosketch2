@@ -1,0 +1,44 @@
+#nexus [SplitsTree5 compatible]
+
+
+BEGIN TAXA;
+DIMENSIONS ntax=4;
+TAXLABELS
+	[1] 'A'
+	[2] 'B'
+	[3] 'C'
+	[4] 'D'
+;
+END; [TAXA]
+
+BEGIN NETWORK;
+DIMENSIONS nNodes=11 nEdges=12;
+	TYPE=Other;
+NODES
+	id=1 w='10.00' x='450.99' h='10.00' y='234.24' type='C',
+	id=2 w='10.00' x='400.39' h='10.00' y='317.91' type='C',
+	id=3 w='10.00' x='362.64' h='10.00' y='383.23' type='C',
+	id=4 label='A' w='10.00' x='298.02' h='10.00' y='503.98' text='A' type='C' lx='-14.44' ly='0.00' font='Times New Roman,Bold,40.0',
+	id=5 w='10.00' x='408.01' h='10.00' y='436.43' type='C',
+	id=6 label='B' w='10.00' x='402.39' h='10.00' y='505.98' text='B' type='C' lx='-13.34' ly='0.00' font='Times New Roman,Bold,40.0',
+	id=7 w='10.00' x='506.10' h='10.00' y='317.91' type='C',
+	id=8 w='10.00' x='546.60' h='10.00' y='383.23' type='C',
+	id=9 label='D' w='10.00' x='611.12' h='10.00' y='505.98' text='D' type='C' lx='-14.44' ly='0.00' font='Times New Roman,Bold,40.0',
+	id=10 w='10.00' x='496.49' h='10.00' y='431.65' type='C',
+	id=11 label='C' w='10.00' x='506.75' h='10.00' y='505.98' text='C' type='C' lx='-14.44' ly='0.00' font='Times New Roman,Bold,40.0'
+;
+EDGES
+	id=1 sid=1 tid=2 sw='2.00' c2x='415.57' c1y='259.34' c1x='435.81' c2y='292.81' type='CC',
+	id=2 sid=2 tid=3 sw='2.00' c2x='373.97' c1y='337.50' c1x='389.06' c2y='363.63' type='CC',
+	id=3 sid=3 tid=4 sw='2.00' c2x='317.41' c1y='419.45' c1x='343.25' c2y='467.75' type='CC',
+	id=4 sid=3 tid=5 sw='2.00' c2x='394.40' clr='0x80b380ff' c1y='399.19' c1x='376.25' c2y='420.47' type='CC',
+	id=5 sid=5 tid=6 sw='2.00' c2x='404.07' c1y='457.30' c1x='406.32' c2y='485.11' type='CC',
+	id=6 sid=1 tid=7 sw='2.00' c2x='489.57' c1y='259.34' c1x='467.52' c2y='292.81' type='CC',
+	id=7 sid=7 tid=8 sw='2.00' c2x='534.45' c1y='337.50' c1x='518.25' c2y='363.63' type='CC',
+	id=8 sid=8 tid=9 sw='2.00' c2x='591.76' c1y='420.05' c1x='565.96' c2y='469.15' type='CC',
+	id=9 sid=7 tid=5 sw='2.00' c2x='437.44' clr='0x80b380ff' c1y='353.46' c1x='476.67' c2y='400.87' type='CC',
+	id=10 sid=2 tid=10 sw='2.00' c2x='467.66' clr='0x80b380ff' c1y='352.03' c1x='429.22' c2y='397.53' type='CC',
+	id=11 sid=8 tid=10 sw='2.00' c2x='511.52' clr='0x80b380ff' c1y='397.75' c1x='531.57' c2y='417.12' type='CC',
+	id=12 sid=10 tid=11 sw='2.00' c2x='503.67' c1y='453.95' c1x='499.57' c2y='483.68' type='CC'
+;
+END; [NETWORK]
