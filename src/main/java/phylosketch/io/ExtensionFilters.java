@@ -74,8 +74,8 @@ public class ExtensionFilters {
 		all.add(newick());
 		all.add(nexusPhyloSketch1());
 		all.add(createText());
-		all.add(any());
 		all.add(0, createAllSupported(all));
+		all.add(any());
 		return all;
 
 	}
