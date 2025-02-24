@@ -1,0 +1,98 @@
+#nexus [SplitsTree5 compatible]
+
+
+BEGIN TAXA;
+DIMENSIONS ntax=16;
+TAXLABELS
+	[1] 'Andinium'
+	[2] 'Chamaemelanimum'
+	[3] 'Chilenium'
+	[4] 'Delphiniopsis'
+	[5] 'Erpetion'
+	[6] 'Leptidium'
+	[7] 'Melanium'
+	[8] 'Nosphinium s.lat.'
+	[9] 'Plagiostigma'
+	[10] 'Rubellium'
+	[11] 'Sclerosium'
+	[12] 'Sect. nov. A'
+	[13] 'Sect. nov. B'
+	[14] 'Tridens'
+	[15] 'Viola s.str.'
+	[16] 'Xylinosium'
+;
+END; [TAXA]
+
+BEGIN NETWORK;
+DIMENSIONS nNodes=31 nEdges=34;
+	TYPE=Other;
+NODES
+	id=1 w='10.00' x='68.51' h='10.00' y='141.18' type='C',
+	id=2 label='Andinium' w='10.00' x='937.19' h='10.00' y='59.03' text='Andinium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=4 w='10.00' x='142.72' h='10.00' y='224.61' type='C',
+	id=6 label='Leptidium' w='10.00' x='937.19' h='10.00' y='99.19' text='Leptidium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=8 w='10.00' x='195.05' h='10.00' y='267.97' type='C',
+	id=9 w='10.00' x='236.91' h='10.00' y='174.70' type='C',
+	id=10 label='Rubellium' w='10.00' x='937.19' h='10.00' y='179.53' text='Rubellium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=11 w='10.00' x='598.47' h='10.00' y='140.31' type='C',
+	id=12 label='Tridens' w='10.00' x='937.19' h='10.00' y='139.36' text='Tridens' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=13 w='10.00' x='596.57' h='10.00' y='242.28' type='C',
+	id=15 w='10.00' x='250.24' h='10.00' y='296.63' type='C',
+	id=16 w='10.00' x='336.82' h='10.00' y='296.63' type='C',
+	id=17 w='10.00' x='733.58' h='10.00' y='242.28' type='C',
+	id=18 label='Chilenium' w='10.00' x='937.19' h='10.00' y='219.70' text='Chilenium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=19 label='Erpetion' w='10.00' x='937.19' h='10.00' y='259.86' text='Erpetion' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=20 w='10.00' x='392.96' h='10.00' y='296.63' type='C',
+	id=21 w='10.00' x='598.47' h='10.00' y='296.63' type='C',
+	id=22 label='Chamaemelanimum' w='10.00' x='937.19' h='10.00' y='296.63' text='Chamaemelanimum' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=29 label='Xylinosium' w='10.00' x='937.19' h='10.00' y='340.20' text='Xylinosium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=30 w='10.00' x='633.68' h='10.00' y='420.54' type='C',
+	id=31 w='10.00' x='670.78' h='10.00' y='380.66' type='C',
+	id=32 w='10.00' x='607.04' h='10.00' y='457.61' type='C',
+	id=33 label='Viola s.str.' w='10.00' x='937.19' h='10.00' y='460.71' text='Viola s.str.' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=34 label='Plagiostigma' w='10.00' x='937.19' h='10.00' y='420.54' text='Plagiostigma' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=35 label='Nosphinium s.lat.' w='10.00' x='937.19' h='10.00' y='380.37' text='Nosphinium s.lat.' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=36 label='Sclerosium' w='10.00' x='937.19' h='10.00' y='500.88' text='Sclerosium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=37 label='Delphiniopsis' w='10.00' x='937.19' h='10.00' y='541.04' text='Delphiniopsis' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=38 label='Melanium' w='10.00' x='937.19' h='10.00' y='581.21' text='Melanium' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=40 w='10.00' x='745.95' h='10.00' y='621.12' type='C',
+	id=42 label='Sect. nov. B' w='10.00' x='937.19' h='10.00' y='621.38' text='Sect. nov. B' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0',
+	id=43 label='Sect. nov. A' w='10.00' x='937.19' h='10.00' y='661.54' text='Sect. nov. A' type='C' lx='10.00' ly='-7.00' font='Arial,Regular,20.0'
+;
+EDGES
+	id=1 sid=1 tid=2 sw='3.00' arw='false' c2x='68.51' c1y='59.03' c1x='68.51' c2y='59.03' type='CC',
+	id=159 sid=8 tid=9 sw='3.00' arw='false' c2x='195.05' c1y='174.70' c1x='195.05' c2y='174.70' type='CC',
+	id=194 sid=9 tid=10 sw='3.00' arw='false' c2x='727.11' c1y='176.15' c1x='447.00' c2y='178.08' type='CC',
+	id=195 sid=9 tid=11 sw='3.00' arw='false' c2x='236.91' clr='0x669966ff' c1y='140.31' c1x='236.91' c2y='140.31' type='CC',
+	id=197 sid=9 tid=13 sw='3.00' arw='false' c2x='236.91' clr='0x669966ff' c1y='242.28' c1x='236.91' c2y='242.28' type='CC',
+	id=201 sid=11 tid=12 sw='3.00' arw='false' c2x='835.58' c1y='140.03' c1x='700.09' c2y='139.65' type='CC',
+	id=202 sid=13 tid=17 sw='3.00' arw='false' c2x='692.48' c1y='242.28' c1x='637.67' c2y='242.28' type='CC',
+	id=237 sid=15 tid=11 sw='3.00' arw='false' c2x='250.24' clr='0x669966ff' c1y='166.89' c1x='295.91' c2y='140.31' type='CC',
+	id=240 sid=15 tid=16 sw='3.00' arw='false' c2x='310.84' c1y='296.63' c1x='276.21' c2y='296.63' type='CC',
+	id=268 sid=16 tid=13 sw='3.00' arw='false' c2x='336.82' clr='0x669966ff' c1y='242.28' c1x='336.82' c2y='242.28' type='CC',
+	id=272 sid=16 tid=20 sw='3.00' arw='false' c2x='376.11' c1y='296.63' c1x='353.66' c2y='296.63' type='CC',
+	id=296 sid=17 tid=18 sw='3.00' arw='false' c2x='733.58' c1y='219.70' c1x='733.58' c2y='219.70' type='CC',
+	id=297 sid=17 tid=19 sw='3.00' arw='false' c2x='733.58' c1y='259.86' c1x='733.58' c2y='259.86' type='CC',
+	id=317 sid=20 tid=21 sw='3.00' arw='false' c2x='536.82' c1y='296.63' c1x='454.61' c2y='296.63' type='CC',
+	id=322 sid=21 tid=22 sw='3.00' arw='false' c2x='835.58' c1y='296.63' c1x='700.09' c2y='296.63' type='CC',
+	id=323 sid=21 tid=31 sw='3.00' arw='false' c2x='598.47' clr='0x669966ff' c1y='380.66' c1x='598.47' c2y='380.66' type='CC',
+	id=336 sid=30 tid=34 sw='3.00' arw='false' c2x='846.14' c1y='420.54' c1x='724.73' c2y='420.54' type='CC',
+	id=338 sid=30 tid=31 sw='3.00' arw='false' c2x='633.68' clr='0x669966ff' c1y='380.66' c1x='633.68' c2y='380.66' type='CC',
+	id=339 sid=31 tid=35 sw='3.00' arw='false' c2x='857.27' c1y='380.58' c1x='750.71' c2y='380.46' type='CC',
+	id=340 sid=32 tid=33 sw='3.00' arw='false' c2x='838.15' c1y='458.54' c1x='706.08' c2y='459.78' type='CC',
+	id=342 sid=32 tid=31 sw='3.00' arw='false' c2x='607.04' clr='0x669966ff' c1y='380.66' c1x='607.04' c2y='380.66' type='CC',
+	id=348 sid=40 tid=42 sw='3.00' arw='false' c2x='879.82' c1y='621.20' c1x='803.32' c2y='621.30' type='CC',
+	id=351 sid=1 tid=4 sw='3.00' arw='false' c2x='68.51' c1y='224.61' c1x='68.51' c2y='224.61' type='CC',
+	id=352 sid=4 tid=6 sw='3.00' arw='false' c2x='142.72' c1y='102.82' c1x='154.14' c2y='99.19' type='CC',
+	id=353 sid=4 tid=8 sw='3.00' arw='false' c2x='142.72' c1y='267.97' c1x='142.72' c2y='267.97' type='CC',
+	id=354 sid=20 tid=29 sw='3.00' arw='false' c2x='392.96' c1y='340.20' c1x='392.96' c2y='340.20' type='CC',
+	id=355 sid=20 tid=40 sw='3.00' arw='false' c2x='392.96' c1y='621.12' c1x='392.96' c2y='621.12' type='CC',
+	id=356 sid=20 tid=32 sw='3.00' arw='false' c2x='392.96' c1y='457.61' c1x='392.96' c2y='457.61' type='CC',
+	id=357 sid=20 tid=36 sw='3.00' arw='false' c2x='392.96' c1y='500.88' c1x='392.96' c2y='500.88' type='CC',
+	id=358 sid=40 tid=43 sw='3.00' arw='false' c2x='745.95' c1y='661.54' c1x='745.95' c2y='661.54' type='CC',
+	id=359 sid=20 tid=37 sw='3.00' arw='false' c2x='392.96' c1y='541.04' c1x='392.96' c2y='541.04' type='CC',
+	id=360 sid=20 tid=38 sw='3.00' arw='false' c2x='392.96' c1y='581.21' c1x='392.96' c2y='581.21' type='CC',
+	id=361 sid=20 tid=30 sw='3.00' arw='false' c2x='392.96' c1y='420.54' c1x='392.96' c2y='420.54' type='CC',
+	id=362 sid=8 tid=15 sw='3.00' arw='false' c2x='195.05' c1y='296.63' c1x='195.05' c2y='296.63' type='CC'
+;
+END; [NETWORK]
