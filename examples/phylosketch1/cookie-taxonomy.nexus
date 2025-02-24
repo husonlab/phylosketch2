@@ -1,0 +1,54 @@
+#nexus [SplitsTree5 compatible]
+
+
+BEGIN TAXA;
+DIMENSIONS ntax=6;
+TAXLABELS
+	[1] 'White choloate macadamia'
+	[2] 'bread'
+	[3] 'cake'
+	[4] 'chocolate chip<br>oatmeal'
+	[5] 'oatmeal raisin<br>cookie'
+	[6] 'snickerdoodle'
+;
+END; [TAXA]
+
+BEGIN NETWORK;
+DIMENSIONS nNodes=15 nEdges=16;
+	TYPE=Other;
+NODES
+	id=1 w='10.00' x='204.00' h='10.00' clr='0xffffffff' y='207.50' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=2 w='10.00' x='224.00' h='10.00' clr='0xffffffff' y='257.50' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=3 label='bread' w='10.00' x='167.29' h='10.00' clr='0xffffffff' y='251.79' text='bread' type='C' lx='10.00' ly='-7.00',
+	id=4 label='cake' w='10.00' x='291.29' h='10.00' clr='0xffffffff' y='273.79' text='cake' type='C' lx='10.00' ly='-7.00',
+	id=5 w='10.00' x='237.29' h='10.00' clr='0xffffffff' y='359.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=6 w='10.00' x='157.29' h='10.00' clr='0xffffffff' y='330.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=7 label='snickerdoodle' w='10.00' x='109.29' h='10.00' clr='0xffffffff' y='379.79' text='snickerdoodle' type='C' lx='10.00' ly='-7.00',
+	id=8 w='10.00' x='185.29' h='10.00' clr='0xffffffff' y='396.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=9 w='10.00' x='192.29' h='10.00' clr='0xffffffff' y='426.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=10 w='10.00' x='141.29' h='10.00' clr='0xffffffff' y='500.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=11 label='White choloate macadamia' w='10.00' x='102.29' h='10.00' clr='0xffffffff' y='552.79' text='White choloate macadamia' type='C' lx='10.00' ly='-7.00',
+	id=12 w='10.00' x='254.29' h='10.00' clr='0xffffffff' y='517.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=13 label='chocolate chip<br>oatmeal' w='10.00' x='254.29' h='10.00' clr='0xffffffff' y='558.79' text='chocolate chip<br>oatmeal' type='C' lx='10.00' ly='-7.00',
+	id=14 w='10.00' x='301.29' h='10.00' clr='0xffffffff' y='436.79' text='<c "0x000000ff">' type='C' lx='10.00' ly='-7.00' lclr='0x000000ff',
+	id=15 label='oatmeal raisin<br>cookie' w='10.00' x='337.29' h='10.00' clr='0xffffffff' y='472.79' text='oatmeal raisin<br>cookie' type='C' lx='10.00' ly='-7.00'
+;
+EDGES
+	id=1 sid=1 tid=2 sw='3.00' c2x='218.00' c1y='222.50' c1x='210.00' c2y='242.50' type='CC',
+	id=2 sid=1 tid=3 sw='3.00' c2x='178.31' c1y='220.79' c1x='192.99' c2y='238.51' type='CC',
+	id=3 sid=2 tid=4 sw='3.00' c2x='271.11' c1y='262.39' c1x='244.19' c2y='268.91' type='CC',
+	id=4 sid=2 tid=5 sw='3.00' c2x='233.31' c1y='288.19' c1x='227.99' c2y='329.11' type='CC',
+	id=5 sid=2 tid=6 sw='3.00' c2x='177.31' c1y='279.49' c1x='203.99' c2y='308.81' type='CC',
+	id=6 sid=6 tid=7 sw='3.00' c2x='123.69' c1y='345.49' c1x='142.89' c2y='365.09' type='CC',
+	id=7 sid=6 tid=8 sw='3.00' c2x='176.89' c1y='350.59' c1x='165.69' c2y='376.99' type='CC',
+	id=9 sid=5 tid=8 sw='3.00' c2x='200.89' c1y='370.89' c1x='221.69' c2y='385.69' type='CC',
+	id=10 sid=8 tid=9 sw='3.00' c2x='190.19' c1y='405.79' c1x='187.39' c2y='417.79' type='CC',
+	id=11 sid=9 tid=10 sw='3.00' c2x='156.59' c1y='448.99' c1x='176.99' c2y='478.59' type='CC',
+	id=12 sid=10 tid=11 sw='3.00' c2x='113.99' c1y='516.39' c1x='129.59' c2y='537.19' type='CC',
+	id=13 sid=9 tid=12 sw='3.00' c2x='235.69' c1y='454.09' c1x='210.89' c2y='490.49' type='CC',
+	id=14 sid=12 tid=13 sw='3.00' c2x='254.29' c1y='530.09' c1x='254.29' c2y='546.49' type='CC',
+	id=15 sid=5 tid=14 sw='3.00' c2x='282.09' c1y='382.89' c1x='256.49' c2y='413.69' type='CC',
+	id=17 sid=14 tid=12 sw='3.00' c2x='268.39' c1y='461.09' c1x='287.19' c2y='493.49' type='CC',
+	id=18 sid=14 tid=15 sw='3.00' c2x='326.49' c1y='447.59' c1x='312.09' c2y='461.99' type='CC'
+;
+END; [NETWORK]

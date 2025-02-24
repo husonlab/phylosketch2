@@ -1,0 +1,47 @@
+#nexus [SplitsTree5 compatible]
+
+
+BEGIN TAXA;
+DIMENSIONS ntax=5;
+TAXLABELS
+	[1] 'A'
+	[2] 'B'
+	[3] 'C'
+	[4] 'D'
+	[5] 'E'
+;
+END; [TAXA]
+
+BEGIN NETWORK;
+DIMENSIONS nNodes=12 nEdges=13;
+	TYPE=Other;
+NODES
+	id=1 w='10.00' x='424.93' h='10.00' y='107.42' type='C',
+	id=2 w='10.00' x='374.43' h='10.00' y='209.47' type='C',
+	id=3 label='A' w='10.00' x='284.30' h='10.00' y='450.19' text='A' type='C' lx='-10.00' ly='25.00' font='Times New Roman,Bold,40.0',
+	id=4 w='10.00' x='424.99' h='10.00' y='293.76' type='C',
+	id=5 label='B' w='10.00' x='373.75' h='10.00' y='450.19' text='B' type='C' lx='-14.00' ly='17.00' font='Times New Roman,Bold,40.0',
+	id=6 w='10.00' x='522.98' h='10.00' y='321.61' type='C',
+	id=7 w='10.00' x='508.69' h='10.00' y='176.49' type='C',
+	id=8 w='10.00' x='576.54' h='10.00' y='282.03' type='C',
+	id=9 label='E' w='10.00' x='642.10' h='10.00' y='450.19' text='E' type='C' lx='-1.00' ly='15.00' font='Times New Roman,Bold,40.0',
+	id=10 label='D' w='10.00' x='552.65' h='10.00' y='450.19' text='D' type='C' lx='0.00' ly='23.00' font='Times New Roman,Bold,40.0',
+	id=11 w='10.00' x='477.27' h='10.00' y='360.24' type='C',
+	id=12 label='C' w='10.00' x='463.20' h='10.00' y='450.19' text='C' type='C' lx='0.00' ly='24.00' font='Times New Roman,Bold,40.0'
+;
+EDGES
+	id=1 sid=1 tid=2 sw='2.00' c2x='389.58' c1y='138.04' c1x='409.78' c2y='178.86' type='CC',
+	id=2 sid=2 tid=3 sw='2.00' c2x='315.92' c1y='255.37' c1x='349.35' c2y='316.58' type='CC',
+	id=3 sid=1 tid=4 sw='2.00' c2x='424.97' c1y='163.33' c1x='424.95' c2y='237.86' type='CC',
+	id=4 sid=4 tid=5 sw='2.00' c2x='424.99' c1y='320.62' c1x='424.99' c2y='356.43' type='CC',
+	id=5 sid=2 tid=6 sw='2.00' c2x='478.41' clr='0x669966ff' c1y='243.11' c1x='418.99' c2y='287.97' type='CC',
+	id=6 sid=1 tid=7 sw='2.00' c2x='483.56' c1y='128.14' c1x='450.06' c2y='155.77' type='CC',
+	id=7 sid=7 tid=8 sw='2.00' c2x='556.18' c1y='208.15' c1x='529.05' c2y='250.37' type='CC',
+	id=8 sid=8 tid=9 sw='2.00' c2x='622.43' c1y='332.48' c1x='596.21' c2y='399.74' type='CC',
+	id=9 sid=8 tid=6 sw='2.00' c2x='539.04' clr='0x669966ff' c1y='293.90' c1x='560.47' c2y='309.73' type='CC',
+	id=10 sid=6 tid=10 sw='2.00' c2x='531.03' c1y='352.58' c1x='526.43' c2y='393.89' type='CC',
+	id=11 sid=7 tid=11 sw='2.00' c2x='486.70' clr='0x669966ff' c1y='231.62' c1x='499.27' c2y='305.12' type='CC',
+	id=12 sid=4 tid=11 sw='2.00' c2x='461.59' clr='0x669966ff' c1y='313.72' c1x='440.67' c2y='340.31' type='CC',
+	id=13 sid=11 tid=12 sw='2.00' c2x='475.63' c1y='375.50' c1x='476.57' c2y='395.85' type='CC'
+;
+END; [NETWORK]
