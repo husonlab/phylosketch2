@@ -32,6 +32,7 @@ import phylosketch.embed.HeightAndAngles;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static jloda.graph.DAGTraversals.postOrderTraversal;
 import static jloda.graph.DAGTraversals.preOrderTraversal;
@@ -53,14 +54,24 @@ public class OptimizeLayout {
 			var origScore = tree.edgeStream().filter(e -> e.getTarget().getInDegree() >= 2)
 					.mapToDouble(e -> Math.abs(points.get(e.getSource()).getY() - points.get(e.getTarget()).getY())).sum();
 			var lsaChildren = tree.getLSAChildrenMap();
-			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> optimizeOrdering(v, lsaChildren, points));
-			HeightAndAngles.fixSpacing(tree, points);
+			var leafDy = computeLeafDy(tree, points);
+			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> optimizeOrdering(v, leafDy, lsaChildren, points));
+			if (false)
+				HeightAndAngles.fixSpacing(tree, points);
 			var newScore = tree.edgeStream().filter(e -> e.getTarget().getInDegree() >= 2)
 					.mapToDouble(e -> Math.abs(points.get(e.getSource()).getY() - points.get(e.getTarget()).getY())).sum();
 			System.err.println("Optimize: " + Math.round(origScore) + " -> " + Math.round(newScore));
 
-
 		}
+	}
+
+	public static double computeLeafDy(PhyloTree tree, Map<Node, Point2D> points) {
+		var array = tree.nodeStream().filter(Node::isLeaf).mapToDouble(v -> points.get(v).getY()).sorted().toArray();
+		double sum = 0.0;
+		for (int i = 1; i < array.length; i++) {
+			sum += Math.abs(array[i] - array[i - 1]);
+		}
+		return sum / (array.length - 1);
 	}
 
 	/**
@@ -70,17 +81,17 @@ public class OptimizeLayout {
 	 * @param lsaChildren the node to LSA children map
 	 * @param points      the node layout points
 	 */
-	public static void optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	public static void optimizeOrdering(Node v, double leafDy, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 		var crossEdges = computeCrossEdges(originalOrdering, lsaChildren);
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
+		var originalScore = computeScore(v, leafDy, originalOrdering, crossEdges, lsaChildren, points);
 		if (originalScore > 0) {
 			Single<List<Node>> bestOrdering = new Single<>(new ArrayList<>(originalOrdering));
 			var bestScore = new Single<>(originalScore);
 
 			if (originalOrdering.size() <= 7) {
 				generatePermutationsRec(originalOrdering, 0, ordering -> {
-					var score = computeScore(v, ordering, crossEdges, lsaChildren, points);
+					var score = computeScore(v, leafDy, ordering, crossEdges, lsaChildren, points);
 					if (score < bestScore.get()) {
 						bestScore.set(score);
 						bestOrdering.set(new ArrayList<>(ordering));
@@ -88,10 +99,10 @@ public class OptimizeLayout {
 				});
 			} else {
 				bestOrdering.set(greedyOptimize(v, lsaChildren, points));
-				bestScore.set(computeScore(v, bestOrdering.get(), crossEdges, lsaChildren, points));
+				bestScore.set(computeScore(v, leafDy, bestOrdering.get(), crossEdges, lsaChildren, points));
 			}
 			if (bestScore.get() < originalScore) {
-				updateLSAChildrenOrderAndPoints(v, bestOrdering.get(), lsaChildren, points);
+				updateLSAChildrenOrderAndPoints(v, bestOrdering.get(), lsaChildren, leafDy, points);
 			}
 		}
 	}
@@ -183,14 +194,14 @@ public class OptimizeLayout {
 	 * @param lsaChildren the node to LSA children map
 	 * @param points      the node layout points
 	 */
-	public static void reverseOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	public static void reverseOrdering(Node v, double leafDy, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 		var crossEdges = computeCrossEdges(originalOrdering, lsaChildren);
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
+		var originalScore = computeScore(v, leafDy, originalOrdering, crossEdges, lsaChildren, points);
 		var reverseOrdering = CollectionUtils.reverse(originalOrdering);
-		var reverseScore = computeScore(v, reverseOrdering, crossEdges, lsaChildren, points);
+		var reverseScore = computeScore(v, leafDy, reverseOrdering, crossEdges, lsaChildren, points);
 		System.err.println("Reverse: " + originalScore + " -> " + reverseScore);
-		updateLSAChildrenOrderAndPoints(v, reverseOrdering, lsaChildren, points);
+		updateLSAChildrenOrderAndPoints(v, reverseOrdering, lsaChildren, leafDy, points);
 	}
 
 	/**
@@ -203,9 +214,8 @@ public class OptimizeLayout {
 	 * @param points      the current points (proposed new order has not been applied)
 	 * @return the total y extent of all
 	 */
-	public static double computeScore(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var delta = computeDelta(v, newOrdering, lsaChildren, points);
-
+	public static double computeScore(Node v, double leafDy, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+		var deltaTransform = computeDeltaTransform(newOrdering, lsaChildren, leafDy, points);
 		var nodeIndexMap = computeNodeIndexMap(v, newOrdering, lsaChildren);
 
 		var score = 0.0;
@@ -216,8 +226,10 @@ public class OptimizeLayout {
 				var q = e.getTarget();
 				int qIndex = nodeIndexMap.getOrDefault(q, -1); // -1 indicates an edge to outside
 				if (pIndex != qIndex) {
-					var yp = points.get(p).getY() + delta[pIndex];
-					var yq = points.get(q).getY() + (qIndex != -1 ? delta[qIndex] : 0.0);
+					var yp = deltaTransform[pIndex].apply(points.get(p).getY());
+					//System.err.println("Transform p " + points.get(p).getY() + " -> " + yp);
+					var yq = (qIndex != -1 ? deltaTransform[qIndex].apply(points.get(q).getY()) : points.get(q).getY());
+					//System.err.println("Transform q " + points.get(q).getY() + " -> " + yq);
 					score += Math.abs(yp - yq);
 				}
 			}
@@ -233,16 +245,15 @@ public class OptimizeLayout {
 	 * @param lsaChildren the lsa children
 	 * @param points      the  points
 	 */
-	public static void updateLSAChildrenOrderAndPoints(Node v, List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-
-		var delta = computeDelta(v, newOrdering, lsaChildren, points);
+	public static void updateLSAChildrenOrderAndPoints(Node v, List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, double leafDy, Map<Node, Point2D> points) {
+		var transform = computeDeltaTransform(newOrdering, lsaChildren, leafDy, points);
 
 		for (int i = 0; i < newOrdering.size(); i++) {
 			var index = i;
 			var w = newOrdering.get(i);
 			postOrderTraversal(w, lsaChildren::get, u -> {
 				var point = points.get(u);
-				point = new Point2D(point.getX(), point.getY() + delta[index]);
+				point = new Point2D(point.getX(), transform[index].apply(point.getY()));
 				points.put(u, point);
 			});
 		}
@@ -259,6 +270,7 @@ public class OptimizeLayout {
 	 * @param points      the  points
 	 * @return the delta array
 	 */
+	@Deprecated
 	public static double[] computeDelta(Node v, List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var n = newOrdering.size();
 
@@ -290,7 +302,6 @@ public class OptimizeLayout {
 		var delta = new double[n];
 		var pos = new double[n];
 		for (int i = 0; i < newOrdering.size(); i++) {
-			var w = newOrdering.get(i);
 			if (i == 0) {
 				pos[i] = min;
 			} else {
@@ -299,6 +310,112 @@ public class OptimizeLayout {
 			delta[i] = pos[i] - low[i];
 		}
 		return delta;
+	}
+
+	public static Function<Double, Double>[] computeDeltaTransform(List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, double leafDy, Map<Node, Point2D> points) {
+		if (false) {
+			var n = newOrdering.size();
+			var transform = (Function<Double, Double>[]) new Function[n];
+
+			var delta = computeDelta(null, newOrdering, lsaChildren, points);
+			for (var i = 0; i < n; i++) {
+				var index = i;
+				transform[index] = y -> y + delta[index];
+			}
+			return transform;
+		}
+
+		var n = newOrdering.size();
+
+		var low = new double[n];
+		var high = new double[n];
+
+		Arrays.fill(low, Double.MAX_VALUE);
+		Arrays.fill(high, Double.MIN_VALUE);
+		var hasLeaf = new boolean[n];
+
+		for (int i = 0; i < newOrdering.size(); i++) {
+			var index = i;
+			var w = newOrdering.get(i);
+			postOrderTraversal(w, lsaChildren::get, u -> {
+				var y = points.get(u).getY();
+				low[index] = Math.min(low[index], y);
+				high[index] = Math.max(high[index], y);
+				if (u.isLeaf())
+					hasLeaf[index] = true;
+			});
+		}
+		var numHasLeaf = 0;
+		for (var has : hasLeaf) {
+			if (has)
+				numHasLeaf++;
+		}
+
+		if (false) {
+			for (var i = 0; i < n; i++) {
+				hasLeaf[i] = true;
+			}
+		}
+
+		var min = Arrays.stream(low).min().orElse(0);
+
+		var transform = (Function<Double, Double>[]) new Function[n];
+
+		var pos = new double[n];
+		var i = 0;
+		var prevLeafI = 0;
+		while (i < newOrdering.size()) {
+			var index = i;
+			if (hasLeaf[i]) {
+				if (i == 0) {
+					pos[i] = min;
+					transform[i] = y -> y + (min - low[index]);
+
+				} else {
+					pos[i] = pos[prevLeafI] + (high[prevLeafI] - low[prevLeafI]) + leafDy;
+					transform[i] = y -> y + (pos[index] - low[index]);
+				}
+				prevLeafI = i;
+				i++;
+			} else {
+				// determine all consecutive non-leaf components that must be placed in same gap:
+				var first = i; // first inclusive
+				var last = i; // last inclusive
+				var span = high[first] - low[first];
+				while (last + 1 < newOrdering.size() && !hasLeaf[last + 1]) {
+					last++;
+					span += high[last] - low[last];
+				}
+				var count = (last - first) + 1;
+				var gap = Math.max(0.1 * leafDy, (leafDy - span) / (count + 1));
+				double scaleFactor;
+				if (gap * (count + 1) + span <= leafDy)
+					scaleFactor = 1.0;
+				else
+					scaleFactor = leafDy / (gap * (count + 1) + span);
+
+				if (count == 1) {
+					if (first == 0) {
+						transform[first] = y -> min - low[first];
+					} else {
+						transform[i] = y -> y + (pos[first - 1] - low[first - 1]) + gap;
+					}
+				} else { // count>=2
+					var pos2 = high[first - 1] + gap;
+					for (var h = 0; h < count; h++) {
+						var low1 = low[first];
+						var low2 = pos2;
+						var high1 = high[first];
+						var d1 = high1 - low1;
+						var d2 = scaleFactor * d1;
+						transform[h] = y -> low2 + (y - low1) / d1 * d2;
+						pos2 += d2 + gap;
+					}
+				}
+				i = last + 1;
+			}
+		}
+		return transform;
 	}
 
 	/**
