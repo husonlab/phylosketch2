@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static phylosketch.embed.optimize.OptimizeLayout.computeLeafDy;
+
 /**
  * explore the layout optimization algorithm
  */
@@ -160,10 +162,11 @@ public class ExploreLayoutOptimization extends Application {
 				var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 				DrawOrderingGraph.apply(v, originalOrdering, lsaChildren, points, orderingGraphGroup);
 				if (e.getClickCount() == 2) {
+					var leafDy = computeLeafDy(tree, points);
 					if (e.isShiftDown())
-						OptimizeLayout.reverseOrdering(v, lsaChildren, points);
+						OptimizeLayout.reverseOrdering(v, leafDy, lsaChildren, points);
 					else
-						OptimizeLayout.optimizeOrdering(v, lsaChildren, points);
+						OptimizeLayout.optimizeOrdering(v, leafDy, lsaChildren, points);
 					DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
 					tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 					DrawOrderingGraph.apply(v, originalOrdering, lsaChildren, points, orderingGraphGroup);
