@@ -31,6 +31,7 @@ import jloda.util.Single;
 import phylosketch.embed.HeightAndAngles;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -43,23 +44,31 @@ import static jloda.graph.DAGTraversals.preOrderTraversal;
  */
 public class OptimizeLayout {
 
+	/*
+	todo: the following network breaks optimization if only optimised once
+	 (((((B)#H2,(C)#H3))#H1,(A,#H2)),((D,#H3),#H1));
+	 */
+
 	/**
-	 * optimize the ordering of LSA children so to minimize the y-extend of all reticulate edges
+	 * optimize the ordering of LSA children so to minimize the y-extent of all reticulate edges
 	 *
 	 * @param tree   the rooted network
 	 * @param points the node layout points
 	 */
 	public static void optimizeOrdering(PhyloTree tree, Map<Node, Point2D> points) {
+		BiFunction<Node, Node, Double> scoring = (v, w) -> Math.abs(points.get(v).getY() - points.get(w).getY());
+		// todo: using the scoring function everywhere
+
 		if (tree.hasReticulateEdges()) {
 			var origScore = tree.edgeStream().filter(e -> e.getTarget().getInDegree() >= 2)
-					.mapToDouble(e -> Math.abs(points.get(e.getSource()).getY() - points.get(e.getTarget()).getY())).sum();
+					.mapToDouble(e -> scoring.apply(e.getSource(), e.getTarget())).sum();
 			var lsaChildren = tree.getLSAChildrenMap();
 			var leafDy = computeLeafDy(tree, points);
 			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> optimizeOrdering(v, leafDy, lsaChildren, points));
 			if (false)
 				HeightAndAngles.fixSpacing(tree, points);
 			var newScore = tree.edgeStream().filter(e -> e.getTarget().getInDegree() >= 2)
-					.mapToDouble(e -> Math.abs(points.get(e.getSource()).getY() - points.get(e.getTarget()).getY())).sum();
+					.mapToDouble(e -> scoring.apply(e.getSource(), e.getTarget())).sum();
 			System.err.println("Optimize: " + Math.round(origScore) + " -> " + Math.round(newScore));
 
 		}
