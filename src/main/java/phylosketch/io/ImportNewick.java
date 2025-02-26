@@ -90,8 +90,10 @@ public class ImportNewick {
 				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
 				try (var points = LayoutTreeRectangular.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage)) {
-					if (true)
+					if (true) {
 						OptimizeLayout.optimizeOrdering(tree, points);
+						OptimizeLayout.optimizeOrdering(tree, points); // todo: this needs to be done twice, why doesn't work properly when done only once?
+					}
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
 
