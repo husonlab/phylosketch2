@@ -236,9 +236,7 @@ public class OptimizeLayout {
 				int qIndex = nodeIndexMap.getOrDefault(q, -1); // -1 indicates an edge to outside
 				if (pIndex != qIndex) {
 					var yp = deltaTransform[pIndex].apply(points.get(p).getY());
-					//System.err.println("Transform p " + points.get(p).getY() + " -> " + yp);
 					var yq = (qIndex != -1 ? deltaTransform[qIndex].apply(points.get(q).getY()) : points.get(q).getY());
-					//System.err.println("Transform q " + points.get(q).getY() + " -> " + yq);
 					score += Math.abs(yp - yq);
 				}
 			}
@@ -379,12 +377,12 @@ public class OptimizeLayout {
 				if (i == 0) {
 					pos[i] = min;
 					transform[i] = y -> y + (min - low[index]);
-
 				} else {
 					pos[i] = pos[prevLeafI] + (high[prevLeafI] - low[prevLeafI]) + leafDy;
 					transform[i] = y -> y + (pos[index] - low[index]);
 				}
 				prevLeafI = i;
+
 				i++;
 			} else {
 				// determine all consecutive non-leaf components that must be placed in same gap:
@@ -404,12 +402,12 @@ public class OptimizeLayout {
 					scaleFactor = leafDy / (gap * (count + 1) + span);
 
 				if (count == 1) {
-					if (first == 0) {
-						transform[first] = y -> min - low[first];
+					if (first == 0) { // note: in this case: first=index=i // todo: this needs debugging
+						transform[i] = y -> y - low[index] + min + gap;
 					} else {
-						transform[i] = y -> y + (pos[first - 1] - low[first - 1]) + gap;
+						transform[i] = y -> y - low[index] + (pos[first - 1] - high[first - 1] + low[first - 1]) + gap;
 					}
-				} else { // count>=2
+				} else { // count>=2 // todo: this needs debugging
 					var pos2 = high[first - 1] + gap;
 					for (var h = 0; h < count; h++) {
 						var low1 = low[first];

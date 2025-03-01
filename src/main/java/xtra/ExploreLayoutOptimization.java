@@ -56,11 +56,14 @@ public class ExploreLayoutOptimization extends Application {
 		var newick = """
 				((Trithuria_inconspicua_NC_020372,Trithuria_filamentosa_KF696682),(((((((Barclaya_kunstleri_KY392762,Barclaya_longifolia_KY284156))#H2,((((((Nymphaea_jamesoniana_NC_031826,(Nymphaea_ampla_KU189255)#H4),(Euryale_ferox_KY392765)#H5))#H3,(Nymphaea_mexicana_NC_024542,(Nymphaea_alba_KU234277,Nymphaea_alba_NC_006050))),#H4),(((Victoria_cruziana_KY001813,#H5),#H4),#H3))))#H1,(Cabomba_caroliniana_KT705317,Brasenia_schreberi_NC_031343)),(#H1,(((((Nuphar_shimadae_MH050797,(Nuphar_pumila_MH050796)#H7))#H6,(Nuphar_advena_NC_008788,Nuphar_longifolia_MH050795)),#H7),#H6))),#H2))[&&NHX:GN=N1];
 				""";
-*/
+
 		var newick = """
 				((Trithuria_inconspicua_NC_020372,Trithuria_filamentosa_KF696682),((((((((((((Victoria_cruziana_KY001813,(Euryale_ferox_KY392765)#H2),((Nymphaea_alba_KU234277,Nymphaea_alba_NC_006050))#H3),(Nymphaea_jamesoniana_NC_031826,(Nymphaea_ampla_KU189255)#H4)),((Barclaya_kunstleri_KY392762,Barclaya_longifolia_KY284156))#H5,((Nymphaea_mexicana_NC_024542,#H3),#H2)),#H4),#H2),#H5))#H1,(Nuphar_advena_NC_008788,Nuphar_longifolia_MH050795)),(Nuphar_shimadae_MH050797,Nuphar_pumila_MH050796)),(Cabomba_caroliniana_KT705317,Brasenia_schreberi_NC_031343)),#H1))[&&NHX:GN=N1];
 				""";
-
+*/
+		var newick = """
+				(((((B)#H2,(C)#H3))#H1,(A,#H2)),((D,#H3),#H1));
+				""";
 
 		// var newick="((a,b));";
 
