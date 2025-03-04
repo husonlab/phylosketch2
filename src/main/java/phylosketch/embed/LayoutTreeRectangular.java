@@ -87,6 +87,8 @@ public class LayoutTreeRectangular {
 				}
 			}
 		}
+		if (tree.getNumberReticulateEdges() > 0)
+			FixLeafSpacing.apply(tree, 1.0, points);
 		return points;
 	}
 

@@ -55,8 +55,8 @@ public class DrawOrderingGraph {
 	 */
 	public static void apply(Node v, List<Node> originalOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Group group) {
 		var orderingGraph = new OrderingGraph(v, lsaChildren, points);
-		var layoutNodes = orderingGraph.getLayoutNodes();
-		var nodeLayoutNodeMap = orderingGraph.getPhyloNodeToLayoutNodeMap();
+		var layoutNodes = orderingGraph.getOrderingNodes();
+		var nodeLayoutNodeMap = orderingGraph.getPhyloNodeToOrderingNodeMap();
 
 		var layoutNodeColorMap = new HashMap<Node, Color>();
 		var aboveLayoutNode = layoutNodes.get(0);

@@ -19,7 +19,6 @@
 
 package phylosketch.embed;
 
-import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
@@ -27,8 +26,9 @@ import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.Pair;
 
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * computes the y-coordinates for the rectangular layout
@@ -55,8 +55,6 @@ public class HeightAndAngles {
 	public static void apply(PhyloTree tree, Node root, Map<Node, Double> nodeHeightMap, Averaging averaging) {
 		var leafOrder = new LinkedList<Node>();
 		computeYCoordinateOfLeavesRec(tree, root, 0, nodeHeightMap, leafOrder);
-		if (tree.getNumberReticulateEdges() > 0)
-			fixSpacing(leafOrder, nodeHeightMap::put);
 		if (averaging == Averaging.ChildAverage) {
 			computeHeightInternalNodesAsChildAverageRec(tree, root, nodeHeightMap);
 		} else {
@@ -120,45 +118,4 @@ public class HeightAndAngles {
 			nodeHeightMap.put(v, 0.5 * (last + first));
 		}
 	}
-
-	/**
-	 * fix spacing so that space between any two true leaves is 1
-	 */
-	private static void fixSpacing(Collection<Node> leafOrder, BiConsumer<Node, Double> yCoord) {
-		var nodes = leafOrder.toArray(new Node[0]);
-		double leafPos = 0;
-		for (int lastLeaf = -1; lastLeaf < nodes.length; ) {
-			int nextLeaf = lastLeaf + 1;
-			while (nextLeaf < nodes.length && nodes[nextLeaf].getOutDegree() != 0)
-				nextLeaf++;
-			// assign fractional positions to intermediate nodes
-			int count = (nextLeaf - lastLeaf) - 1;
-			if (count > 0) {
-				double add = 1.0 / (count + 1); // if odd, use +2 to avoid the middle
-				double value = leafPos;
-				for (int i = lastLeaf + 1; i < nextLeaf; i++) {
-					value += add;
-					yCoord.accept(nodes[i], value);
-				}
-			}
-			// assign whole positions to actual leaves:
-			if (nextLeaf < nodes.length) {
-				yCoord.accept(nodes[nextLeaf], ++leafPos);
-			}
-			lastLeaf = nextLeaf;
-		}
-	}
-
-	public static void fixSpacing(PhyloTree tree, Map<Node, Point2D> points) {
-		var yLeafList = new ArrayList<>(tree.nodeStream().filter(Node::isLeaf).map(v -> new Pair<>(points.get(v).getY(), v)).toList());
-		yLeafList.sort(Comparator.comparingDouble(Pair::getFirst));
-		var leafOrder = yLeafList.stream().map(Pair::getSecond).toList();
-		fixSpacing(leafOrder, (v, y) -> points.put(v, new Point2D(points.get(v).getX(), y)));
-		for (var v : leafOrder) {
-			if (v.getInDegree() == 1 && v.getParent().getOutDegree() == 1) {
-				points.put(v.getParent(), new Point2D(points.get(v.getParent()).getX(), points.get(v).getY()));
-			}
-		}
-	}
-
 }

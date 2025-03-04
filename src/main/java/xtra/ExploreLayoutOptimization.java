@@ -35,6 +35,7 @@ import jloda.graph.Node;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
+import phylosketch.embed.FixLeafSpacing;
 import phylosketch.embed.HeightAndAngles;
 import phylosketch.embed.LayoutTreeRectangular;
 import phylosketch.embed.optimize.OptimizeLayout;
@@ -42,6 +43,7 @@ import phylosketch.embed.optimize.OptimizeLayout;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 import static phylosketch.embed.optimize.OptimizeLayout.computeLeafDy;
 
@@ -83,12 +85,15 @@ public class ExploreLayoutOptimization extends Application {
 
 		var toScale = new SimpleBooleanProperty(this, "toScale", false);
 
+		var random = new Random(666);
+
 		LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
 		var points = LayoutTreeRectangular.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage);
 
 		DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
 		tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
+
 
 		var worldGroup = new Group();
 		worldGroup.getChildren().addAll(edgesGroup, nodesGroup, labelsGroup, otherGroup);
@@ -107,6 +112,7 @@ public class ExploreLayoutOptimization extends Application {
 				if (!text.endsWith(";"))
 					text += ";";
 				try {
+					random.setSeed(666);
 					tree.parseBracketNotation(text, true);
 					orderingGraphGroup.getChildren().clear();
 					otherGroup.getChildren().clear();
@@ -138,7 +144,7 @@ public class ExploreLayoutOptimization extends Application {
 		optimizeButton.setOnAction(e -> {
 			otherGroup.getChildren().clear();
 			orderingGraphGroup.getChildren().clear();
-			OptimizeLayout.optimizeOrdering(tree, points);
+			OptimizeLayout.optimizeOrdering(tree, points, random);
 			DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
 			tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 		});
@@ -167,9 +173,15 @@ public class ExploreLayoutOptimization extends Application {
 				if (e.getClickCount() == 2) {
 					var leafDy = computeLeafDy(tree, points);
 					if (e.isShiftDown())
-						OptimizeLayout.reverseOrdering(v, leafDy, lsaChildren, points);
-					else
-						OptimizeLayout.optimizeOrdering(v, leafDy, lsaChildren, points);
+						OptimizeLayout.reverseOrdering(v, lsaChildren, points);
+					else {
+						var originalScore = OptimizeLayout.computeScore(tree, lsaChildren, points);
+						OptimizeLayout.optimizeOrdering(v, lsaChildren, points, new Random());
+						var newScore = OptimizeLayout.computeScore(tree, lsaChildren, points);
+						System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
+					}
+					// apply piece-wise mapping to fix spacing between proper leaves:
+					FixLeafSpacing.apply(tree, leafDy, points);
 					DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
 					tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 					DrawOrderingGraph.apply(v, originalOrdering, lsaChildren, points, orderingGraphGroup);

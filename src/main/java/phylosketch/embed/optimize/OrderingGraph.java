@@ -22,8 +22,10 @@ package phylosketch.embed.optimize;
 
 import javafx.geometry.Point2D;
 import jloda.graph.*;
+import jloda.graph.algorithms.ConnectedComponents;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static jloda.graph.DAGTraversals.postOrderTraversal;
 
@@ -33,8 +35,8 @@ import static jloda.graph.DAGTraversals.postOrderTraversal;
  */
 public class OrderingGraph {
 	private final Graph graph = new Graph();
-	private final Map<Node, Node> phyloNodeToLayoutNodeMap = new HashMap<>();
-	private final List<Node> layoutNodes = new ArrayList<>();
+	private final Map<Node, Node> phyloNodeToOrderingNodeMap = new HashMap<>();
+	private final List<Node> orderingNodes = new ArrayList<>();
 	private final EdgeDoubleArray edgeWeightMap = graph.newEdgeDoubleArray();
 	private final NodeIntArray nodeHeightMap = graph.newNodeIntArray();
 
@@ -43,8 +45,11 @@ public class OrderingGraph {
 	 *
 	 * @param v           the current node
 	 * @param lsaChildren the node to LSA children map
+	 * @param points0 the points map or null
 	 */
-	public OrderingGraph(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	public OrderingGraph(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points0) {
+		Function<Node, Point2D> points = (points0 != null ? points0::get : u -> new Point2D(0, 0));
+
 		var nodesBelowMap = new HashMap<Node, Collection<Node>>();
 		for (var w : lsaChildren.get(v)) {
 			var nodesBelow = nodesBelowMap.computeIfAbsent(w, k -> new HashSet<>());
@@ -54,26 +59,26 @@ public class OrderingGraph {
 		// setup layout graph:
 		var aboveLayoutNode = graph.newNode();
 		nodeHeightMap.put(aboveLayoutNode, 1);
-		layoutNodes.add(aboveLayoutNode);
+		orderingNodes.add(aboveLayoutNode);
 
 		for (var w : lsaChildren.get(v)) {
-			var layoutNode = graph.newNode();
-			layoutNodes.add(layoutNode);
-			layoutNode.setData(w);
-			nodeHeightMap.put(layoutNode, (int) nodesBelowMap.get(w).stream().filter(Node::isLeaf).count());
+			var orderingNodes = graph.newNode();
+			this.orderingNodes.add(orderingNodes);
+			orderingNodes.setData(w);
+			nodeHeightMap.put(orderingNodes, (int) nodesBelowMap.get(w).stream().filter(Node::isLeaf).count());
 
-			phyloNodeToLayoutNodeMap.put(w, layoutNode);
+			phyloNodeToOrderingNodeMap.put(w, orderingNodes);
 
-			layoutNode.setInfo(w.getInfo());
+			orderingNodes.setInfo(w.getInfo());
 			var nodesBelow = nodesBelowMap.get(w);
 			for (var u : nodesBelow) {
-				phyloNodeToLayoutNodeMap.put(u, layoutNode);
+				phyloNodeToOrderingNodeMap.put(u, orderingNodes);
 			}
 		}
 
 		var belowLayoutNode = graph.newNode();
 		nodeHeightMap.put(belowLayoutNode, 1);
-		layoutNodes.add(belowLayoutNode);
+		orderingNodes.add(belowLayoutNode);
 
 		var min = Double.MAX_VALUE;
 		for (var w : nodesBelowMap.keySet()) {
@@ -82,7 +87,7 @@ public class OrderingGraph {
 				for (var f : p.outEdgesStream(false).filter(f -> f.getTarget().getInDegree() >= 2).toList()) {
 					var q = f.getTarget();
 					if (!nodesBelowW.contains(q)) {
-						var dy = Math.abs(points.get(p).getY() - points.get(q).getY());
+						var dy = Math.abs(points.apply(p).getY() - points.apply(q).getY());
 						min = Math.min(min, dy);
 					}
 				}
@@ -92,18 +97,18 @@ public class OrderingGraph {
 		for (var w : nodesBelowMap.keySet()) {
 			var nodesBelowW = nodesBelowMap.get(w);
 			for (var p : nodesBelowW) {
-				var pLayoutNode = phyloNodeToLayoutNodeMap.get(p);
+				var pLayoutNode = phyloNodeToOrderingNodeMap.get(p);
 				for (var f : p.outEdgesStream(false).filter(f -> f.getTarget().getInDegree() >= 2).toList()) {
 					var q = f.getTarget();
 					Node qLayoutNode;
 
 					if (!nodesBelowW.contains(q)) {
-						var yP = points.get(p).getY();
-						var yQ = points.get(q).getY();
+						var yP = points.apply(p).getY();
+						var yQ = points.apply(q).getY();
 						var up = (yP >= yQ);
-						qLayoutNode = phyloNodeToLayoutNodeMap.getOrDefault(q, (up ? aboveLayoutNode : belowLayoutNode));
+						qLayoutNode = phyloNodeToOrderingNodeMap.getOrDefault(q, (up ? aboveLayoutNode : belowLayoutNode));
 
-						var dy = Math.abs(points.get(p).getY() - points.get(q).getY()) / min;
+						var dy = Math.abs(points.apply(p).getY() - points.apply(q).getY()) / min;
 						if (!pLayoutNode.isAdjacent(qLayoutNode)) {
 							var layoutEdge = graph.newEdge(pLayoutNode, qLayoutNode);
 							edgeWeightMap.put(layoutEdge, dy);
@@ -121,12 +126,12 @@ public class OrderingGraph {
 		return graph;
 	}
 
-	public Map<Node, Node> getPhyloNodeToLayoutNodeMap() {
-		return phyloNodeToLayoutNodeMap;
+	public Map<Node, Node> getPhyloNodeToOrderingNodeMap() {
+		return phyloNodeToOrderingNodeMap;
 	}
 
-	public List<Node> getLayoutNodes() {
-		return layoutNodes;
+	public List<Node> getOrderingNodes() {
+		return orderingNodes;
 	}
 
 	public double getEdgeWeight(Edge e) {
@@ -139,5 +144,20 @@ public class OrderingGraph {
 
 	public Node getPhylogenyNode(Node on) {
 		return (Node) on.getData();
+	}
+
+	/**
+	 * for the ordering of LSA children of the root node v, computes all lists of entangled nodes
+	 *
+	 * @return partitioning of LSA children of v into entangled subsets
+	 */
+	public List<List<Node>> computeEntangledSubLists() {
+		var parts = new ArrayList<List<Node>>();
+		for (var component : ConnectedComponents.components(graph)) {
+			var list = component.stream().map(this::getPhylogenyNode).filter(Objects::nonNull).toList();
+			if (!list.isEmpty())
+				parts.add(new ArrayList<>(list));
+		}
+		return parts;
 	}
 }

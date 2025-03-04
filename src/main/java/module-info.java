@@ -35,4 +35,5 @@ module phylosketch {
 	exports phylosketch.capturepane.capture;
 	exports phylosketch.capturepane.pane;
 	exports phylosketch.embed.optimize;
+	exports phylosketch.embed;
 }

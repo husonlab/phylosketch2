@@ -37,6 +37,7 @@ import phylosketch.view.RootPosition;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Random;
 
 /**
  * newick import
@@ -91,8 +92,7 @@ public class ImportNewick {
 
 				try (var points = LayoutTreeRectangular.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage)) {
 					if (true) {
-						OptimizeLayout.optimizeOrdering(tree, points);
-						OptimizeLayout.optimizeOrdering(tree, points); // todo: this needs to be done twice, why doesn't work properly when done only once?
+						OptimizeLayout.optimizeOrdering(tree, points, new Random(666));
 					}
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
