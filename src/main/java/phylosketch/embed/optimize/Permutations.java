@@ -74,9 +74,11 @@ public class Permutations {
 	public static <T> List<List<T>> generateAllPermutations(List<T> elements) {
 		var result = new ArrayList<List<T>>();
 		permute(elements, 0, result);
-		System.err.println("n=" + elements.size() + " perms: " + result.size());
-		for (var list : result) {
-			System.err.println(StringUtils.toString(list.stream().map(o -> ((jloda.graph.Node) o).getId()).toList(), " "));
+		if (false) {
+			System.err.println("n=" + elements.size() + " perms: " + result.size());
+			for (var list : result) {
+				System.err.println(StringUtils.toString(list.stream().map(o -> ((jloda.graph.Node) o).getId()).toList(), " "));
+			}
 		}
 		return result;
 	}
