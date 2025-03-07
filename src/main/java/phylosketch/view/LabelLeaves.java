@@ -25,7 +25,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
-import phylosketch.utils.NodeLabelEditBox;
 
 import java.util.ArrayList;
 import java.util.List;

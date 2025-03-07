@@ -25,11 +25,13 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import jloda.fx.util.Icebergs;
 import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.CubicCurve;
 import phylosketch.utils.QuadraticCurve;
 import phylosketch.utils.ScaleUtils;
 
@@ -61,11 +63,12 @@ public class DrawNetwork {
 
 		for (var v : tree.nodes()) {
 			var point = points.get(v);
-			var circle = new Circle(5);
+			var circle = new Circle(1);
 			circle.setTranslateX(point.getX());
 			circle.setTranslateY(point.getY());
 			v.setInfo(circle);
 			nodeGroup.getChildren().add(circle);
+			nodeGroup.getChildren().add(Icebergs.create(circle, true));
 			if (tree.getLabel(v) != null && !tree.getLabel(v).isBlank()) {
 				var label = new Label(tree.getLabel(v));
 				label.setTranslateX(point.getX() + 5);
@@ -91,8 +94,18 @@ public class DrawNetwork {
 				list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
 				reticulate = true;
 			} else {
-				list = QuadraticCurve.apply(vPoint, new Point2D(vPoint.getX(), wPoint.getY()), wPoint);
+				if (false) {
+					var mid = vPoint.getY() + (wPoint.getY() - vPoint.getY()) * 0.7;
+					var mid2 = vPoint.getY() + (wPoint.getY() - vPoint.getY()) * 0.3;
+					list = CubicCurve.apply(vPoint, new Point2D(vPoint.getX(), mid), new Point2D(wPoint.getX(), mid2), wPoint, 5);
+				} else {
+					var mid = new Point2D(vPoint.getX() + 0.1 * (wPoint.getX() - vPoint.getX()), wPoint.getY());
+					list = QuadraticCurve.apply(vPoint, mid, wPoint);
+				}
 				reticulate = true;
+			}
+			if (false) {
+				list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
 			}
 			var path = PathUtils.createPath(list, false);
 			path.setStroke(reticulate ? Color.DARKORANGE : Color.BLACK);

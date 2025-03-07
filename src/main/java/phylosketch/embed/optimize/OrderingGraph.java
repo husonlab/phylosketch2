@@ -23,6 +23,7 @@ package phylosketch.embed.optimize;
 import javafx.geometry.Point2D;
 import jloda.graph.*;
 import jloda.graph.algorithms.ConnectedComponents;
+import jloda.phylo.PhyloTree;
 
 import java.util.*;
 import java.util.function.Function;
@@ -49,6 +50,8 @@ public class OrderingGraph {
 	 */
 	public OrderingGraph(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points0) {
 		Function<Node, Point2D> points = (points0 != null ? points0::get : u -> new Point2D(0, 0));
+
+		var tree = (PhyloTree) v.getOwner();
 
 		var nodesBelowMap = new HashMap<Node, Collection<Node>>();
 		for (var w : lsaChildren.get(v)) {
@@ -80,26 +83,13 @@ public class OrderingGraph {
 		nodeHeightMap.put(belowLayoutNode, 1);
 		orderingNodes.add(belowLayoutNode);
 
-		var min = Double.MAX_VALUE;
-		for (var w : nodesBelowMap.keySet()) {
-			var nodesBelowW = nodesBelowMap.get(w);
-			for (var p : nodesBelowW) {
-				for (var f : p.outEdgesStream(false).filter(f -> f.getTarget().getInDegree() >= 2).toList()) {
-					var q = f.getTarget();
-					if (!nodesBelowW.contains(q)) {
-						var dy = Math.abs(points.apply(p).getY() - points.apply(q).getY());
-						min = Math.min(min, dy);
-					}
-				}
-			}
-		}
-
 		for (var w : nodesBelowMap.keySet()) {
 			var nodesBelowW = nodesBelowMap.get(w);
 			for (var p : nodesBelowW) {
 				var pLayoutNode = phyloNodeToOrderingNodeMap.get(p);
-				for (var f : p.outEdgesStream(false).filter(f -> f.getTarget().getInDegree() >= 2).toList()) {
-					var q = f.getTarget();
+				for (var f : p.adjacentEdgesStream(false).filter(f -> tree.isReticulateEdge(f) && !tree.isTransferAcceptorEdge(f)).toList()) {
+					var q = f.getOpposite(p);
+
 					Node qLayoutNode;
 
 					if (!nodesBelowW.contains(q)) {
@@ -108,13 +98,12 @@ public class OrderingGraph {
 						var up = (yP >= yQ);
 						qLayoutNode = phyloNodeToOrderingNodeMap.getOrDefault(q, (up ? aboveLayoutNode : belowLayoutNode));
 
-						var dy = Math.abs(points.apply(p).getY() - points.apply(q).getY()) / min;
 						if (!pLayoutNode.isAdjacent(qLayoutNode)) {
 							var layoutEdge = graph.newEdge(pLayoutNode, qLayoutNode);
-							edgeWeightMap.put(layoutEdge, dy);
+							edgeWeightMap.put(layoutEdge, 1.0);
 						} else {
 							var layoutEdge = pLayoutNode.getCommonEdge(qLayoutNode);
-							edgeWeightMap.put(layoutEdge, edgeWeightMap.get(layoutEdge) + dy);
+							edgeWeightMap.put(layoutEdge, edgeWeightMap.get(layoutEdge) + 1.0);
 						}
 					}
 				}

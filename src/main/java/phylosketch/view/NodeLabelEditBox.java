@@ -18,7 +18,7 @@
  *
  */
 
-package phylosketch.utils;
+package phylosketch.view;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -28,7 +28,6 @@ import javafx.scene.layout.HBox;
 import jloda.fx.icons.MaterialIcons;
 import jloda.graph.Node;
 import phylosketch.commands.ChangeNodeLabelsCommand;
-import phylosketch.view.DrawView;
 
 import java.util.Collections;
 import java.util.function.Consumer;

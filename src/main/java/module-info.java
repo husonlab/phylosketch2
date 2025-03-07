@@ -36,4 +36,6 @@ module phylosketch {
 	exports phylosketch.capturepane.pane;
 	exports phylosketch.embed.optimize;
 	exports phylosketch.embed;
+	exports phylosketch.utils;
+	opens phylosketch.utils;
 }

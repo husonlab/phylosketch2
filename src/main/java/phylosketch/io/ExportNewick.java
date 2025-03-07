@@ -24,6 +24,7 @@ import javafx.stage.FileChooser;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.NotificationManager;
 import jloda.util.FileUtils;
+import phylosketch.view.NewickUtils;
 import phylosketch.window.MainWindow;
 
 import java.io.File;
@@ -48,7 +49,7 @@ public class ExportNewick {
 		var file = fileChooser.showSaveDialog(mainWindow.getStage());
 		if (file != null) {
 			try (var w = FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {
-				w.write(mainWindow.getDrawPane().toBracketString());
+				w.write(NewickUtils.toBracketString(mainWindow.getDrawPane()));
 				ProgramProperties.put("NewickExport", file.getPath());
 			} catch (IOException ex) {
 				NotificationManager.showError("Export failed: " + ex);
