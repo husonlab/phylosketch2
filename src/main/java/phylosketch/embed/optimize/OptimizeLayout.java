@@ -58,62 +58,42 @@ public class OptimizeLayout {
 	}
 
 	/**
-	 * compute the average vertical gap between leaves
-	 *
-	 * @param tree   the phylogeny
-	 * @param points the node locations
-	 * @return the average gap
-	 */
-	public static double computeLeafDy(PhyloTree tree, Map<Node, Point2D> points) {
-		var array = tree.nodeStream().filter(Node::isLeaf).mapToDouble(v -> points.get(v).getY()).sorted().toArray();
-		double sum = 0.0;
-		for (int i = 1; i < array.length; i++) {
-			sum += Math.abs(array[i] - array[i - 1]);
-		}
-		return sum / (array.length - 1);
-	}
-
-	/**
 	 * optimize the LSA children of a given node v
 	 *
 	 * @param v           the node
 	 * @param lsaChildren the node to LSA children map
 	 * @param points      the node layout points
+	 * @return true, if optimization algorithm applied
 	 */
-	public static void optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random) {
-		var orderingGraph = new OrderingGraph(v, lsaChildren, null);
-		var parts = orderingGraph.computeEntangledSubLists();
-		if (parts.stream().noneMatch(p -> p.size() > 1))
-			return; // all sublists have size 1, so nothing to do
+	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random) {
+		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 
-		var originalOrdering = new ArrayList<Node>();
-		parts.forEach(originalOrdering::addAll);
+		var crossEdges = computeCrossEdges((PhyloTree) v.getOwner(), originalOrdering, lsaChildren);
+		for (var list : crossEdges) {
+			for (var e : list) {
+				System.err.println(e.getId() + ": target tree node? " + (e.getTarget().getInDegree() == 1));
 
-		var crossEdges = computeCrossEdges(originalOrdering, lsaChildren);
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
-
-		var newOrdering = new ArrayList<>(originalOrdering);
-		var pos = 0;
-		for (var part : parts) {
-			if (part.size() > 1) {
-				var bestOrdering = new Single<>(new ArrayList<>(originalOrdering));
-				var bestScore = new Single<>(originalScore);
-				var permutations = (part.size() <= 7 ? Permutations.generateAllPermutations(part) : Permutations.generateRandomPermutations(part, 50000, random));
-				for (var permutedPart : permutations) {
-					newOrdering.subList(pos, pos + part.size()).clear();
-					newOrdering.addAll(pos, permutedPart);
-					var score = computeScore(v, newOrdering, crossEdges, lsaChildren, points);
-					if (score < bestScore.get()) {
-						bestScore.set(score);
-						bestOrdering.set(new ArrayList<>(newOrdering));
-					}
-				}
-				if (bestScore.get() < originalScore) {
-					updateLSAChildrenOrderAndPoints(v, bestOrdering.get(), lsaChildren, points);
-				}
+				System.err.println(e.getId() + ": reticulate? " + ((PhyloTree) v.getOwner()).isReticulateEdge(e));
+				System.err.println(e.getId() + ": transferAcceptor? " + ((PhyloTree) v.getOwner()).isTransferAcceptorEdge(e));
 			}
-			pos += part.size();
 		}
+		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
+		var bestOrdering = new Single<>(new ArrayList<>(originalOrdering));
+		var bestScore = new Single<>(originalScore);
+
+		var permutations = (originalOrdering.size() <= 7 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 50000, random));
+		for (var permuted : permutations) {
+			var score = computeScore(v, permuted, crossEdges, lsaChildren, points);
+			if (score < bestScore.get()) {
+				bestScore.set(score);
+				bestOrdering.set(new ArrayList<>(permuted));
+			}
+		}
+		if (bestScore.get() < originalScore) {
+			updateLSAChildrenOrderAndPoints(v, bestOrdering.get(), lsaChildren, points);
+		}
+
+		return true;
 	}
 
 	/**
@@ -125,7 +105,7 @@ public class OptimizeLayout {
 	 */
 	public static void reverseOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
-		var crossEdges = computeCrossEdges(originalOrdering, lsaChildren);
+		var crossEdges = computeCrossEdges((PhyloTree) v.getOwner(), originalOrdering, lsaChildren);
 		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
 		var reverseOrdering = CollectionUtils.reverse(originalOrdering);
 		var reverseScore = computeScore(v, reverseOrdering, crossEdges, lsaChildren, points);
@@ -145,10 +125,10 @@ public class OptimizeLayout {
 		var score = new LongAdder();
 		preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> {
 			var ordering = lsaChildren.get(v);
-			var crossEdges = computeCrossEdges(ordering, lsaChildren);
+			var crossEdges = computeCrossEdges(tree, ordering, lsaChildren);
 			score.add(computeScore(v, ordering, crossEdges, lsaChildren, points));
 		});
-		return (int)score.sum();
+		return (int) score.sum();
 	}
 
 
@@ -173,9 +153,16 @@ public class OptimizeLayout {
 		var score = 0;
 		for (var edges : crossEdges) {
 			for (var e : edges) {
-				var p = e.getSource();
+				Node p;
+				Node q;
+				if (nodeIndexMap.containsKey(e.getSource())) {
+					p = e.getSource();
+					q = e.getTarget();
+				} else {
+					p = e.getTarget();
+					q = e.getSource();
+				}
 				int pIndex = nodeIndexMap.get(p);
-				var q = e.getTarget();
 				int qIndex = nodeIndexMap.getOrDefault(q, -1); // -1 indicates an edge to outside
 				if (pIndex != qIndex) {
 					var yp = points.get(p).getY() + delta[pIndex];
@@ -209,7 +196,7 @@ public class OptimizeLayout {
 	 * @param points      the  points
 	 */
 	public static void updateLSAChildrenOrderAndPoints(Node v, List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var delta = computeDelta(newOrdering,lsaChildren,points);
+		var delta = computeDelta(newOrdering, lsaChildren, points);
 
 		for (int i = 0; i < newOrdering.size(); i++) {
 			var index = i;
@@ -286,7 +273,7 @@ public class OptimizeLayout {
 		return nodeIndex;
 	}
 
-	private static Collection<List<Edge>> computeCrossEdges(List<Node> ordering, Map<Node, List<Node>> lsaChildren) {
+	private static Collection<List<Edge>> computeCrossEdges(PhyloTree tree, List<Node> ordering, Map<Node, List<Node>> lsaChildren) {
 		var nodeIndexMap = computeNodeIndexMap(ordering, lsaChildren);
 
 		var nodeCrossEdges = new HashMap<Integer, List<Edge>>();
@@ -297,12 +284,33 @@ public class OptimizeLayout {
 			nodeCrossEdges.put(index, edges);
 			postOrderTraversal(w, lsaChildren::get, u -> {
 				for (var e : u.outEdges()) {
-					if (nodeIndexMap.getOrDefault(e.getTarget(), -1) != index) {
+					if (tree.isReticulateEdge(e) && !tree.isTransferAcceptorEdge(e) && nodeIndexMap.getOrDefault(e.getTarget(), -1) != index) {
+						edges.add(e);
+					}
+				}
+				for (var e : u.inEdges()) {
+					if (tree.isReticulateEdge(e) && !tree.isTransferAcceptorEdge(e) && nodeIndexMap.getOrDefault(e.getSource(), -1) != index) {
 						edges.add(e);
 					}
 				}
 			});
 		}
 		return nodeCrossEdges.values();
+	}
+
+	/**
+	 * compute the average vertical gap between leaves
+	 *
+	 * @param tree   the phylogeny
+	 * @param points the node locations
+	 * @return the average gap
+	 */
+	public static double computeLeafDy(PhyloTree tree, Map<Node, Point2D> points) {
+		var array = tree.nodeStream().filter(Node::isLeaf).mapToDouble(v -> points.get(v).getY()).sorted().toArray();
+		double sum = 0.0;
+		for (int i = 1; i < array.length; i++) {
+			sum += Math.abs(array[i] - array[i - 1]);
+		}
+		return sum / (array.length - 1);
 	}
 }

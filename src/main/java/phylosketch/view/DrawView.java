@@ -22,7 +22,10 @@ package phylosketch.view;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -43,19 +46,13 @@ import jloda.fx.util.SelectionEffect;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
-import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
-import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
-import jloda.util.Counter;
 import jloda.util.IteratorUtils;
 import phylosketch.commands.LayoutLabelsCommand;
 import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathUtils;
-import phylosketch.utils.NodeLabelEditBox;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -65,9 +62,6 @@ import java.util.*;
  */
 public class DrawView extends Pane {
 	public enum Mode {Edit, Move, View, Capture}
-
-	public static final double DEFAULT_NODE_RADIUS = 3.0;
-	public static final double DEFAULT_EDGE_WIDTH = 1.0;
 
 	private final PhyloTree graph;
 	private final GraphFX<PhyloTree> graphFX;
@@ -94,14 +88,6 @@ public class DrawView extends Pane {
 
 	private final ObservableMap<Edge, Path> edgeOutlineMap = FXCollections.observableHashMap();
 	private final BooleanProperty showOutlines = new SimpleBooleanProperty(this, "showOutlines", false);
-
-	private final DoubleProperty tolerance = new SimpleDoubleProperty(this, "tolerance", 5);
-
-	private final BooleanProperty valid = new SimpleBooleanProperty(this, "isValidNetwork", false);
-
-	private final BooleanProperty showWeight = new SimpleBooleanProperty(this, "showWeight", false);
-	private final BooleanProperty showConfidence = new SimpleBooleanProperty(this, "showConfidence", false);
-	private final BooleanProperty showProbability = new SimpleBooleanProperty(this, "showProbability", false);
 
 	private final NodeLabelEditBox nodeLabelEditBox = new NodeLabelEditBox();
 
@@ -221,81 +207,8 @@ public class DrawView extends Pane {
 		}
 		undoManager.clear();
 	}
-	public String toBracketString() {
-		return toBracketString(10000000);
-	}
 
-	public String toBracketString(int maxLength) {
-		var newickIO = new NewickIO();
-		var outputFormat = new NewickIO.OutputFormat(graph.hasEdgeWeights(), false, graph.hasEdgeConfidences(), graph.hasEdgeProbabilities(), false);
 
-		var w = new StringWriter();
-		for (var tree : extractAllTrees(graph)) {
-			if (nodeSelection.size() == 0 || tree.nodeStream().map(v -> (Shape) v.getData()).filter(Objects::nonNull).map(s -> (Node) s.getUserData()).anyMatch(nodeSelection::isSelected)) {
-				var root = tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny();
-				if (root.isPresent()) {
-					tree.setRoot(root.get());
-					tree.edgeStream().forEach(f -> tree.setReticulate(f, f.getTarget().getInDegree() > 1));
-					try {
-						var add = new StringWriter();
-						newickIO.write(tree, add, outputFormat);
-						add.write(";\n");
-						if (w.toString().length() + add.toString().length() > maxLength) {
-							return w.toString();
-						} else w.write(add.toString());
-					} catch (IOException ignored) {
-					}
-				}
-			}
-		}
-		return w.toString();
-	}
-
-	public List<PhyloTree> extractAllTrees(PhyloTree graph) {
-		var list = new ArrayList<PhyloTree>();
-		try (var componentMap = graph.newNodeIntArray();
-			 NodeArray<Node> srcTarMap = graph.newNodeArray()) {
-			graph.computeConnectedComponents(componentMap);
-			for (var component : new TreeSet<>(componentMap.values())) {
-				var tree = new PhyloTree();
-				tree.copy(graph, srcTarMap, null);
-				graph.nodeStream().filter(v -> !Objects.equals(componentMap.get(v), component)).map(srcTarMap::get).forEach(tree::deleteNode);
-
-				var roots = tree.nodeStream().filter(v -> v.getInDegree() == 0).toList();
-				if (roots.size() == 1) {
-					tree.setRoot(roots.get(0));
-					list.add(tree);
-				} else if (roots.size() > 1) {
-					var root = tree.newNode();
-					for (var v : roots) {
-						var e = tree.newEdge(root, v);
-						tree.setWeight(e, 0);
-					}
-					tree.setRoot(root);
-					list.add(tree);
-				}
-				var unnamed = new Counter(0);
-				tree.postorderTraversal(v -> {
-					if (v.isLeaf() && tree.getLabel(v) == null)
-						tree.setLabel(v, "Unnamed-" + unnamed.incrementAndGet());
-				});
-				srcTarMap.clear();
-			}
-		}
-		return list;
-	}
-
-	public double getTolerance() {
-		return tolerance.get();
-	}
-
-	public DoubleProperty toleranceProperty() {
-		return tolerance;
-	}
-
-	public void setTolerance(double tolerance) {
-		this.tolerance.set(tolerance);
-	}
 
 	public PhyloTree getGraph() {
 		return graph;
@@ -327,14 +240,6 @@ public class DrawView extends Pane {
 
 	public Group getOtherGroup() {
 		return otherGroup;
-	}
-
-	public boolean getValid() {
-		return valid.get();
-	}
-
-	public BooleanProperty validProperty() {
-		return valid;
 	}
 
 	public UndoManager getUndoManager() {
@@ -449,7 +354,7 @@ public class DrawView extends Pane {
 		}
 	}
 
-	public RichTextLabel createLabel(Node v, String text) {
+	public void createLabel(Node v, String text) {
 		var shape = (Shape) v.getData();
 		graph.setLabel(v, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);
@@ -467,10 +372,9 @@ public class DrawView extends Pane {
 		label.setLayoutX(labelLayout.getX());
 		label.setLayoutY(labelLayout.getY());
 		LabelUtils.makeDraggable(label, movable, this, this.getUndoManager());
-		return label;
 	}
 
-	public RichTextLabel createLabel(Edge e, String text) {
+	public void createLabel(Edge e, String text) {
 		var path = (Path) e.getData();
 		graph.setLabel(e, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);
@@ -497,7 +401,6 @@ public class DrawView extends Pane {
 			getEdgeSelection().toggleSelection(e);
 		});
 		LabelUtils.makeDraggable(label, movable, this, this.getUndoManager());
-		return label;
 	}
 
 	private ListChangeListener<javafx.scene.Node> createIcebergListener(Map<Shape, Shape> shapeIcebergMap, Group icebergsGroup) {
@@ -607,30 +510,6 @@ public class DrawView extends Pane {
 
 	public void setMode(Mode mode) {
 		this.mode.set(mode);
-	}
-
-	public boolean isShowWeight() {
-		return showWeight.get();
-	}
-
-	public BooleanProperty showWeightProperty() {
-		return showWeight;
-	}
-
-	public boolean isShowConfidence() {
-		return showConfidence.get();
-	}
-
-	public BooleanProperty showConfidenceProperty() {
-		return showConfidence;
-	}
-
-	public boolean isShowProbability() {
-		return showProbability.get();
-	}
-
-	public BooleanProperty showProbabilityProperty() {
-		return showProbability;
 	}
 
 	public ObservableMap<Edge, Shape> getEdgeArrowMap() {

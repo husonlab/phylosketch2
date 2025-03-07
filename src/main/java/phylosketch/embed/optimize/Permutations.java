@@ -84,17 +84,17 @@ public class Permutations {
 	}
 
 	private static <T> void permute(List<T> elements, int start, List<List<T>> result) {
-		if (start == elements.size() - 1) {
-			result.add(new ArrayList<>(elements));
-			return;
-		}
 
-		permute(elements, start + 1, result);
-
-		for (int i = start + 1; i < elements.size(); i++) {
-			Collections.swap(elements, start, i);
+		if (start < elements.size() - 1) {
 			permute(elements, start + 1, result);
-			Collections.swap(elements, start, i);
+
+			for (int i = start + 1; i < elements.size(); i++) {
+				Collections.swap(elements, start, i);
+				permute(elements, start + 1, result);
+				Collections.swap(elements, start, i);
+			}
+		} else {
+			result.add(new ArrayList<>(elements));
 		}
 	}
 }

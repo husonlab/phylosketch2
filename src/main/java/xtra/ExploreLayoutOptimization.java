@@ -21,6 +21,7 @@
 package xtra;
 
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -31,13 +32,15 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import jloda.fx.control.ZoomableScrollPane;
+import jloda.fx.util.Icebergs;
 import jloda.graph.Node;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import phylosketch.embed.FixLeafSpacing;
 import phylosketch.embed.HeightAndAngles;
-import phylosketch.embed.LayoutTreeRectangular;
+import phylosketch.embed.RectangularPhylogenyLayout;
+import phylosketch.embed.TriangularPhylogenyLayout;
 import phylosketch.embed.optimize.OptimizeLayout;
 
 import java.io.IOException;
@@ -51,8 +54,12 @@ import static phylosketch.embed.optimize.OptimizeLayout.computeLeafDy;
  * explore the layout optimization algorithm
  */
 public class ExploreLayoutOptimization extends Application {
+	private static BooleanProperty triangular = new SimpleBooleanProperty();
 	@Override
 	public void start(Stage stage) throws Exception {
+		PhyloTree.SUPPORT_RICH_NEWICK = true;
+
+		Icebergs.setEnabled(true);
 		//var newick="(a,b,c);";
 /*
 		var newick = """
@@ -89,11 +96,16 @@ public class ExploreLayoutOptimization extends Application {
 
 		LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var points = LayoutTreeRectangular.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage);
+		var points = RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage);
 
+		if (triangular.get()) {
+			var newPoints = TriangularPhylogenyLayout.apply(tree, points);
+			points.clear();
+			points.putAll(newPoints);
+		}
 		DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
-		tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 
+		tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 
 		var worldGroup = new Group();
 		worldGroup.getChildren().addAll(edgesGroup, nodesGroup, labelsGroup, otherGroup);
@@ -120,9 +132,14 @@ public class ExploreLayoutOptimization extends Application {
 					LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
 					points.clear();
-					points.putAll(LayoutTreeRectangular.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage));
+					points.putAll(RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage));
 
 					DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
+					if (triangular.get()) {
+						var newPoints = TriangularPhylogenyLayout.apply(tree, points);
+						points.clear();
+						points.putAll(newPoints);
+					}
 					tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 				} catch (IOException ex) {
 					Basic.caught(ex);
@@ -140,16 +157,26 @@ public class ExploreLayoutOptimization extends Application {
 			e.consume();
 		});
 
+
 		var optimizeButton = new Button("Optimize");
 		optimizeButton.setOnAction(e -> {
 			otherGroup.getChildren().clear();
 			orderingGraphGroup.getChildren().clear();
 			OptimizeLayout.optimizeOrdering(tree, points, random);
+			if (triangular.get()) {
+				var newPoints = TriangularPhylogenyLayout.apply(tree, points);
+				points.clear();
+				points.putAll(newPoints);
+			}
 			DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
+
 			tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 		});
+		var triangularButton = new ToggleButton("Triangular");
+		triangularButton.selectedProperty().bindBidirectional(triangular);
+
 		var buttonBar = new ButtonBar();
-		buttonBar.getButtons().add(optimizeButton);
+		buttonBar.getButtons().addAll(triangularButton, optimizeButton);
 		VBox.setMargin(buttonBar, new Insets(2, 10, 2, 10));
 		rootPane.setBottom(new VBox(buttonBar));
 
@@ -176,13 +203,20 @@ public class ExploreLayoutOptimization extends Application {
 						OptimizeLayout.reverseOrdering(v, lsaChildren, points);
 					else {
 						var originalScore = OptimizeLayout.computeScore(tree, lsaChildren, points);
-						OptimizeLayout.optimizeOrdering(v, lsaChildren, points, new Random());
-						var newScore = OptimizeLayout.computeScore(tree, lsaChildren, points);
-						System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
+						if (OptimizeLayout.optimizeOrdering(v, lsaChildren, points, new Random())) {
+							var newScore = OptimizeLayout.computeScore(tree, lsaChildren, points);
+							System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
+						}
 					}
 					// apply piece-wise mapping to fix spacing between proper leaves:
 					FixLeafSpacing.apply(tree, leafDy, points);
+					if (triangular.get()) {
+						var newPoints = TriangularPhylogenyLayout.apply(tree, points);
+						points.clear();
+						points.putAll(newPoints);
+					}
 					DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
+
 					tree.nodeStream().forEach(u -> setupMouseClicked(tree, u, points, nodesGroup, edgesGroup, labelsGroup, orderingGraphGroup));
 					DrawOrderingGraph.apply(v, originalOrdering, lsaChildren, points, orderingGraphGroup);
 				}

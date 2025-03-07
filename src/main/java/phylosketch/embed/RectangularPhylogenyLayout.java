@@ -1,5 +1,5 @@
 /*
- *  LayoutTreeRectangular.java Copyright (C) 2024 Daniel H. Huson
+ *  RectangularPhylogenyLayout.java Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -34,7 +34,7 @@ import java.util.LinkedList;
  * computes the rectangular layout for a rooted tree or network
  * Daniel Huson, 12.2021
  */
-public class LayoutTreeRectangular {
+public class RectangularPhylogenyLayout {
 	/**
 	 * compute rectangular tree or network layout
 	 *

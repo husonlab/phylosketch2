@@ -68,7 +68,6 @@ import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
 import phylosketch.utils.Clusters;
-import phylosketch.utils.NodeLabelEditBox;
 import phylosketch.view.*;
 
 import java.io.File;
@@ -307,7 +306,7 @@ public class MainWindowPresenter {
 			if (view.getSelectedOrAllNodes().size() == 1) {
 				ClipboardUtils.putString(DrawView.getLabel(view.getSelectedOrAllNodes().iterator().next()).getRawText());
 			} else
-				ClipboardUtils.putString(view.toBracketString());
+				ClipboardUtils.putString(NewickUtils.toBracketString(view));
 		});
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
@@ -523,11 +522,11 @@ public class MainWindowPresenter {
 		view.getGraphFX().lastUpdateProperty().addListener(e -> updateProperty.set(System.currentTimeMillis()));
 		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e -> updateProperty.set(System.currentTimeMillis()));
 
-		QRViewUtils.setup(controller.getCenterAnchorPane(), updateProperty, () -> view.toBracketString(4296),
+		QRViewUtils.setup(controller.getCenterAnchorPane(), updateProperty, () -> NewickUtils.toBracketString(view, 4296),
 				qrImageView, controller.getShowQRCode().selectedProperty());
 		controller.getShowQRCode().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		NewickPane.setup(controller.getCenterAnchorPane(), updateProperty, () -> view.toBracketString(4296), controller.getShowNewick().selectedProperty());
+		NewickPane.setup(controller.getCenterAnchorPane(), updateProperty, () -> NewickUtils.toBracketString(view, 4296), controller.getShowNewick().selectedProperty());
 		controller.getShowNewick().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSetWindowSizeMenuItem().setOnAction(e -> {

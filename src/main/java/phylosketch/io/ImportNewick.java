@@ -28,7 +28,7 @@ import jloda.util.FileUtils;
 import jloda.util.IteratorUtils;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.embed.HeightAndAngles;
-import phylosketch.embed.LayoutTreeRectangular;
+import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.embed.optimize.OptimizeLayout;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
@@ -90,7 +90,7 @@ public class ImportNewick {
 
 				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
-				try (var points = LayoutTreeRectangular.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage)) {
+				try (var points = RectangularPhylogenyLayout.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage)) {
 					if (true) {
 						OptimizeLayout.optimizeOrdering(tree, points, new Random(666));
 					}
