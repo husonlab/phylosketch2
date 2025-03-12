@@ -26,7 +26,6 @@ import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import jloda.util.Single;
-import phylosketch.embed.FixLeafSpacing;
 
 import java.util.*;
 import java.util.concurrent.atomic.LongAdder;
@@ -40,24 +39,6 @@ import static jloda.graph.DAGTraversals.preOrderTraversal;
  */
 public class OptimizeLayout {
 	/**
-	 * optimize the ordering of LSA children so to minimize the y-extent of all reticulate edges
-	 *
-	 * @param tree   the rooted network
-	 * @param points the node layout points
-	 */
-	public static void optimizeOrdering(PhyloTree tree, Map<Node, Point2D> points, Random random) {
-		if (tree.hasReticulateEdges()) {
-			var lsaChildren = tree.getLSAChildrenMap();
-			var leafDy = computeLeafDy(tree, points);
-			var originalScore = computeScore(tree, lsaChildren, points);
-			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> optimizeOrdering(v, lsaChildren, points, random));
-			FixLeafSpacing.apply(tree, leafDy, points);
-			var newScore = computeScore(tree, lsaChildren, points);
-			System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
-		}
-	}
-
-	/**
 	 * optimize the LSA children of a given node v
 	 *
 	 * @param v           the node
@@ -66,24 +47,17 @@ public class OptimizeLayout {
 	 * @return true, if optimization algorithm applied
 	 */
 	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random) {
+		var yLeaves = lsaChildren.keySet().stream().filter(u -> !lsaChildren.containsKey(u) || lsaChildren.get(u).isEmpty()).mapToDouble(u -> points.get(u).getY()).sorted().toArray();
+
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
-
-		var crossEdges = computeCrossEdges((PhyloTree) v.getOwner(), originalOrdering, lsaChildren);
-		for (var list : crossEdges) {
-			for (var e : list) {
-				System.err.println(e.getId() + ": target tree node? " + (e.getTarget().getInDegree() == 1));
-
-				System.err.println(e.getId() + ": reticulate? " + ((PhyloTree) v.getOwner()).isReticulateEdge(e));
-				System.err.println(e.getId() + ": transferAcceptor? " + ((PhyloTree) v.getOwner()).isTransferAcceptorEdge(e));
-			}
-		}
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
+		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
+		var originalScore = computeScore(v, originalOrdering, crossEdges, yLeaves, lsaChildren, points);
 		var bestOrdering = new Single<>(new ArrayList<>(originalOrdering));
 		var bestScore = new Single<>(originalScore);
 
-		var permutations = (originalOrdering.size() <= 7 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 50000, random));
+		var permutations = (originalOrdering.size() <= 8 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 100000, random));
 		for (var permuted : permutations) {
-			var score = computeScore(v, permuted, crossEdges, lsaChildren, points);
+			var score = computeScore(v, permuted, crossEdges, yLeaves, lsaChildren, points);
 			if (score < bestScore.get()) {
 				bestScore.set(score);
 				bestOrdering.set(new ArrayList<>(permuted));
@@ -104,13 +78,14 @@ public class OptimizeLayout {
 	 * @param points      the node layout points
 	 */
 	public static void reverseOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+		var yLeaves = lsaChildren.keySet().stream().filter(u -> !lsaChildren.containsKey(u) || lsaChildren.get(u).isEmpty()).mapToDouble(u -> points.get(v).getY()).sorted().toArray();
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
-		var crossEdges = computeCrossEdges((PhyloTree) v.getOwner(), originalOrdering, lsaChildren);
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
+		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
+		var originalScore = computeScore(v, originalOrdering, crossEdges, yLeaves, lsaChildren, points);
 		var reverseOrdering = CollectionUtils.reverse(originalOrdering);
-		var reverseScore = computeScore(v, reverseOrdering, crossEdges, lsaChildren, points);
+		var reverseScore = computeScore(v, reverseOrdering, crossEdges, yLeaves, lsaChildren, points);
 		System.err.println("Reverse: " + originalScore + " -> " + reverseScore);
-		updateLSAChildrenOrderAndPoints(v, reverseOrdering, lsaChildren, points);
+		lsaChildren.put(v, reverseOrdering);
 	}
 
 	/**
@@ -122,13 +97,18 @@ public class OptimizeLayout {
 	 * @return the score
 	 */
 	public static int computeScore(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var score = new LongAdder();
-		preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> {
-			var ordering = lsaChildren.get(v);
-			var crossEdges = computeCrossEdges(tree, ordering, lsaChildren);
-			score.add(computeScore(v, ordering, crossEdges, lsaChildren, points));
-		});
-		return (int) score.sum();
+		try {
+			var yLeaves = lsaChildren.keySet().stream().filter(u -> !lsaChildren.containsKey(u) || lsaChildren.get(u).isEmpty()).mapToDouble(v -> points.get(v).getY()).sorted().toArray();
+			var score = new LongAdder();
+			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> {
+				var ordering = lsaChildren.get(v);
+				var crossEdges = computeCrossEdges(v, ordering, lsaChildren);
+				score.add(computeScore(v, ordering, crossEdges, yLeaves, lsaChildren, points));
+			});
+			return (int) score.sum();
+		} catch (Exception e) {
+			return Integer.MAX_VALUE;
+		}
 	}
 
 
@@ -142,7 +122,7 @@ public class OptimizeLayout {
 	 * @param points      the current points (proposed new order has not been applied)
 	 * @return the total y extent of all
 	 */
-	public static int computeScore(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	private static int computeScore(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, double[] yLeaves, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var delta = computeDelta(newOrdering, lsaChildren, points);
 		var nodeIndexMap = computeNodeIndexMap(newOrdering, lsaChildren);
 
@@ -167,7 +147,9 @@ public class OptimizeLayout {
 				if (pIndex != qIndex) {
 					var yp = points.get(p).getY() + delta[pIndex];
 					var yq = (qIndex != -1 ? points.get(q).getY() + delta[qIndex] : points.get(q).getY());
-					score += 1000 * (int) Math.round(Math.abs(yp - yq));
+					if (true)
+						score += 1000 * NumberUtils.countInRange(yLeaves, Math.min(yp, yq), Math.max(yp, yq));
+					else score += (int) (1000 * Math.abs(yp - yq));
 
 					if (qIndex != -1) {
 						if (yp < yq)
@@ -185,26 +167,6 @@ public class OptimizeLayout {
 			}
 		}
 		return score;
-	}
-
-	/**
-	 * for a given point with a new order of LSA children, updates the points for all nodes in the subtrees
-	 *
-	 * @param v           the node
-	 * @param newOrdering the new order
-	 * @param lsaChildren the lsa children
-	 * @param points      the  points
-	 */
-	public static void updateLSAChildrenOrderAndPoints(Node v, List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var delta = computeDelta(newOrdering, lsaChildren, points);
-
-		for (int i = 0; i < newOrdering.size(); i++) {
-			var index = i;
-			var w = newOrdering.get(i);
-			postOrderTraversal(w, lsaChildren::get, u -> points.computeIfPresent(u, (k, point) -> new Point2D(point.getX(), point.getY() + delta[index])));
-		}
-
-		lsaChildren.put(v, newOrdering);
 	}
 
 	/**
@@ -273,7 +235,8 @@ public class OptimizeLayout {
 		return nodeIndex;
 	}
 
-	private static Collection<List<Edge>> computeCrossEdges(PhyloTree tree, List<Node> ordering, Map<Node, List<Node>> lsaChildren) {
+	private static Collection<List<Edge>> computeCrossEdges(Node v, List<Node> ordering, Map<Node, List<Node>> lsaChildren) {
+		var tree = (PhyloTree) v.getOwner();
 		var nodeIndexMap = computeNodeIndexMap(ordering, lsaChildren);
 
 		var nodeCrossEdges = new HashMap<Integer, List<Edge>>();
@@ -289,7 +252,7 @@ public class OptimizeLayout {
 					}
 				}
 				for (var e : u.inEdges()) {
-					if (tree.isReticulateEdge(e) && !tree.isTransferAcceptorEdge(e) && nodeIndexMap.getOrDefault(e.getSource(), -1) != index) {
+					if (e.getSource() != v && tree.isReticulateEdge(e) && !tree.isTransferAcceptorEdge(e) && nodeIndexMap.getOrDefault(e.getSource(), -1) != index) {
 						edges.add(e);
 					}
 				}
@@ -312,5 +275,25 @@ public class OptimizeLayout {
 			sum += Math.abs(array[i] - array[i - 1]);
 		}
 		return sum / (array.length - 1);
+	}
+
+	/**
+	 * for a given point with a new order of LSA children, updates the points for all nodes in the subtrees
+	 *
+	 * @param v           the node
+	 * @param newOrdering the new order
+	 * @param lsaChildren the lsa children
+	 * @param points      the  points
+	 */
+	public static void updateLSAChildrenOrderAndPoints(Node v, List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+		var delta = computeDelta(newOrdering, lsaChildren, points);
+
+		for (int i = 0; i < newOrdering.size(); i++) {
+			var index = i;
+			var w = newOrdering.get(i);
+			postOrderTraversal(w, lsaChildren::get, u -> points.computeIfPresent(u, (k, point) -> new Point2D(point.getX(), point.getY() + delta[index])));
+		}
+
+		lsaChildren.put(v, newOrdering);
 	}
 }

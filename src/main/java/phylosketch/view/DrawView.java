@@ -334,7 +334,6 @@ public class DrawView extends Pane {
 		path.setUserData(e);
 		path.getStyleClass().add("graph-edge");
 
-
 		if (!edgesGroup.getChildren().contains(path))
 			edgesGroup.getChildren().add(path);
 	}
@@ -497,6 +496,12 @@ public class DrawView extends Pane {
 
 	public static List<Point2D> getPoints(Edge e) {
 		return PathUtils.getPoints(getPath(e));
+	}
+
+	public static Path setPoints(Edge e, List<Point2D> points) {
+		var path = getPath(e);
+		path.getElements().setAll(PathUtils.createElements(points));
+		return path;
 	}
 
 

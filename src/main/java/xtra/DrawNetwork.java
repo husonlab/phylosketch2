@@ -59,7 +59,8 @@ public class DrawNetwork {
 		edgeGroup.getChildren().clear();
 		labelGroup.getChildren().clear();
 
-		ScaleUtils.scaleToBox(points, 0, 600, 0, 600);
+		if (true)
+			ScaleUtils.scaleToBox(points, 0, 600, 0, 600);
 
 		for (var v : tree.nodes()) {
 			var point = points.get(v);

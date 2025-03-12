@@ -26,6 +26,7 @@ import jloda.graph.NodeArray;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.util.Counter;
+import phylosketch.io.ReorderChildren;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -67,6 +68,9 @@ public class NewickUtils {
 				if (root.isPresent()) {
 					tree.setRoot(root.get());
 					tree.edgeStream().forEach(f -> tree.setReticulate(f, f.getTarget().getInDegree() > 1));
+
+					ReorderChildren.apply(tree, v -> DrawView.getPoint((Node) v.getInfo()), ReorderChildren.SortBy.Location);
+
 					try {
 						var add = new StringWriter();
 						newickIO.write(tree, add, outputFormat);
@@ -83,7 +87,7 @@ public class NewickUtils {
 	}
 
 	/**
-	 * copies all trees or rooted networks from the graph
+	 * maps all connected components to trees
 	 *
 	 * @param graph the graph
 	 * @return the contained trees or rooted networks
@@ -97,6 +101,11 @@ public class NewickUtils {
 				var tree = new PhyloTree();
 				tree.copy(graph, srcTarMap, null);
 				graph.nodeStream().filter(v -> !Objects.equals(componentMap.get(v), component)).map(srcTarMap::get).forEach(tree::deleteNode);
+
+				try (var nodes = tree.newNodeSet()) {
+					nodes.addAll(tree.nodes());
+					srcTarMap.entrySet().stream().filter(entry -> nodes.contains(entry.getValue())).forEach(entry -> tree.setInfo(entry.getValue(), entry.getKey()));
+				}
 
 				var roots = tree.nodeStream().filter(v -> v.getInDegree() == 0).toList();
 				if (roots.size() == 1) {

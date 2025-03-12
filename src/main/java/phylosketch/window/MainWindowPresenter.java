@@ -52,6 +52,7 @@ import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
+import jloda.graph.Edge;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
@@ -78,6 +79,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * setup all control bindings
@@ -93,6 +95,7 @@ public class MainWindowPresenter {
 	private final BooleanProperty allowRemoveThruNodes = new SimpleBooleanProperty(this, "allowRemoveThruNodes", false);
 	private final BooleanProperty allowFixCrossingEdges = new SimpleBooleanProperty(this, "allowFixCrossingEdges", false);
 	private final BooleanProperty allowReRoot = new SimpleBooleanProperty(this, "allowReRoot", false);
+	private final BooleanProperty allowDeclareTransferAcceptor = new SimpleBooleanProperty(this, "allowDeclareTransferAcceptor", false);
 
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
@@ -391,6 +394,11 @@ public class MainWindowPresenter {
 		});
 		controller.getDeclareRootMenuItem().disableProperty().bind(allowReRoot.not());
 
+		controller.getDeclareTransferAcceptorMenuItem().setOnAction(a -> {
+			view.getUndoManager().doAndAdd(new DeclareTransferAcceptorEdgesCommand(view, view.getEdgeSelection().getSelectedItems()));
+		});
+		controller.getDeclareTransferAcceptorMenuItem().disableProperty().bind(allowDeclareTransferAcceptor.not());
+
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
 			window.getStatusPane().getChildren().removeAll(BasicFX.findRecursively(window.getStatusPane(), n -> "info".equals(n.getUserData())));
 			try (var componentMap = view.getGraph().newNodeIntArray()) {
@@ -432,6 +440,9 @@ public class MainWindowPresenter {
 					window.getStatusPane().getChildren().add(index + 1, text);
 				}
 			}
+			allowDeclareTransferAcceptor.set(!view.getEdgeSelection().getSelectedItems().isEmpty() && view.getEdgeSelection().getSelectedItems().stream().allMatch(f -> f.getTarget().getInDegree() > 1) &&
+											 view.getEdgeSelection().getSelectedItems().stream().map(Edge::getTarget).collect(Collectors.toSet()).size() == view.getEdgeSelection().getSelectedItems().size());
+
 
 			if (view.getNodeSelection().size() == 1) {
 				var v = view.getNodeSelection().getSelectedItem();
@@ -484,6 +495,9 @@ public class MainWindowPresenter {
 		);
 
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
+		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getLayoutPhylogenyMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false)));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
@@ -610,6 +624,9 @@ public class MainWindowPresenter {
 
 		formatPaneView.getController().getResizeModeToggle().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
 		formatPaneView.getController().getResizeModeToggle().disableProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().disableProperty());
+
+		formatPaneView.getController().getTransferAcceptorButton().setOnAction(controller.getDeclareTransferAcceptorMenuItem().getOnAction());
+		formatPaneView.getController().getTransferAcceptorButton().disableProperty().bind(controller.getDeclareTransferAcceptorMenuItem().disableProperty());
 	}
 
 	public static void openString(String string) {

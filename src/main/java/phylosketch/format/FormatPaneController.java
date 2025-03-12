@@ -202,6 +202,9 @@ public class FormatPaneController {
 	@FXML
 	private ToggleButton resizeModeToggle;
 
+	@FXML
+	private Button transferAcceptorButton;
+
 
 	@FXML
 	private void initialize() {
@@ -483,6 +486,10 @@ public class FormatPaneController {
 
 	public ToggleButton getResizeModeToggle() {
 		return resizeModeToggle;
+	}
+
+	public Button getTransferAcceptorButton() {
+		return transferAcceptorButton;
 	}
 
 	public Button getCrossEdgesButton() {

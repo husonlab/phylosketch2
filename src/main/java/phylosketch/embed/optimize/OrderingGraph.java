@@ -87,7 +87,7 @@ public class OrderingGraph {
 			var nodesBelowW = nodesBelowMap.get(w);
 			for (var p : nodesBelowW) {
 				var pLayoutNode = phyloNodeToOrderingNodeMap.get(p);
-				for (var f : p.adjacentEdgesStream(false).filter(f -> tree.isReticulateEdge(f) && !tree.isTransferAcceptorEdge(f)).toList()) {
+				for (var f : p.adjacentEdgesStream(false).filter(f -> !f.nodes().contains(v) && tree.isReticulateEdge(f) && !tree.isTransferAcceptorEdge(f)).toList()) {
 					var q = f.getOpposite(p);
 
 					Node qLayoutNode;

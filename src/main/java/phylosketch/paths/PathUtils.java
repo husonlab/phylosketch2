@@ -83,16 +83,21 @@ public class PathUtils {
 	public static Path createPath(List<Point2D> points, boolean normalize) {
 		var path = new Path();
 		path.getStyleClass().add("graph-edge");
-		for (var point : points) {
-			if (path.getElements().isEmpty())
-				path.getElements().add(new MoveTo(point.getX(), point.getY()));
-			else
-				path.getElements().add(new LineTo(point.getX(), point.getY()));
-
-		}
+		path.getElements().addAll(createElements(points));
 		if (normalize)
 			path.getElements().setAll(PathNormalize.apply(path, 2, 5));
 		return path;
+	}
+
+	public static List<PathElement> createElements(List<Point2D> points) {
+		var list = new ArrayList<PathElement>();
+		for (var point : points) {
+			if (list.isEmpty())
+				list.add(new MoveTo(point.getX(), point.getY()));
+			else
+				list.add(new LineTo(point.getX(), point.getY()));
+		}
+		return list;
 	}
 
 	public static Point2D getMiddle(Path path) {
