@@ -346,13 +346,13 @@ public class FormatPanePresenter {
 
 		controller.getEdgeColorPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new EdgeColorCommand(view, n));
+				view.getUndoManager().doAndAdd(new EdgeColorCommand(view, view.getSelectedOrAllEdges(), n));
 			}
 		});
 
 		controller.getClearEdgeColorButton().setOnAction(a -> {
 			if (canUpdate) {
-				view.getUndoManager().doAndAdd(new EdgeColorCommand(view, null));
+				view.getUndoManager().doAndAdd(new EdgeColorCommand(view, view.getSelectedOrAllEdges(), null));
 			}
 		});
 

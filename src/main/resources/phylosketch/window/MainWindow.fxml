@@ -307,6 +307,8 @@
                                         </accelerator>
                                     </MenuItem>
                                     <MenuItem fx:id="declareRootMenuItem" text="Declare Root"/>
+                                    <MenuItem fx:id="declareTransferAcceptorMenuItem" text="Declare Transfer Acceptor"/>
+
                                     <MenuItem fx:id="induceMenuItem" text="Induce"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
@@ -491,6 +493,8 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="layoutPhylogenyMenuItem" mnemonicParsing="false"
+                                          text="Layout Phylogeny"/>
                             </Menu>
 
                             <Menu mnemonicParsing="false" text="View">

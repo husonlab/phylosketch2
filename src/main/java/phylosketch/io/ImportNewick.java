@@ -20,7 +20,9 @@
 
 package phylosketch.io;
 
+import javafx.geometry.Point2D;
 import jloda.graph.Node;
+import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
@@ -29,7 +31,6 @@ import jloda.util.IteratorUtils;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.embed.HeightAndAngles;
 import phylosketch.embed.RectangularPhylogenyLayout;
-import phylosketch.embed.optimize.OptimizeLayout;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
@@ -37,7 +38,6 @@ import phylosketch.view.RootPosition;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Random;
 
 /**
  * newick import
@@ -90,10 +90,8 @@ public class ImportNewick {
 
 				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
-				try (var points = RectangularPhylogenyLayout.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage)) {
-					if (true) {
-						OptimizeLayout.optimizeOrdering(tree, points, new Random(666));
-					}
+				try (NodeArray<Point2D> points = tree.newNodeArray()) {
+					RectangularPhylogenyLayout.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage, true, points);
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
 
@@ -123,5 +121,43 @@ public class ImportNewick {
 				view.getEdgeSelection().select(e);
 		}
 		return newNodes;
+	}
+
+	/**
+	 * import from a string into a given bounding box
+	 *
+	 * @param newick input line
+	 * @param view   window
+	 * @return set of new nodes
+	 * @throws IOException
+	 */
+	public static Collection<Node> apply(String newick, DrawView view, double xMin, double yMin, double xMax, double yMax) throws IOException {
+		view.applyCss();
+
+		var originalNodes = IteratorUtils.asSet(view.getGraph().nodes());
+
+		var tree = new PhyloTree();
+		(new NewickIO()).parseBracketNotation(tree, newick, true, false);
+		LSAUtils.setLSAChildrenAndTransfersMap(tree);
+
+		var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
+
+		try (NodeArray<Point2D> points = tree.newNodeArray()) {
+			RectangularPhylogenyLayout.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage, true, points);
+
+			ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
+			DrawNetwork.apply(view, tree, points);
+			var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
+			newNodes.removeAll(originalNodes);
+
+			view.getNodeSelection().clearSelection();
+			view.getEdgeSelection().clearSelection();
+			for (var v : newNodes) {
+				view.getNodeSelection().select(v);
+				for (var e : v.outEdges())
+					view.getEdgeSelection().select(e);
+			}
+			return newNodes;
+		}
 	}
 }

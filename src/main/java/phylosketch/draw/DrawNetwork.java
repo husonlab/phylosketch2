@@ -21,66 +21,114 @@
 package phylosketch.draw;
 
 import javafx.geometry.Point2D;
+import javafx.scene.shape.Path;
+import jloda.graph.Edge;
+import jloda.graph.EdgeArray;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathNormalize;
-import phylosketch.paths.PathUtils;
 import phylosketch.utils.QuadraticCurve;
 import phylosketch.view.DrawView;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
- * draw the network
+ * draw a network
  * Daniel Huson, 2.2025
  */
 public class DrawNetwork {
 	/**
-	 * compute the drawing
+	 * for a given tree, copies it into the view graph and draws it using the given points
 	 *
-	 * @param tree   the network
-	 * @param points the  node locations
+	 * @param view   the view
+	 * @param tree   the source tree
+	 * @param points the points
 	 */
 	public static void apply(DrawView view, PhyloTree tree, Map<Node, Point2D> points) {
-		try (NodeArray<Node> srcTarMap = tree.newNodeArray()) {
+		try (NodeArray<Node> srcTarNode = tree.newNodeArray(); EdgeArray<Edge> srcTarEdge = tree.newEdgeArray()) {
 			for (var v : tree.nodes()) {
-				srcTarMap.put(v, view.createNode(points.get(v)));
-			}
-
-			for (var v : tree.nodes()) {
-				var w = srcTarMap.get(v);
-				if (tree.getLabel(v) != null)
-					view.createLabel(w, tree.getLabel(v));
+				srcTarNode.put(v, view.createNode());
 			}
 
 			for (var e : tree.edges()) {
-				var v = srcTarMap.get(e.getSource());
-				var w = srcTarMap.get(e.getTarget());
-				var vPoint = DrawView.getPoint(v);
-				var wPoint = DrawView.getPoint(w);
+				var f = view.createEdge(srcTarNode.get(e.getSource()), srcTarNode.get(e.getTarget()), new Path());
+				srcTarEdge.put(e, f);
+			}
 
-				List<Point2D> list;
+			apply(view, tree, srcTarNode, srcTarEdge, points);
+		}
+	}
 
-				var reticulate = false;
-				if (e.getTarget().getInDegree() == 1 || tree.isTransferAcceptorEdge(e)) {
-					list = CollectionUtils.concatenate(
-							PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),
-							PathNormalize.apply(List.of(new Point2D(vPoint.getX(), wPoint.getY()), wPoint), 2, 5));
-				} else if (tree.isTransferEdge(e)) {
-					list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
-					reticulate = true;
+	/**
+	 * for a given tree that has already been copied into the view graph
+	 *
+	 * @param view       the view
+	 * @param tree       the source tree
+	 * @param srcTarNode mapping of nodes in tree to nodes in view graph
+	 * @param srcTarEdge mapping of edges in tree to edges in view graph
+	 * @param points     the points
+	 */
+	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Point2D> points) {
+		for (var v : tree.nodes()) {
+			var w = srcTarNode.apply(v);
+			view.setLocation(w, points.get(v));
+		}
+
+		for (var e : tree.edges()) {
+			var v = srcTarNode.apply(e.getSource());
+			var w = srcTarNode.apply(e.getTarget());
+			var f = srcTarEdge.apply(e);
+			var vPoint = DrawView.getPoint(v);
+			var wPoint = DrawView.getPoint(w);
+
+			List<Point2D> list;
+
+			var reticulate = false;
+			if (e.getTarget().getInDegree() == 1 || tree.isTransferAcceptorEdge(e)) {
+				list = CollectionUtils.concatenate(
+						PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),
+						PathNormalize.apply(List.of(new Point2D(vPoint.getX(), wPoint.getY()), wPoint), 2, 5));
+			} else if (tree.isTransferEdge(e)) {
+				list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
+				reticulate = true;
+			} else {
+				list = QuadraticCurve.apply(vPoint, new Point2D(vPoint.getX(), wPoint.getY()), wPoint);
+				reticulate = true;
+			}
+
+			var path = DrawView.setPoints(f, list);
+
+			if (tree.isReticulateEdge(e))
+				view.getGraph().setReticulate(f, true);
+			if (tree.isTransferAcceptorEdge(e))
+				view.getGraph().setTransferAcceptor(f, true);
+			if (reticulate && !view.getGraph().isTransferAcceptorEdge(e)) {
+				view.setShowArrow(f, true);
+				path.getStyleClass().add("graph-special-edge");
+			}
+			if (tree.hasEdgeWeights() && tree.getEdgeWeights().get(e) != null) {
+				view.getGraph().setWeight(f, tree.getWeight(e));
+			}
+			if (tree.hasEdgeConfidences() && tree.getEdgeConfidences().get(e) != null) {
+				view.getGraph().setConfidence(f, tree.getConfidence(e));
+			}
+			if (tree.hasEdgeProbabilities() && tree.getEdgeProbabilities().get(e) != null) {
+				view.getGraph().setProbability(f, tree.getProbability(e));
+			}
+		}
+
+		for (var v : tree.nodes()) {
+			var w = srcTarNode.apply(v);
+			if (tree.getLabel(v) != null) {
+
+				if (DrawView.getLabel(v) == null) {
+					view.createLabel(w, tree.getLabel(v));
 				} else {
-					list = QuadraticCurve.apply(vPoint, new Point2D(vPoint.getX(), wPoint.getY()), wPoint);
-					reticulate = true;
-				}
-				var path = PathUtils.createPath(list, false);
-				var f = view.createEdge(v, w, path);
-				if (reticulate) {
-					view.setShowArrow(f, true);
-					path.getStyleClass().add("graph-special-edge");
+					view.setLabel(w, tree.getLabel(v));
 				}
 			}
 		}

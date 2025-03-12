@@ -27,6 +27,7 @@ import jloda.phylo.PhyloTree;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated // this makes no sense
 public class TriangularPhylogenyLayout {
 
 	/**
@@ -49,8 +50,8 @@ public class TriangularPhylogenyLayout {
 		var x2 = tree.nodeStream().mapToDouble(v -> points.get(v).getX()).max().orElse(0.0);
 
 		var y1 = points.get(tree.getRoot()).getY();
-		var minY2 = array[0];
-		var maxY2 = array[array.length - 1];
+		var minY2 = array[0] + leafDy;
+		var maxY2 = array[array.length - 1] - leafDy;
 
 		var minZ2 = 0.0;
 		var maxZ2 = (numLeaves + 1) * leafDy;

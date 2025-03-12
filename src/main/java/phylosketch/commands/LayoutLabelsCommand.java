@@ -33,7 +33,6 @@ import phylosketch.view.RootPosition;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * layout labels command
@@ -43,11 +42,12 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private final Map<Integer, Point2D> nodeOldLayoutMap = new HashMap<>();
-	private final Map<Integer, Point2D> nodeNewLayoutMap = new HashMap<>();
-
 	public LayoutLabelsCommand(DrawView view, RootPosition rootPosition, Collection<Node> nodes) {
 		super("layout labels");
+
+		var nodeOldLayoutMap = new HashMap<Integer, Point2D>();
+		var nodeNewLayoutMap = new HashMap<Integer, Point2D>();
+
 
 		for (var v : nodes) {
 			if (v.getInfo() instanceof RichTextLabel label) {
@@ -55,28 +55,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			}
 		}
 
-		var nodeRootLocationMap = new HashMap<Node, RootPosition>();
-		if (rootPosition == null) {
-			var components = ConnectedComponents.components(view.getGraph());
-			for (var component : components) {
-				var intersection = CollectionUtils.intersection(component, nodes);
-				if (!intersection.isEmpty()) {
-					var rootLocation = RootPosition.compute(component);
-					for (var v : intersection) {
-						nodeRootLocationMap.put(v, rootLocation);
-					}
-				}
-			}
-		}
-		for (var v : nodes) {
-			var label = DrawView.getLabel(v);
-			var layout = computeLabelLayout(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
-			nodeNewLayoutMap.put(v.getId(), layout);
-		}
-
-		if (nodeOldLayoutMap.isEmpty()) {
-			undo = null;
-		} else {
+		if (!nodeOldLayoutMap.isEmpty()) {
 			undo = () -> {
 				for (var entry : nodeOldLayoutMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
@@ -87,11 +66,27 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 					}
 				}
 			};
-		}
-		if (nodeNewLayoutMap.isEmpty()) {
-			redo = null;
-		} else {
 			redo = () -> {
+				if (nodeNewLayoutMap.isEmpty()) {
+					var nodeRootLocationMap = new HashMap<Node, RootPosition>();
+					if (rootPosition == null) {
+						var components = ConnectedComponents.components(view.getGraph());
+						for (var component : components) {
+							var intersection = CollectionUtils.intersection(component, nodes);
+							if (!intersection.isEmpty()) {
+								var rootLocation = RootPosition.compute(component);
+								for (var v : intersection) {
+									nodeRootLocationMap.put(v, rootLocation);
+								}
+							}
+						}
+					}
+					for (var v : nodes) {
+						var label = DrawView.getLabel(v);
+						var layout = computeLabelLayout(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
+						nodeNewLayoutMap.put(v.getId(), layout);
+					}
+				}
 				for (var entry : nodeNewLayoutMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
 					if (v != null) {
@@ -101,6 +96,9 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 					}
 				}
 			};
+		} else {
+			undo = null;
+			redo = null;
 		}
 	}
 

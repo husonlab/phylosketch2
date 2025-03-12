@@ -601,6 +601,7 @@
             <panes>
                 <TitledPane animated="false" text="Edit Nodes and Edges">
                     <content>
+                        <VBox alignment="CENTER">
                         <GridPane>
                             <columnConstraints>
                                 <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
@@ -652,8 +653,20 @@
                                         <Tooltip text="Active resize mode "/>
                                     </tooltip>
                                 </ToggleButton>
+
                             </children>
                         </GridPane>
+                            <Button fx:id="transferAcceptorButton" layoutX="21.0" layoutY="53.0" mnemonicParsing="false"
+                                    text="Declare Transfer Acceptor Edge" GridPane.columnIndex="0"
+                                    GridPane.rowIndex="3">
+                                <tooltip>
+                                    <Tooltip text="Declare a reticulate in-edge to be the transfer acceptor edge"/>
+                                </tooltip>
+                                <VBox.margin>
+                                    <Insets left="5.0" top="3.0"/>
+                                </VBox.margin>
+                            </Button>
+                        </VBox>
                     </content>
                 </TitledPane>
             </panes>

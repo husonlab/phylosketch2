@@ -37,7 +37,6 @@ import jloda.graph.Node;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
-import phylosketch.embed.FixLeafSpacing;
 import phylosketch.embed.HeightAndAngles;
 import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.embed.TriangularPhylogenyLayout;
@@ -47,8 +46,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
-
-import static phylosketch.embed.optimize.OptimizeLayout.computeLeafDy;
 
 /**
  * explore the layout optimization algorithm
@@ -80,6 +77,8 @@ public class ExploreLayoutOptimization extends Application {
 		tree.parseBracketNotation(newick, true);
 		tree.setRoot(tree.nodeStream().filter(v -> v.getInDegree() == 0).toList().get(0));
 
+		Map<Node, Point2D> points = tree.newNodeArray();
+
 		var nodesGroup = new Group();
 		var edgesGroup = new Group();
 		var labelsGroup = new Group();
@@ -96,7 +95,7 @@ public class ExploreLayoutOptimization extends Application {
 
 		LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var points = RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage);
+		RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage, false, points);
 
 		if (triangular.get()) {
 			var newPoints = TriangularPhylogenyLayout.apply(tree, points);
@@ -131,8 +130,7 @@ public class ExploreLayoutOptimization extends Application {
 
 					LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-					points.clear();
-					points.putAll(RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage));
+					RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage, false, points);
 
 					DrawNetwork.apply(tree, points, nodesGroup, edgesGroup, labelsGroup);
 					if (triangular.get()) {
@@ -162,7 +160,8 @@ public class ExploreLayoutOptimization extends Application {
 		optimizeButton.setOnAction(e -> {
 			otherGroup.getChildren().clear();
 			orderingGraphGroup.getChildren().clear();
-			OptimizeLayout.optimizeOrdering(tree, points, random);
+			RectangularPhylogenyLayout.apply(tree, toScale.get(), HeightAndAngles.Averaging.LeafAverage, true, random, points);
+
 			if (triangular.get()) {
 				var newPoints = TriangularPhylogenyLayout.apply(tree, points);
 				points.clear();
@@ -198,7 +197,7 @@ public class ExploreLayoutOptimization extends Application {
 				var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 				DrawOrderingGraph.apply(v, originalOrdering, lsaChildren, points, orderingGraphGroup);
 				if (e.getClickCount() == 2) {
-					var leafDy = computeLeafDy(tree, points);
+					RectangularPhylogenyLayout.apply(tree, false, HeightAndAngles.Averaging.LeafAverage, false, points);
 					if (e.isShiftDown())
 						OptimizeLayout.reverseOrdering(v, lsaChildren, points);
 					else {
@@ -208,8 +207,9 @@ public class ExploreLayoutOptimization extends Application {
 							System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
 						}
 					}
-					// apply piece-wise mapping to fix spacing between proper leaves:
-					FixLeafSpacing.apply(tree, leafDy, points);
+
+					RectangularPhylogenyLayout.apply(tree, false, HeightAndAngles.Averaging.LeafAverage, false, points);
+
 					if (triangular.get()) {
 						var newPoints = TriangularPhylogenyLayout.apply(tree, points);
 						points.clear();

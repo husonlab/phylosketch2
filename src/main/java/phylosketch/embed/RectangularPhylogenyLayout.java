@@ -20,15 +20,20 @@
 package phylosketch.embed;
 
 import javafx.geometry.Point2D;
+import jloda.graph.DAGTraversals;
 import jloda.graph.Node;
-import jloda.graph.NodeArray;
 import jloda.graph.NodeDoubleArray;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
 import jloda.util.ProgramProperties;
+import phylosketch.embed.optimize.OptimizeLayout;
 
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Random;
+
+import static phylosketch.embed.optimize.OptimizeLayout.computeScore;
 
 /**
  * computes the rectangular layout for a rooted tree or network
@@ -37,18 +42,36 @@ import java.util.LinkedList;
 public class RectangularPhylogenyLayout {
 	/**
 	 * compute rectangular tree or network layout
-	 *
-	 * @param tree tree
-	 * @return node-to-point map
+	 * @param tree the phylogeny
+	 * @param toScale draw edges to scale
+	 * @param averaging parent averaging method
+	 * @param optimizeCrossings optimize crossings?
+	 * @param points the node layout points
 	 */
-	public static NodeArray<Point2D> apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging) {
+	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimizeCrossings, Map<Node, Point2D> points) {
+		apply(tree, toScale, averaging, optimizeCrossings, new Random(666), points);
+	}
+
+	/**
+	 * compute rectangular tree or network layout
+	 * @param tree the phylogeny
+	 * @param toScale draw edges to scale
+	 * @param averaging parent averaging method
+	 * @param optimizeCrossings optimize crossings?
+	 * @param random random number generator for crossing optimization heuristic
+	 * @param points the node layout points
+	 */
+	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimizeCrossings, Random random, Map<Node, Point2D> points) {
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		final NodeArray<Point2D> points = tree.newNodeArray();
+		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points) : Integer.MAX_VALUE);
+
+		points.clear();
+
 		points.put(tree.getRoot(), new Point2D(0, 0));
 		try (var yCoord = tree.newNodeDoubleArray()) {
-			HeightAndAngles.apply(tree, yCoord, averaging);
+			HeightAndAngles.apply(tree, yCoord, averaging, !optimizeCrossings);
 			if (toScale) {
 				setCoordinatesPhylogram(tree, yCoord, points);
 			} else {
@@ -86,16 +109,24 @@ public class RectangularPhylogenyLayout {
 					}
 				}
 			}
+			if (optimizeCrossings) {
+				if (originalScore == Integer.MAX_VALUE) {
+					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+				}
+				if (originalScore > 0) {
+					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random));
+					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+					System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
+				}
+				apply(tree, toScale, averaging, false, null, points);
+			}
 		}
-		if (tree.getNumberReticulateEdges() > 0)
-			FixLeafSpacing.apply(tree, 1.0, points);
-		return points;
 	}
 
 	/**
 	 * This code assumes that all edges are directed away from the root.
 	 */
-	public static void setCoordinatesPhylogram(PhyloTree tree, NodeDoubleArray yCoord, NodeArray<Point2D> nodePointMap) {
+	public static void setCoordinatesPhylogram(PhyloTree tree, NodeDoubleArray yCoord, Map<Node, Point2D> nodePointMap) {
 		var percentOffset = ProgramProperties.get("ReticulationOffsetPercent", 50.0);
 
 		var averageWeight = tree.edgeStream().mapToDouble(tree::getWeight).average().orElse(1);
@@ -126,8 +157,20 @@ public class RectangularPhylogenyLayout {
 						nodePointMap.put(u, new Point2D(location.getX() + tree.getWeight(e), height));
 						assigned.add(u);
 					}
-				} else if (w.getInDegree() > 1) // all in edges are 'blue' edges
-				{
+				} else if (w.getInDegree() > 1 && w.inEdgesStream(false).anyMatch(tree::isTransferAcceptorEdge)) { // todo: just added this, might cause problems...
+					var e = w.inEdgesStream(false).filter(tree::isTransferAcceptorEdge).findAny().orElse(w.getFirstInEdge());
+					var v = e.getSource();
+					var location = nodePointMap.get(v);
+					if (!assigned.contains(v)) // can't process yet
+					{
+						ok = false;
+					} else {
+						var height = yCoord.get(e.getTarget());
+						var u = e.getTarget();
+						nodePointMap.put(u, new Point2D(location.getX() + tree.getWeight(e), height));
+						assigned.add(u);
+					}
+				} else if (w.getInDegree() > 1) {
 					var x = Double.NEGATIVE_INFINITY;
 					for (var f : w.inEdges()) {
 						var u = f.getSource();

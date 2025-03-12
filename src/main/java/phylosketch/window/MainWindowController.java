@@ -353,6 +353,9 @@ public class MainWindowController {
 	private MenuItem declareRootMenuItem;
 
 	@FXML
+	private MenuItem declareTransferAcceptorMenuItem;
+
+	@FXML
 	private MenuItem induceMenuItem;
 
 	@FXML
@@ -384,6 +387,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem layoutLabelMenuItem;
+
+	@FXML
+	private MenuItem layoutPhylogenyMenuItem;
 
 	@FXML
 	private MenuItem rotateLeftMenuItem;
@@ -544,7 +550,7 @@ public class MainWindowController {
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, induceMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, declareTransferAcceptorMenuItem, induceMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -944,6 +950,10 @@ public class MainWindowController {
 		return declareRootMenuItem;
 	}
 
+	public MenuItem getDeclareTransferAcceptorMenuItem() {
+		return declareTransferAcceptorMenuItem;
+	}
+
 	public MenuItem getInduceMenuItem() {
 		return induceMenuItem;
 	}
@@ -954,6 +964,10 @@ public class MainWindowController {
 
 	public MenuItem getLayoutLabelMenuItem() {
 		return layoutLabelMenuItem;
+	}
+
+	public MenuItem getLayoutPhylogenyMenuItem() {
+		return layoutPhylogenyMenuItem;
 	}
 
 	public MenuItem getRotateLeftMenuItem() {
