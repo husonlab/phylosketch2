@@ -22,6 +22,7 @@ package phylosketch.draw;
 
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Path;
+import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Edge;
 import jloda.graph.EdgeArray;
 import jloda.graph.Node;
@@ -29,6 +30,7 @@ import jloda.graph.NodeArray;
 import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathNormalize;
+import phylosketch.utils.CircleSegment;
 import phylosketch.utils.QuadraticCurve;
 import phylosketch.view.DrawView;
 
@@ -59,7 +61,7 @@ public class DrawNetwork {
 				srcTarEdge.put(e, f);
 			}
 
-			apply(view, tree, srcTarNode, srcTarEdge, points);
+			apply(view, tree, srcTarNode, srcTarEdge, points, false);
 		}
 	}
 
@@ -70,9 +72,12 @@ public class DrawNetwork {
 	 * @param tree       the source tree
 	 * @param srcTarNode mapping of nodes in tree to nodes in view graph
 	 * @param srcTarEdge mapping of edges in tree to edges in view graph
-	 * @param points     the points
+	 * @param points     the points as a function of source tree nodes
+	 * @param circular
 	 */
-	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Point2D> points) {
+	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Point2D> points, boolean circular) {
+		var rootPoint = (circular ? points.get(tree.getRoot()) : null);
+
 		for (var v : tree.nodes()) {
 			var w = srcTarNode.apply(v);
 			view.setLocation(w, points.get(v));
@@ -89,10 +94,37 @@ public class DrawNetwork {
 
 			var reticulate = false;
 			if (e.getTarget().getInDegree() == 1 || tree.isTransferAcceptorEdge(e)) {
-				list = CollectionUtils.concatenate(
-						PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),
-						PathNormalize.apply(List.of(new Point2D(vPoint.getX(), wPoint.getY()), wPoint), 2, 5));
-			} else if (tree.isTransferEdge(e)) {
+				if (circular) {
+					var angleV = GeometryUtilsFX.computeAngle(vPoint.subtract(rootPoint));
+					var angleW = GeometryUtilsFX.computeAngle(wPoint.subtract(rootPoint));
+					var cPoint = GeometryUtilsFX.rotateAbout(vPoint, angleW - angleV, rootPoint);
+
+					double startAngle;
+					double endAngle;
+					boolean flip;
+
+					if (angleW > angleV && Math.abs(angleW - angleV) <= 180 || angleW < angleV && Math.abs(angleW - angleV) >= 180) {
+						startAngle = angleV;
+						endAngle = angleW;
+						flip = false;
+					} else {
+						startAngle = angleW;
+						endAngle = angleV;
+						flip = true;
+					}
+
+					var circleSegment = CircleSegment.apply(rootPoint, vPoint.distance(rootPoint), startAngle, endAngle);
+					if (flip)
+						circleSegment = CollectionUtils.reverse(circleSegment);
+
+					list = CollectionUtils.concatenate(circleSegment,
+							PathNormalize.apply(List.of(cPoint, wPoint), 2, 5));
+				} else {
+					list = CollectionUtils.concatenate(
+							PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),
+							PathNormalize.apply(List.of(new Point2D(vPoint.getX(), wPoint.getY()), wPoint), 2, 5));
+				}
+			} else if (tree.isTransferEdge(e) || circular) {
 				list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
 				reticulate = true;
 			} else {

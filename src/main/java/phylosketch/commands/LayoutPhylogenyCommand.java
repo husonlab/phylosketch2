@@ -33,9 +33,11 @@ import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import jloda.util.CollectionUtils;
 import phylosketch.draw.DrawNetwork;
+import phylosketch.embed.CircularPhylogenyLayout;
 import phylosketch.embed.HeightAndAngles;
 import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.io.ReorderChildren;
+import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
@@ -54,15 +56,14 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 * layout all selected (or if none selected, all) components
 	 *
 	 * @param view    the view
-	 * @param toScale to scale?
 	 */
-	public LayoutPhylogenyCommand(DrawView view, boolean toScale) {
+	public LayoutPhylogenyCommand(DrawView view) {
 		super("layout");
 		var command = new CompositeCommand("layout");
 		var nodes = view.getSelectedOrAllNodes();
 		for (var component : ConnectedComponents.components(view.getGraph())) {
 			if (CollectionUtils.intersects(component, nodes)) {
-				command.add(new LayoutPhylogenyCommand(view, component, toScale));
+				command.add(new LayoutPhylogenyCommand(view, component));
 				command.add(new LayoutLabelsCommand(view, null, component));
 			}
 		}
@@ -80,9 +81,8 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view      the view
 	 * @param component the nodes of the component
-	 * @param toScale   to scale?
 	 */
-	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, boolean toScale) {
+	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component) {
 		super("layout");
 
 		if (isRootedComponent(component)) {
@@ -119,6 +119,8 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 					var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
 					var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
 
+					System.err.println("Graph has weights: " + view.getGraph().hasEdgeWeights());
+
 					var tree = new PhyloTree();
 					try (NodeArray<Node> tree2GraphNodeMap = tree.newNodeArray(); EdgeArray<Edge> tree2GraphEdgeMap = tree.newEdgeArray()) {
 						try (NodeArray<Node> graph2TreeNode = graph.newNodeArray(); EdgeArray<Edge> graph2TreeEdge = graph.newEdgeArray()) {
@@ -144,9 +146,17 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
 							LSAUtils.setLSAChildrenAndTransfersMap(tree);
 							try (NodeArray<Point2D> points = tree.newNodeArray()) {
-								RectangularPhylogenyLayout.apply(tree, toScale, HeightAndAngles.Averaging.ChildAverage, true, points);
+
+								System.err.println("Tree has weights: " + tree.hasEdgeWeights());
+
+								var circular = true;
+
+								if (circular)
+									CircularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
+								else
+									RectangularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
 								ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
-								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, points);
+								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, points, circular);
 								for (var v : tree.nodes()) {
 									if (tree2GraphNodeMap.containsKey(v)) {
 										var w = tree2GraphNodeMap.get(v);

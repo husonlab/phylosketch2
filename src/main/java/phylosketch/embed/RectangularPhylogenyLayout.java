@@ -37,7 +37,7 @@ import static phylosketch.embed.optimize.OptimizeLayout.computeScore;
 
 /**
  * computes the rectangular layout for a rooted tree or network
- * Daniel Huson, 12.2021
+ * Daniel Huson, 12.2021, 3.2025
  */
 public class RectangularPhylogenyLayout {
 	/**
@@ -65,7 +65,7 @@ public class RectangularPhylogenyLayout {
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points) : Integer.MAX_VALUE);
+		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points, false) : Integer.MAX_VALUE);
 
 		points.clear();
 
@@ -111,11 +111,11 @@ public class RectangularPhylogenyLayout {
 			}
 			if (optimizeCrossings) {
 				if (originalScore == Integer.MAX_VALUE) {
-					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points, false);
 				}
 				if (originalScore > 0) {
-					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random));
-					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random, false));
+					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points, false);
 					System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
 				}
 				apply(tree, toScale, averaging, false, null, points);
