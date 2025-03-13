@@ -389,7 +389,10 @@ public class MainWindowController {
 	private MenuItem layoutLabelMenuItem;
 
 	@FXML
-	private MenuItem layoutPhylogenyMenuItem;
+	private MenuItem rectangularLayoutMenuItem;
+
+	@FXML
+	private MenuItem circularLayoutMenuItem;
 
 	@FXML
 	private MenuItem rotateLeftMenuItem;
@@ -966,8 +969,12 @@ public class MainWindowController {
 		return layoutLabelMenuItem;
 	}
 
-	public MenuItem getLayoutPhylogenyMenuItem() {
-		return layoutPhylogenyMenuItem;
+	public MenuItem getRectangularLayoutMenuItem() {
+		return rectangularLayoutMenuItem;
+	}
+
+	public MenuItem getCircularLayoutMenuItem() {
+		return circularLayoutMenuItem;
 	}
 
 	public MenuItem getRotateLeftMenuItem() {

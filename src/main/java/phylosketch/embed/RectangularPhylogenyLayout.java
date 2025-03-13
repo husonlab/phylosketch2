@@ -65,7 +65,7 @@ public class RectangularPhylogenyLayout {
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points, false) : Integer.MAX_VALUE);
+		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points) : Integer.MAX_VALUE);
 
 		points.clear();
 
@@ -111,12 +111,13 @@ public class RectangularPhylogenyLayout {
 			}
 			if (optimizeCrossings) {
 				if (originalScore == Integer.MAX_VALUE) {
-					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points, false);
+					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points);
 				}
 				if (originalScore > 0) {
-					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random, false));
-					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points, false);
-					System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
+					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random));
+					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+					if (false)
+						System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
 				}
 				apply(tree, toScale, averaging, false, null, points);
 			}

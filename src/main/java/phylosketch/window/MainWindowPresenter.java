@@ -497,8 +497,11 @@ public class MainWindowPresenter {
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLayoutPhylogenyMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view)));
+		controller.getRectangularLayoutMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false)));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getCircularLayoutMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, true)));
+		controller.getCircularLayoutMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
 			allowResize.set(false);

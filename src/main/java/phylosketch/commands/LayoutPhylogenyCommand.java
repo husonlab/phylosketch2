@@ -57,13 +57,13 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view    the view
 	 */
-	public LayoutPhylogenyCommand(DrawView view) {
+	public LayoutPhylogenyCommand(DrawView view, boolean circular) {
 		super("layout");
 		var command = new CompositeCommand("layout");
 		var nodes = view.getSelectedOrAllNodes();
 		for (var component : ConnectedComponents.components(view.getGraph())) {
 			if (CollectionUtils.intersects(component, nodes)) {
-				command.add(new LayoutPhylogenyCommand(view, component));
+				command.add(new LayoutPhylogenyCommand(view, component, circular));
 				command.add(new LayoutLabelsCommand(view, null, component));
 			}
 		}
@@ -82,7 +82,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 * @param view      the view
 	 * @param component the nodes of the component
 	 */
-	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component) {
+	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, boolean circular) {
 		super("layout");
 
 		if (isRootedComponent(component)) {
@@ -119,7 +119,17 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 					var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
 					var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
 
-					System.err.println("Graph has weights: " + view.getGraph().hasEdgeWeights());
+					if (circular) {
+						var dx = xMax - xMin;
+						var dy = yMax - yMin;
+						var d = Math.min(dx, dy);
+						var xGap = xMax - xMin - d;
+						var yGap = yMax - yMin - d;
+						xMin += 0.5 * xGap;
+						xMax -= 0.5 * xGap;
+						yMin += 0.5 * yGap;
+						yMax -= 0.5 * yGap;
+					}
 
 					var tree = new PhyloTree();
 					try (NodeArray<Node> tree2GraphNodeMap = tree.newNodeArray(); EdgeArray<Edge> tree2GraphEdgeMap = tree.newEdgeArray()) {
@@ -146,10 +156,6 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
 							LSAUtils.setLSAChildrenAndTransfersMap(tree);
 							try (NodeArray<Point2D> points = tree.newNodeArray()) {
-
-								System.err.println("Tree has weights: " + tree.hasEdgeWeights());
-
-								var circular = true;
 
 								if (circular)
 									CircularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
