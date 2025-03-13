@@ -24,6 +24,7 @@ import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.CollectionUtils;
@@ -123,8 +124,13 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 				var referenceLocation = (points.isEmpty() ? rootPosition.location() :
 						new Point2D(points.stream().mapToDouble(Point2D::getX).average().orElse(0.0), points.stream().mapToDouble(Point2D::getY).average().orElse(0.0)));
 				var direction = DrawView.getPoint(v).subtract(referenceLocation);
+				var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
 				var offset = direction.multiply(20 / Math.max(1, direction.magnitude()));
-				offset.subtract(0.5 * label.getWidth(), 0.5 * label.getHeight());
+				if (angle < 90 || angle > 270)
+					offset = offset.subtract(0, 0.5 * label.getHeight());
+				else
+					offset = offset.subtract(label.getWidth(), 0.5 * label.getHeight());
+
 				yield offset;
 			}
 		};

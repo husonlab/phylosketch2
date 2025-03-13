@@ -41,7 +41,6 @@ public class CircularPhylogenyLayout {
 	 * compute layout for a circular cladogram
 	 */
 	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimize, Map<Node, Point2D> points) {
-
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
@@ -63,6 +62,10 @@ public class CircularPhylogenyLayout {
 							nodeRadiusMap.put(v, IteratorUtils.asStream(tree.lsaChildren(v)).mapToDouble(nodeRadiusMap::get).min().orElse(maxDepth) - 1);
 						}
 					});
+				}
+				var excess = nodeRadiusMap.get(tree.getRoot());
+				if (excess > 0) {
+					nodeRadiusMap.entrySet().forEach(entry -> entry.setValue(entry.getValue() - excess));
 				}
 			} else {
 				var percentOffset = 50.0;
