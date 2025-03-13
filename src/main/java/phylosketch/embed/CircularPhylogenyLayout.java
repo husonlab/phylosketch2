@@ -26,8 +26,8 @@ import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
 import jloda.util.Single;
+import phylosketch.embed.optimize.OptimizeLayout;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -36,30 +36,17 @@ import java.util.Random;
  * Daniel Huson, 12.2021, 3.2025
  */
 public class CircularPhylogenyLayout {
-	/**
-	 * compute circular tree or network layout
-	 *
-	 * @param tree              the phylogeny
-	 * @param toScale           draw edges to scale
-	 * @param averaging         parent averaging method
-	 * @param optimizeCrossings optimize crossings?
-	 * @param points            the node layout points
-	 */
-	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimizeCrossings, Map<Node, Point2D> points) {
-		apply(tree, toScale, averaging, optimizeCrossings, new Random(666), null, points);
-	}
 
 	/**
 	 * compute layout for a circular cladogram
 	 */
-	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimizeCrossings, Random random, Map<Node, Double> nodeAngleMap0, Map<Node, Point2D> points) {
-		var nodeAngleMap = (nodeAngleMap0 != null ? nodeAngleMap0 : new HashMap<Node, Double>());
+	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimize, Map<Node, Point2D> points) {
 
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		if (optimizeCrossings) {
-			RectangularPhylogenyLayout.apply(tree, toScale, averaging, true, points);
+		if (optimize) {
+			RectangularPhylogenyLayout.apply(tree, toScale, averaging, OptimizeLayout.How.Circular, new Random(666), points);
 		}
 
 		points.clear();
@@ -102,9 +89,10 @@ public class CircularPhylogenyLayout {
 				});
 			}
 
-			// compute angle
-			HeightAndAngles.computeAngles(tree, nodeAngleMap, averaging, true);
-			tree.nodeStream().forEach(v -> points.put(v, GeometryUtilsFX.computeCartesian(nodeRadiusMap.get(v), nodeAngleMap.get(v))));
+			try (var nodeAngleMap = tree.newNodeDoubleArray()) {
+				HeightAndAngles.computeAngles(tree, nodeAngleMap, averaging, true);
+				tree.nodeStream().forEach(v -> points.put(v, GeometryUtilsFX.computeCartesian(nodeRadiusMap.get(v), nodeAngleMap.get(v))));
+			}
 		}
 	}
 

@@ -45,11 +45,10 @@ public class RectangularPhylogenyLayout {
 	 * @param tree the phylogeny
 	 * @param toScale draw edges to scale
 	 * @param averaging parent averaging method
-	 * @param optimizeCrossings optimize crossings?
 	 * @param points the node layout points
 	 */
-	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimizeCrossings, Map<Node, Point2D> points) {
-		apply(tree, toScale, averaging, optimizeCrossings, new Random(666), points);
+	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimize, Map<Node, Point2D> points) {
+		apply(tree, toScale, averaging, optimize ? OptimizeLayout.How.Rectangular : OptimizeLayout.How.None, new Random(666), points);
 	}
 
 	/**
@@ -57,21 +56,20 @@ public class RectangularPhylogenyLayout {
 	 * @param tree the phylogeny
 	 * @param toScale draw edges to scale
 	 * @param averaging parent averaging method
-	 * @param optimizeCrossings optimize crossings?
 	 * @param random random number generator for crossing optimization heuristic
 	 * @param points the node layout points
 	 */
-	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, boolean optimizeCrossings, Random random, Map<Node, Point2D> points) {
+	public static void apply(PhyloTree tree, boolean toScale, HeightAndAngles.Averaging averaging, OptimizeLayout.How how, Random random, Map<Node, Point2D> points) {
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points) : Integer.MAX_VALUE);
+		var originalScore = (how != OptimizeLayout.How.None ? computeScore(tree, tree.getLSAChildrenMap(), points, how) : Integer.MAX_VALUE);
 
 		points.clear();
 
 		points.put(tree.getRoot(), new Point2D(0, 0));
 		try (var yCoord = tree.newNodeDoubleArray()) {
-			HeightAndAngles.apply(tree, yCoord, averaging, !optimizeCrossings);
+			HeightAndAngles.apply(tree, yCoord, averaging, how == OptimizeLayout.How.None);
 			if (toScale) {
 				setCoordinatesPhylogram(tree, yCoord, points);
 			} else {
@@ -109,17 +107,17 @@ public class RectangularPhylogenyLayout {
 					}
 				}
 			}
-			if (optimizeCrossings) {
+			if (how != OptimizeLayout.How.None) {
 				if (originalScore == Integer.MAX_VALUE) {
-					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points, how);
 				}
 				if (originalScore > 0) {
-					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random));
-					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points);
+					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random, how));
+					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points, how);
 					if (false)
 						System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
 				}
-				apply(tree, toScale, averaging, false, null, points);
+				apply(tree, toScale, averaging, false, points);
 			}
 		}
 	}

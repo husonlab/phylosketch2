@@ -24,7 +24,6 @@ import javafx.geometry.Point2D;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
-import jloda.util.CollectionUtils;
 import jloda.util.Single;
 
 import java.util.*;
@@ -46,16 +45,23 @@ public class OptimizeLayout {
 	 * @param points      the node layout points
 	 * @return true, if optimization algorithm applied
 	 */
-	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random) {
+	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random, How how) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
 		var originalScore = Integer.MAX_VALUE;
 		var bestOrdering = new Single<>(new ArrayList<>(originalOrdering));
 		var bestScore = new Single<>(originalScore);
 
+		double span;
+		{
+			var yMin = points.values().stream().mapToDouble(Point2D::getY).min().orElse(0.0);
+			var yMax = points.values().stream().mapToDouble(Point2D::getY).max().orElse(0.0);
+			span = yMax - yMin + 1;
+		}
+
 		var permutations = (originalOrdering.size() <= 8 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 100000, random));
 		for (var permuted : permutations) {
-			var score = computeScore(v, permuted, crossEdges, lsaChildren, points);
+			var score = computeScore(v, span, permuted, crossEdges, lsaChildren, points, how);
 			if (score < bestScore.get()) {
 				bestScore.set(score);
 				bestOrdering.set(new ArrayList<>(permuted));
@@ -69,23 +75,6 @@ public class OptimizeLayout {
 	}
 
 	/**
-	 * reverse the children of a given node v. This is for illustration purposes
-	 *
-	 * @param v           the node
-	 * @param lsaChildren the node to LSA children map
-	 * @param points      the node layout points
-	 */
-	public static void reverseOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
-		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
-		var reverseOrdering = CollectionUtils.reverse(originalOrdering);
-		var reverseScore = computeScore(v, reverseOrdering, crossEdges, lsaChildren, points);
-		System.err.println("Reverse: " + originalScore + " -> " + reverseScore);
-		lsaChildren.put(v, reverseOrdering);
-	}
-
-	/**
 	 * compute the total layout score
 	 *
 	 * @param tree        the phylogeny
@@ -93,13 +82,20 @@ public class OptimizeLayout {
 	 * @param points      the node to point map
 	 * @return the score
 	 */
-	public static int computeScore(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	public static int computeScore(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, How how) {
 		try {
+			double span;
+			{
+				var yMin = points.values().stream().mapToDouble(Point2D::getY).min().orElse(0.0);
+				var yMax = points.values().stream().mapToDouble(Point2D::getY).max().orElse(0.0);
+				span = yMax - yMin + 1;
+			}
+
 			var score = new LongAdder();
 			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> {
 				var ordering = lsaChildren.get(v);
 				var crossEdges = computeCrossEdges(v, ordering, lsaChildren);
-				score.add(computeScore(v, ordering, crossEdges, lsaChildren, points));
+				score.add(computeScore(v, span, ordering, crossEdges, lsaChildren, points, how));
 			});
 			return (int) score.sum();
 		} catch (Exception e) {
@@ -117,14 +113,13 @@ public class OptimizeLayout {
 	 * @param points      the current points (proposed new order has not been applied)
 	 * @return the total y extent of all
 	 */
-	private static int computeScore(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	private static int computeScore(Node v, double span, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, How how) {
 		var delta = computeDelta(newOrdering, lsaChildren, points);
 		var nodeIndexMap = computeNodeIndexMap(newOrdering, lsaChildren);
 
 		var n = delta.length;
 		var fromAbove = new int[n];
 		var fromBelow = new int[n];
-
 
 		var score = 0;
 		for (var edges : crossEdges) {
@@ -143,7 +138,12 @@ public class OptimizeLayout {
 				if (pIndex != qIndex) {
 					var yp = points.get(p).getY() + delta[pIndex];
 					var yq = (qIndex != -1 ? points.get(q).getY() + delta[qIndex] : points.get(q).getY());
-					score += (int) (1000 * Math.abs(yp - yq));
+					var d = Math.abs(yp - yq);
+					if (how == How.Circular) {
+						if (d > 0.5 * span)
+							d = (span - d);
+					}
+					score += (int) (1000 * d);
 
 					if (qIndex != -1) {
 						if (yp < yq)
@@ -274,4 +274,6 @@ public class OptimizeLayout {
 
 		lsaChildren.put(v, newOrdering);
 	}
+
+	public enum How {Rectangular, Circular, None}
 }

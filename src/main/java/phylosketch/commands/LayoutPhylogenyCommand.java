@@ -39,6 +39,7 @@ import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.io.ReorderChildren;
 import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.GraphRelaxation;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
 
@@ -157,10 +158,14 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							LSAUtils.setLSAChildrenAndTransfersMap(tree);
 							try (NodeArray<Point2D> points = tree.newNodeArray()) {
 
-								if (circular)
+								if (circular) {
 									CircularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
-								else
+									if (false && !tree.hasEdgeWeights()) {
+										GraphRelaxation.apply(tree.getNodesAsList(), points, 10);
+									}
+								} else {
 									RectangularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
+								}
 								ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, points, circular);
 								for (var v : tree.nodes()) {
