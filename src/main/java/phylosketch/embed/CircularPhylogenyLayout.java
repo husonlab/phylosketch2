@@ -21,19 +21,15 @@ package phylosketch.embed;
 
 import javafx.geometry.Point2D;
 import jloda.fx.util.GeometryUtilsFX;
-import jloda.graph.DAGTraversals;
 import jloda.graph.Node;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
 import jloda.util.Single;
-import phylosketch.embed.optimize.OptimizeLayout;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import static phylosketch.embed.optimize.OptimizeLayout.computeScore;
 
 /**
  * compute a circular layout
@@ -62,7 +58,9 @@ public class CircularPhylogenyLayout {
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var originalScore = (optimizeCrossings ? computeScore(tree, tree.getLSAChildrenMap(), points, true) : Integer.MAX_VALUE);
+		if (optimizeCrossings) {
+			RectangularPhylogenyLayout.apply(tree, toScale, averaging, true, points);
+		}
 
 		points.clear();
 
@@ -105,21 +103,8 @@ public class CircularPhylogenyLayout {
 			}
 
 			// compute angle
-			HeightAndAngles.computeAngles(tree, nodeAngleMap, averaging, !optimizeCrossings);
-
+			HeightAndAngles.computeAngles(tree, nodeAngleMap, averaging, true);
 			tree.nodeStream().forEach(v -> points.put(v, GeometryUtilsFX.computeCartesian(nodeRadiusMap.get(v), nodeAngleMap.get(v))));
-
-			if (optimizeCrossings) {
-				if (originalScore == Integer.MAX_VALUE) {
-					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points, true);
-				}
-				if (originalScore > 0) {
-					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random, false));
-					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points, true);
-					System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
-				}
-				apply(tree, toScale, averaging, false, points);
-			}
 		}
 	}
 

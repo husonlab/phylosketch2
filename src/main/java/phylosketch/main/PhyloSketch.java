@@ -47,7 +47,7 @@ import java.time.Duration;
  * Daniel Huson, 9.2024
  */
 public class PhyloSketch extends Application {
-    public static final boolean test = false;
+	public static boolean test = false;
 
     private static String[] inputFilesAtStartup;
 
@@ -61,7 +61,6 @@ public class PhyloSketch extends Application {
 
     /**
      * main
-     *
      */
     public static void main(String[] args)  {
         Basic.restoreSystemOut(System.err); // send system out to system err
@@ -110,6 +109,7 @@ public class PhyloSketch extends Application {
         final var silentMode = options.getOption("-S", "silentMode", "Silent mode", false);
         ProgramExecutorService.setNumberOfCoresToUse(options.getOption("-t", "threads", "Maximum number of threads to use in a parallel algorithm (0=all available)", 0));
         ProgramProperties.setConfirmQuit(options.getOption("-q", "confirmQuit", "Confirm quit on exit", ProgramProperties.isConfirmQuit()));
+		test = options.getOption("!x", "x", "test", false);
         ProgramProperties.put("MaxNumberRecentFiles", 100);
         options.done();
 

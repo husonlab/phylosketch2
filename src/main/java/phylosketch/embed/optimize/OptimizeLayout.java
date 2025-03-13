@@ -21,7 +21,6 @@
 package phylosketch.embed.optimize;
 
 import javafx.geometry.Point2D;
-import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.phylo.PhyloTree;
@@ -45,10 +44,9 @@ public class OptimizeLayout {
 	 * @param v           the node
 	 * @param lsaChildren the node to LSA children map
 	 * @param points      the node layout points
-	 * @param circular optimize for circular layout
 	 * @return true, if optimization algorithm applied
 	 */
-	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random, boolean circular) {
+	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
 		var originalScore = Integer.MAX_VALUE;
@@ -57,7 +55,7 @@ public class OptimizeLayout {
 
 		var permutations = (originalOrdering.size() <= 8 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 100000, random));
 		for (var permuted : permutations) {
-			var score = computeScore(v, permuted, crossEdges, lsaChildren, points, circular);
+			var score = computeScore(v, permuted, crossEdges, lsaChildren, points);
 			if (score < bestScore.get()) {
 				bestScore.set(score);
 				bestOrdering.set(new ArrayList<>(permuted));
@@ -80,9 +78,9 @@ public class OptimizeLayout {
 	public static void reverseOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
-		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points, false);
+		var originalScore = computeScore(v, originalOrdering, crossEdges, lsaChildren, points);
 		var reverseOrdering = CollectionUtils.reverse(originalOrdering);
-		var reverseScore = computeScore(v, reverseOrdering, crossEdges, lsaChildren, points, false);
+		var reverseScore = computeScore(v, reverseOrdering, crossEdges, lsaChildren, points);
 		System.err.println("Reverse: " + originalScore + " -> " + reverseScore);
 		lsaChildren.put(v, reverseOrdering);
 	}
@@ -93,16 +91,15 @@ public class OptimizeLayout {
 	 * @param tree        the phylogeny
 	 * @param lsaChildren children mapping
 	 * @param points      the node to point map
-	 * @param circular
 	 * @return the score
 	 */
-	public static int computeScore(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, boolean circular) {
+	public static int computeScore(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		try {
 			var score = new LongAdder();
 			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> {
 				var ordering = lsaChildren.get(v);
 				var crossEdges = computeCrossEdges(v, ordering, lsaChildren);
-				score.add(computeScore(v, ordering, crossEdges, lsaChildren, points, circular));
+				score.add(computeScore(v, ordering, crossEdges, lsaChildren, points));
 			});
 			return (int) score.sum();
 		} catch (Exception e) {
@@ -118,27 +115,9 @@ public class OptimizeLayout {
 	 * @param crossEdges  the reticulate cross edges
 	 * @param lsaChildren the LSA map
 	 * @param points      the current points (proposed new order has not been applied)
-	 * @param circular compute for circular layout, otherwise for rectangular layout
 	 * @return the total y extent of all
 	 */
-	private static int computeScore(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, boolean circular) {
-		if (circular)
-			return computeScoreCircular(v, newOrdering, crossEdges, lsaChildren, points);
-		else
-			return computeScoreRectangular(v, newOrdering, crossEdges, lsaChildren, points);
-	}
-
-	/**
-	 * computes the score for a proposed new ordering of children of a node v
-	 *
-	 * @param v           the node
-	 * @param newOrdering the proposed new ordering
-	 * @param crossEdges  the reticulate cross edges
-	 * @param lsaChildren the LSA map
-	 * @param points      the current points (proposed new order has not been applied)
-	 * @return the total y extent of all
-	 */
-	private static int computeScoreRectangular(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
+	private static int computeScore(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
 		var delta = computeDelta(newOrdering, lsaChildren, points);
 		var nodeIndexMap = computeNodeIndexMap(newOrdering, lsaChildren);
 
@@ -183,7 +162,6 @@ public class OptimizeLayout {
 		}
 		return score;
 	}
-
 
 	/**
 	 * computes the delta to apply to the y-coordinates when reordering subtrees
@@ -233,112 +211,6 @@ public class OptimizeLayout {
 		}
 		return delta;
 	}
-
-	/**
-	 * computes the score for a proposed new ordering of children of a node v
-	 *
-	 * @param v           the node
-	 * @param newOrdering the proposed new ordering
-	 * @param crossEdges  the reticulate cross edges
-	 * @param lsaChildren the LSA map
-	 * @param points      the current points (proposed new order has not been applied)
-	 * @return the total y extent of all
-	 */
-	private static int computeScoreCircular(Node v, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var delta = computeDelta(newOrdering, lsaChildren, points);
-		var nodeIndexMap = computeNodeIndexMap(newOrdering, lsaChildren);
-
-		var n = delta.length;
-		var fromAbove = new int[n];
-		var fromBelow = new int[n];
-
-		var rootPoint = points.get(((PhyloTree) v.getOwner()).getRoot());
-
-		var score = 0;
-		for (var edges : crossEdges) {
-			for (var e : edges) {
-				Node p;
-				Node q;
-				if (nodeIndexMap.containsKey(e.getSource())) {
-					p = e.getSource();
-					q = e.getTarget();
-				} else {
-					p = e.getTarget();
-					q = e.getSource();
-				}
-				int pIndex = nodeIndexMap.get(p);
-				int qIndex = nodeIndexMap.getOrDefault(q, -1); // -1 indicates an edge to outside
-				if (pIndex != qIndex) {
-					var vp = GeometryUtilsFX.computeAngle(points.get(p).subtract(rootPoint));
-					var vq = GeometryUtilsFX.computeAngle(points.get(q).subtract(rootPoint));
-					var diff = Math.abs(vp - vq);
-					if (diff > 180) {
-						diff = 360 - diff;
-					}
-					score += (int) Math.round(1000 * diff);
-					// todo: add small score to avoid same side attachment
-				}
-			}
-		}
-
-		// each one-sided component adds slightly to the score
-		for (var i = 0; i < n; i++) {
-			if ((fromBelow[i] == 0) != (fromAbove[i] == 0)) {
-				score += 1;
-			}
-		}
-		return score;
-	}
-
-	/**
-	 * computes the rotation angle to apply to the y-coordinates when reordering subtrees in circular optimization
-	 *
-	 * @param newOrdering the new order
-	 * @param lsaChildren the lsa children
-	 * @param points      the  points
-	 * @return the alpha array
-	 */
-	public static double[] computeAlpha(List<Node> newOrdering, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points) {
-		var n = newOrdering.size();
-
-		var low = new double[n];
-		var high = new double[n];
-
-		Arrays.fill(low, Double.MAX_VALUE);
-		Arrays.fill(high, Double.MIN_VALUE);
-
-		for (int i = 0; i < newOrdering.size(); i++) {
-			var index = i;
-			var w = newOrdering.get(i);
-			postOrderTraversal(w, lsaChildren::get, u -> {
-				var y = points.get(u).getY();
-				low[index] = Math.min(low[index], y);
-				high[index] = Math.max(high[index], y);
-			});
-		}
-		var min = Double.MAX_VALUE;
-		var max = Double.MIN_VALUE;
-		var extent = 0.0;
-		for (var i = 0; i < n; i++) {
-			extent += (high[i] - low[i]);
-			min = Math.min(min, low[i]);
-			max = Math.max(max, high[i]);
-		}
-		var gap = (max - min - extent) / (n - 1);
-
-		var delta = new double[n];
-		var pos = new double[n];
-		for (int i = 0; i < newOrdering.size(); i++) {
-			if (i == 0) {
-				pos[i] = min;
-			} else {
-				pos[i] = pos[i - 1] + (high[i - 1] - low[i - 1]) + gap;
-			}
-			delta[i] = pos[i] - low[i];
-		}
-		return delta;
-	}
-
 
 	/**
 	 * computes mapping of all nodes below nodes in the ordering to the index of their ancestor in the ordering

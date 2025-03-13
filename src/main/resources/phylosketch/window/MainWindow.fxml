@@ -493,8 +493,11 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="layoutPhylogenyMenuItem" mnemonicParsing="false"
-                                          text="Layout Phylogeny"/>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="rectangularLayoutMenuItem" mnemonicParsing="false"
+                                          text="Rectangular Layout"/>
+                                <MenuItem fx:id="circularLayoutMenuItem" mnemonicParsing="false"
+                                          text="Circular Layout"/>
                             </Menu>
 
                             <Menu mnemonicParsing="false" text="View">
