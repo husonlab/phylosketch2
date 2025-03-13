@@ -38,4 +38,5 @@ module phylosketch {
 	exports phylosketch.embed;
 	exports phylosketch.utils;
 	opens phylosketch.utils;
+	exports xtra.test;
 }

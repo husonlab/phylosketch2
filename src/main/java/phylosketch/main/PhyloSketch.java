@@ -47,6 +47,8 @@ import java.time.Duration;
  * Daniel Huson, 9.2024
  */
 public class PhyloSketch extends Application {
+    public static final boolean test = false;
+
     private static String[] inputFilesAtStartup;
 
     private static boolean desktop = true;

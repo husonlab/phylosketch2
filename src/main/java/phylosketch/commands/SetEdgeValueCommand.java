@@ -36,6 +36,8 @@ import java.util.Map;
  * Daniel Huson, 9.2024
  */
 public class SetEdgeValueCommand extends UndoableRedoableCommand {
+	public static final double UNSET = Double.MIN_VALUE;
+
 	final private Runnable undo;
 	final private Runnable redo;
 
@@ -77,18 +79,21 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 			switch (what) {
 				case Weight -> {
 					var useValue = (value == -1 ? (int) Math.round(computeGraphicalEdgeLength(nodeRootOrientationMap.get(e.getSource()), e)) : value);
-					edgeOldMap.put(e.getId(), graph.getWeight(e));
+					var oldValue = (graph.hasEdgeWeights() ? graph.getEdgeWeights().getOrDefault(e, UNSET) : UNSET);
+					edgeOldMap.put(e.getId(), oldValue);
 					edgeNewMap.put(e.getId(), useValue);
 				}
 				case Confidence -> {
 					if (e.getTarget().getOutDegree() > 0) {
-						edgeOldMap.put(e.getId(), graph.getConfidence(e));
+						var oldValue = (graph.hasEdgeConfidences() ? graph.getEdgeConfidences().getOrDefault(e, UNSET) : UNSET);
+						edgeOldMap.put(e.getId(), oldValue);
 						edgeNewMap.put(e.getId(), value);
 					}
 				}
 				case Probability -> {
 					if (e.getTarget().getInDegree() > 1) {
-						edgeOldMap.put(e.getId(), graph.getProbability(e));
+						var oldValue = (graph.hasEdgeProbabilities() ? graph.getEdgeProbabilities().getOrDefault(e, UNSET) : UNSET);
+						edgeOldMap.put(e.getId(), oldValue);
 						edgeNewMap.put(e.getId(), value);
 						if ((value > 0 && value < 1) && e.getTarget().getInDegree() == 2) {
 							var f = (e.getTarget().getFirstInEdge() == e ? e.getTarget().getLastInEdge() : e.getTarget().getFirstInEdge());
@@ -109,9 +114,24 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 				for (var entry : edgeOldMap.entrySet()) {
 					var e = graph.findEdgeById(entry.getKey());
 					switch (what) {
-						case Weight -> graph.setWeight(e, entry.getValue());
-						case Confidence -> graph.setConfidence(e, entry.getValue());
-						case Probability -> graph.setProbability(e, entry.getValue());
+						case Weight -> {
+							if (entry.getValue() != UNSET)
+								graph.setWeight(e, entry.getValue());
+							else if (graph.hasEdgeWeights())
+								graph.getEdgeWeights().remove(e);
+						}
+						case Confidence -> {
+							if (entry.getValue() != UNSET)
+								graph.setConfidence(e, entry.getValue());
+							else if (graph.hasEdgeConfidences())
+								graph.getEdgeConfidences().remove(e);
+						}
+						case Probability -> {
+							if (entry.getValue() != UNSET)
+								graph.setProbability(e, entry.getValue());
+							else if (graph.hasEdgeProbabilities())
+								graph.getEdgeProbabilities().remove(e);
+						}
 					}
 				}
 			};
@@ -120,9 +140,24 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 				for (var entry : edgeNewMap.entrySet()) {
 					var e = graph.findEdgeById(entry.getKey());
 					switch (what) {
-						case Weight -> graph.setWeight(e, entry.getValue());
-						case Confidence -> graph.setConfidence(e, entry.getValue());
-						case Probability -> graph.setProbability(e, entry.getValue());
+						case Weight -> {
+							if (entry.getValue() != UNSET)
+								graph.setWeight(e, entry.getValue());
+							else if (graph.hasEdgeWeights())
+								graph.getEdgeWeights().remove(e);
+						}
+						case Confidence -> {
+							if (entry.getValue() != UNSET)
+								graph.setConfidence(e, entry.getValue());
+							else if (graph.hasEdgeConfidences())
+								graph.getEdgeConfidences().remove(e);
+						}
+						case Probability -> {
+							if (entry.getValue() != UNSET)
+								graph.setProbability(e, entry.getValue());
+							else if (graph.hasEdgeProbabilities())
+								graph.getEdgeProbabilities().remove(e);
+						}
 					}
 				}
 			};

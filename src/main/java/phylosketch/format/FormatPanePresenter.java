@@ -412,10 +412,11 @@ public class FormatPanePresenter {
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
 			if (canUpdate) {
-				if (NumberUtils.isDouble(controller.getEdgeWeightTextField().getText())) {
-					if (!controller.getShowWeightToggleButton().isSelected())
+				var text = controller.getEdgeWeightTextField().getText();
+				if (text.isBlank() || NumberUtils.isDouble(text)) {
+					if (NumberUtils.isDouble(text) && !controller.getShowWeightToggleButton().isSelected())
 						controller.getShowWeightToggleButton().fire();
-					var value = NumberUtils.parseDouble(controller.getEdgeWeightTextField().getText());
+					var value = (text.isBlank() ? SetEdgeValueCommand.UNSET : NumberUtils.parseDouble(text));
 					view.getUndoManager().doAndAdd(new CompositeCommand("weights", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Weight, value),
 							new ShowEdgeValueCommand(view, true, null, null)));
 				}
@@ -427,10 +428,11 @@ public class FormatPanePresenter {
 
 		controller.getEdgeSupportTextField().setOnAction(a -> {
 			if (canUpdate) {
-				if (NumberUtils.isDouble(controller.getEdgeSupportTextField().getText())) {
-					if (!controller.getShowSupportToggleButton().isSelected())
+				var text = controller.getEdgeSupportTextField().getText();
+				if (text.isBlank() || NumberUtils.isDouble(text)) {
+					if (NumberUtils.isDouble(text) && !controller.getShowSupportToggleButton().isSelected())
 						controller.getShowSupportToggleButton().fire();
-					var value = NumberUtils.parseDouble(controller.getEdgeSupportTextField().getText());
+					var value = (text.isBlank() ? SetEdgeValueCommand.UNSET : NumberUtils.parseDouble(text));
 					view.getUndoManager().doAndAdd(new CompositeCommand("set support", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Confidence, value),
 							new ShowEdgeValueCommand(view, null, true, null)));
 				}
@@ -441,10 +443,11 @@ public class FormatPanePresenter {
 
 		controller.getEdgeProbabilityTextField().setOnAction(a -> {
 			if (canUpdate) {
-				if (NumberUtils.isDouble(controller.getEdgeProbabilityTextField().getText())) {
-					if (!controller.getShowProbabilityToggleButton().isSelected())
+				var text = controller.getEdgeProbabilityTextField().getText();
+				if (text.isBlank() || NumberUtils.isDouble(text)) {
+					if (NumberUtils.isDouble(text) && !controller.getShowProbabilityToggleButton().isSelected())
 						controller.getShowProbabilityToggleButton().fire();
-					var value = NumberUtils.parseDouble(controller.getEdgeProbabilityTextField().getText());
+					var value = (text.isBlank() ? SetEdgeValueCommand.UNSET : NumberUtils.parseDouble(text));
 					view.getUndoManager().doAndAdd(new CompositeCommand("set probabilities", new SetEdgeValueCommand(view, SetEdgeValueCommand.What.Probability, value),
 							new ShowEdgeValueCommand(view, null, null, true)));
 				}
