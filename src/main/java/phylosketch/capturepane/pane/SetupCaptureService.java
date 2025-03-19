@@ -27,10 +27,10 @@ import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
-import net.sourceforge.tess4j.Word;
 import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.capturepane.capture.Point;
 import phylosketch.capturepane.capture.Segment;
+import phylosketch.capturepane.capture.Word;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
 import phylosketch.window.MainWindowController;
@@ -134,14 +134,14 @@ public class SetupCaptureService {
 		var imageView = capturePane.getImageView();
 		var list = new ArrayList<Word>();
 		for (var word : words) {
-			var bbox = word.getBoundingBox();
+			var bbox = word.boundingBox();
 			var aPt = imageToPaneCoordinates(imageView, bbox.getMinX(), bbox.getMinY());
 			var bPt = imageToPaneCoordinates(imageView, bbox.getMaxX(), bbox.getMaxY());
 			var x = (int) Math.min(aPt.getX(), bPt.getX());
 			var width = (int) Math.abs(aPt.getX() - bPt.getX());
 			var y = (int) Math.min(aPt.getY(), bPt.getY());
 			var height = (int) Math.abs(aPt.getY() - bPt.getY());
-			list.add(new Word(word.getText(), word.getConfidence(), new java.awt.Rectangle(x, y, width, height)));
+			list.add(new Word(word.text(), word.confidence(), new java.awt.Rectangle(x, y, width, height)));
 		}
 		return list;
 	}

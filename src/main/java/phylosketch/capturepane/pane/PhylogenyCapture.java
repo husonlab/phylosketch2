@@ -30,8 +30,8 @@ import jloda.graph.Node;
 import jloda.util.CollectionUtils;
 import jloda.util.IteratorUtils;
 import jloda.util.Pair;
-import net.sourceforge.tess4j.Word;
 import phylosketch.capturepane.capture.Segment;
+import phylosketch.capturepane.capture.Word;
 import phylosketch.commands.*;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
@@ -199,7 +199,7 @@ public class PhylogenyCapture {
 			for (var leaf : leaves) {
 				var leafPos = leaf.getFirst();
 				for (var word : words) {
-					var bbox = word.getBoundingBox();
+					var bbox = word.boundingBox();
 
 					// make sure position is acceptable
 					switch (rootPosition.side()) {
@@ -252,20 +252,20 @@ public class PhylogenyCapture {
 			if (bestLeaf != null) {
 				leaves.remove(bestLeaf);
 				words.remove(bestWord);
-				doThenAdd(new SetNodeLabelsCommand(view, rootPosition, List.of(bestLeaf.getSecond()), bestWord.getText()), commands);
+				doThenAdd(new SetNodeLabelsCommand(view, rootPosition, List.of(bestLeaf.getSecond()), bestWord.text()), commands);
 			} else break;
 		}
 		if (rescueOrphans) {
 			if (!words.isEmpty()) {
 				for (var word : words) {
-					var bbox = word.getBoundingBox();
+					var bbox = word.boundingBox();
 					var location = switch (rootPosition.side()) {
 						case Left -> new Point2D(bbox.getMinX() - 5, bbox.getCenterY());
 						case Right -> new Point2D(bbox.getMaxX() + 5, bbox.getCenterY());
 						case Bottom -> new Point2D(bbox.getCenterX() - 2, bbox.getMinY() - 5);
 						case Top, Center -> new Point2D(bbox.getCenterX() - 2, bbox.getMaxY() + 5);
 					};
-					doThenAdd(new CreateNodeCommand(view, location, word.getText()), commands);
+					doThenAdd(new CreateNodeCommand(view, location, word.text()), commands);
 				}
 			}
 		}

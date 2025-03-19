@@ -22,12 +22,8 @@ package phylosketch.capturepane.capture;
 
 import jloda.graph.Graph;
 import jloda.graph.Node;
-import net.sourceforge.tess4j.ITessAPI;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.Word;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,17 +33,6 @@ import java.util.List;
  * Daniel Huson, 1.2025
  */
 public class CaptureWords {
-	/**
-	 * capture words using Tesseract
-	 *
-	 * @param tesseract        the tesseract object
-	 * @param awtBufferedImage the image
-	 * @return the list of captured words
-	 */
-	public static List<Word> apply(Tesseract tesseract, BufferedImage awtBufferedImage) {
-		return tesseract.getWords(awtBufferedImage, ITessAPI.TessPageIteratorLevel.RIL_WORD);
-	}
-
 	/**
 	 * filter words
 	 *
@@ -61,10 +46,10 @@ public class CaptureWords {
 		var list = new ArrayList<Word>();
 
 		for (var word : words) {
-			var awtRect = word.getBoundingBox();
-			if (word.getText().length() >= minWordLength && word.getConfidence() >= minTextHeight && awtRect.height <= maxTextHeight && word.getText().matches(".*[a-zA-Z0-9].*")) {
+			var awtRect = word.boundingBox();
+			if (word.text().length() >= minWordLength && word.confidence() >= minTextHeight && awtRect.height <= maxTextHeight && word.text().matches(".*[a-zA-Z0-9].*")) {
 				// trim leading non letter or digit characters
-				var text = word.getText();
+				var text = word.text();
 
 				if (mustContainLetter && text.chars().noneMatch(Character::isLetter)) {
 					continue;
@@ -87,9 +72,9 @@ public class CaptureWords {
 				}
 
 				if (a < b) {
-					word = new Word(text.substring(a, b).trim(), word.getConfidence(), awtRect);
+					word = new Word(text.substring(a, b).trim(), word.confidence(), awtRect);
 					System.err.println("Extracted word:" + word);
-					list.add(new Word(word.getText(), word.getConfidence(), awtRect));
+					list.add(new Word(word.text(), word.confidence(), awtRect));
 				}
 			}
 		}
@@ -112,10 +97,10 @@ public class CaptureWords {
 		}
 		for (var v : graph.nodes()) {
 			var vWord = (Word) v.getInfo();
-			var bboxI = vWord.getBoundingBox();
+			var bboxI = vWord.boundingBox();
 			for (var w : graph.nodes(v)) {
 				var wWord = (Word) w.getInfo();
-				var bboxJ = wWord.getBoundingBox();
+				var bboxJ = wWord.boundingBox();
 				var dx = bboxJ.x - (bboxI.x + bboxI.width);
 				if (intersect(bboxI.y, bboxI.y + bboxI.height, bboxJ.y, bboxJ.y + bboxJ.height) && dx >= 0 && dx <= 20) {
 					graph.newEdge(v, w, dx);
@@ -147,20 +132,20 @@ public class CaptureWords {
 							if (!buf.isEmpty()) {
 								buf.append(' ');
 							}
-							buf.append(((Word) w.getInfo()).getText());
+							buf.append(((Word) w.getInfo()).text());
 						}
 						var minX = Integer.MAX_VALUE;
 						var maxX = Integer.MIN_VALUE;
 						var minY = Integer.MAX_VALUE;
 						var maxY = Integer.MIN_VALUE;
 						for (var w : path) {
-							var bbox = ((Word) w.getInfo()).getBoundingBox();
+							var bbox = ((Word) w.getInfo()).boundingBox();
 							minX = Math.min(minX, bbox.x);
 							maxX = Math.max(maxX, bbox.x + bbox.width);
 							minY = Math.min(minY, bbox.y);
 							maxY = Math.max(maxY, bbox.y + bbox.height);
 						}
-						var confidence = (float) path.stream().mapToDouble(w -> ((Word) w.getInfo()).getConfidence()).average().orElse(0.0);
+						var confidence = (float) path.stream().mapToDouble(w -> ((Word) w.getInfo()).confidence()).average().orElse(0.0);
 						var rect = new Rectangle(minX, minY, maxX - minX, maxY - minY);
 						list.add(new Word(buf.toString(), confidence, rect));
 					}
