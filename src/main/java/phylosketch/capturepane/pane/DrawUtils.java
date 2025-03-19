@@ -31,9 +31,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.util.ClipboardUtils;
-import net.sourceforge.tess4j.Word;
 import phylosketch.capturepane.capture.Point;
 import phylosketch.capturepane.capture.Segment;
+import phylosketch.capturepane.capture.Word;
 import phylosketch.main.PhyloSketch;
 
 import java.util.ArrayList;
@@ -111,12 +111,12 @@ public class DrawUtils {
 	public static void createWordShapes(List<Word> wordList, SelectionModel<Word> selection, Supplier<Boolean> canSelect, Group group) {
 		group.getChildren().clear();
 		for (var word : wordList) {
-			var awtRect = word.getBoundingBox();
+			var awtRect = word.boundingBox();
 			var rectangle = new Rectangle(awtRect.x, awtRect.y, awtRect.width, awtRect.height);
 			rectangle.setStyle("-fx-fill: rgba(240, 255, 240, 0.3);-fx-stroke: darkgreen;-fx-stroke-width: 0.5;");
 			rectangle.setUserData(word);
 
-			var label = new Label(word.getText());
+			var label = new Label(word.text());
 			label.setFont(new Font(label.getFont().getFamily(), 14));
 			label.setStyle("-fx-text-fill: darkgreen;");
 			label.setLayoutX(awtRect.x + 1);
@@ -138,7 +138,7 @@ public class DrawUtils {
 
 			rectangle.setOnContextMenuRequested(me -> {
 				var copyItem = new MenuItem("Copy");
-				copyItem.setOnAction(e -> ClipboardUtils.putString(word.getText()));
+				copyItem.setOnAction(e -> ClipboardUtils.putString(word.text()));
 				var menu = new ContextMenu();
 				menu.getItems().add(copyItem);
 				menu.show(rectangle, me.getScreenX(), me.getScreenY());

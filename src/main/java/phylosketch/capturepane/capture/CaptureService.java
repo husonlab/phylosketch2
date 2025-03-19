@@ -27,8 +27,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import jloda.fx.util.AService;
-import jloda.util.StringUtils;
-import net.sourceforge.tess4j.Word;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -106,16 +104,8 @@ public class CaptureService extends AService<Boolean> {
 			if (getGoal() >= WORDS && theStatus < WORDS) {
 				greyScaleImage = ImageUtils.convertToGrayScale(getInputImage());
 
-				var awtBufferedImage = ImageUtils.convertToBufferedImage(greyScaleImage);
-				var tesseract = TesseractManager.createInstance();
-
-				if (false) {
-					var lines = StringUtils.getLinesFromString(tesseract.doOCR(awtBufferedImage));
-					System.err.println("Extracted Text:\n" + StringUtils.toString(lines, ""));
-				}
-
 				allWords.clear();
-				allWords.addAll(CaptureWords.apply(tesseract, awtBufferedImage));
+				allWords.addAll(OCR.getWords(greyScaleImage));
 				words.clear();
 				words.addAll(CaptureWords.joinConsecutiveWords(CaptureWords.filter(allWords, parameters.getMinWordLength(), parameters.getMinTextHeight(),
 						parameters.getMaxTextHeight(), parameters.isMustStartAlphaNumeric(), parameters.isMustEndAlphaNumeric(), parameters.isMustContainLetter())));
@@ -132,7 +122,7 @@ public class CaptureService extends AService<Boolean> {
 				segments.clear();
 				for (var segment : dustedSegments) {
 					var bbox = shrink(segment.computeBoundingBox(), 10);
-					if (allWords.stream().noneMatch(word -> word.getBoundingBox().contains(bbox)))
+					if (allWords.stream().noneMatch(word -> word.boundingBox().contains(bbox)))
 						segments.add(segment);
 				}
 				System.err.println("Dusting by words: " + dustedSegments.size() + " -> " + segments.size());

@@ -10,10 +10,10 @@ module phylosketch {
 	requires org.apache.commons.math4.legacy;
 	requires java.desktop;
 	requires javafx.web;
-	requires tess4j;
 	requires org.apache.commons.numbers.gamma;
 	requires java.management;
 	requires java.scripting;
+	requires org.bytedeco.tesseract;
 
 	opens phylosketch.format;
 	opens phylosketch.help;
