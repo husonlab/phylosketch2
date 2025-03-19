@@ -98,8 +98,6 @@ public class DrawView extends Pane {
 
 		setPadding(new javafx.geometry.Insets(20));
 
-		prefWidthProperty().addListener((v, o, n) -> System.err.println("width: " + n));
-
 		Icebergs.setEnabled(false);
 		var shapeIcebergMap = new HashMap<Shape, Shape>();
 

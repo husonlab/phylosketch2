@@ -143,7 +143,15 @@ public class OptimizeLayout {
 						if (d > 0.5 * span)
 							d = (span - d);
 					}
-					score += (int) (1000 * d);
+					if (false) {
+						if (v.getOwner() instanceof PhyloTree tree && tree.hasEdgeConfidences() && tree.getEdgeConfidences().containsKey(e)) {
+							var confidence = Math.max(1, tree.getConfidence(e));
+							score += (int) (confidence * 1000 * d);
+						}
+
+					} else {
+						score += (int) (1000 * d);
+					}
 
 					if (qIndex != -1) {
 						if (yp < yq)
