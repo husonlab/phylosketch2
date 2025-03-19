@@ -21,8 +21,10 @@
 package phylosketch.capturepane.capture;
 
 import net.sourceforge.tess4j.Tesseract;
+import phylosketch.utils.NativeLibLoader;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * setup and manage tesseract
@@ -32,7 +34,8 @@ public class TesseractManager {
 	private static boolean loaded = false;
 
 	public static Tesseract createInstance() {
-		loadTesseractLibrary();
+		if (false)
+			loadTesseractLibrary();
 
 		var tesseract = new Tesseract();
 		tesseract.setVariable("dump-config", "user-words");
@@ -56,33 +59,63 @@ public class TesseractManager {
 
 	public static void loadTesseractLibrary() {
 		if (!loaded) {
-			// use something like -Djava.library.path=/Users/huson/IdeaProjects/apps/phylosketch2/lib/macos
-			var libPath = System.getProperty("java.library.path");
+			loaded = true;
+			return;
+		}
+		if (!loaded) {
+
+			if (true) {
+				try {
+					NativeLibLoader.loadLibrary("libtesseract");
+					NativeLibLoader.loadLibrary("liblept");
+					loaded = true;
+				} catch (IOException ex) {
+					System.err.println(ex.getMessage());
+				}
+			} else {
+				// use something like -Djava.library.path=/Users/huson/IdeaProjects/apps/phylosketch2/lib/macos
+				var libPath = System.getProperty("java.library.path");
 
 			/*
 			todo: need to figure out what to use from these:
-			        /usr/local/opt/tesseract/lib/libtesseract.5.dylib (compatibility version 6.0.0, current version 6.4.0)
-        			/usr/local/opt/leptonica/lib/libleptonica.6.dylib (compatibility version 7.0.0, current version 7.0.0)
+			        /usr/local/opt/tesseract/lib/libtesseract.dylib (compatibility version 6.0.0, current version 6.4.0)
+        			/usr/local/opt/leptonica/lib/libleptonica.dylib (compatibility version 7.0.0, current version 7.0.0)
 			 */
 
-			String libName;
-			var os = System.getProperty("os.name").toLowerCase();
-			{
-				if (os.contains("mac")) {
-					libName = "libtesseract.dylib";
-				} else if (os.contains("linux")) {
-					libName = "libtesseract.so";
-				} else if (os.contains("win")) {
-					libName = "tesseract.dll";
-				} else {
-					throw new RuntimeException("Unsupported OS: " + os);
+				String libName;
+				var os = System.getProperty("os.name").toLowerCase();
+				{
+					if (os.contains("mac")) {
+						libName = "libtesseract.dylib";
+					} else if (os.contains("linux")) {
+						libName = "libtesseract.so";
+					} else if (os.contains("win")) {
+						libName = "tesseract.dll";
+					} else {
+						throw new RuntimeException("Unsupported OS: " + os);
+					}
+					var libFile = new File(libPath, libName);
+					System.err.print("Loading library from: " + libFile.getAbsolutePath());
+					System.load(libFile.getAbsolutePath());
+					System.err.println(" done");
 				}
-				var libFile = new File(libPath, libName);
-				System.err.println("Loading library from: " + libFile.getAbsolutePath());
-				System.load(libFile.getAbsolutePath());
-				System.err.println("Library loaded successfully!");
+				{
+					if (os.contains("mac")) {
+						libName = "libleptonica.dylib";
+					} else if (os.contains("linux")) {
+						libName = "liblept.so";
+					} else if (os.contains("win")) {
+						libName = "liblept.dll";
+					} else {
+						throw new RuntimeException("Unsupported OS: " + os);
+					}
+					var libFile = new File(libPath, libName);
+					System.err.print("Loading library from: " + libFile.getAbsolutePath());
+					System.load(libFile.getAbsolutePath());
+					System.err.println(" done");
+				}
+				loaded = true;
 			}
-			loaded = true;
 		}
 	}
 }
