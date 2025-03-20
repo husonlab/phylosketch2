@@ -88,6 +88,7 @@ import java.util.stream.Collectors;
 public class MainWindowPresenter {
 	private final FindToolBar findToolBar;
 	private final FormatPaneView formatPaneView;
+	private final CapturePane capturePane;
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 	private final BooleanProperty allowMergeNodes = new SimpleBooleanProperty(this, "allowMergeNodes", false);
@@ -99,7 +100,7 @@ public class MainWindowPresenter {
 
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
-		var view = window.getDrawPane();
+		var view = window.getDrawView();
 
 		findToolBar = new FindToolBar(window.getStage(), setupSearcher(view));
 		findToolBar.setShowFindToolBar(false);
@@ -189,7 +190,7 @@ public class MainWindowPresenter {
 		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, false, true, view.modeProperty(), controller.getModeMenuButton());
 		controller.setupModeMenu(view.modeProperty());
 
-		var capturePane = new CapturePane(view, controller);
+		capturePane = new CapturePane(view, controller);
 		SetupCaptureMenuItems.apply(view, controller, capturePane);
 
 		ChangeListener<DrawView.Mode> listener = (v, o, n) -> {
@@ -250,7 +251,7 @@ public class MainWindowPresenter {
 			if (view.getGraph().getNumberOfNodes() > 0) {
 				var w = new StringWriter();
 				try {
-					PhyloSketchIO.save(w, view);
+					PhyloSketchIO.save(w, view, window.getPresenter().getCapturePane().getImageView());
 					ProgramProperties.put("Last", w.toString());
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);
@@ -274,7 +275,7 @@ public class MainWindowPresenter {
 		//controller.getSaveButton().disableProperty().bind(controller.getSaveAsMenuItem().disableProperty());
 
 		controller.getPageSetupMenuItem().setOnAction(e -> Print.showPageLayout(window.getStage()));
-		controller.getPrintMenuItem().setOnAction((e) -> Print.print(window.getStage(), window.getDrawPane()));
+		controller.getPrintMenuItem().setOnAction((e) -> Print.print(window.getStage(), window.getDrawView()));
 		controller.getPrintMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getUndoMenuItem().setOnAction(e -> view.getUndoManager().undo());
@@ -313,7 +314,7 @@ public class MainWindowPresenter {
 		});
 		controller.getCopyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawPane()));
+		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawView()));
 		controller.getExportImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getExportNewickMenuItem().setOnAction(e -> ExportNewick.apply(window));
@@ -679,6 +680,9 @@ public class MainWindowPresenter {
 		return formatPaneView;
 	}
 
+	public CapturePane getCapturePane() {
+		return capturePane;
+	}
 
 	public static void loadImageDialog(Stage stage, Consumer<Image> imageConsumer) {
 		var fileChooser = new FileChooser();

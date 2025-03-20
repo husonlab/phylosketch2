@@ -22,6 +22,7 @@ package phylosketch.io;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import jloda.fx.control.RichTextLabel;
@@ -48,9 +49,9 @@ import java.util.List;
  * Daniel Huson, 9.2024
  */
 public class PhyloSketchIO {
-	public static void save(File file, DrawView drawView) throws IOException {
+	public static void save(File file, DrawView drawView, ImageView backgroundImageView) throws IOException {
 		try(var w= FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {
-			save(w, drawView);
+			save(w, drawView, backgroundImageView);
 		}
 	}
 
@@ -60,7 +61,7 @@ public class PhyloSketchIO {
 	 * @param view the draw window
 	 * @throws IOException  something went wrong
 	 */
-	public static void save(Writer w, DrawView view) throws IOException {
+	public static void save(Writer w, DrawView view, ImageView backgroundImageView) throws IOException {
 		var graph = view.getGraph();
 		var nodeKeyNames = List.of("taxon", "shape", "size", "stroke", "fill", "x", "y", "label", "label_dx", "label_dy");
 		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label");
@@ -125,6 +126,7 @@ public class PhyloSketchIO {
 					}));
 					return (value.isBlank() ? null : value);
 				});
+		BackgroundImageIO.save(backgroundImageView, w);
 	}
 
 	/**
@@ -133,9 +135,9 @@ public class PhyloSketchIO {
 	 * @param drawView draw window
 	 * @throws IOException
 	 */
-	public static void open(String file, DrawView drawView) throws IOException {
+	public static void open(String file, DrawView drawView, ImageView backgroundImageView) throws IOException {
 		 try(var r=new InputStreamReader(FileUtils.getInputStreamPossiblyZIPorGZIP(file))) {
-			 load(r, drawView);
+			 load(r, drawView, backgroundImageView);
 			 drawView.getUndoManager().clear();
 		 }
 	}
@@ -146,7 +148,7 @@ public class PhyloSketchIO {
 	 * @param view the draw window
 	 * @throws IOException something went wrong
 	 */
-	public static void load(Reader r, DrawView view) throws IOException {
+	public static void load(Reader r, DrawView view, ImageView backgroundImageView) throws IOException {
 		view.clear();
 		var graph = view.getGraph();
 		var arrowEdges = new HashSet<Edge>();
@@ -294,6 +296,8 @@ public class PhyloSketchIO {
 				}
 			});
 		}
+		if (BackgroundImageIO.load(backgroundImageView, r))
+			view.setMode(DrawView.Mode.Capture);
 	}
 
 	private static String pathToString(Path path) {

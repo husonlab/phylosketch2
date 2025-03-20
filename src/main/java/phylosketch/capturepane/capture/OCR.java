@@ -43,8 +43,11 @@ import static org.bytedeco.tesseract.global.tesseract.RIL_WORD;
 public class OCR {
 
 	private static TessBaseAPI createAPI() {
+		var installDir = System.getProperty("INSTALL_DIR");
+		var tessDataDir = (installDir != null && !installDir.isBlank() ? installDir + File.separator : "") + "tessdata";
+
 		var api = new TessBaseAPI();
-		if (api.Init("tessdata", "eng") != 0) {
+		if (api.Init(tessDataDir, "eng") != 0) {
 			api.close();
 			throw new RuntimeException("Could not initialize Tesseract.");
 		}
