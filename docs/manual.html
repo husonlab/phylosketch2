@@ -1,31 +1,13 @@
-<!--
-  ~ manual.html Copyright (C) 2025 Daniel H. Huson
-  ~
-  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
-  ~
-  ~  This program is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  This program is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~  GNU General Public License for more details.
-  ~
-  ~  You should have received a copy of the GNU General Public License
-  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head><title>PhyloSketch App User Manual</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)">
+    <meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)">
     <!-- html -->
     <meta name="src" content="manual.tex">
-    <meta name="date" content="2024-12-27 12:19:00">
+    <meta name="date" content="2025-03-20 16:22:00">
     <link rel="stylesheet" type="text/css" href="manual.css">
     <style> body {
         font-family: Arial, sans-serif;
@@ -43,7 +25,7 @@
                 class="phvr7t-x-x-136">University of Tuebingen</span></div>
     <br/>
     <div class="date"><span
-            class="phvr7t-x-x-136">Version 2.0.6-beta, Dec 25, 2024</span></div>
+            class="phvr7t-x-x-136">Version 2.1.0-beta, March 20, 2025</span></div>
 </div>
 <h3 class="likesectionHead"><a
         id="x1-1000"></a>Contents</h3>
@@ -62,97 +44,107 @@
         href="#x1-70004.2" id="QQ2-1-7">Transform Mode</a></span>
     <br/> &#x00A0;<span class="subsectionToc">4.3 <a
         href="#x1-80004.3" id="QQ2-1-8">Read-Only Mode</a></span>
+    <br/> &#x00A0;<span class="subsectionToc">4.4 <a
+        href="#x1-90004.4" id="QQ2-1-9">Capture Mode</a></span>
     <br/> <span class="sectionToc">5 <a
-        href="#x1-90005" id="QQ2-1-9">Tool Bar Overview</a></span>
+        href="#x1-100005" id="QQ2-1-10">Tool Bar Overview</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.1 <a
-        href="#x1-100005.1" id="QQ2-1-10">Mode Selection</a></span>
+        href="#x1-110005.1" id="QQ2-1-11">Mode Selection</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.2 <a
-        href="#x1-110005.2" id="QQ2-1-11">Import Button</a></span>
+        href="#x1-120005.2" id="QQ2-1-12">Import Button</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.3 <a
-        href="#x1-120005.3" id="QQ2-1-12">Files Menu Button (Desktop version only)</a></span>
+        href="#x1-130005.3" id="QQ2-1-13">Files Menu Button (Desktop version only)</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.4 <a
-        href="#x1-130005.4" id="QQ2-1-13">Selection Menu Button</a></span>
+        href="#x1-140005.4" id="QQ2-1-14">Selection Menu Button</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.5 <a
-        href="#x1-140005.5" id="QQ2-1-14">Layout Menu Button</a></span>
+        href="#x1-150005.5" id="QQ2-1-15">Topology and Layout Menu Button</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.6 <a
-        href="#x1-150005.6" id="QQ2-1-15">Other Toolbar Buttons</a></span>
+        href="#x1-320005.6" id="QQ2-1-32">Formatting button</a></span>
+    <br/> &#x00A0;<span class="subsectionToc">5.7 <a
+        href="#x1-330005.7" id="QQ2-1-33">Capture Menu Button</a></span>
+    <br/> &#x00A0;<span class="subsectionToc">5.8 <a
+        href="#x1-410005.8" id="QQ2-1-41">Other Toolbar Buttons</a></span>
     <br/> <span class="sectionToc">6 <a
-        href="#x1-160006" id="QQ2-1-16">Status Bar</a></span>
+        href="#x1-420006" id="QQ2-1-42">Status Bar</a></span>
     <br/> <span class="sectionToc">7 <a
-        href="#x1-170007" id="QQ2-1-17">Formatting Pane</a></span>
+        href="#x1-430007" id="QQ2-1-43">Formatting Pane</a></span>
     <br/> &#x00A0;<span class="subsectionToc">7.1 <a
-        href="#x1-180007.1" id="QQ2-1-18">Node Style Panel</a></span>
+        href="#x1-440007.1" id="QQ2-1-44">Node Style Panel</a></span>
     <br/> &#x00A0;<span class="subsectionToc">7.2 <a
-        href="#x1-190007.2" id="QQ2-1-19">Node Labels Panel</a></span>
+        href="#x1-450007.2" id="QQ2-1-45">Node Labels Panel</a></span>
     <br/> &#x00A0;<span class="subsectionToc">7.3 <a
-        href="#x1-200007.3" id="QQ2-1-20">Node Labels Formatting Panel</a></span>
+        href="#x1-460007.3" id="QQ2-1-46">Node Labels Formatting Panel</a></span>
     <br/> &#x00A0;<span class="subsectionToc">7.4 <a
-        href="#x1-210007.4" id="QQ2-1-21">Edge Style Panel</a></span>
+        href="#x1-470007.4" id="QQ2-1-47">Edge Style Panel</a></span>
     <br/> &#x00A0;<span class="subsectionToc">7.5 <a
-        href="#x1-220007.5" id="QQ2-1-22">Edge Labels Panel</a></span>
+        href="#x1-480007.5" id="QQ2-1-48">Edge Labels Panel</a></span>
     <br/> &#x00A0;<span class="subsectionToc">7.6 <a
-        href="#x1-230007.6" id="QQ2-1-23">Edge Label Style Panel</a></span>
+        href="#x1-490007.6" id="QQ2-1-49">Edge Label Style Panel</a></span>
+    <br/> &#x00A0;<span class="subsectionToc">7.7 <a
+        href="#x1-500007.7" id="QQ2-1-50">Edit Topology Panel</a></span>
     <br/> <span class="sectionToc">8 <a
-        href="#x1-240008" id="QQ2-1-24">Working with Nodes and Edges</a></span>
+        href="#x1-510008" id="QQ2-1-51">Working with Nodes and Edges</a></span>
+
+
     <br/> &#x00A0;<span class="subsectionToc">8.1 <a
-        href="#x1-250008.1" id="QQ2-1-25">Creating Nodes and Edges</a></span>
+        href="#x1-520008.1" id="QQ2-1-52">Creating Nodes and Edges</a></span>
     <br/> &#x00A0;<span class="subsectionToc">8.2 <a
-        href="#x1-260008.2" id="QQ2-1-26">Transforming Nodes and Edges</a></span>
+        href="#x1-530008.2" id="QQ2-1-53">Transforming Nodes and Edges</a></span>
     <br/> <span class="sectionToc">9 <a
-        href="#x1-270009" id="QQ2-1-27">Menus (Non-Mobile App Only)</a></span>
+        href="#x1-540009" id="QQ2-1-54">Menus (Non-Mobile App Only)</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.1 <a
-        href="#x1-280009.1" id="QQ2-1-28">File Menu</a></span>
-
-
+        href="#x1-550009.1" id="QQ2-1-55">File Menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.2 <a
-        href="#x1-290009.2" id="QQ2-1-29">Edit Menu</a></span>
+        href="#x1-560009.2" id="QQ2-1-56">Edit Menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.3 <a
-        href="#x1-300009.3" id="QQ2-1-30">Layout Menu</a></span>
+        href="#x1-570009.3" id="QQ2-1-57">Layout Menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.4 <a
-        href="#x1-310009.4" id="QQ2-1-31">View Menu</a></span>
+        href="#x1-580009.4" id="QQ2-1-58">View Menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.5 <a
-        href="#x1-320009.5" id="QQ2-1-32">Window menu</a></span>
+        href="#x1-590009.5" id="QQ2-1-59">Window menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.6 <a
-        href="#x1-330009.6" id="QQ2-1-33">Help Menu</a></span>
+        href="#x1-600009.6" id="QQ2-1-60">Help Menu</a></span>
     <br/> <span class="sectionToc">10 <a
-        href="#x1-3400010" id="QQ2-1-34">Tips and Best Practices</a></span>
+        href="#x1-6100010" id="QQ2-1-61">Tips and Best Practices</a></span>
     <br/> <span class="sectionToc">11 <a
-        href="#x1-3500011" id="QQ2-1-35">Support and Feedback</a></span>
+        href="#x1-6200011" id="QQ2-1-62">Support and Feedback</a></span>
     <br/> <span class="sectionToc">12 <a
-        href="#x1-3600012" id="QQ2-1-36">Known Issues</a></span>
+        href="#x1-6300012" id="QQ2-1-63">Known Issues</a></span>
 </div>
-<!--l. 23--><p class="noindent">
+<!--l. 25--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">1    </span> <a
         id="x1-20001"></a>Introduction</h3>
-<!--l. 24--><p class="noindent">PhyloSketch App (also known as PhyloSketch2) is an application for interactively
+<!--l. 26--><p class="noindent">PhyloSketch App (also known as PhyloSketch2) is an application for interactively
     creating and
     editing phylogenetic trees and networks by drawing them. Written in Java using JavaFX, this
     program runs on Mac OS, Linux, and Windows and is also designed for touch-screen devices
     running iOS or Android.
-<div class="center"
+<div class="center" 
 >
-    <!--l. 28--><p class="noindent">
+    <!--l. 30--><p class="noindent">
 
-    <!--l. 29-->
+    <!--l. 31-->
     <p class="noindent"><img
             src="figs/example.png" alt="PIC"
     ></div>
-<!--l. 32--><p class="indent"> PhyloSketch App is a new program based on PhyloSketch (also known as PhyloSketch1), a
+<!--l. 34--><p class="indent"> PhyloSketch App is a new program based on PhyloSketch (also known as PhyloSketch1), a
     previous program which was introduced in [<a
             href="#XFrancisetal2021">Francis et&#x00A0;al.</a>,&#x00A0;<a
             href="#XFrancisetal2021">2021</a>]. The program uses some of the
     same code as our SplitsTree app [<a
             href="#XHusonBryant2024">Huson and Bryant</a>,&#x00A0;<a
             href="#XHusonBryant2024">2024</a>].
-    <!--l. 34-->
+    <!--l. 36-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">2    </span> <a
         id="x1-30002"></a>Installation</h3>
 <ul class="itemize1">
-    <li class="itemize">The macOS, Linux, and Windows versions are available from the GitHub page:
-        <a
-                href="https://github.com/husonlab/phylosketch2" class="url"><span
-                class="cmtt-12">https://github.com/husonlab/phylosketch2</span></a>.
+    <li class="itemize">The macOS, Linux, and Windows versions are available from the GitHub page: <a
+            href="https://github.com/husonlab/phylosketch2" class="url"><span
+            class="cmtt-12">https://github.com/husonlab/phylosketch2</span></a>
+        or <a
+                href="https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html" class="url"><span
+                class="cmtt-12">https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html</span></a>.
     </li>
     <li class="itemize">The iOS app is available for testing via Apple TestFlight. If you are interested in beta
         testing, contact the author for an invitation.
@@ -163,24 +155,24 @@
 </ul>
 
 
-<!--l. 41--><p class="noindent">
+<!--l. 44--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">3    </span> <a
         id="x1-40003"></a>Getting Started</h3>
-<!--l. 42--><p class="noindent">When you first open PhyloSketch, youll be presented with a canvas containing a simple
+<!--l. 45--><p class="noindent">When you first open PhyloSketch, youll be presented with a canvas containing a simple
     example
     tree. Modify the example or start creating your own phylogenetic tree or network. The toolbar at
     the top provides access to all major functions, including mode selection, import options, and
     various editing tools.
-    <!--l. 45-->
+    <!--l. 48-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">4    </span> <a
         id="x1-50004"></a>Modes Overview</h3>
-<!--l. 46--><p class="noindent">PhyloSketch operates in three primary modes:
-    <!--l. 48-->
+<!--l. 49--><p class="noindent">PhyloSketch operates in four primary modes:
+    <!--l. 51-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.1    </span> <a
         id="x1-60004.1"></a>Edit Mode</h4>
-<!--l. 50--><p class="noindent"><img
+<!--l. 53--><p class="noindent"><img
         src="figs/edit-mode.png" alt="PIC"
 >
 <ul class="itemize1">
@@ -188,10 +180,10 @@
     </li>
     <li class="itemize">Use this mode for building a new tree or network from scratch or for modifying one.</li>
 </ul>
-<!--l. 57--><p class="noindent">
+<!--l. 60--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.2    </span> <a
         id="x1-70004.2"></a>Transform Mode</h4>
-<!--l. 59--><p class="noindent"><img
+<!--l. 62--><p class="noindent"><img
         src="figs/transform-mode.png" alt="PIC"
 >
 <ul class="itemize1">
@@ -200,58 +192,71 @@
     </li>
     <li class="itemize">Touch and drag nodes or edges to reposition them.</li>
 </ul>
-<!--l. 66--><p class="noindent">
+
+
+<!--l. 69--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.3    </span> <a
         id="x1-80004.3"></a>Read-Only Mode</h4>
-<!--l. 68--><p class="noindent"><img
+<!--l. 71--><p class="noindent"><img
         src="figs/read-only-mode.png" alt="PIC"
 >
 <ul class="itemize1">
     <li class="itemize">Editing is locked, but you can still select nodes or edges for viewing details.
-
-
     </li>
     <li class="itemize">Useful for viewing a tree or network without accidental modifications.</li>
 </ul>
-<!--l. 76--><p class="noindent">
-<h3 class="sectionHead"><span class="titlemark">5    </span> <a
-        id="x1-90005"></a>Tool Bar Overview</h3>
-<!--l. 77--><p class="noindent">The toolbar provides access to the core functionalities of PhyloSketch:
-<div class="center"
+<!--l. 79--><p class="noindent">
+<h4 class="subsectionHead"><span class="titlemark">4.4    </span> <a
+        id="x1-90004.4"></a>Capture Mode</h4>
+<!--l. 81--><p class="noindent"><img
+        src="figs/capture-mode.png" alt="PIC"
 >
-    <!--l. 79--><p class="noindent">
+<ul class="itemize1">
+    <li class="itemize">This mode is available after an image has been loaded.
+    </li>
+    <li class="itemize">Use this mode to capture nodes, edges and labels present in the image.</li>
+</ul>
+<!--l. 90--><p class="noindent">
+<h3 class="sectionHead"><span class="titlemark">5    </span> <a
+        id="x1-100005"></a>Tool Bar Overview</h3>
+<!--l. 91--><p class="noindent">The toolbar provides access to the core functionalities of PhyloSketch:
+<div class="center" 
+>
+    <!--l. 93--><p class="noindent">
 
-    <!--l. 80-->
+    <!--l. 94-->
     <p class="noindent"><img
             src="figs/toolbar.png" alt="PIC"
     ></div>
-<!--l. 83--><p class="noindent">
+<!--l. 97--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.1    </span> <a
-        id="x1-100005.1"></a>Mode Selection</h4>
-<!--l. 84--><p class="noindent">Select the desired mode (Edit, Transform, or Read-Only) using the first item on the
+        id="x1-110005.1"></a>Mode Selection</h4>
+<!--l. 98--><p class="noindent">Select the desired mode (Edit, Transform, or Read-Only) using the first item on the
     toolbar.
-    <!--l. 86-->
+
+
+    <!--l. 100-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.2    </span> <a
-        id="x1-110005.2"></a>Import Button</h4>
+        id="x1-120005.2"></a>Import Button</h4>
 <ul class="itemize1">
     <li class="itemize">Paste a tree or network (Newick format) onto the canvas.
     </li>
     <li class="itemize">Imported structures will be ready for editing or analysis.</li>
 </ul>
-<!--l. 92--><p class="noindent">
+<!--l. 106--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.3    </span> <a
-        id="x1-120005.3"></a>Files Menu Button (Desktop version only)</h4>
-<!--l. 93--><p class="noindent">Access file-related options, including creating, opening, and managing recent files.
-    <!--l. 95-->
+        id="x1-130005.3"></a>Files Menu Button (Desktop version only)</h4>
+<!--l. 107--><p class="noindent">Access file-related options, including creating, opening, and managing recent files.
+    Not available
+    in the mobile app.
+    <!--l. 109-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.4    </span> <a
-        id="x1-130005.4"></a>Selection Menu Button</h4>
-<!--l. 96--><p class="noindent">Select nodes or edges based on their properties:
+        id="x1-140005.4"></a>Selection Menu Button</h4>
+<!--l. 110--><p class="noindent">Select nodes or edges based on their properties:
 <ul class="itemize1">
     <li class="itemize">All - Select all nodes and edges.
-
-
     </li>
     <li class="itemize">None - Deselect all.
     </li>
@@ -261,18 +266,151 @@
     </li>
     <li class="itemize">Articulation Nodes - Select nodes that separate biconnected components.</li>
 </ul>
-<!--l. 105--><p class="noindent">
+<!--l. 119--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.5    </span> <a
-        id="x1-140005.5"></a>Layout Menu Button</h4>
-<!--l. 106--><p class="noindent">Customize how edges are displayed and adjust layouts:
-<ul class="itemize1">
-    <li class="itemize">Rotate, Flip, and Resize modes.
-    </li>
-    <li class="itemize">Layout Labels - Reset label positioning.</li>
-</ul>
-<!--l. 112--><p class="noindent">
+        id="x1-150005.5"></a>Topology and Layout Menu Button</h4>
+<!--l. 121--><p class="noindent"><span class="paragraphHead"><a
+        id="x1-160005.5"></a><span
+        class="phvb7t-x-x-114">Outlines</span></span>
+    Toggle the display of outlines around network elements.
+    <!--l. 124-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-170005.5"></a><span
+        class="phvb7t-x-x-114">Rotate Left</span></span>
+    Rotate the entire phylogenetic network counterclockwise by 90 degrees.
+
+
+    <!--l. 127-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-180005.5"></a><span
+        class="phvb7t-x-x-114">Rotate Right</span></span>
+    Rotate the entire phylogenetic network clockwise by 90 degrees.
+    <!--l. 130-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-190005.5"></a><span
+        class="phvb7t-x-x-114">Flip Horizontal</span></span>
+    Reflect the phylogenetic network horizontally across its vertical axis.
+    <!--l. 133-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-200005.5"></a><span
+        class="phvb7t-x-x-114">Flip Vertical</span></span>
+    Reflect the phylogenetic network vertically across its horizontal axis.
+    <!--l. 136-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-210005.5"></a><span
+        class="phvb7t-x-x-114">Resize Mode</span></span>
+    Enable interactive resizing of the network while maintaining structure.
+    <!--l. 139-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-220005.5"></a><span
+        class="phvb7t-x-x-114">Layout Labels</span></span>
+    Adjust the positioning of node labels to improve readability and avoid overlaps.
+    <!--l. 142-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-230005.5"></a><span
+        class="phvb7t-x-x-114">Rectangular Layout</span></span>
+    Arrange the phylogenetic network in a rectangular layout for better visualization.
+    <!--l. 145-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-240005.5"></a><span
+        class="phvb7t-x-x-114">Circular Layout</span></span>
+    Rearrange the network into a circular configuration to emphasize relationships.
+    <!--l. 148-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-250005.5"></a><span
+        class="phvb7t-x-x-114">Merge Nodes</span></span>
+    Combine selected nodes into a single node, preserving connectivity.
+    <!--l. 151-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-260005.5"></a><span
+        class="phvb7t-x-x-114">Remove Thru Nodes</span></span>
+    Eliminate intermediate nodes that have in-degree one and out-degree one, simplifying the
+    network.
+    <!--l. 154-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-270005.5"></a><span
+        class="phvb7t-x-x-114">Reverse Edges</span></span>
+    Reverse the direction of selected edges while maintaining network integrity.
+    <!--l. 157-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-280005.5"></a><span
+        class="phvb7t-x-x-114">Fix Crossing Edges</span></span>
+    For any selected node of degree for, replaces the node by two crossing edges.
+
+
+    <!--l. 160-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-290005.5"></a><span
+        class="phvb7t-x-x-114">Declare Root</span></span>
+    Designate a specific node as the root of the phylogenetic network, redirecting edges where
+    necessary.
+    <!--l. 163-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-300005.5"></a><span
+        class="phvb7t-x-x-114">Declare Transfer Acceptor</span></span>
+    Declare a edge as the recipient of a horizontal gene transfer event. There can be at most one
+    such edge per reticulation node.
+    <!--l. 168-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-310005.5"></a><span
+        class="phvb7t-x-x-114">Induce</span></span>
+    Generate the subnetwork induced by a selected subset of nodes.
+    <!--l. 171-->
+<p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.6    </span> <a
-        id="x1-150005.6"></a>Other Toolbar Buttons</h4>
+        id="x1-320005.6"></a>Formatting button</h4>
+<!--l. 173--><p class="noindent">This toggles the appearance of the formatting panels described below.
+    <!--l. 175-->
+<p class="noindent">
+<h4 class="subsectionHead"><span class="titlemark">5.7    </span> <a
+        id="x1-330005.7"></a>Capture Menu Button</h4>
+<!--l. 177--><p class="noindent">When a background image has been loaded, use these items to capture a tree or network
+    from
+    the image.0
+    <!--l. 179-->
+<p class="indent"> Press the menu button once to locate the root in the background image. Press again to
+    perform capture. Alternatively, use the following menu items.
+    <!--l. 182-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-340005.7"></a><span
+        class="phvb7t-x-x-114">Parameters...</span></span>
+    Open a dialog to configure various settings for network capture.
+    <!--l. 184-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-350005.7"></a><span
+        class="phvb7t-x-x-114">Load Image...</span></span>
+    Import an image to use as a background for the network.
+    <!--l. 186-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-360005.7"></a><span
+        class="phvb7t-x-x-114">Remove Image</span></span>
+    Remove the currently loaded background image from the view.
+    <!--l. 188-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-370005.7"></a><span
+        class="phvb7t-x-x-114">Place Root</span></span>
+    In preparation of network capture from the background image, locate the root.
+
+
+    <!--l. 190-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-380005.7"></a><span
+        class="phvb7t-x-x-114">Capture Labels</span></span>
+    Use OCR to capture the labels in the background image.
+    <!--l. 192-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-390005.7"></a><span
+        class="phvb7t-x-x-114">Capture Lines</span></span>
+    Detect and capture lines from the image, potentially for network reconstruction.
+    <!--l. 194-->
+<p class="noindent"><span class="paragraphHead"><a
+        id="x1-400005.7"></a><span
+        class="phvb7t-x-x-114">Capture Phylogeny</span></span>
+    Extract phylogenetic structures from the image, converting them into a graph representation.
+    <!--l. 196-->
+<p class="noindent">
+<h4 class="subsectionHead"><span class="titlemark">5.8    </span> <a
+        id="x1-410005.8"></a>Other Toolbar Buttons</h4>
 <ul class="itemize1">
     <li class="itemize">Delete - Remove selected nodes/edges.
     </li>
@@ -282,34 +420,34 @@
     </li>
     <li class="itemize">Export Menu - Copy selections or save images.</li>
 </ul>
-<!--l. 120--><p class="noindent">
+<!--l. 204--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">6    </span> <a
-        id="x1-160006"></a>Status Bar</h3>
-<!--l. 121--><p class="noindent">Reports the number of components, roots, nodes, edges, leaves, and the hybridization
+        id="x1-420006"></a>Status Bar</h3>
+<!--l. 205--><p class="noindent">Reports the number of components, roots, nodes, edges, leaves, and the hybridization
     number <span
             class="cmmi-12">h</span>.
     Also indicates properties like &#8216;network&#8216; or &#8216;tree-based network&#8216;.
-
-
-<div class="center"
+<div class="center" 
 >
-    <!--l. 124--><p class="noindent">
+    <!--l. 208--><p class="noindent">
 
-    <!--l. 125-->
+    <!--l. 209-->
     <p class="noindent"><img
             src="figs/statusbar.png" alt="PIC"
     ></div>
-<!--l. 128--><p class="noindent">
+<!--l. 212--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">7    </span> <a
-        id="x1-170007"></a>Formatting Pane</h3>
-<!--l. 130--><p class="noindent">The formatting pane has several panels for formatting nodes and their labels, and edges
+        id="x1-430007"></a>Formatting Pane</h3>
+<!--l. 214--><p class="noindent">The formatting pane has several panels for formatting nodes and their labels, and edges
     and their
     labels.
-    <!--l. 132-->
+
+
+    <!--l. 216-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.1    </span> <a
-        id="x1-180007.1"></a>Node Style Panel</h4>
-<!--l. 134--><p class="noindent">This panel provides options for customizing the appearance of nodes. The following
+        id="x1-440007.1"></a>Node Style Panel</h4>
+<!--l. 218--><p class="noindent">This panel provides options for customizing the appearance of nodes. The following
     items are
     available:
 <ul class="itemize1">
@@ -323,10 +461,10 @@
         their default values.
     </li>
 </ul>
-<!--l. 143--><p class="noindent">
+<!--l. 227--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.2    </span> <a
-        id="x1-190007.2"></a>Node Labels Panel</h4>
-<!--l. 144--><p class="noindent">This panel provides options for labeling nodes. The following items are available:
+        id="x1-450007.2"></a>Node Labels Panel</h4>
+<!--l. 228--><p class="noindent">This panel provides options for labeling nodes. The following items are available:
 <ul class="itemize1">
     <li class="itemize">Nodes to Label - A dropdown menu to select which nodes should be labeled.
     </li>
@@ -335,8 +473,6 @@
     </li>
     <li class="itemize">Unique Labels Toggle - A toggle button to enforce unique labels for nodes, preventing
         reuse of existing labels.
-
-
     </li>
     <li class="itemize">Label Input Field - A text field to manually enter labels for nodes.
     </li>
@@ -347,13 +483,15 @@
             class="cmtt-12">&#x003C;sub&#x003E;</span></span></span>).
     </li>
 </ul>
-<!--l. 154--><p class="noindent">
+<!--l. 238--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.3    </span> <a
-        id="x1-200007.3"></a>Node Labels Formatting Panel</h4>
-<!--l. 155--><p class="noindent">This panel provides options for formatting node labels. The following items are
+        id="x1-460007.3"></a>Node Labels Formatting Panel</h4>
+<!--l. 239--><p class="noindent">This panel provides options for formatting node labels. The following items are
     available:
 <ul class="itemize1">
     <li class="itemize">Font - A dropdown menu to select the font for node labels.
+
+
     </li>
     <li class="itemize">Revert Font Button - A button to revert the font settings to default.
     </li>
@@ -375,12 +513,10 @@
     </li>
     <li class="itemize">Revert Revert Fill Button - A button to revert the background fill color to default.</li>
 </ul>
-
-
-<!--l. 171--><p class="noindent">
+<!--l. 255--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.4    </span> <a
-        id="x1-210007.4"></a>Edge Style Panel</h4>
-<!--l. 172--><p class="noindent">This panel provides options for customizing the appearance and properties of edges. The
+        id="x1-470007.4"></a>Edge Style Panel</h4>
+<!--l. 256--><p class="noindent">This panel provides options for customizing the appearance and properties of edges. The
     following items are available:
 <ul class="itemize1">
     <li class="itemize">Shape - A set of buttons to select the shape of edges, including straight (S),
@@ -393,13 +529,15 @@
     <li class="itemize">Color - A color picker to set the color of edges.
     </li>
     <li class="itemize">Revert Color Button - A button to reset the edge color to its default value.
+
+
     </li>
     <li class="itemize">Show Arrow Heads - A toggle button to enable or disable arrowheads on edges.</li>
 </ul>
-<!--l. 183--><p class="noindent">
+<!--l. 267--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.5    </span> <a
-        id="x1-220007.5"></a>Edge Labels Panel</h4>
-<!--l. 184--><p class="noindent">This panel provides options for managing edge labels, including weights, support
+        id="x1-480007.5"></a>Edge Labels Panel</h4>
+<!--l. 268--><p class="noindent">This panel provides options for managing edge labels, including weights, support
     values, and
     probabilities. The following items are available:
 <ul class="itemize1">
@@ -417,12 +555,10 @@
     </li>
     <li class="itemize">Show Probability Toggle - A toggle button to display probabilities on reticulate edges.</li>
 </ul>
-
-
-<!--l. 196--><p class="noindent">
+<!--l. 280--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.6    </span> <a
-        id="x1-230007.6"></a>Edge Label Style Panel</h4>
-<!--l. 198--><p class="noindent">This panel provides options for customizing the style and appearance of edge labels.
+        id="x1-490007.6"></a>Edge Label Style Panel</h4>
+<!--l. 282--><p class="noindent">This panel provides options for customizing the style and appearance of edge labels.
     The
     following items are available:
 <ul class="itemize1">
@@ -433,6 +569,8 @@
     <li class="itemize">Size - A combo box to specify or edit the font size for edge labels.
     </li>
     <li class="itemize">Revert Size Button - A button to reset the size settings to default.
+
+
     </li>
     <li class="itemize">Bold Button - A button (B) to toggle bold formatting for edge labels.
     </li>
@@ -448,40 +586,73 @@
     </li>
     <li class="itemize">Revert Fill Button - A button to reset the background fill color to default.</li>
 </ul>
-<!--l. 215--><p class="noindent">
-<h3 class="sectionHead"><span class="titlemark">8    </span> <a
-        id="x1-240008"></a>Working with Nodes and Edges</h3>
-<!--l. 216--><p class="noindent">
-<h4 class="subsectionHead"><span class="titlemark">8.1    </span> <a
-        id="x1-250008.1"></a>Creating Nodes and Edges</h4>
+<!--l. 298--><p class="noindent">
+<h4 class="subsectionHead"><span class="titlemark">7.7    </span> <a
+        id="x1-500007.7"></a>Edit Topology Panel</h4>
+<!--l. 300--><p class="noindent">This panel provides options mainly for modifying the topology of the tree or network:
 <ul class="itemize1">
-    <li class="itemize">In Edit Mode, drag along the canvas to create edges.
+    <li class="itemize">Declare Root - Assign a specific node as the root of the phylogenetic network,
+        redirecting edges where necessary.
+    </li>
+    <li class="itemize">Resize Mode - Enable interactive resizing of the network while maintaining its
+        structure and proportions.
+    </li>
+    <li class="itemize">Merge Nodes - Combine multiple selected nodes into a single node while preserving
+        connectivity.
+    </li>
+    <li class="itemize">Del. Thru Nodes - Delete nodes of indegree one and outdegree one.
+    </li>
+    <li class="itemize">Reverse Edges - Invert the direction of selected edges while maintaining network
+        integrity.
+    </li>
+    <li class="itemize">Cross Edges = For any selected node of degree four, replace the node with two
+        crossing edges.
 
 
     </li>
+    <li class="itemize">Declare Transfer Acceptor Edge - Declare an edge as the recipient of a horizontal
+        gene transfer event. There can be at most one such edge per reticulation node.
+    </li>
+</ul>
+<!--l. 315--><p class="noindent">
+<h3 class="sectionHead"><span class="titlemark">8    </span> <a
+        id="x1-510008"></a>Working with Nodes and Edges</h3>
+<!--l. 316--><p class="noindent">
+<h4 class="subsectionHead"><span class="titlemark">8.1    </span> <a
+        id="x1-520008.1"></a>Creating Nodes and Edges</h4>
+<ul class="itemize1">
+    <li class="itemize">In Edit Mode, drag along the canvas to create edges.
+    </li>
     <li class="itemize">Double-click to create new nodes.</li>
 </ul>
-<!--l. 222--><p class="noindent">
+<!--l. 322--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">8.2    </span> <a
-        id="x1-260008.2"></a>Transforming Nodes and Edges</h4>
+        id="x1-530008.2"></a>Transforming Nodes and Edges</h4>
 <ul class="itemize1">
     <li class="itemize">Drag nodes to move them.
     </li>
     <li class="itemize">Adjust the shape of edges by dragging and reshaping.</li>
 </ul>
-<!--l. 228--><p class="noindent">
+<!--l. 328--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">9    </span> <a
-        id="x1-270009"></a>Menus (Non-Mobile App Only)</h3>
-<!--l. 230--><p class="noindent">
+        id="x1-540009"></a>Menus (Non-Mobile App Only)</h3>
+<!--l. 330--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.1    </span> <a
-        id="x1-280009.1"></a>File Menu</h4>
-<!--l. 232--><p class="noindent">The usual file-related menu item:
+        id="x1-550009.1"></a>File Menu</h4>
+<!--l. 332--><p class="noindent">The usual file-related menu item:
 <ul class="itemize1">
     <li class="itemize">New&#x2026;- Create a new document.
+
+
     </li>
-    <li class="itemize">Open&#x2026;- Open an existing document or import a Newick file.
+    <li class="itemize">Open&#x2026;- Open an existing document (file suffix .psketch). Additionally, you can import
+        a tree or network from a file in Newick format (file suffix .new, .tre or similar) or a file
+        created by PhyloSketch1 (file suffix .nexus).
     </li>
     <li class="itemize">Recent - Access a list of recently opened files.
+    </li>
+    <li class="itemize">Load Background Image - Loads a background image for tracing over or phylogeny
+        capture.
     </li>
     <li class="itemize">Export - Open the export submenu for saving data in different formats.
     </li>
@@ -492,8 +663,6 @@
     <li class="itemize">Save&#x2026;- Save the current document.
     </li>
     <li class="itemize">Page Setup&#x2026;- Configure the page layout and settings for printing.
-
-
     </li>
     <li class="itemize">Print&#x2026;- Print the current document.
     </li>
@@ -501,16 +670,18 @@
     </li>
     <li class="itemize">Quit - Exit the application.</li>
 </ul>
-<!--l. 259--><p class="noindent">
+<!--l. 363--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.2    </span> <a
-        id="x1-290009.2"></a>Edit Menu</h4>
-<!--l. 261--><p class="noindent">The edit menu items are:
+        id="x1-560009.2"></a>Edit Menu</h4>
+<!--l. 365--><p class="noindent">The edit menu items are:
 <ul class="itemize1">
     <li class="itemize">Undo - Revert the last action.
     </li>
     <li class="itemize">Redo - Repeat the last undone action.
     </li>
     <li class="itemize">Cut - Remove the selected items and copy them to the clipboard.
+
+
     </li>
     <li class="itemize">Copy - Copy the selected items to the clipboard.
     </li>
@@ -525,13 +696,16 @@
     <li class="itemize">Remove Thru Nodes - Replace &#8220;thru nodes&#8221; (nodes with indegree 1 and outdegree
         1) by direct edges.
     </li>
-    <li class="itemize">Set Root - Change the root of the tree or network by selecting a new node or edge.
+    <li class="itemize">Declare Root - Change the root of the tree or network by selecting a new node or
+        edge.
+    </li>
+    <li class="itemize">Declare Transfer Acceptor Edge - For any reticulate node, exactly one of the incoming
+        edges may be declared the transfer acceptor edge. If the selected edge is already
+        declared an acceptor edge, it loses this property.
     </li>
     <li class="itemize">Mode - Switch between editing modes:
         <ul class="itemize2">
             <li class="itemize">Edit Mode - Enable adding and modifying nodes and edges.
-
-
             </li>
             <li class="itemize">Move Mode - Allow repositioning of nodes and reshaping of edges.</li>
         </ul>
@@ -544,10 +718,12 @@
         between selected nodes.
     </li>
 </ul>
-<!--l. 284--><p class="noindent">
+
+
+<!--l. 391--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.3    </span> <a
-        id="x1-300009.3"></a>Layout Menu</h4>
-<!--l. 285--><p class="noindent">The Layout Menu provides items for customizing the layout and appearance of
+        id="x1-570009.3"></a>Layout Menu</h4>
+<!--l. 392--><p class="noindent">The Layout Menu provides items for customizing the layout and appearance of
     phylogenetic trees
     and networks. The following items are available:
 <ul class="itemize1">
@@ -566,14 +742,12 @@
     </li>
     <li class="itemize">Layout Labels - Resets the layout of node labels for better readability.</li>
 </ul>
-<!--l. 298--><p class="noindent">
+<!--l. 405--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.4    </span> <a
-        id="x1-310009.4"></a>View Menu</h4>
-<!--l. 300--><p class="noindent">The View Menu provides items for adjusting the appearance, scaling, and layout of the
+        id="x1-580009.4"></a>View Menu</h4>
+<!--l. 407--><p class="noindent">The View Menu provides items for adjusting the appearance, scaling, and layout of the
     canvas.
     The following items are available:
-
-
 <ul class="itemize1">
     <li class="itemize">Use Dark Theme - Toggles between light and dark themes for the application
         interface.
@@ -585,6 +759,8 @@
     <li class="itemize">Zoom In - Zooms into the canvas for a closer view.
     </li>
     <li class="itemize">Zoom Out - Zooms out of the canvas for a broader view.
+
+
     </li>
     <li class="itemize">Zoom To Fit - Adjusts the zoom level to fit the entire canvas within the window.
     </li>
@@ -592,19 +768,19 @@
         view.
     </li>
 </ul>
-<!--l. 312--><p class="noindent">
+<!--l. 419--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.5    </span> <a
-        id="x1-320009.5"></a>Window menu</h4>
-<!--l. 314--><p class="noindent">The Window menu items are:
+        id="x1-590009.5"></a>Window menu</h4>
+<!--l. 421--><p class="noindent">The Window menu items are:
 <ul class="itemize1">
     <li class="itemize">Set Window Size&#x2026;- Allows the user to set the exact size of the window
     </li>
     <li class="itemize">One item for each currently open document.</li>
 </ul>
-<!--l. 321--><p class="noindent">
+<!--l. 428--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.6    </span> <a
-        id="x1-330009.6"></a>Help Menu</h4>
-<!--l. 323--><p class="noindent">The Help menu contains the following items:
+        id="x1-600009.6"></a>Help Menu</h4>
+<!--l. 430--><p class="noindent">The Help menu contains the following items:
 <ul class="itemize1">
     <li class="itemize">Check for Updates&#x2026;- Allows the user to check whether an update is available.
     </li>
@@ -612,11 +788,9 @@
     </li>
     <li class="itemize">Help Window&#x2026;- Shows a window containing this help document.</li>
 </ul>
-
-
-<!--l. 330--><p class="noindent">
+<!--l. 437--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">10    </span> <a
-        id="x1-3400010"></a>Tips and Best Practices</h3>
+        id="x1-6100010"></a>Tips and Best Practices</h3>
 <ul class="itemize1">
     <li class="itemize">Start in Edit Mode to build structures.
     </li>
@@ -624,15 +798,17 @@
     </li>
     <li class="itemize">Label nodes early for easier analysis.</li>
 </ul>
-<!--l. 337--><p class="noindent">
+
+
+<!--l. 444--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">11    </span> <a
-        id="x1-3500011"></a>Support and Feedback</h3>
-<!--l. 338--><p class="noindent">For issues or suggestions, reach out via the GitHub repository or the apps support
+        id="x1-6200011"></a>Support and Feedback</h3>
+<!--l. 445--><p class="noindent">For issues or suggestions, reach out via the GitHub repository or the apps support
     page.
-    <!--l. 340-->
+    <!--l. 447-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">12    </span> <a
-        id="x1-3600012"></a>Known Issues</h3>
+        id="x1-6300012"></a>Known Issues</h3>
 <ul class="itemize1">
     <li class="itemize">Status bar assumes all nodes/edges are in the same graph.
     </li>
@@ -644,7 +820,7 @@
 </ul>
 <!--l. 1--><p class="noindent">
 <h3 class="likesectionHead"><a
-        id="x1-3700012"></a>References</h3>
+        id="x1-6400012"></a>References</h3>
 <!--l. 1--><p class="noindent">
 <div class="thebibliography">
     <p class="bibitem"><span class="biblabel">
@@ -654,8 +830,6 @@
                 class="phvro7t-x-x-114">Molecular</span>
         <span
                 class="phvro7t-x-x-114">Phylogenetics and Evolution</span>, 163, 2021.
-
-
     </p>
     <p class="bibitem"><span class="biblabel">
 <a
