@@ -49,7 +49,7 @@ public class ExportNewick {
 		var file = fileChooser.showSaveDialog(mainWindow.getStage());
 		if (file != null) {
 			try (var w = FileUtils.getOutputWriterPossiblyZIPorGZIP(file.getPath())) {
-				w.write(NewickUtils.toBracketString(mainWindow.getDrawPane()));
+				w.write(NewickUtils.toBracketString(mainWindow.getDrawView()));
 				ProgramProperties.put("NewickExport", file.getPath());
 			} catch (IOException ex) {
 				NotificationManager.showError("Export failed: " + ex);

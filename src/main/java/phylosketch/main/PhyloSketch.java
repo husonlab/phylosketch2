@@ -109,7 +109,8 @@ public class PhyloSketch extends Application {
         final var silentMode = options.getOption("-S", "silentMode", "Silent mode", false);
         ProgramExecutorService.setNumberOfCoresToUse(options.getOption("-t", "threads", "Maximum number of threads to use in a parallel algorithm (0=all available)", 0));
         ProgramProperties.setConfirmQuit(options.getOption("-q", "confirmQuit", "Confirm quit on exit", ProgramProperties.isConfirmQuit()));
-		test = options.getOption("!x", "x", "test", false);
+        test = true;
+        options.getOption("!x", "x", "test", false);
         ProgramProperties.put("MaxNumberRecentFiles", 100);
         options.done();
 
@@ -151,7 +152,7 @@ public class PhyloSketch extends Application {
 						try {
 							if (false)
 								System.err.println(last);
-							PhyloSketchIO.load(new StringReader(last), mainWindow.getDrawPane());
+                            PhyloSketchIO.load(new StringReader(last), mainWindow.getDrawView(), mainWindow.getPresenter().getCapturePane().getImageView());
 						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}

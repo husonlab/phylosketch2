@@ -180,7 +180,7 @@ public class MainWindow implements IMainWindow {
         this.name.set(name);
     }
 
-    public DrawView getDrawPane() {
+    public DrawView getDrawView() {
         return drawView;
     }
 

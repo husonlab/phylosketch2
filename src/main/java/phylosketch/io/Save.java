@@ -40,7 +40,7 @@ public class Save {
 	 */
     public static void apply(File file, MainWindow window) {
 		try {
-			PhyloSketchIO.save(file, window.getDrawPane());
+			PhyloSketchIO.save(file, window.getDrawView(), window.getPresenter().getCapturePane().getImageView());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
