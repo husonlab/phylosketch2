@@ -22,6 +22,9 @@ More details are presented in the [User Manual](https://husonlab.github.io/phylo
 
 
 
+## Phylogeny capture
+
+Here is a short video illustrating how the program can help you to capture a phylogenetic tree or network from an image:
 
 https://github.com/user-attachments/assets/07e655a2-86c3-4500-9b15-1296615e6339
 
