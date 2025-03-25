@@ -19,3 +19,12 @@ The program runs on MacOS X, Linux and Windows, and is also designed for touch-s
 ## User Manual
 
 More details are presented in the [User Manual](https://husonlab.github.io/phylosketch2/manual.html), which is also available as a [pdf](https://husonlab.github.io/phylosketch2/manual.pdf).
+
+
+
+## Phylogeny capture
+
+Here is a short video illustrating how the program can help you to capture a phylogenetic tree or network from an image (using an image from an image that was produced by Esther Julien):
+
+https://github.com/user-attachments/assets/07e655a2-86c3-4500-9b15-1296615e6339
+
