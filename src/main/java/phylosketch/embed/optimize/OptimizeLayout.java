@@ -48,41 +48,64 @@ public class OptimizeLayout {
 	public static boolean optimizeOrdering(Node v, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, Random random, How how) {
 		var originalOrdering = new ArrayList<>(lsaChildren.get(v));
 		var crossEdges = computeCrossEdges(v, originalOrdering, lsaChildren);
-		var originalScore = Integer.MAX_VALUE;
-		var bestOrdering = new Single<>(new ArrayList<>(originalOrdering));
-		var bestScore = new Single<>(originalScore);
+		if (!crossEdges.isEmpty()) {
+			var originalCost = Integer.MAX_VALUE;
+			var bestOrdering = new Single<List<Node>>(originalOrdering);
+			var bestCost = new Single<>(originalCost);
 
-		double span;
-		{
-			var yMin = points.values().stream().mapToDouble(Point2D::getY).min().orElse(0.0);
-			var yMax = points.values().stream().mapToDouble(Point2D::getY).max().orElse(0.0);
-			span = yMax - yMin + 1;
-		}
+			double span;
+			{
+				var yMin = points.values().stream().mapToDouble(Point2D::getY).min().orElse(0.0);
+				var yMax = points.values().stream().mapToDouble(Point2D::getY).max().orElse(0.0);
+				span = yMax - yMin + 1;
+			}
 
-		var permutations = (originalOrdering.size() <= 8 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 100000, random));
-		for (var permuted : permutations) {
-			var score = computeScore(v, span, permuted, crossEdges, lsaChildren, points, how);
-			if (score < bestScore.get()) {
-				bestScore.set(score);
-				bestOrdering.set(new ArrayList<>(permuted));
+			if (true) { // use simulated annealing for larger problems
+				if (originalOrdering.size() <= 8) {
+					for (var permuted : Permutations.generateAllPermutations(originalOrdering)) {
+						var cost = computeCost(v, span, permuted, crossEdges, lsaChildren, points, how);
+						if (cost < bestCost.get()) {
+							bestCost.set(cost);
+							bestOrdering.set(new ArrayList<>(permuted));
+							if (bestCost.get() == 0)
+								break;
+						}
+					}
+				} else {
+					var simulatedAnnealing = new SimulatedAnnealingMinLA<Node>();
+					var pair = simulatedAnnealing.apply(originalOrdering, random, (permuted) -> computeCost(v, span, permuted, crossEdges, lsaChildren, points, how));
+					bestOrdering.set(pair.getFirst());
+					bestCost.set(pair.getSecond());
+				}
+			} else {
+				var permutations = (originalOrdering.size() <= 8 ? Permutations.generateAllPermutations(originalOrdering) : Permutations.generateRandomPermutations(originalOrdering, 100000, random));
+				for (var permuted : permutations) {
+					var cost = computeCost(v, span, permuted, crossEdges, lsaChildren, points, how);
+					if (cost < bestCost.get()) {
+						bestCost.set(cost);
+						bestOrdering.set(new ArrayList<>(permuted));
+						if (bestCost.get() == 0)
+							break;
+					}
+				}
+			}
+			if (bestCost.get() < originalCost) {
+				updateLSAChildrenOrderAndPoints(v, bestOrdering.get(), lsaChildren, points);
+				return true;
 			}
 		}
-		if (bestScore.get() < originalScore) {
-			updateLSAChildrenOrderAndPoints(v, bestOrdering.get(), lsaChildren, points);
-		}
-
-		return true;
+		return false;
 	}
 
 	/**
-	 * compute the total layout score
+	 * compute the total layout cost
 	 *
 	 * @param tree        the phylogeny
 	 * @param lsaChildren children mapping
 	 * @param points      the node to point map
-	 * @return the score
+	 * @return the cost
 	 */
-	public static int computeScore(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, How how) {
+	public static int computeCost(PhyloTree tree, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, How how) {
 		try {
 			double span;
 			{
@@ -91,20 +114,20 @@ public class OptimizeLayout {
 				span = yMax - yMin + 1;
 			}
 
-			var score = new LongAdder();
+			var cost = new LongAdder();
 			preOrderTraversal(tree.getRoot(), lsaChildren::get, v -> {
 				var ordering = lsaChildren.get(v);
 				var crossEdges = computeCrossEdges(v, ordering, lsaChildren);
-				score.add(computeScore(v, span, ordering, crossEdges, lsaChildren, points, how));
+				cost.add(computeCost(v, span, ordering, crossEdges, lsaChildren, points, how));
 			});
-			return (int) score.sum();
+			return (int) cost.sum();
 		} catch (Exception e) {
 			return Integer.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * computes the score for a proposed new ordering of children of a node v
+	 * computes the cost for a proposed new ordering of children of a node v
 	 *
 	 * @param v           the node
 	 * @param newOrdering the proposed new ordering
@@ -113,7 +136,7 @@ public class OptimizeLayout {
 	 * @param points      the current points (proposed new order has not been applied)
 	 * @return the total y extent of all
 	 */
-	private static int computeScore(Node v, double span, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, How how) {
+	private static int computeCost(Node v, double span, List<Node> newOrdering, Collection<List<Edge>> crossEdges, Map<Node, List<Node>> lsaChildren, Map<Node, Point2D> points, How how) {
 		var delta = computeDelta(newOrdering, lsaChildren, points);
 		var nodeIndexMap = computeNodeIndexMap(newOrdering, lsaChildren);
 
@@ -121,7 +144,7 @@ public class OptimizeLayout {
 		var fromAbove = new int[n];
 		var fromBelow = new int[n];
 
-		var score = 0;
+		var cost = 0;
 		for (var edges : crossEdges) {
 			for (var e : edges) {
 				Node p;
@@ -146,29 +169,29 @@ public class OptimizeLayout {
 					if (false) {
 						if (v.getOwner() instanceof PhyloTree tree && tree.hasEdgeConfidences() && tree.getEdgeConfidences().containsKey(e)) {
 							var confidence = Math.max(1, tree.getConfidence(e));
-							score += (int) (confidence * 1000 * d);
+							cost += (int) (confidence * 1000 * d);
 						}
 
 					} else {
-						score += (int) (1000 * d);
+						cost += (int) (1000 * d);
 					}
 
 					if (qIndex != -1) {
 						if (yp < yq)
 							fromAbove[qIndex]++;
 						else fromBelow[qIndex]++;
-						}
+					}
 				}
 			}
 		}
 
-		// each one-sided component adds slightly to the score
+		// each one-sided component adds slightly to the cost
 		for (var i = 0; i < n; i++) {
 			if ((fromBelow[i] == 0) != (fromAbove[i] == 0)) {
-				score += 1;
+				cost += 1;
 			}
 		}
-		return score;
+		return cost;
 	}
 
 	/**

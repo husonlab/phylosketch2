@@ -498,11 +498,18 @@ public class MainWindowPresenter {
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getRectangularLayoutMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false)));
-		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getRectangularCladogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false, false)));
+		controller.getRectangularCladogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getCircularLayoutMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, true)));
-		controller.getCircularLayoutMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getCircularCladogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, true, false)));
+		controller.getCircularCladogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getRectangularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false, true)));
+		controller.getRectangularPhylogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getCircularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, true, true)));
+		controller.getCircularPhylogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
 
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
 			allowResize.set(false);

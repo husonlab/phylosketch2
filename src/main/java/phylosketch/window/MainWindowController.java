@@ -389,10 +389,16 @@ public class MainWindowController {
 	private MenuItem layoutLabelMenuItem;
 
 	@FXML
-	private MenuItem rectangularLayoutMenuItem;
+	private MenuItem rectangularCladogramMenuItem;
 
 	@FXML
-	private MenuItem circularLayoutMenuItem;
+	private MenuItem circularCladogramMenuItem;
+
+	@FXML
+	private MenuItem rectangularPhylogramMenuItem;
+
+	@FXML
+	private MenuItem circularPhylogramMenuItem;
 
 	@FXML
 	private MenuItem rotateLeftMenuItem;
@@ -969,12 +975,20 @@ public class MainWindowController {
 		return layoutLabelMenuItem;
 	}
 
-	public MenuItem getRectangularLayoutMenuItem() {
-		return rectangularLayoutMenuItem;
+	public MenuItem getRectangularCladogramMenuItem() {
+		return rectangularCladogramMenuItem;
 	}
 
-	public MenuItem getCircularLayoutMenuItem() {
-		return circularLayoutMenuItem;
+	public MenuItem getCircularCladogramMenuItem() {
+		return circularCladogramMenuItem;
+	}
+
+	public MenuItem getRectangularPhylogramMenuItem() {
+		return rectangularPhylogramMenuItem;
+	}
+
+	public MenuItem getCircularPhylogramMenuItem() {
+		return circularPhylogramMenuItem;
 	}
 
 	public MenuItem getRotateLeftMenuItem() {

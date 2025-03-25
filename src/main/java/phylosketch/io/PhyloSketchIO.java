@@ -30,6 +30,7 @@ import jloda.fx.util.ColorUtilsFX;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.io.GraphGML;
+import jloda.phylo.LSAUtils;
 import jloda.util.Basic;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
@@ -64,7 +65,7 @@ public class PhyloSketchIO {
 	public static void save(Writer w, DrawView view, ImageView backgroundImageView) throws IOException {
 		var graph = view.getGraph();
 		var nodeKeyNames = List.of("taxon", "shape", "size", "stroke", "fill", "x", "y", "label", "label_dx", "label_dy");
-		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label");
+		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label", "acceptor");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
 				nodeKeyNames, (key, v) -> {
@@ -122,6 +123,7 @@ public class PhyloSketchIO {
 								graph.hasEdgeProbabilities() && e.getTarget().getInDegree() > 1 ? StringUtils.removeTrailingZerosAfterDot(graph.getProbability(e)) : "";
 						case "arrow" -> view.getEdgeArrowMap().containsKey(e) ? "1" : "";
 						case "label" -> DrawView.getLabel(e).getText().trim();
+						case "acceptor" -> graph.isTransferAcceptorEdge(e) ? "1" : "";
 						default -> "";
 					}));
 					return (value.isBlank() ? null : value);
@@ -152,6 +154,7 @@ public class PhyloSketchIO {
 		view.clear();
 		var graph = view.getGraph();
 		var arrowEdges = new HashSet<Edge>();
+		var acceptorEdges = new HashSet<Edge>();
 
 		var gmlInfo=GraphGML.readGML(r, graph, (key, v, value) -> {
 			switch (key) {
@@ -266,8 +269,17 @@ public class PhyloSketchIO {
 					view.ensureLabelExists(e);
 					view.setLabel(e, value);
 				}
+				case "acceptor" -> {
+					if (value.equals("1"))
+						acceptorEdges.add(e);
+				}
 			}
 		});
+
+		LSAUtils.setLSAChildrenAndTransfersMap(graph);
+		for (var e : acceptorEdges)
+			graph.setTransferAcceptor(e, true);
+
 
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
