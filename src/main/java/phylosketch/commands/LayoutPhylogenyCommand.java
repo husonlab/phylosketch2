@@ -58,13 +58,13 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view    the view
 	 */
-	public LayoutPhylogenyCommand(DrawView view, boolean circular) {
+	public LayoutPhylogenyCommand(DrawView view, boolean circular, boolean toScale) {
 		super("layout");
 		var command = new CompositeCommand("layout");
 		var nodes = view.getSelectedOrAllNodes();
 		for (var component : ConnectedComponents.components(view.getGraph())) {
 			if (CollectionUtils.intersects(component, nodes)) {
-				command.add(new LayoutPhylogenyCommand(view, component, circular));
+				command.add(new LayoutPhylogenyCommand(view, component, circular, toScale));
 				command.add(new LayoutLabelsCommand(view, null, component));
 			}
 		}
@@ -83,7 +83,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 * @param view      the view
 	 * @param component the nodes of the component
 	 */
-	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, boolean circular) {
+	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, boolean circular, boolean toScale) {
 		super("layout");
 
 		if (isRootedComponent(component)) {
@@ -159,12 +159,12 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							try (NodeArray<Point2D> points = tree.newNodeArray()) {
 
 								if (circular) {
-									CircularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
+									CircularPhylogenyLayout.apply(tree, toScale, HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
 									if (false && !tree.hasEdgeWeights()) {
 										GraphRelaxation.apply(tree.getNodesAsList(), points, 10);
 									}
 								} else {
-									RectangularPhylogenyLayout.apply(tree, tree.hasEdgeWeights(), HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
+									RectangularPhylogenyLayout.apply(tree, toScale, HeightAndAngles.Averaging.ChildAverage, PhyloSketch.test, points);
 								}
 								ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, points, circular);

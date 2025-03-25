@@ -494,10 +494,14 @@
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem fx:id="rectangularLayoutMenuItem" mnemonicParsing="false"
-                                          text="Rectangular Layout"/>
-                                <MenuItem fx:id="circularLayoutMenuItem" mnemonicParsing="false"
-                                          text="Circular Layout"/>
+                                <MenuItem fx:id="rectangularCladogramMenuItem" mnemonicParsing="false"
+                                          text="Rectangular Cladogram"/>
+                                <MenuItem fx:id="circularCladogramMenuItem" mnemonicParsing="false"
+                                          text="Circular Caldogram"/>
+                                <MenuItem fx:id="rectangularPhylogramMenuItem" mnemonicParsing="false"
+                                          text="Rectangular Phylogram"/>
+                                <MenuItem fx:id="circularPhylogramMenuItem" mnemonicParsing="false"
+                                          text="Circular Phylogram"/>
                             </Menu>
 
                             <Menu mnemonicParsing="false" text="View">

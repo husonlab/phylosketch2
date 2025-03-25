@@ -29,11 +29,12 @@ import jloda.util.IteratorUtils;
 import jloda.util.ProgramProperties;
 import phylosketch.embed.optimize.OptimizeLayout;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import static phylosketch.embed.optimize.OptimizeLayout.computeScore;
+import static phylosketch.embed.optimize.OptimizeLayout.computeCost;
 
 /**
  * computes the rectangular layout for a rooted tree or network
@@ -63,7 +64,7 @@ public class RectangularPhylogenyLayout {
 		if (!tree.hasLSAChildrenMap())
 			LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-		var originalScore = (how != OptimizeLayout.How.None ? computeScore(tree, tree.getLSAChildrenMap(), points, how) : Integer.MAX_VALUE);
+		var originalScore = (how != OptimizeLayout.How.None ? computeCost(tree, tree.getLSAChildrenMap(), points, how) : Integer.MAX_VALUE);
 
 		points.clear();
 
@@ -73,52 +74,106 @@ public class RectangularPhylogenyLayout {
 			if (toScale) {
 				setCoordinatesPhylogram(tree, yCoord, points);
 			} else {
-				try (var levels = tree.newNodeIntArray()) {
-					// compute levels: max length of path from node to a leaf
-					tree.postorderTraversal(v -> {
-						if (v.isLeaf())
-							levels.put(v, 0);
-						else {
-							var level = 0;
-							if (true) {
-								for (var e : v.outEdges()) {
-									var w = e.getTarget();
-
-									if (tree.isTransferEdge(e))
-										level = Math.max(level, levels.get(w) - 1);
-									else
-										level = Math.max(level, levels.get(w));
-								}
-							} else {
-								for (var w : v.children()) {
-									level = Math.max(level, levels.get(w));
-								}
+				var combiningNodes = 0.0;
+				var transferNodes = 0.0;
+				for (var v : tree.nodes()) {
+					if (v.getInDegree() > 1) {
+						if (v.inEdgesStream(false).anyMatch(tree::isTransferAcceptorEdge)) {
+							transferNodes += 1;
+						} else combiningNodes += 1;
+					}
+				}
+				if (transferNodes > combiningNodes) {
+					var longestPath = new HashMap<Node, Double>();
+					longestPath.put(tree.getRoot(), 0.0);
+					computeLongestPathsRec(tree, tree.getRoot(), longestPath);
+					var changed = false;
+					for (var e : tree.edges()) {
+						if (tree.isTransferEdge(e)) {
+							var longestPathSource = longestPath.get(e.getSource());
+							var longestPathTarget = longestPath.get(e.getTarget());
+							if (longestPathTarget > longestPathSource) {
+								longestPath.put(e.getSource(), longestPathTarget);
+								changed = true;
 							}
-							var prev = (levels.get(v) != null ? levels.get(v) : 0);
-							if (level + 1 > prev)
-								levels.set(v, level + 1);
 						}
-					});
+					}
+					if (changed) {
+						computeLongestPathsRec(tree, tree.getRoot(), longestPath);
+					}
+
+					var max = longestPath.values().stream().mapToDouble(d -> d).max().orElse(0.0);
 					for (var v : tree.nodes()) {
-						var dx = 0.0;
-						if (v.getInDegree() <= 1 && v.outEdgesStream(false).filter(tree::isTransferEdge).count() == v.getOutDegree() - 1)
-							dx = 0.1 * levels.get(v);
-						points.put(v, new Point2D(-(levels.get(v) + dx), yCoord.get(v)));
+						if (v.isLeaf())
+							points.put(v, new Point2D(max, yCoord.get(v)));
+						else
+							points.put(v, new Point2D(longestPath.get(v), yCoord.get(v)));
+					}
+				} else {
+					try (var levels = tree.newNodeIntArray()) {
+						// compute levels: max length of path from node to a leaf
+						tree.postorderTraversal(v -> {
+							if (v.isLeaf())
+								levels.put(v, 0);
+							else {
+								var level = 0;
+								if (true) {
+									for (var e : v.outEdges()) {
+										var w = e.getTarget();
+
+										if (tree.isTransferEdge(e))
+											level = Math.max(level, levels.get(w) - 1);
+										else
+											level = Math.max(level, levels.get(w));
+									}
+								} else {
+									for (var w : v.children()) {
+										level = Math.max(level, levels.get(w));
+									}
+								}
+								var prev = (levels.get(v) != null ? levels.get(v) : 0);
+								if (level + 1 > prev)
+									levels.set(v, level + 1);
+							}
+						});
+						for (var v : tree.nodes()) {
+							var dx = 0.0;
+							if (v.getInDegree() <= 1 && v.outEdgesStream(false).filter(tree::isTransferEdge).count() == v.getOutDegree() - 1)
+								dx = 0.01 * levels.get(v);
+							points.put(v, new Point2D(-(levels.get(v) + dx), yCoord.get(v)));
+						}
 					}
 				}
 			}
 			if (how != OptimizeLayout.How.None) {
 				if (originalScore == Integer.MAX_VALUE) {
-					originalScore = computeScore(tree, tree.getLSAChildrenMap(), points, how);
+					originalScore = computeCost(tree, tree.getLSAChildrenMap(), points, how);
 				}
 				if (originalScore > 0) {
 					DAGTraversals.preOrderTraversal(tree.getRoot(), tree.getLSAChildrenMap(), v -> OptimizeLayout.optimizeOrdering(v, tree.getLSAChildrenMap(), points, random, how));
-					var newScore = computeScore(tree, tree.getLSAChildrenMap(), points, how);
+					var newScore = computeCost(tree, tree.getLSAChildrenMap(), points, how);
 					if (false)
 						System.err.printf("Layout optimization: %d -> %d%n", originalScore, newScore);
 				}
 				apply(tree, toScale, averaging, false, points);
 			}
+		}
+	}
+
+	private static void computeLongestPathsRec(PhyloTree tree, Node v, HashMap<Node, Double> longestPath) {
+		var vDist = longestPath.get(v);
+		for (var f : v.outEdges()) {
+			var w = f.getTarget();
+			var wDist = (tree.isTreeEdge(f) || tree.isTransferAcceptorEdge(f) ? vDist + 1.0 : vDist);
+			if (tree.isReticulateEdge(f)) {
+				if (tree.isTransferEdge(f))
+					wDist += 0.1;
+				else if (!tree.isTransferAcceptorEdge(f))
+					wDist += 0.5;
+			}
+			if (!longestPath.containsKey(w) || wDist > longestPath.get(w))
+				longestPath.put(w, wDist);
+			computeLongestPathsRec(tree, w, longestPath);
 		}
 	}
 
@@ -166,7 +221,15 @@ public class RectangularPhylogenyLayout {
 					} else {
 						var height = yCoord.get(e.getTarget());
 						var u = e.getTarget();
-						nodePointMap.put(u, new Point2D(location.getX() + tree.getWeight(e), height));
+						double weight;
+						if (tree.hasEdgeWeights() && tree.getEdgeWeights().containsKey(e))
+							weight = tree.getEdgeWeights().get(e);
+						else if (tree.isTreeEdge(e) || tree.isTransferAcceptorEdge(e))
+							weight = 1.0;
+						else if (tree.isTransferEdge(e))
+							weight = 0.01;
+						else weight = 0.1;
+						nodePointMap.put(u, new Point2D(location.getX() + weight, height));
 						assigned.add(u);
 					}
 				} else if (w.getInDegree() > 1) {
