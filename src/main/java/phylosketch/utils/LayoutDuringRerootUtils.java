@@ -138,9 +138,9 @@ public class LayoutDuringRerootUtils {
 			if (!newPosition.equals(position)) {
 				var shape = DrawView.getShape(v);
 				var x = new SimpleDoubleProperty(shape.getTranslateX());
-				x.addListener((var, o, n) -> MoveNodesCommand.moveNodesAndEdges(view.getGraph(), List.of(v), n.doubleValue() - o.doubleValue(), 0, false));
+				x.addListener((var, o, n) -> MoveNodesCommand.moveNodesAndEdges(view, List.of(v), n.doubleValue() - o.doubleValue(), 0, false));
 				var y = new SimpleDoubleProperty(shape.getTranslateY());
-				y.addListener((var, o, n) -> MoveNodesCommand.moveNodesAndEdges(view.getGraph(), List.of(v), 0, n.doubleValue() - o.doubleValue(), false));
+				y.addListener((var, o, n) -> MoveNodesCommand.moveNodesAndEdges(view, List.of(v), 0, n.doubleValue() - o.doubleValue(), false));
 
 				keyValues.add(new KeyValue(x, newPosition.getX()));
 				keyValues.add(new KeyValue(y, newPosition.getY()));

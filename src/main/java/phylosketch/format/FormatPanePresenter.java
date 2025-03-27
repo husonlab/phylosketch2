@@ -212,8 +212,8 @@ public class FormatPanePresenter {
 		{
 			var object = new Object();
 			InvalidationListener updateShowNodesListener = e -> {
-				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> ((Circle) notNullOrElse(v, DrawView::getShape, () -> new Circle(3))).getRadius());
-				var color = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(3)).getFill());
+				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> ((Circle) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5))).getRadius());
+				var color = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5)).getFill());
 				var label = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getText());
 				var labelFont = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontFamily());
 				var labelSize = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontSize());
@@ -379,7 +379,7 @@ public class FormatPanePresenter {
 		controller.getEdgeCurvedButton().setOnAction(e ->
 		{
 			if (canUpdate)
-				view.getUndoManager().doAndAdd(new QuadraticCurveCommand(view.getGraph(), view.getSelectedOrAllEdges()));
+				view.getUndoManager().doAndAdd(new QuadraticCurveCommand(view, view.getSelectedOrAllEdges()));
 		});
 		controller.getEdgeCurvedButton().disableProperty().bind(controller.getSmoothButton().disableProperty());
 

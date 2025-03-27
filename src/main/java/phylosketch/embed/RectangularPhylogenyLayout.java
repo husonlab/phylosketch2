@@ -87,19 +87,40 @@ public class RectangularPhylogenyLayout {
 					var longestPath = new HashMap<Node, Double>();
 					longestPath.put(tree.getRoot(), 0.0);
 					computeLongestPathsRec(tree, tree.getRoot(), longestPath);
-					var changed = false;
-					for (var e : tree.edges()) {
-						if (tree.isTransferEdge(e)) {
-							var longestPathSource = longestPath.get(e.getSource());
-							var longestPathTarget = longestPath.get(e.getTarget());
-							if (longestPathTarget > longestPathSource) {
-								longestPath.put(e.getSource(), longestPathTarget);
-								changed = true;
+					for (var i = 0; i < 5; i++) {
+						var changed = false;
+						for (var e : tree.edges()) {
+							if (tree.isTransferEdge(e)) {
+								var longestPathSource = longestPath.get(e.getSource());
+								var longestPathTarget = longestPath.get(e.getTarget());
+								if (longestPathTarget > longestPathSource) {
+									longestPath.put(e.getSource(), longestPathTarget);
+									changed = true;
+								}
 							}
 						}
+						if (changed) {
+							computeLongestPathsRec(tree, tree.getRoot(), longestPath);
+						} else
+							break;
 					}
-					if (changed) {
-						computeLongestPathsRec(tree, tree.getRoot(), longestPath);
+
+					if (false) {
+						for (var i = 0; i < 5; i++) {
+							var changed = false;
+							for (var e : tree.edges()) {
+								if (tree.isTransferEdge(e)) {
+									var longestPathSource = longestPath.get(e.getSource());
+									var longestPathTarget = longestPath.get(e.getTarget());
+									if (longestPathTarget <= longestPathSource) {
+										longestPath.put(e.getSource(), longestPathSource - 0.05);
+										changed = true;
+									}
+								}
+							}
+							if (!changed)
+								break;
+						}
 					}
 
 					var max = longestPath.values().stream().mapToDouble(d -> d).max().orElse(0.0);
@@ -165,11 +186,8 @@ public class RectangularPhylogenyLayout {
 		for (var f : v.outEdges()) {
 			var w = f.getTarget();
 			var wDist = (tree.isTreeEdge(f) || tree.isTransferAcceptorEdge(f) ? vDist + 1.0 : vDist);
-			if (tree.isReticulateEdge(f)) {
-				if (tree.isTransferEdge(f))
-					wDist += 0.1;
-				else if (!tree.isTransferAcceptorEdge(f))
-					wDist += 0.5;
+			if (tree.isReticulateEdge(f) && !tree.isTransferEdge(f) && !tree.isTransferAcceptorEdge(f)) {
+				wDist += 0.5;
 			}
 			if (!longestPath.containsKey(w) || wDist > longestPath.get(w))
 				longestPath.put(w, wDist);

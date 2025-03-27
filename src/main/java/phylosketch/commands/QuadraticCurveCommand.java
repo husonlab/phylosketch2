@@ -24,11 +24,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
-import jloda.graph.Graph;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.QuadraticCurve;
+import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 
 import java.util.Collection;
@@ -48,8 +48,9 @@ public class QuadraticCurveCommand extends UndoableRedoableCommand {
 	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
 
-	public QuadraticCurveCommand(Graph graph, Collection<Edge> edges) {
+	public QuadraticCurveCommand(DrawView view, Collection<Edge> edges) {
 		super("quadratic curve");
+		var graph = view.getGraph();
 		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
 
 		try (NodeArray<RootPosition> nodeRootLocationMap = graph.newNodeArray()) {
@@ -67,10 +68,16 @@ public class QuadraticCurveCommand extends UndoableRedoableCommand {
 					var first = PathUtils.getCoordinates(path.getElements().get(0));
 					var last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
 
-					var control = switch (nodeRootLocationMap.get(e.getSource()).side()) {
-						case Top, Bottom -> new Point2D(last.getX(), first.getY());
-						case Left, Right, Center -> new Point2D(first.getX(), last.getY());
-					};
+					Point2D control;
+					if (graph.isTransferEdge(e) || (graph.isReticulateEdge(e) && nodeRootLocationMap.get(e.getSource()).side() == RootPosition.Side.Center)) {
+						control = QuadraticCurve.computeControlForBowEdge(first, last);
+					} else {
+						control = switch (nodeRootLocationMap.get(e.getSource()).side()) {
+							case Top, Bottom -> new Point2D(last.getX(), first.getY());
+							case Left, Right -> new Point2D(first.getX(), last.getY());
+							case Center -> new Point2D(first.getX(), last.getY());
+						};
+					}
 					idNewPointsMap.put(e.getId(), QuadraticCurve.apply(first, control, last, 5));
 				}
 			}

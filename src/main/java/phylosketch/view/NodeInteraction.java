@@ -115,7 +115,7 @@ public class NodeInteraction {
 									var previous = view.screenToLocal(mouseX, mouseY);
 									var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
-									MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
+									MoveNodesCommand.moveNodesAndEdges(view, view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
 									mouseX = me.getScreenX();
 									mouseY = me.getScreenY();
 

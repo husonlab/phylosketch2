@@ -20,10 +20,8 @@
 
 package phylosketch.commands;
 
-import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.undo.UndoableRedoableCommand;
-import jloda.graph.Graph;
 import jloda.graph.Node;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathReshape;
@@ -50,11 +48,11 @@ public class MoveNodesCommand extends UndoableRedoableCommand {
 
 		undo = () -> {
 			var set = nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-			moveNodesAndEdges(view.getGraph(), set, -dx, -dy, true);
+			moveNodesAndEdges(view, set, -dx, -dy, true);
 		};
 		redo = () -> {
 			var set = nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-			moveNodesAndEdges(view.getGraph(), set, dx, dy, true);
+			moveNodesAndEdges(view, set, dx, dy, true);
 
 		};
 	}
@@ -69,19 +67,20 @@ public class MoveNodesCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	public static void moveNodesAndEdges(Graph graph, Collection<Node> nodes, double dx, double dy, boolean normalizePaths) {
+	public static void moveNodesAndEdges(DrawView view, Collection<Node> nodes, double dx, double dy, boolean normalizePaths) {
 		for (var v : nodes) {
 			if (v.getData() instanceof Shape shape) {
 				shape.setTranslateX(shape.getTranslateX() + dx);
 				shape.setTranslateY(shape.getTranslateY() + dy);
 			}
 		}
-		moveEdges(graph, nodes, dx, dy, normalizePaths);
+		moveEdges(view, nodes, dx, dy, normalizePaths);
 	}
 
-	public static void moveEdges(Graph graph, Collection<Node> nodes, double dx, double dy, boolean normalizePaths) {
-		for (var e : graph.edges()) {
-			if (e.getData() instanceof Path path) {
+	public static void moveEdges(DrawView view, Collection<Node> nodes, double dx, double dy, boolean normalizePaths) {
+		for (var e : view.getGraph().edges()) {
+			var path = DrawView.getPath(e);
+
 				if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget())) {
 					PathReshape.apply(path, dx, dy);
 					if (normalizePaths) {
@@ -100,7 +99,6 @@ public class MoveNodesCommand extends UndoableRedoableCommand {
 						path.getElements().setAll(PathNormalize.apply(path, 2, 5));
 					}
 				}
-			}
 		}
 	}
 
