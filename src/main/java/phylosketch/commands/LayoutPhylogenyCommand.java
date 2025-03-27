@@ -64,7 +64,15 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 		var nodes = view.getSelectedOrAllNodes();
 		for (var component : ConnectedComponents.components(view.getGraph())) {
 			if (CollectionUtils.intersects(component, nodes)) {
+				var reticulateEdges = new ArrayList<Edge>();
+				for (var v : nodes) {
+					reticulateEdges.addAll(v.outEdgesStream(false).filter(e -> component.contains(e.getTarget()) && view.getGraph().isReticulateEdge(e) && !view.getGraph().isTransferAcceptorEdge(e)).toList());
+				}
 				command.add(new LayoutPhylogenyCommand(view, component, circular, toScale));
+				if (!reticulateEdges.isEmpty()) {
+					if (false)
+						command.add(new QuadraticCurveCommand(view, reticulateEdges));
+				}
 				command.add(new LayoutLabelsCommand(view, null, component));
 			}
 		}

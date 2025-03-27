@@ -79,4 +79,33 @@ public class QuadraticCurve {
 		var y = (1 - t) * (1 - t) * start.getY() + 2 * (1 - t) * t * control.getY() + t * t * end.getY();
 		return new Point2D(x, y);
 	}
+
+	/**
+	 * compute the control point for a bow edge, with 5% offset
+	 *
+	 * @param start start
+	 * @param end   end
+	 * @return control point
+	 */
+	public static Point2D computeControlForBowEdge(Point2D start, Point2D end) {
+		return computeControlForBowEdge(start, end, 0.05);
+	}
+
+	/**
+	 * compute the control point for a bow edge, with a given height (as proportion of distance)
+	 *
+	 * @param start        start
+	 * @param end          end
+	 * @param offsetFactor height as proportion of distance
+	 * @return control point
+	 */
+	public static Point2D computeControlForBowEdge(Point2D start, Point2D end, double offsetFactor) {
+		var midpoint = start.midpoint(end);
+		var d = start.distance(end);
+		var dx = end.getX() - start.getX();
+		var dy = end.getY() - start.getY();
+		var perpendicular = new Point2D(-dy / d, dx / d);
+		var offset = offsetFactor * d;
+		return midpoint.add(perpendicular.multiply(offset));
+	}
 }

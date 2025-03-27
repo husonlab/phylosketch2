@@ -162,7 +162,7 @@ public class PhyloSketchIO {
 					graph.addTaxon(v, Integer.parseInt(value));
 				}
 				case "shape" -> {
-					var shape = value.equals("square") ? new Rectangle(3, 3) : new Circle(3);
+					var shape = value.equals("square") ? new Rectangle(1.5, 1.5) : new Circle(1.5);
 					shape.strokeProperty().addListener((a, o, n) -> {
 						System.err.println("Stroke changed: " + o + " -> " + n);
 					});
@@ -284,7 +284,7 @@ public class PhyloSketchIO {
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
 			if(!(v.getData() instanceof Shape)) {
-				view.setShape(v, new Circle(3));
+				view.setShape(v, new Circle(1.5));
 				view.ensureLabelExists(v);
 			}
 			view.ensureLabelExists(v);

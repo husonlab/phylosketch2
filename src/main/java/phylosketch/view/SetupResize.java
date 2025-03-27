@@ -34,8 +34,6 @@ import jloda.fx.icons.MaterialIcons;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
-import jloda.graph.NodeArray;
-import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
 import phylosketch.commands.MoveNodesCommand;
 import phylosketch.paths.PathNormalize;
@@ -104,7 +102,7 @@ public class SetupResize {
 
 		rectangle.setOnMouseDragged(me -> {
 			var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
-			MoveNodesCommand.moveNodesAndEdges(view.getGraph(), view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY(), false);
+			MoveNodesCommand.moveNodesAndEdges(view, view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY(), false);
 			mouseX = me.getScreenX();
 			mouseY = me.getScreenY();
 			updateSizeAndLocation(view, rectangle, resizeHandle);
@@ -119,13 +117,13 @@ public class SetupResize {
 				@Override
 				public void undo() {
 					var nodes = nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-					MoveNodesCommand.moveNodesAndEdges(view.getGraph(), nodes, -diff.getX(), -diff.getY(), false);
+					MoveNodesCommand.moveNodesAndEdges(view, nodes, -diff.getX(), -diff.getY(), false);
 				}
 
 				@Override
 				public void redo() {
 					var nodes = nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-					MoveNodesCommand.moveNodesAndEdges(view.getGraph(), nodes, diff.getX(), diff.getY(), false);
+					MoveNodesCommand.moveNodesAndEdges(view, nodes, diff.getX(), diff.getY(), false);
 				}
 			});
 			me.consume();
@@ -159,7 +157,7 @@ public class SetupResize {
 				rectangle.setHeight(rectangle.getHeight() + diff.getY());
 				resizeHandle.setTranslateX(resizeHandle.getTranslateX() + diff.getX());
 				resizeHandle.setTranslateY(resizeHandle.getTranslateY() + diff.getY());
-				scale(view.getGraph(), view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY());
+				scale(view, view.getNodeSelection().getSelectedItems(), diff.getX(), diff.getY());
 				mouseX = me.getScreenX();
 				mouseY = me.getScreenY();
 				me.consume();
@@ -195,7 +193,7 @@ public class SetupResize {
 				@Override
 				public void redo() {
 					var set = nodePointMap.keySet().stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
-					SetupResize.scale(view.getGraph(), set, diff.getX(), diff.getY());
+					SetupResize.scale(view, set, diff.getX(), diff.getY());
 					PathNormalize.normalizeEdges(getAdjacentEdges(set));
 					updateSizeAndLocation(view, rectangle, resizeHandle);
 				}
@@ -214,51 +212,48 @@ public class SetupResize {
 		resizeHandle.setTranslateY(rectangle.getY() + rectangle.getHeight());
 	}
 
-	public static void scale(PhyloTree graph, Collection<Node> nodes, double dx, double dy) {
-		var boundingBox = computeBoundingBox(nodes);
-		try (NodeArray<Point2D> nodeDiffMap = graph.newNodeArray()) {
+	public static void scale(DrawView view, Collection<Node> nodes, double dx, double dy) {
+		if (dx != 0 || dy != 0) {
+			var oldBBox = computeBoundingBox(nodes);
+			var newBBox = new Box(oldBBox.xMin(), oldBBox.yMin(), oldBBox.xMax() + dx, oldBBox.yMax() + dy);
+			var xFactor = (oldBBox.width() > 0 ? newBBox.width() / oldBBox.width() : 1.0);
+			var yFactor = (oldBBox.height() > 0 ? newBBox.height() / oldBBox.height() : 1.0);
+
 			for (var v : nodes) {
-				if (v.getData() instanceof Shape shape) {
-					var x = shape.getTranslateX();
-					shape.setTranslateX(boundingBox.width() <= 0 ? x : x + dx * (x - boundingBox.xMin()) / boundingBox.width());
-					var y = shape.getTranslateY();
-					shape.setTranslateY(boundingBox.height() <= 0 ? y : y + dy * (y - boundingBox.yMin()) / boundingBox.height());
-					nodeDiffMap.put(v, new Point2D(shape.getTranslateX() - x, shape.getTranslateY() - y));
-				}
+				var x = DrawView.getX(v);
+				var y = DrawView.getY(v);
+				var newX = oldBBox.width() <= 0 ? x : (x - oldBBox.xMin) * xFactor + newBBox.xMin();
+				var newY = oldBBox.height() <= 0 ? y : (y - oldBBox.yMax) * yFactor + newBBox.yMax();
+				view.setLocation(v, new Point2D(newX, newY));
 			}
 			for (var e : getAdjacentEdges(nodes)) {
-				rescaleEdge(e, nodes);
+				rescaleEdge(e, nodes, oldBBox, newBBox);
 			}
 		}
 	}
 
-	private static void rescaleEdge(Edge e, Collection<Node> nodes) {
-		if (e.getData() instanceof Path path) {
-			var v = e.getSource();
-			var w = e.getTarget();
-			if (v.getData() instanceof Shape a && w.getData() instanceof Shape b) {
-				var vPt = new Point2D(a.getTranslateX(), a.getTranslateY());
-				var wPt = new Point2D(b.getTranslateX(), b.getTranslateY());
-				var originalPoints = PathUtils.getPoints(path);
-				var edgeStart = originalPoints.get(0);
-				var edgeEnd = originalPoints.get(originalPoints.size() - 1);
-				var oldBBox = new Box(List.of(edgeStart, edgeEnd));
-				var newBBox = new Box(List.of(vPt, wPt));
+	private static void rescaleEdge(Edge e, Collection<Node> nodes, Box oldBBox, Box newBBox) {
+		var v = e.getSource();
+		var vPt = DrawView.getPoint(v);
+		var w = e.getTarget();
+		var wPt = DrawView.getPoint(w);
+		var originalPoints = DrawView.getPoints(e);
+		var edgeStart = originalPoints.get(0);
+		var edgeEnd = originalPoints.get(originalPoints.size() - 1);
+		var path = DrawView.getPath(e);
 
-				if (nodes.contains(v) && nodes.contains(w)) {
-					var newPoints = new ArrayList<Point2D>();
-					for (var p : originalPoints) {
-						var x = (p.getX() - oldBBox.xMin()) / (Math.max(1, oldBBox.width())) * newBBox.width() + newBBox.xMin();
-						var y = (p.getY() - oldBBox.yMin()) / (Math.max(1, oldBBox.height())) * newBBox.height() + newBBox.yMin();
-						newPoints.add(new Point2D(x, y));
-					}
-					path.getElements().setAll(PathUtils.createPath(newPoints, false).getElements());
-				} else if (nodes.contains(v)) {
-					PathReshape.apply(path, 0, vPt.getX() - edgeStart.getX(), vPt.getY() - edgeStart.getY());
-				} else if (nodes.contains(w)) {
-					PathReshape.apply(path, originalPoints.size() - 1, wPt.getX() - edgeEnd.getX(), wPt.getY() - edgeEnd.getY());
-				}
+		if (nodes.contains(v) && nodes.contains(w)) {
+			var newPoints = new ArrayList<Point2D>();
+			for (var p : originalPoints) {
+				var x = (p.getX() - oldBBox.xMin()) / (Math.max(1, oldBBox.width())) * newBBox.width() + newBBox.xMin();
+				var y = (p.getY() - oldBBox.yMin()) / (Math.max(1, oldBBox.height())) * newBBox.height() + newBBox.yMin();
+				newPoints.add(new Point2D(x, y));
 			}
+			path.getElements().setAll(PathUtils.createPath(newPoints, false).getElements());
+		} else if (nodes.contains(v)) {
+			PathReshape.apply(path, 0, vPt.getX() - edgeStart.getX(), vPt.getY() - edgeStart.getY());
+		} else if (nodes.contains(w)) {
+			PathReshape.apply(path, originalPoints.size() - 1, wPt.getX() - edgeEnd.getX(), wPt.getY() - edgeEnd.getY());
 		}
 	}
 

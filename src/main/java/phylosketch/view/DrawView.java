@@ -254,7 +254,7 @@ public class DrawView extends Pane {
 
 	public Node createNode() {
 		var v = graph.newNode();
-		setShape(v, new Circle(3));
+		setShape(v, new Circle(1.5));
 		ensureLabelExists(v);
 		return v;
 	}
@@ -266,7 +266,7 @@ public class DrawView extends Pane {
 	}
 
 	public Node createNode(Point2D location, int recycleNodeId) {
-		var v = createNode(new Circle(3), "", recycleNodeId);
+		var v = createNode(new Circle(1.5), "", recycleNodeId);
 		setLocation(v, location);
 		return v;
 	}

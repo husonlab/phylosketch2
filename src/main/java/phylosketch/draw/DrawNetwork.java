@@ -124,7 +124,11 @@ public class DrawNetwork {
 							PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),
 							PathNormalize.apply(List.of(new Point2D(vPoint.getX(), wPoint.getY()), wPoint), 2, 5));
 				}
-			} else if (tree.isTransferEdge(e) || circular) {
+			} else if (tree.isTransferEdge(e) || (tree.isReticulateEdge(e) && circular)) {
+				var control = QuadraticCurve.computeControlForBowEdge(vPoint, wPoint);
+				list = QuadraticCurve.apply(vPoint, control, wPoint);
+				reticulate = true;
+			} else if (circular) {
 				list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
 				reticulate = true;
 			} else {

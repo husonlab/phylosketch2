@@ -22,5 +22,5 @@ package phylosketch.main;
 
 public class Version {
 	static public final String NAME = "PhyloSketch";
-	static public final String SHORT_DESCRIPTION = "PhyloSketch (version 2.1.1_beta, built 25 Mar 2025)";
+	static public final String SHORT_DESCRIPTION = "PhyloSketch (version 2.1.2_beta, built 26 Mar 2025)";
 }

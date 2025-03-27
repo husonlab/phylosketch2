@@ -103,10 +103,10 @@ public class SetupSelection {
 		controller.getExtendSelectionMenuItem().setOnAction(e -> controller.getSelectButton().fire());
 		controller.getExtendSelectionMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getSelectTreeEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() <= 1).forEach(edgeSelection::select));
+		controller.getSelectTreeEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> graph.isTreeEdge(e) || graph.isTransferAcceptorEdge(e)).forEach(edgeSelection::select));
 		controller.getSelectTreeEdgesMenuItem().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
 
-		controller.getSelectReticulateEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> e.getTarget().getInDegree() > 1).forEach(edgeSelection::select));
+		controller.getSelectReticulateEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> graph.isReticulateEdge(e) && !graph.isTransferAcceptorEdge(e)).forEach(edgeSelection::select));
 		controller.getSelectReticulateEdgesMenuItem().disableProperty().bind(controller.getSelectTreeEdgesMenuItem().disableProperty());
 
 		controller.getSelectInEdgesMenuItem().setOnAction(c -> nodeSelection.getSelectedItems().forEach(v -> edgeSelection.selectAll(IteratorUtils.asList(v.inEdges()))));
