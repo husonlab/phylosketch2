@@ -53,6 +53,8 @@ public class PhyloSketch extends Application {
 
     private static boolean desktop = true;
 
+    private static boolean showSplash = true;
+
     @Override
     public void init() {
         Runtime.getRuntime().addShutdownHook(new Thread(ProgramProperties::store));
@@ -77,7 +79,7 @@ public class PhyloSketch extends Application {
                 """);
         SplashScreen.setVersionString(ProgramProperties.getProgramVersion());
         SplashScreen.setImage(Utils.getImage(PhyloSketch.class,"PhyloSketch-Splash.png"));
-        SplashScreen.setLabelAnchor(new Point2D(20, 10));
+        SplashScreen.setLabelAnchor(new Point2D(180, 10));
 
         try {
             parseArguments(args);
@@ -107,6 +109,7 @@ public class PhyloSketch extends Application {
         final var propertiesFile = options.getOption("-p", "propertiesFile", "Properties file", getDefaultPropertiesFile());
         final var showVersion = options.getOption("-V", "version", "Show version string", false);
         final var silentMode = options.getOption("-S", "silentMode", "Silent mode", false);
+        showSplash = !options.getOption("-s", "hideSplash", "Hide startup splash screen", false);
         ProgramExecutorService.setNumberOfCoresToUse(options.getOption("-t", "threads", "Maximum number of threads to use in a parallel algorithm (0=all available)", 0));
         ProgramProperties.setConfirmQuit(options.getOption("-q", "confirmQuit", "Confirm quit on exit", ProgramProperties.isConfirmQuit()));
         test = true;
@@ -131,7 +134,7 @@ public class PhyloSketch extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        if (false)
+        if (showSplash)
             SplashScreen.showSplash(Duration.ofSeconds(3));
         try {
             primaryStage.setTitle("Untitled - " + ProgramProperties.getProgramName());
