@@ -99,7 +99,7 @@ public class SetupCaptureMenuItems {
 			controller.getLoadCaptureImageItem().setOnAction(e -> controller.getOpenImageFileItem().fire());
 			controller.getLoadCaptureImageItem().disableProperty().bind(controller.getOpenImageFileItem().disableProperty());
 		} else {
-			controller.getLoadCaptureImageItem().getParentMenu().getItems().remove(controller.getLoadCaptureImageItem());
+			controller.getCaptureMenuButton().getItems().remove(controller.getLoadCaptureImageItem());
 		}
 
 		controller.getShowCaptureRootLocationItem().setOnAction(e -> {
