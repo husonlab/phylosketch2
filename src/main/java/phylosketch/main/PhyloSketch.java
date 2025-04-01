@@ -47,8 +47,6 @@ import java.time.Duration;
  * Daniel Huson, 9.2024
  */
 public class PhyloSketch extends Application {
-	public static boolean test = false;
-
     private static String[] inputFilesAtStartup;
 
     private static boolean desktop = true;
@@ -112,8 +110,6 @@ public class PhyloSketch extends Application {
         showSplash = !options.getOption("-s", "hideSplash", "Hide startup splash screen", false);
         ProgramExecutorService.setNumberOfCoresToUse(options.getOption("-t", "threads", "Maximum number of threads to use in a parallel algorithm (0=all available)", 0));
         ProgramProperties.setConfirmQuit(options.getOption("-q", "confirmQuit", "Confirm quit on exit", ProgramProperties.isConfirmQuit()));
-        test = true;
-        options.getOption("!x", "x", "test", false);
         ProgramProperties.put("MaxNumberRecentFiles", 100);
         options.done();
 
