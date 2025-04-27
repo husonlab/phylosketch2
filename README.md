@@ -16,9 +16,11 @@ The program runs on MacOS X, Linux and Windows, and is also designed for touch-s
   ~~* Download and install the PhyloSketch app from the App Store or Google Play.~~
 * Open the app and grant any necessary permissions for accessing storage, if prompted.
 
-## User Manual
+## User Manual and publication
 
 More details are presented in the [User Manual](https://husonlab.github.io/phylosketch2/manual.html), which is also available as a [pdf](https://husonlab.github.io/phylosketch2/manual.pdf).
+
+See this manuscript for some algorithmic details and please cite it, if you use the program: Daniel H. Huson, Sketch, capture and layout phylogenies [bioRxiv](https://doi.org/10.1101/2025.04.01.646633).
 
 
 
