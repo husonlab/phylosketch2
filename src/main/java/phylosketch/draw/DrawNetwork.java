@@ -163,7 +163,7 @@ public class DrawNetwork {
 
 				if (DrawView.getLabel(v) == null) {
 					view.createLabel(w, tree.getLabel(v));
-				} else {
+				} else if (!DrawView.getLabel(v).getRawText().equals(tree.getLabel(v))) {
 					view.setLabel(w, tree.getLabel(v));
 				}
 			}

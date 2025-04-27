@@ -24,10 +24,12 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.TransferMode;
 import jloda.fx.util.ClipboardUtils;
 import jloda.util.FileUtils;
 import jloda.util.StringUtils;
+import phylosketch.main.PhyloSketch;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -41,25 +43,28 @@ import static jloda.fx.util.ClipboardUtils.isTextFile;
  */
 public class ImportButtonUtils {
 
-	public static void setup(MenuItem pasteMenuItem, Button importButton, Consumer<String> importString,
-							 Consumer<Image> importImage) {
+	public static void setup(MenuItem pasteMenuItem, Button importButton, Consumer<String> importStringConsumer,
+							 Consumer<Image> importImageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
+		var isDesktop = new SimpleBooleanProperty(PhyloSketch.isDesktop());
 
-		if (importString != null)
-			importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
-		else if (importImage != null)
-			importButton.disableProperty().bind(dragOver.not().and(ClipboardUtils.hasImageProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
+		if (importStringConsumer != null)
+			importButton.disableProperty().bind(isDesktop.and(dragOver.not()).and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
+		else if (importImageConsumer != null)
+			importButton.disableProperty().bind(isDesktop.and(dragOver.not()).and(ClipboardUtils.hasImageProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
 
 		importButton.setOnAction(e -> {
-			if (importString != null) {
+			if (importStringConsumer != null) {
 				var text = ClipboardUtils.getTextFilesContentOrString(100000);
-				if (text != null)
-					importString.accept(text);
+				if (text != null) {
+					importStringConsumer.accept(text);
+				}
 			}
-			if (importImage != null) {
-				var image = ClipboardUtils.getImageFileContentOrImage();
-				if (image != null)
-					importImage.accept(image);
+			if (importImageConsumer != null) {
+				var image = (PhyloSketch.isDesktop() ? ClipboardUtils.getImageFileContentOrImage() : Clipboard.getSystemClipboard().getImage());
+				if (image != null) {
+					importImageConsumer.accept(image);
+				}
 			}
 		});
 		if (pasteMenuItem != null) {
@@ -80,14 +85,14 @@ public class ImportButtonUtils {
 		importButton.setOnDragDropped(e -> {
 			var db = e.getDragboard();
 			boolean success = false;
-			if (db.getString() != null && importString != null) {
-				importString.accept(db.getString());
+			if (db.getString() != null && importStringConsumer != null) {
+				importStringConsumer.accept(db.getString());
 				success = true;
 			} else if (db.hasFiles()) {
 				var buf = new StringBuilder();
 				for (var file : db.getFiles()) {
 					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
-						if (importString != null) {
+						if (importStringConsumer != null) {
 							if (isTextFile(file)) {
 								try {
 									buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
@@ -95,17 +100,17 @@ public class ImportButtonUtils {
 								} catch (IOException ignored) {
 								}
 							}
-						} else if (importImage != null) {
+						} else if (importImageConsumer != null) {
 							if (isImageFile(file)) {
-								importImage.accept(new Image(file.toURI().toString()));
+								importImageConsumer.accept(new Image(file.toURI().toString()));
 								success = true;
 								break;
 							}
 						}
 					}
 				}
-				if (!buf.isEmpty() && importString != null)
-					importString.accept(buf.toString());
+				if (!buf.isEmpty() && importStringConsumer != null)
+					importStringConsumer.accept(buf.toString());
 			}
 			e.setDropCompleted(success);
 			e.consume();
