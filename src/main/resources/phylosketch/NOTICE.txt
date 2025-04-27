@@ -1,2 +1,2 @@
-CatReNet - Autocatalytic networks, RAFs and CAFs - https://github.com/husonlab/catrenet
-Daniel Huson and Mike Steel, since 2020
+PhyloSketch2 - Interactively sketch, capture and layout phylogenies
+Author: Daniel Huson, 2025

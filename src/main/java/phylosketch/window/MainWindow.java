@@ -65,7 +65,6 @@ public class MainWindow implements IMainWindow {
     private final StringProperty fileName = new SimpleStringProperty("Untitled");
     private final BooleanProperty dirty = new SimpleBooleanProperty(false);
 
-
     private final BooleanProperty empty = new SimpleBooleanProperty(this, "empty", true);
 
     private final StringProperty name = new SimpleStringProperty(this, "name", "Untitled");
