@@ -28,8 +28,6 @@ module phylosketch {
 	exports phylosketch.main;
 	exports phylosketch.view;
 
-	exports xtra;
-
 	opens phylosketch.capturepane.capture;
 	opens phylosketch.capturepane.pane;
 	exports phylosketch.capturepane.capture;
@@ -38,5 +36,7 @@ module phylosketch {
 	exports phylosketch.embed;
 	exports phylosketch.utils;
 	opens phylosketch.utils;
-	exports xtra.test;
+
+	opens xtra.treesnet;
+	exports xtra.treesnet;
 }
