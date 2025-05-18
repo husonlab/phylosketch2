@@ -21,10 +21,7 @@
 package phylosketch.capturepane.pane;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -37,6 +34,7 @@ import jloda.fx.util.ClipboardUtils;
 import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
 import phylosketch.window.MainWindowController;
 
 /**
@@ -209,6 +207,18 @@ public class CapturePane extends HBox {
 
 	public Point2D getRootLocationOnScreen() {
 		return rootTool.getRootLocationOnScreen();
+	}
+
+	public RootPosition.Side getRootSide() {
+		return rootTool.getRootSide();
+	}
+
+	public ObjectProperty<RootPosition.Side> rootSideProperty() {
+		return rootTool.rootSideProperty();
+	}
+
+	public void setRootSide(RootPosition.Side rootSide) {
+		rootTool.setRootSide(rootSide);
 	}
 
 	public void reset() {

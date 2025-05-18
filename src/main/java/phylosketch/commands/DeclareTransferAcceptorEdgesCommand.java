@@ -49,7 +49,7 @@ public class DeclareTransferAcceptorEdgesCommand extends UndoableRedoableCommand
 				if (oldState) {
 					view.getGraph().setTransferAcceptor(edge, true);
 				} else {
-					view.getGraph().setTransferAcceptor(edge, true);
+					view.getGraph().setTransferAcceptor(edge, false);
 					if (originalAcceptorId != null) {
 						view.getGraph().setTransferAcceptor(view.getGraph().findEdgeById(originalAcceptorId), true);
 					}

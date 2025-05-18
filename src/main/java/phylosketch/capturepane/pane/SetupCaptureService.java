@@ -118,12 +118,8 @@ public class SetupCaptureService {
 				DrawUtils.createWordShapes(words, wordSelection, () -> true, capturePane.getWordsGroup());
 			}
 			if (service.getPhase() == CaptureService.PHYLOGENY) {
-				Point2D rootLocation;
-				if (true)
-					rootLocation = screenToImage(capturePane.getRootLocationOnScreen(), capturePane.getImageView());
-				else
-					rootLocation = capturePane.screenToLocal(capturePane.getRootLocationOnScreen());
-				view.getUndoManager().add(phylogenyCapture.apply(view, rootLocation, segments, words));
+				var rootLocation = screenToImage(capturePane.getRootLocationOnScreen(), capturePane.getImageView());
+				view.getUndoManager().add(phylogenyCapture.apply(view, rootLocation, capturePane.getRootSide(), segments, words));
 				capturePane.reset();
 			}
 		});

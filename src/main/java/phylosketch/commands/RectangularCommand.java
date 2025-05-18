@@ -27,6 +27,7 @@ import jloda.graph.Edge;
 import jloda.graph.Graph;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
+import jloda.util.SetUtils;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.RootPosition;
@@ -35,6 +36,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * rectangular edges command
@@ -53,10 +55,15 @@ public class RectangularCommand extends UndoableRedoableCommand {
 		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
 
 		try (NodeArray<RootPosition> nodeRootLocationMap = graph.newNodeArray()) {
-			for (var component : ConnectedComponents.components(graph)) {
-				var rootLocation = RootPosition.compute(component);
-				for (var v : component) {
-					nodeRootLocationMap.put(v, rootLocation);
+			{
+				var nodes = edges.stream().map(Edge::nodes).flatMap(Collection::stream).collect(Collectors.toSet());
+				for (var component : ConnectedComponents.components(graph)) {
+					if (SetUtils.intersect(nodes, component)) {
+						var rootLocation = RootPosition.compute(component);
+						for (var v : component) {
+							nodeRootLocationMap.put(v, rootLocation);
+						}
+					}
 				}
 			}
 

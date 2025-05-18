@@ -23,5 +23,8 @@ package phylosketch.capturepane.capture;
 import java.awt.*;
 
 public record Word(String text, float confidence, Rectangle boundingBox) {
-
+	public String toString() {
+		return "text=" + text + ", confidence=" + confidence + " boundingBox: x=" + boundingBox.getX()
+			   + " y=" + boundingBox.getY() + " width=" + boundingBox.getWidth() + " height=" + boundingBox.getHeight();
+	}
 }

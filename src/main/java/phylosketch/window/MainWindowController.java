@@ -338,6 +338,24 @@ public class MainWindowController {
 	CheckMenuItem showCaptureRootLocationItem;
 
 	@FXML
+	Menu rootSideMenu;
+
+	@FXML
+	RadioMenuItem leftRootSideMenuItem;
+
+	@FXML
+	RadioMenuItem rightRootSideMenuItem;
+
+	@FXML
+	RadioMenuItem topRootSideMenuItem;
+
+	@FXML
+	RadioMenuItem bottomRootSideMenuItem;
+
+	@FXML
+	RadioMenuItem centerRootSideMenuItem;
+
+	@FXML
 	CheckMenuItem captureLinesItem;
 
 	@FXML
@@ -596,6 +614,8 @@ public class MainWindowController {
 		captureLinesItem.setGraphic(MaterialIcons.graphic(MaterialIcons.water));
 		captureLabelsItem.setGraphic(MaterialIcons.graphic(MaterialIcons.text_fields));
 		capturePhylogenyItem.setGraphic(MaterialIcons.graphic(MaterialIcons.account_tree));
+
+		(new ToggleGroup()).getToggles().addAll(leftRootSideMenuItem, rightRootSideMenuItem, topRootSideMenuItem, bottomRootSideMenuItem, centerRootSideMenuItem);
 	}
 
 	public static MaterialIcons getIcon(DrawView.Mode mode) {
@@ -1105,5 +1125,29 @@ public class MainWindowController {
 
 	public Rectangle getSelectionRectangle() {
 		return selectionRectangle;
+	}
+
+	public RadioMenuItem getCenterRootSideMenuItem() {
+		return centerRootSideMenuItem;
+	}
+
+	public RadioMenuItem getBottomRootSideMenuItem() {
+		return bottomRootSideMenuItem;
+	}
+
+	public RadioMenuItem getTopRootSideMenuItem() {
+		return topRootSideMenuItem;
+	}
+
+	public RadioMenuItem getRightRootSideMenuItem() {
+		return rightRootSideMenuItem;
+	}
+
+	public RadioMenuItem getLeftRootSideMenuItem() {
+		return leftRootSideMenuItem;
+	}
+
+	public Menu getRootSideMenu() {
+		return rootSideMenu;
 	}
 }
