@@ -178,6 +178,27 @@ public class MergeNodesCommand extends UndoableRedoableCommand {
 			nodes = labeled;
 		}
 
+		// if there is one node that is ancestor of all others, then use it as center
+		{
+			for (var v : nodes) {
+				var stack = new Stack<Node>();
+				stack.add(v);
+				var visited = new HashSet<Node>();
+				while (!stack.isEmpty()) {
+					var w = stack.pop();
+					visited.add(w);
+					for (var u : w.children()) {
+						if (nodes.contains(u) && !visited.contains(u)) {
+							stack.push(u);
+						}
+					}
+				}
+				if (visited.size() == nodes.size()) {
+					return v;
+				}
+			}
+		}
+
 		var maxDegree = nodes.stream().mapToInt(Node::getDegree).max().orElse(0);
 		var maxDegreeNodes = nodes.stream().filter(v -> v.getDegree() == maxDegree).toList();
 

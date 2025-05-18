@@ -29,6 +29,7 @@ import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.main.PhyloSketch;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
 import phylosketch.window.MainWindowController;
 
 /**
@@ -59,7 +60,6 @@ public class SetupCaptureMenuItems {
 		controller.getCaptureMenuButton().getGraphic().setOnMousePressed(Event::consume);
 		controller.getCaptureMenuButton().getGraphic().setOnMouseReleased(Event::consume);
 		controller.getCaptureMenuButton().getGraphic().disableProperty().bind(canSetup.not());
-
 
 		controller.getClearCaptureImageItem().setOnAction(e -> {
 			var image = capturePane.getImageView().getImage();
@@ -104,10 +104,54 @@ public class SetupCaptureMenuItems {
 
 		controller.getShowCaptureRootLocationItem().setOnAction(e -> {
 			var showing = capturePane.getRootGroup().isVisible();
-			view.getUndoManager().doAndAdd("root location", () -> capturePane.getRootGroup().setVisible(showing), () -> capturePane.getRootGroup().setVisible(!showing));
+			view.getUndoManager().doAndAdd("show root location", () -> capturePane.getRootGroup().setVisible(showing), () -> capturePane.getRootGroup().setVisible(!showing));
 		});
 		controller.getShowCaptureRootLocationItem().disableProperty().bind(canSetup.not());
 		capturePane.hasRootLocationProperty().addListener((v, o, n) -> controller.getShowCaptureRootLocationItem().setSelected(n));
+
+		capturePane.rootSideProperty().addListener((v, o, n) -> {
+			if (!view.getUndoManager().isPerformingUndoOrRedo())
+				view.getUndoManager().add("root side", () -> capturePane.setRootSide(o), () -> capturePane.setRootSide(n));
+		});
+
+		controller.getLeftRootSideMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				capturePane.setRootSide(RootPosition.Side.Left);
+		});
+
+		controller.getRightRootSideMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				capturePane.setRootSide(RootPosition.Side.Right);
+		});
+
+		controller.getTopRootSideMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				capturePane.setRootSide(RootPosition.Side.Top);
+		});
+
+		controller.getBottomRootSideMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				capturePane.setRootSide(RootPosition.Side.Bottom);
+		});
+
+		controller.getCenterRootSideMenuItem().selectedProperty().addListener((v, o, n) -> {
+			if (n)
+				capturePane.setRootSide(RootPosition.Side.Center);
+		});
+
+		InvalidationListener listener = e -> {
+			switch (capturePane.getRootSide()) {
+				case Left -> controller.getLeftRootSideMenuItem().setSelected(true);
+				case Right -> controller.getRightRootSideMenuItem().setSelected(true);
+				case Top -> controller.getTopRootSideMenuItem().setSelected(true);
+				case Bottom -> controller.getBottomRootSideMenuItem().setSelected(true);
+				case Center -> controller.getCenterRootSideMenuItem().setSelected(true);
+			}
+		};
+		capturePane.rootSideProperty().addListener(listener);
+		listener.invalidated(null);
+
+		controller.getRootSideMenu().disableProperty().bind(canSetup.not());
 
 		controller.getCaptureLabelsItem().setOnAction(e ->
 				view.getUndoManager().doAndAdd("capture", capturePane::reset, () -> capturePane.run(CaptureService.WORDS)));

@@ -103,6 +103,19 @@
                                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                                     <CheckMenuItem fx:id="showCaptureRootLocationItem"
                                                                    mnemonicParsing="false" text="Place Root"/>
+                                                    <Menu fx:id="rootSideMenu" text="Root Side">
+                                                        <RadioMenuItem fx:id="leftRootSideMenuItem"
+                                                                       mnemonicParsing="false" text="Left"/>
+                                                        <RadioMenuItem fx:id="topRootSideMenuItem"
+                                                                       mnemonicParsing="false" text="Top"/>
+                                                        <RadioMenuItem fx:id="rightRootSideMenuItem"
+                                                                       mnemonicParsing="false" text="Right"/>
+                                                        <RadioMenuItem fx:id="bottomRootSideMenuItem"
+                                                                       mnemonicParsing="false" text="Bottom"/>
+                                                        <RadioMenuItem fx:id="centerRootSideMenuItem"
+                                                                       mnemonicParsing="false" text="Center"/>
+                                                    </Menu>
+                                                    <SeparatorMenuItem mnemonicParsing="false"/>
                                                     <CheckMenuItem fx:id="captureLabelsItem" mnemonicParsing="false"
                                                                    text="Capture Labels"/>
                                                     <CheckMenuItem fx:id="captureLinesItem" mnemonicParsing="false"

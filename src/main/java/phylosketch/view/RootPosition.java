@@ -27,6 +27,7 @@ import java.util.Collection;
 
 /**
  * the root position
+ * Daniel Huson, 2025
  *
  * @param side     which side
  * @param location coordinates
@@ -52,17 +53,42 @@ public record RootPosition(phylosketch.view.RootPosition.Side side, Point2D loca
 		var averageRootY = nodes.stream().filter(v -> v.getInDegree() == 0).mapToDouble(DrawView::getY).average().orElse(0.0);
 
 		Side side;
-		if (averageRootX <= minX + 0.1 * width)
-			side = Side.Left;
-		else if (averageRootX >= maxX - 0.1 * width)
-			side = Side.Right;
-		else if (averageRootY <= minY + 0.1 * height)
-			side = Side.Top;
-		else if (averageRootY >= maxY - 0.1 * height)
-			side = Side.Bottom;
-		else
+
+		if (nodes.size() <= 1) {
 			side = Side.Center;
+		} else {
+			var xValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getX).toList();
+			var averageLeafX = xValues.stream().mapToDouble(d -> d).average().orElse(0.0);
+			var yValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getY).toList();
+			var averageLeafY = yValues.stream().mapToDouble(d -> d).average().orElse(0.0);
+
+			if (averageLeafX > minX + 0.1 * width && averageLeafX < maxX - 0.1 * width
+				&& averageLeafY > minY + 0.1 * height && averageLeafY < maxY - 0.1 * height) {
+				side = Side.Center;
+			} else {
+
+				var zScoreX = zScore(averageRootX, xValues);
+				var zScoreY = zScore(averageRootY, yValues);
+
+				if (Math.abs(zScoreX) > Math.abs(zScoreY)) {
+					if (averageLeafX - averageRootX > 0)
+						side = Side.Left;
+					else
+						side = Side.Right;
+				} else {
+					if (averageLeafY - averageRootY > 0)
+						side = Side.Top;
+					else
+						side = Side.Bottom;
+				}
+			}
+		}
 		return new RootPosition(side, new Point2D(averageRootX, averageRootY));
 	}
 
+	private static double zScore(double value, Collection<Double> values) {
+		double mean = values.stream().mapToDouble(d -> d).average().orElse(Double.NaN);
+		double std = Math.sqrt(values.stream().mapToDouble(v -> (v - mean) * (v - mean)).average().orElse(0.0));
+		return std == 0.0 ? 0.0 : (value - mean) / std;
+	}
 }

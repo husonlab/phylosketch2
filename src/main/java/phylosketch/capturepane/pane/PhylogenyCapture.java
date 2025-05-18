@@ -57,11 +57,11 @@ public class PhylogenyCapture {
 
 	private final List<Property<?>> parameters = List.of(removeThruNodes, fixCrossingEdges, layoutLabels, runReroot, showArrows, rescueOrphanLabels);
 
-	public UndoableRedoableCommand apply(DrawView view, Point2D rootLocation, List<Segment> segments, List<Word> words) {
+	public UndoableRedoableCommand apply(DrawView view, Point2D rootLocation, RootPosition.Side rootSide, List<Segment> segments, List<Word> words) {
 		var originalNodes = IteratorUtils.asList(view.getGraph().nodes());
 		var originalEdges = IteratorUtils.asSet(view.getGraph().edges());
 
-		var rootPosition = determineRootPosition(rootLocation, segments);
+		var rootPosition = new RootPosition(rootSide, rootLocation);
 
 		BiFunction<Point2D, Point2D, Double> distance = switch (rootPosition.side()) {
 			case Left, Right -> (a, b) -> Math.abs(a.getX() - b.getX());
@@ -93,10 +93,9 @@ public class PhylogenyCapture {
 			{
 				var queue = new ArrayList<Pair<Double, Segment>>();
 				for (var segment : segments) {
-					//var firstDistance = segment.first().distance(rootLocation);
 					var firstDistance = distance.apply(segment.first().point2D(), rootLocation);
-					// var lastDistance = segment.last().distance(rootLocation);
 					var lastDistance = distance.apply(segment.last().point2D(), rootLocation);
+
 					if (firstDistance <= lastDistance) {
 						queue.add(new Pair<>(firstDistance, segment));
 					} else {
@@ -165,7 +164,7 @@ public class PhylogenyCapture {
 	private static RootPosition determineRootPosition(Point2D rootLocation, List<Segment> segments) {
 		var linesRight = segments.stream().filter(seg -> seg.first().x() > rootLocation.getX()).count();
 		var linesLeft = segments.stream().filter(seg -> seg.first().x() < rootLocation.getX()).count();
-		var linesAbove = segments.stream().filter(seg -> seg.first().y() > rootLocation.getY()).count();
+		var linesAbove = segments.stream().filter(seg -> seg.first().y() < rootLocation.getY()).count();
 		var linesBelow = segments.stream().filter(seg -> seg.first().y() > rootLocation.getY()).count();
 
 		if (linesRight > linesLeft && linesRight > linesAbove && linesRight > linesBelow)

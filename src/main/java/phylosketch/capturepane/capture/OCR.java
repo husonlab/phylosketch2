@@ -118,10 +118,13 @@ public class OCR {
 
 							ri.BoundingBox(RIL_WORD, left, top, right, bottom);
 
-							var text = ri.GetUTF8Text(RIL_WORD).getString();
-							float confidence = ri.Confidence(RIL_WORD);
+							var word = ri.GetUTF8Text(RIL_WORD);
 
-							words.add(new Word(text, confidence, new Rectangle(Math.min(left.get(), right.get()), Math.min(top.get(), bottom.get()), Math.abs(right.get() - left.get()), Math.abs(top.get() - bottom.get()))));
+							if (word != null) {
+								var text = word.getString();
+								float confidence = ri.Confidence(RIL_WORD);
+								words.add(new Word(text, confidence, new Rectangle(Math.min(left.get(), right.get()), Math.min(top.get(), bottom.get()), Math.abs(right.get() - left.get()), Math.abs(top.get() - bottom.get()))));
+							}
 						}
 					} while (ri.Next(RIL_WORD));
 				}

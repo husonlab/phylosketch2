@@ -20,21 +20,26 @@
 
 package phylosketch.capturepane.pane;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import jloda.fx.icons.MaterialIcons;
 import phylosketch.view.DrawView;
+import phylosketch.view.RootPosition;
 
 /**
  * setup root selection tool
  * Daniel Huson, 1.2025
  */
-public class RootTool extends HBox {
+public class RootTool extends StackPane {
 	private static double mouseX;
 	private static double mouseY;
 	private static double oldHBoxTranslateX;
@@ -42,35 +47,88 @@ public class RootTool extends HBox {
 
 	private final Circle rootCircle;
 
+	private final ObjectProperty<RootPosition.Side> rootSide = new SimpleObjectProperty<>(this, "rootSide", null);
+
 	/**
 	 * constructs the root selection tool
 	 *
 	 * @param view draw view
 	 */
 	public RootTool(DrawView view) {
-		setAlignment(Pos.CENTER);
-		setSpacing(5);
-		setTranslateX(200);
-		setTranslateY(200);
-
 		var shadow = new DropShadow();
 		shadow.setRadius(5);
 		shadow.setOffsetX(3);
 		shadow.setOffsetY(3);
 		shadow.setColor(Color.gray(0.4));
 
-		var rootIcon = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 45;-fx-text-fill: red;");
-		rootIcon.setEffect(shadow);
+		var grid = new GridPane();
+		grid.setHgap(3);
+		grid.setVgap(3);
+		grid.setAlignment(Pos.CENTER);
+		getChildren().setAll(grid);
 
-		rootCircle = new Circle(5);
-		rootCircle.setStyle("-fx-stroke: red;-fx-fill: transparent;-fx-stroke-width: 2;");
-		rootCircle.setEffect(shadow);
+		{
+			rootCircle = new Circle(5);
+			rootCircle.setStyle("-fx-stroke: red;-fx-fill: transparent;-fx-stroke-width: 2;");
+			var stack = new StackPane(rootCircle);
+			StackPane.setAlignment(rootCircle, Pos.CENTER);
+			stack.setEffect(shadow);
+			grid.add(stack, 1, 1);
+		}
 
-		var rootLabel = new Label("Root location");
-		rootLabel.setStyle("-fx-text-fill: red;-fx-font-size: 18;");
-		rootLabel.setEffect(shadow);
+		{
+			var rootLabel = new Label("Root");
+			rootLabel.setStyle("-fx-text-fill: red;-fx-font-size: 18;");
+			var stack = new StackPane(rootLabel);
+			StackPane.setAlignment(rootLabel, Pos.BOTTOM_LEFT);
+			stack.setEffect(shadow);
+			grid.add(stack, 2, 0);
 
-		getChildren().addAll(rootIcon, rootCircle, rootLabel);
+			rootSide.addListener((v, o, n) -> {
+				Tooltip.install(RootTool.this, new Tooltip("Assuming root is at " + n.name().toLowerCase() + ", click to change"));
+				rootLabel.setText("Root at " + n.name().toLowerCase());
+			});
+		}
+
+		{
+			var rootLeftArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 45;-fx-text-fill: red;-fx-font-size: 24;");
+			rootLeftArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Left).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+			var stack = new StackPane(rootLeftArrow);
+			StackPane.setAlignment(rootLeftArrow, Pos.CENTER_LEFT);
+			stack.setEffect(shadow);
+			grid.add(stack, 2, 1);
+		}
+
+		{
+			var rootRightArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 225;-fx-text-fill: red;-fx-font-size: 24;");
+			rootRightArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Right).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+
+			var stack = new StackPane(rootRightArrow);
+			StackPane.setAlignment(rootRightArrow, Pos.CENTER_LEFT);
+			stack.setEffect(shadow);
+			grid.add(stack, 0, 1);
+		}
+
+		{
+			var rootBottomArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 315;-fx-text-fill: red;-fx-font-size: 24;");
+			rootBottomArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Bottom).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+			rootBottomArrow.setEffect(shadow);
+			var stack = new StackPane(rootBottomArrow);
+			StackPane.setAlignment(rootBottomArrow, Pos.CENTER_LEFT);
+			stack.setEffect(shadow);
+			grid.add(stack, 1, 0);
+		}
+
+		{
+			var rootTopArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 135;-fx-text-fill: red;-fx-font-size: 24;");
+			rootTopArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Top).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+			var stack = new StackPane(rootTopArrow);
+			StackPane.setAlignment(rootTopArrow, Pos.CENTER_LEFT);
+			stack.setEffect(shadow);
+			grid.add(stack, 1, 2);
+		}
+
+		rootSide.set(RootPosition.Side.Left);
 
 		setOnMousePressed(e -> {
 			mouseX = e.getScreenX();
@@ -88,16 +146,31 @@ public class RootTool extends HBox {
 			mouseX = e.getScreenX();
 			mouseY = e.getScreenY();
 		});
+
 		setOnMouseReleased(e -> {
 			if (!e.isStillSincePress()) {
-				var newHBoxTranslateX = getTranslateX();
-				var newHBoxTranslateY = getTranslateY();
+				var oldX = oldHBoxTranslateX;
+				var oldY = oldHBoxTranslateY;
+				var newX = getTranslateX();
+				var newY = getTranslateY();
 				view.getUndoManager().doAndAdd("root location", () -> {
-					setTranslateX(oldHBoxTranslateX);
-					setTranslateY(oldHBoxTranslateY);
+					setTranslateX(oldX);
+					setTranslateY(oldY);
 				}, () -> {
-					setTranslateX(newHBoxTranslateX);
-					setTranslateY(newHBoxTranslateY);
+					setTranslateX(newX);
+					setTranslateY(newY);
+				});
+			}
+		});
+
+		setOnMouseClicked(e -> {
+			if (e.isStillSincePress()) {
+				setRootSide(switch (getRootSide()) {
+					case Left -> RootPosition.Side.Top;
+					case Top -> RootPosition.Side.Right;
+					case Right -> RootPosition.Side.Bottom;
+					case Bottom -> RootPosition.Side.Center;
+					case Center -> RootPosition.Side.Left;
 				});
 			}
 		});
@@ -105,5 +178,17 @@ public class RootTool extends HBox {
 
 	public Point2D getRootLocationOnScreen() {
 		return rootCircle.localToScreen(0, 0);
+	}
+
+	public RootPosition.Side getRootSide() {
+		return rootSide.get();
+	}
+
+	public void setRootSide(RootPosition.Side rootSide) {
+		this.rootSide.set(rootSide);
+	}
+
+	public ObjectProperty<RootPosition.Side> rootSideProperty() {
+		return rootSide;
 	}
 }
