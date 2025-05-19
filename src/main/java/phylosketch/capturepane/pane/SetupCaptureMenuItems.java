@@ -24,12 +24,14 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.scene.layout.AnchorPane;
+import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.main.PhyloSketch;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
+import phylosketch.window.MainWindow;
 import phylosketch.window.MainWindowController;
 
 /**
@@ -40,11 +42,12 @@ public class SetupCaptureMenuItems {
 	/**
 	 * setup the capture pane
 	 *
-	 * @param view        the draw view
+	 * @param window        the main window
 	 * @param controller  the main controller
 	 * @param capturePane the capture pane
 	 */
-	public static void apply(DrawView view, MainWindowController controller, CapturePane capturePane) {
+	public static void apply(MainWindow window, MainWindowController controller, CapturePane capturePane) {
+		var view = window.getDrawView();
 		var canSetup = new SimpleBooleanProperty(capturePane, "canSetRoot", false);
 		canSetup.bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture).and(capturePane.hasImageProperty()));
 		var canCapture = new SimpleBooleanProperty(capturePane, "canCapture", false);
@@ -74,6 +77,9 @@ public class SetupCaptureMenuItems {
 			view.getUndoManager().doAndAdd(removeCommand);
 		});
 		controller.getClearCaptureImageItem().disableProperty().bind(capturePane.hasImageProperty().not());
+
+		controller.getSaveCaptureImageItem().setOnAction(e -> ExportImageDialog.show(window.getFileName(), window.getStage(), capturePane.getImageView()));
+		controller.getSaveCaptureImageItem().disableProperty().bind(capturePane.hasImageProperty().not());
 
 		var settingPane = capturePane.getPropertySettingPane();
 

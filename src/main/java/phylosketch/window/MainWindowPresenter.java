@@ -191,7 +191,7 @@ public class MainWindowPresenter {
 		controller.setupModeMenu(view.modeProperty());
 
 		capturePane = new CapturePane(view, controller);
-		SetupCaptureMenuItems.apply(view, controller, capturePane);
+		SetupCaptureMenuItems.apply(window, controller, capturePane);
 
 		ChangeListener<DrawView.Mode> listener = (v, o, n) -> {
 			if (n == DrawView.Mode.Edit) {

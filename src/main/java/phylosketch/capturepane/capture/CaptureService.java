@@ -86,7 +86,6 @@ public class CaptureService extends AService<Boolean> {
 			}
 
 			if (getGoal() >= SEGMENTS && theStatus < SEGMENTS) {
-				getProgressListener().setTasks("Capture", "Detecting segments");
 				var matrix = ImageUtils.convertToBinaryArray(getInputImage());
 
 				if (true) {
