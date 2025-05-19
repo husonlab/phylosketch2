@@ -335,6 +335,9 @@ public class MainWindowController {
 	MenuItem clearCaptureImageItem;
 
 	@FXML
+	MenuItem saveCaptureImageItem;
+
+	@FXML
 	CheckMenuItem showCaptureRootLocationItem;
 
 	@FXML
@@ -610,6 +613,7 @@ public class MainWindowController {
 		showCaptureParametersItem.setGraphic(MaterialIcons.graphic(MaterialIcons.settings));
 		loadCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.file_open));
 		clearCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.hide_image));
+		saveCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.save_as));
 		showCaptureRootLocationItem.setGraphic(MaterialIcons.graphic(MaterialIcons.rocket, "-fx-rotate: 90;"));
 		captureLinesItem.setGraphic(MaterialIcons.graphic(MaterialIcons.water));
 		captureLabelsItem.setGraphic(MaterialIcons.graphic(MaterialIcons.text_fields));
@@ -1105,6 +1109,10 @@ public class MainWindowController {
 
 	public MenuItem getClearCaptureImageItem() {
 		return clearCaptureImageItem;
+	}
+
+	public MenuItem getSaveCaptureImageItem() {
+		return saveCaptureImageItem;
 	}
 
 	public CheckMenuItem getShowCaptureRootLocationItem() {

@@ -100,6 +100,8 @@
                                                               text="Load Image..."/>
                                                     <MenuItem fx:id="clearCaptureImageItem" mnemonicParsing="false"
                                                               text="Remove Image"/>
+                                                    <MenuItem fx:id="saveCaptureImageItem" mnemonicParsing="false"
+                                                              text="Save Image..."/>
                                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                                     <CheckMenuItem fx:id="showCaptureRootLocationItem"
                                                                    mnemonicParsing="false" text="Place Root"/>
