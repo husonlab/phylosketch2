@@ -60,8 +60,8 @@ public class TreesNetPresenter {
 	}
 
 	public void mapExample() throws IOException {
-		treeEdgetoNetworkEdgeMap hwMap = new treeEdgetoNetworkEdgeMap(document.getTrees().get(0), document.getTrees().get(1), document.getNetwork(), new HashMap<>(), new HashMap<>());
-		exampleMapping.populateHardwiredMap(hwMap);
+		TreeEdgetoNetworkEdgeMap hwMap = new TreeEdgetoNetworkEdgeMap(document.getTrees().get(0), document.getTrees().get(1), document.getNetwork(), new HashMap<>(), new HashMap<>());
+		ExampleMapping.populateHardwiredMap(hwMap);
 
 		System.err.println("Tree 1 mapping:");
 		for(var i:hwMap.getTree1Map().keySet()){

@@ -4,9 +4,9 @@ import jloda.graph.Edge;
 import java.util.ArrayList;
 import java.util.List;
 
-public class exampleMapping {
+public class ExampleMapping {
 
-    public static void populateHardwiredMap(treeEdgetoNetworkEdgeMap hwMap) {
+    public static void populateHardwiredMap(TreeEdgetoNetworkEdgeMap hwMap) {
         // Example: manually map tree edges to network edges
 
         List<Edge> tree1Edges = new ArrayList<>(hwMap.getTree1().getEdgesAsList());

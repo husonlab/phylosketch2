@@ -5,7 +5,7 @@ import jloda.phylo.PhyloTree;
 
 import java.util.*;
 
-public class treeEdgetoNetworkEdgeMap {
+public class TreeEdgetoNetworkEdgeMap {
 
     private final PhyloTree tree1;
     private final PhyloTree tree2;
@@ -14,7 +14,7 @@ public class treeEdgetoNetworkEdgeMap {
     private final Map<Edge, List<Edge>> tree1ToNetwork;
     private final Map<Edge, List<Edge>> tree2ToNetwork;
 
-    public treeEdgetoNetworkEdgeMap(PhyloTree tree1, PhyloTree tree2, PhyloTree network,
+    public TreeEdgetoNetworkEdgeMap(PhyloTree tree1, PhyloTree tree2, PhyloTree network,
                                     Map<Edge, List<Edge>> tree1ToNetwork,
                                     Map<Edge, List<Edge>> tree2ToNetwork) {
         this.tree1 = tree1;
