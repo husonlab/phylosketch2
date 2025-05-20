@@ -24,6 +24,7 @@ package xtra.treesnet;
 import javafx.application.Platform;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * the TreesNet presenter
@@ -57,4 +58,20 @@ public class TreesNetPresenter {
 			controller.getCenterPane().getChildren().add(EmbedNetwork.apply(document.getNetwork(), controller.getToScaleToggle().isSelected(), 20, document.getEmbedWidth() - 120, 20, document.getEmbedHeight() - 120));
 		}
 	}
+
+	public void mapExample() throws IOException {
+		treeEdgetoNetworkEdgeMap hwMap = new treeEdgetoNetworkEdgeMap(document.getTrees().get(0), document.getTrees().get(1), document.getNetwork(), new HashMap<>(), new HashMap<>());
+		exampleMapping.populateHardwiredMap(hwMap);
+
+		System.err.println("Tree 1 mapping:");
+		for(var i:hwMap.getTree1Map().keySet()){
+			System.err.println(i + " --> " + hwMap.getTree1Map().get(i));
+		}
+
+		System.err.println("Tree 2 mapping:");
+		for(var i:hwMap.getTree2Map().keySet()){
+			System.err.println(i + " --> " + hwMap.getTree2Map().get(i));
+		}
+	}
+
 }
