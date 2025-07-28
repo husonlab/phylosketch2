@@ -46,7 +46,7 @@ public class ProcessingUtils {
 	private static final int ID_OFFSET = 10;
 
 	public static List<Segment> findPaths(ProgressListener progress, int[][] matrix, List<Point> points) throws CanceledException {
-		var list = new ArrayList<Segment>();
+		var segments = new ArrayList<Segment>();
 
 		var maxD = 5;
 		{
@@ -64,7 +64,7 @@ public class ProcessingUtils {
 		progress.setMaximum(points.size());
 		for (var start : points) {
 			var startId = matrix[start.y()][start.x()];
-			// System.err.println("start " + startId);
+			// System.err.println("start " + start);
 
 			for (var neighbor : neighbors(matrix, start, maxD, a -> a == 1)) {
 				// System.err.println("start " + startId + " neighbor: " + neighbor);
@@ -75,14 +75,14 @@ public class ProcessingUtils {
 				if (endId > 0) {
 					var endPoint = points.get(endId - ID_OFFSET);
 					segment.points().add(endPoint);
-					if (list.stream().noneMatch(s -> s.same(segment, 3)))
-							list.add(segment);
+					if (segments.stream().noneMatch(s -> s.same(segment, 3)))
+						segments.add(segment);
 					}
 				}
 			progress.incrementProgress();
 		}
-		System.err.println(points.size() + " -> " + list.size());
-		return list;
+		System.err.println(points.size() + " -> " + segments.size());
+		return segments;
 	}
 
 	private static int getPointsRec(ProgressListener progress, int startId, Point p, int[][] matrix, ArrayList<Point> path) throws CanceledException {

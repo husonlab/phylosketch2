@@ -95,6 +95,7 @@ public class DrawView extends Pane {
 
 	public DrawView() {
 		mode.addListener((v, o, n) -> movable.set(n == Mode.Edit || n == Mode.Move));
+		movable.set(mode.get() == Mode.Edit || mode.get() == Mode.Move);
 
 		setPadding(new javafx.geometry.Insets(20));
 
@@ -138,18 +139,22 @@ public class DrawView extends Pane {
 				var v = a.getElementAdded();
 				if (v.getOwner() != null) {
 					if (v.getData() instanceof Shape shape) {
-						shape.setEffect(SelectionEffect.create(Color.GOLD));
+						if (shape.getEffect() == null)
+							shape.setEffect(SelectionEffect.create(Color.GOLD));
+						else if (shape.getEffect() instanceof HoverShadow effect)
+							effect.setInput(SelectionEffect.create(Color.GOLD));
 					}
 					nodeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == v.getId()).forEach(label -> label.setEffect(SelectionEffect.create(Color.GOLD)));
 				}
 			} else if (a.wasRemoved()) {
 				var v = a.getElementRemoved();
-				if (v.getOwner() != null) {
-					if (v.getData() instanceof Shape shape) {
+				if (v.getOwner() != null && v.getData() instanceof Shape shape) {
+					if (shape.getEffect() instanceof HoverShadow effect)
+						effect.setInput(null);
+					else
 						shape.setEffect(null);
-					}
-					nodeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == v.getId()).forEach(label -> label.setEffect(null));
 				}
+				nodeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == v.getId()).forEach(label -> label.setEffect(null));
 			}
 		});
 
@@ -157,13 +162,19 @@ public class DrawView extends Pane {
 			if (e.wasAdded()) {
 				var edge = e.getElementAdded();
 				if (edge.getOwner() != null && edge.getData() instanceof Shape shape) {
-					shape.setEffect(SelectionEffect.create(Color.GOLD));
+					if (shape.getEffect() == null)
+						shape.setEffect(SelectionEffect.create(Color.GOLD));
+					else if (shape.getEffect() instanceof HoverShadow effect)
+						effect.setInput(SelectionEffect.create(Color.GOLD));
 				}
 				edgeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == edge.getId()).forEach(label -> label.setEffect(SelectionEffect.create(Color.GOLD)));
 			} else if (e.wasRemoved()) {
 				var edge = e.getElementRemoved();
 				if (edge.getOwner() != null && edge.getData() instanceof Shape shape) {
-					shape.setEffect(null);
+					if (shape.getEffect() instanceof HoverShadow effect)
+						effect.setInput(null);
+					else
+						shape.setEffect(null);
 				}
 				edgeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == edge.getId()).forEach(label -> label.setEffect(null));
 			}
@@ -205,7 +216,6 @@ public class DrawView extends Pane {
 		}
 		undoManager.clear();
 	}
-
 
 
 	public PhyloTree getGraph() {

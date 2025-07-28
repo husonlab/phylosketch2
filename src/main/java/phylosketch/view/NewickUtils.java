@@ -94,12 +94,16 @@ public class NewickUtils {
 	 */
 	public static List<PhyloTree> extractAllTrees(PhyloTree graph) {
 		var list = new ArrayList<PhyloTree>();
+
 		try (var componentMap = graph.newNodeIntArray();
 			 NodeArray<Node> srcTarMap = graph.newNodeArray()) {
 			graph.computeConnectedComponents(componentMap);
 			for (var component : new TreeSet<>(componentMap.values())) {
 				var tree = new PhyloTree();
+				var saveRoot = graph.getRoot();
+				graph.setRoot(null);
 				tree.copy(graph, srcTarMap, null);
+				graph.setRoot(saveRoot);
 				graph.nodeStream().filter(v -> !Objects.equals(componentMap.get(v), component)).map(srcTarMap::get).forEach(tree::deleteNode);
 
 				try (var nodes = tree.newNodeSet()) {

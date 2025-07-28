@@ -52,8 +52,8 @@ public class LabelUtils {
 				wasDragged = true;
 				mouseX = e.getScreenX();
 				mouseY = e.getScreenY();
-				e.consume();
 			}
+			e.consume();
 		});
 		label.setOnMouseReleased(e -> {
 			if (wasDragged) {

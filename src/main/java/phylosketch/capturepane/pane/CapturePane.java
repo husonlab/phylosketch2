@@ -29,6 +29,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.ClipboardUtils;
 import phylosketch.capturepane.capture.CaptureService;
@@ -65,6 +66,8 @@ public class CapturePane extends HBox {
 	private final CaptureService captureService;
 
 	private final PropertySettingPane propertySettingPane = new PropertySettingPane();
+
+	private final ObjectProperty<Rectangle> selectionRectangle = new SimpleObjectProperty<>(this, "selectionRectangle");
 
 	public CapturePane(DrawView view, MainWindowController controller) {
 		this.view = view;
@@ -108,7 +111,7 @@ public class CapturePane extends HBox {
 
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
 
-		SetupMouseInteraction.apply(view, this, resizeHandle);
+		SetupMouseInteraction.apply(view, this, resizeHandle, selectionRectangle);
 
 		var rightBorderPane = new BorderPane();
 		rightBorderPane.setTop(closeButton);

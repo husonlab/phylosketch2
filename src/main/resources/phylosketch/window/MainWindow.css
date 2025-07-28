@@ -56,6 +56,7 @@ viewer-background {
 .graph-special-edge {
     -fx-stroke: darkorange;
     -fx-fill: null;
+    -fx-stroke-line-cap: round;
 }
 
 .chart-pie {

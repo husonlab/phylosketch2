@@ -52,7 +52,6 @@ import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
-import jloda.graph.Edge;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
@@ -69,6 +68,7 @@ import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
 import phylosketch.utils.Clusters;
+import phylosketch.utils.GraphUtils;
 import phylosketch.view.*;
 
 import java.io.File;
@@ -79,7 +79,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * setup all control bindings
@@ -91,12 +90,6 @@ public class MainWindowPresenter {
 	private final CapturePane capturePane;
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
-	private final BooleanProperty allowMergeNodes = new SimpleBooleanProperty(this, "allowMergeNodes", false);
-	private final BooleanProperty allowInduce = new SimpleBooleanProperty(this, "allowInduce", false);
-	private final BooleanProperty allowRemoveThruNodes = new SimpleBooleanProperty(this, "allowRemoveThruNodes", false);
-	private final BooleanProperty allowFixCrossingEdges = new SimpleBooleanProperty(this, "allowFixCrossingEdges", false);
-	private final BooleanProperty allowReRoot = new SimpleBooleanProperty(this, "allowReRoot", false);
-	private final BooleanProperty allowDeclareTransferAcceptor = new SimpleBooleanProperty(this, "allowDeclareTransferAcceptor", false);
 
 	public MainWindowPresenter(MainWindow window) {
 		var controller = window.getController();
@@ -160,10 +153,18 @@ public class MainWindowPresenter {
 				}
 			});
 		}
+		{
+			var object = new Object();
+			view.getGraphFX().lastUpdateProperty().addListener(e -> {
+				RunAfterAWhile.applyInFXThread(object, () -> GraphUtils.updateReticulateEdges(view.getGraph()));
+			});
+		}
 
 		PaneInteraction.setup(view, controller, allowResize);
 		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
 		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
+
+		ModificationSupport.setup(view, controller);
 
 		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> window.dirtyProperty().set(n.intValue() > 0));
 
@@ -330,42 +331,6 @@ public class MainWindowPresenter {
 		});
 		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().and(capturePane.hasImageProperty().not()));
 
-		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e ->
-				RunAfterAWhile.applyInFXThread(allowRemoveThruNodes, () -> {
-					allowRemoveThruNodes.set(false);
-					allowFixCrossingEdges.set(false);
-					for (var v : view.getSelectedOrAllNodes()) {
-						if (v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank()) {
-							allowRemoveThruNodes.set(true);
-							if (allowFixCrossingEdges.get())
-								return;
-						}
-						if (v.getInDegree() == 2 && v.getOutDegree() == 2 && DrawView.getLabel(v).getRawText().isBlank()) {
-							allowFixCrossingEdges.set(true);
-							if (allowRemoveThruNodes.get())
-								return;
-						}
-					}
-					allowMergeNodes.set(view.getNodeSelection().size() >= 2);
-					allowInduce.set(view.getNodeSelection().size() >= 2 && view.getNodeSelection().size() < view.getGraph().getNumberOfNodes());
-				})
-		);
-
-		controller.getMergeNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new MergeNodesCommand(view, view.getNodeSelection().getSelectedItems())));
-		controller.getMergeNodesMenuItem().disableProperty().bind(allowMergeNodes.not());
-
-		controller.getInduceMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new InduceCommand(view, view.getNodeSelection().getSelectedItems())));
-		controller.getMergeNodesMenuItem().disableProperty().bind(allowInduce.not());
-
-		controller.getDeleteThruNodesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new RemoveThruNodesCommand(view, view.getSelectedOrAllNodes())));
-		controller.getDeleteThruNodesMenuItem().disableProperty().bind(allowRemoveThruNodes.not());
-
-		controller.getReverseEdgesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new ReverseEdgesCommand(view, view.getEdgeSelection().getSelectedItems())));
-		controller.getReverseEdgesMenuItem().disableProperty().bind(Bindings.isEmpty(view.getEdgeSelection().getSelectedItems()));
-
-		controller.getCrossEdgesMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new FixCrossingEdgesCommand(view, view.getSelectedOrAllNodes())));
-		controller.getCrossEdgesMenuItem().disableProperty().bind(allowFixCrossingEdges.not());
-
 		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "leaves", "ABC", true)));
 		controller.getLabelLeavesABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
@@ -387,18 +352,6 @@ public class MainWindowPresenter {
 		controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
 		BasicFX.setupFullScreenMenuSupport(window.getStage(), controller.getFullScreenMenuItem());
 
-		controller.getDeclareRootMenuItem().setOnAction(a -> {
-			var e = (view.getEdgeSelection().size() == 1 ? view.getEdgeSelection().getSelectedItem() : null);
-			var v = (e == null && view.getNodeSelection().size() == 1 ? view.getNodeSelection().getSelectedItem() : null);
-			if (e != null || v != null)
-				view.getUndoManager().doAndAdd(new RerootCommand(view, v, e));
-		});
-		controller.getDeclareRootMenuItem().disableProperty().bind(allowReRoot.not());
-
-		controller.getDeclareTransferAcceptorMenuItem().setOnAction(a -> {
-			view.getUndoManager().doAndAdd(new DeclareTransferAcceptorEdgesCommand(view, view.getEdgeSelection().getSelectedItems()));
-		});
-		controller.getDeclareTransferAcceptorMenuItem().disableProperty().bind(allowDeclareTransferAcceptor.not());
 
 		view.getGraphFX().lastUpdateProperty().addListener(e -> {
 			window.getStatusPane().getChildren().removeAll(BasicFX.findRecursively(window.getStatusPane(), n -> "info".equals(n.getUserData())));
@@ -441,36 +394,8 @@ public class MainWindowPresenter {
 					window.getStatusPane().getChildren().add(index + 1, text);
 				}
 			}
-			allowDeclareTransferAcceptor.set(!view.getEdgeSelection().getSelectedItems().isEmpty() && view.getEdgeSelection().getSelectedItems().stream().allMatch(f -> f.getTarget().getInDegree() > 1) &&
-											 view.getEdgeSelection().getSelectedItems().stream().map(Edge::getTarget).collect(Collectors.toSet()).size() == view.getEdgeSelection().getSelectedItems().size());
-
-
-			if (view.getNodeSelection().size() == 1) {
-				var v = view.getNodeSelection().getSelectedItem();
-				while (true) {
-					if (v.getInDegree() == 1)
-						v = v.getParent();
-					else {
-						allowReRoot.set(v.getInDegree() == 0);
-						return;
-					}
-				}
-			} else if (view.getEdgeSelection().size() == 1) {
-				var f = view.getEdgeSelection().getSelectedItem();
-				if (f.nodes().containsAll(view.getNodeSelection().getSelectedItems())) {
-					var v = f.getTarget();
-
-					while (true) {
-						if (v.getInDegree() == 1)
-							v = v.getParent();
-						else {
-							allowReRoot.set(v.getInDegree() == 0);
-							return;
-						}
-					}
-				}
-			} else allowReRoot.set(false);
 		});
+
 		view.getNodeSelection().getSelectedItems().addListener(selectionInvalidationListener);
 		view.getEdgeSelection().getSelectedItems().addListener(selectionInvalidationListener);
 
@@ -638,6 +563,10 @@ public class MainWindowPresenter {
 
 		formatPaneView.getController().getTransferAcceptorButton().setOnAction(controller.getDeclareTransferAcceptorMenuItem().getOnAction());
 		formatPaneView.getController().getTransferAcceptorButton().disableProperty().bind(controller.getDeclareTransferAcceptorMenuItem().disableProperty());
+
+		formatPaneView.getController().getApplyModificationButton().setOnAction(controller.getApplyModificationMenuItem().getOnAction());
+		formatPaneView.getController().getApplyModificationButton().disableProperty().bind(controller.getApplyModificationMenuItem().disableProperty());
+		controller.getApplyModificationMenuItem().textProperty().addListener((v, o, n) -> formatPaneView.getController().getApplyModificationButton().setTooltip(new Tooltip(n)));
 	}
 
 	public static void openString(String string) {

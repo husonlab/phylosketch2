@@ -112,8 +112,10 @@ public class EmbedNetwork {
 					path.getElements().add(quadCurveTo);
 				}
 				if (network.isTreeEdge(e) || network.isTransferAcceptorEdge(e)) {
+					path.getStyleClass().remove("graph-special-edge");
 					path.getStyleClass().add("graph-edge");
 				} else {
+					path.getStyleClass().remove("graph-edge");
 					path.getStyleClass().add("graph-special-edge");
 					path.setStyle("-fx-stroke: darkorange;");
 				}

@@ -21,17 +21,17 @@
 package phylosketch.capturepane.capture;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
-import java.awt.image.BufferedImage;
 
 /**
  * utilities for working with images
  * Daniel Huson, 12.2024
  */
 public class ImageUtils {
+
+
 	/**
 	 * Converts an Image into a binary matrix optimized for line extraction.
 	 */
@@ -129,24 +129,6 @@ public class ImageUtils {
 		return grayImage;
 	}
 
-	public static BufferedImage convertToBufferedImage(Image image) {
-		var width = (int) image.getWidth();
-		var height = (int) image.getHeight();
-
-		var bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-		PixelReader pixelReader = image.getPixelReader();
-
-		for (var y = 0; y < height; y++) {
-			for (var x = 0; x < width; x++) {
-				Color color = pixelReader.getColor(x, y);
-				var gray = (int) (255 * ((color.getRed() + color.getGreen() + color.getBlue()) / 3));
-				var rgb = (gray << 16) | (gray << 8) | gray;
-				bufferedImage.setRGB(x, y, rgb);
-			}
-		}
-		return bufferedImage;
-	}
-
 	public static Image replaceTransparentBackground(Image image) {
 		int width = (int) image.getWidth();
 		int height = (int) image.getHeight();
@@ -189,5 +171,18 @@ public class ImageUtils {
 			}
 		}
 		return false;
+	}
+
+	public static Image cropImage(Image input, int x, int y, int width, int height) {
+		var reader = input.getPixelReader();
+		if (reader == null) {
+			throw new IllegalArgumentException("Image has no pixel reader.");
+		}
+
+		// Clamp to avoid IndexOutOfBounds
+		var croppedWidth = Math.min(width, (int) input.getWidth() - x);
+		var croppedHeight = Math.min(height, (int) input.getHeight() - y);
+
+		return new WritableImage(reader, x, y, croppedWidth, croppedHeight);
 	}
 }

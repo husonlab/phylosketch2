@@ -23,9 +23,6 @@ package xtra.treesnet;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
-import java.io.IOException;
-import java.util.Objects;
-
 /**
  * The TreesNet viewer
  * Daniel Huson, 4.2025
@@ -38,14 +35,9 @@ public class TreesNetViewer {
 
 	public TreesNetViewer() {
 		this.document = new TreesNetDocument();
-		var fxmlLoader = new FXMLLoader();
-		try (var ins = Objects.requireNonNull(TreesNetController.class.getResource("TreesNet.fxml")).openStream()) {
-			fxmlLoader.load(ins);
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-		controller = fxmlLoader.getController();
-		root = fxmlLoader.getRoot();
+		var loader = new FXMLLoader(getClass().getResource("TreesNet.fxml"));
+		controller = loader.getController();
+		root = loader.getRoot();
 		presenter = new TreesNetPresenter(this, document, controller);
 	}
 

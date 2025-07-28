@@ -135,6 +135,7 @@ public class RootTool extends StackPane {
 			mouseY = e.getScreenY();
 			oldHBoxTranslateX = getTranslateX();
 			oldHBoxTranslateY = getTranslateY();
+			e.consume();
 		});
 
 		setOnMouseDragged(e -> {
@@ -145,6 +146,7 @@ public class RootTool extends StackPane {
 			setTranslateY(getTranslateY() + delta.getY());
 			mouseX = e.getScreenX();
 			mouseY = e.getScreenY();
+			e.consume();
 		});
 
 		setOnMouseReleased(e -> {
@@ -161,6 +163,7 @@ public class RootTool extends StackPane {
 					setTranslateY(newY);
 				});
 			}
+			e.consume();
 		});
 
 		setOnMouseClicked(e -> {
@@ -173,6 +176,7 @@ public class RootTool extends StackPane {
 					case Center -> RootPosition.Side.Left;
 				});
 			}
+			e.consume();
 		});
 	}
 

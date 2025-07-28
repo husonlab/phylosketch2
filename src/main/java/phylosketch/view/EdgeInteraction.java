@@ -47,6 +47,8 @@ public class EdgeInteraction {
 	private static double mouseDownX;
 	private static double mouseDownY;
 
+	private static boolean inMove;
+
 	private static int pathIndex;
 	private static List<PathElement> originalElements;
 
@@ -89,14 +91,16 @@ public class EdgeInteraction {
 										}
 										view.getEdgeSelection().select(e);
 									} else {
-										Platform.runLater(runSelectionButton);
+										if (false) Platform.runLater(runSelectionButton);
 									}
 								}
 								me.consume();
 							});
 
 							path.setOnMousePressed(me -> {
-								if (view.getMode() == DrawView.Mode.Move) {
+								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Edit && me.isShiftDown());
+
+								if (inMove) {
 									mouseDownX = me.getScreenX();
 									mouseDownY = me.getScreenY();
 									var local = view.screenToLocal(mouseDownX, mouseDownY);
@@ -109,7 +113,7 @@ public class EdgeInteraction {
 									pathIndex = -1;
 							});
 							path.setOnMouseDragged(me -> {
-								if (view.getMode() == DrawView.Mode.Move) {
+								if (inMove) {
 									if (!view.getEdgeSelection().isSelected(e)) {
 										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -129,7 +133,7 @@ public class EdgeInteraction {
 								}
 							});
 							path.setOnMouseReleased(me -> {
-								if (view.getMode() == DrawView.Mode.Move) {
+								if (inMove) {
 									if (pathIndex != -1 && !me.isStillSincePress()) {
 										var theOriginalElements = originalElements;
 										var refinedElements = PathNormalize.apply(path, 2, 5);
@@ -140,10 +144,23 @@ public class EdgeInteraction {
 												() -> path.getElements().setAll(refinedElements));
 									}
 									me.consume();
+									inMove = false;
 								}
 							});
-							path.setOnMouseEntered(me -> path.setStrokeWidth(path.getStrokeWidth() + 4));
-							path.setOnMouseExited(me -> path.setStrokeWidth(path.getStrokeWidth() - 4));
+							path.setOnMouseEntered(me -> {
+								var hoverShadow = new HoverShadow(path.getStroke(), 3);
+								if (path.getEffect() != null) {
+									hoverShadow.setInput(path.getEffect());
+								}
+								path.setEffect(hoverShadow);
+							});
+							path.setOnMouseExited(me -> {
+								if (path.getEffect() instanceof HoverShadow hoverShadow && hoverShadow.getInput() != null) {
+									path.setEffect(hoverShadow.getInput());
+								} else {
+									path.setEffect(null);
+								}
+							});
 						}
 					}
 				}

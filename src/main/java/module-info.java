@@ -13,7 +13,9 @@ module phylosketch {
 	requires org.apache.commons.numbers.gamma;
 	requires java.management;
 	requires java.scripting;
+
 	requires org.bytedeco.tesseract;
+	//requires org.bytedeco.opencv;
 
 	opens phylosketch.format;
 	opens phylosketch.help;

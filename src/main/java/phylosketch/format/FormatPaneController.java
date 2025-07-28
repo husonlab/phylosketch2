@@ -43,7 +43,10 @@ public class FormatPaneController {
 	private Button clearEdgeColorButton;
 
 	@FXML
-	private ToggleButton showArrowsButton;
+	private Button showArrowsButton;
+
+	@FXML
+	private Button showReticulateButton;
 
 	@FXML
 	private Button edgeCurvedButton;
@@ -205,6 +208,9 @@ public class FormatPaneController {
 	@FXML
 	private Button transferAcceptorButton;
 
+	@FXML
+	private Button applyModificationButton;
+
 
 	@FXML
 	private void initialize() {
@@ -239,6 +245,8 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(clearEdgeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearEdgeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearEdgeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+
+		MaterialIcons.setIcon(applyModificationButton, MaterialIcons.auto_fix_high);
 
 		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
 		ComboBoxUtils.ensureDoubleInput(nodeLabelSizeCBox);
@@ -436,8 +444,12 @@ public class FormatPaneController {
 		return measureEdgeWeightsButton;
 	}
 
-	public ToggleButton getShowArrowsButton() {
+	public Button getShowArrowsButton() {
 		return showArrowsButton;
+	}
+
+	public Button getShowReticulateButton() {
+		return showReticulateButton;
 	}
 
 	public ChoiceBox<String> getHowToLabelNodesCBox() {
@@ -494,5 +506,9 @@ public class FormatPaneController {
 
 	public Button getCrossEdgesButton() {
 		return crossEdgesButton;
+	}
+
+	public Button getApplyModificationButton() {
+		return applyModificationButton;
 	}
 }

@@ -46,6 +46,8 @@ public class NodeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
+	private static boolean inMove = false;
+
 	private static final Line lineX = createDragLine(true);
 	private static final Line lineY = createDragLine(false);
 
@@ -86,14 +88,15 @@ public class NodeInteraction {
 										}
 										view.getNodeSelection().select(v);
 									} else {
-										Platform.runLater(runSelectionButton);
+										if (false) Platform.runLater(runSelectionButton);
 									}
 								}
 								me.consume();
 							});
 
 							shape.setOnMousePressed(me -> {
-								if (view.getMode() == DrawView.Mode.Move) {
+								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Edit && me.isShiftDown());
+								if (inMove) {
 									mouseDownX = me.getScreenX();
 									mouseDownY = me.getScreenY();
 									mouseX = mouseDownX;
@@ -102,8 +105,9 @@ public class NodeInteraction {
 								}
 							});
 
+
 							shape.setOnMouseDragged(me -> {
-								if (view.getMode() == DrawView.Mode.Move) {
+								if (inMove) {
 									if (!view.getNodeSelection().isSelected(v)) {
 										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -151,19 +155,34 @@ public class NodeInteraction {
 								view.getOtherGroup().getChildren().remove(lineX);
 								view.getOtherGroup().getChildren().remove(lineY);
 
-								if (view.getMode() == DrawView.Mode.Move) {
+								if (inMove) {
 									var nodes = new HashSet<>(view.getNodeSelection().getSelectedItems());
 									var previous = view.screenToLocal(mouseDownX, mouseDownY);
 									var location = view.screenToLocal(mouseX, mouseY);
 									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
 									view.getUndoManager().add(new MoveNodesCommand(view, nodes, d.getX(), d.getY()));
 									me.consume();
+									inMove = false;
 								}
 							});
 
-							shape.setOnMouseEntered(me -> shape.setStrokeWidth(shape.getStrokeWidth() + 4));
+							shape.setOnMouseEntered(me -> {
+								var color = (shape.getFill() != null ? shape.getFill() : (shape.getStroke() != null ? shape.getStroke() : Color.GRAY));
+								var hoverShadow = new HoverShadow(color, 5);
+								hoverShadow.setOffsetY(0);
+								if (shape.getEffect() != null) {
+									hoverShadow.setInput(shape.getEffect());
+								}
+								shape.setEffect(hoverShadow);
+							});
 
-							shape.setOnMouseExited(me -> shape.setStrokeWidth(shape.getStrokeWidth() - 4));
+							shape.setOnMouseExited(me -> {
+								if (shape.getEffect() instanceof HoverShadow hoverShadow && hoverShadow.getInput() != null) {
+									shape.setEffect(hoverShadow.getInput());
+								} else {
+									shape.setEffect(null);
+								}
+							});
 						}
 					}
 				}
