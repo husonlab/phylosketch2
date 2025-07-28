@@ -34,7 +34,6 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import jloda.fx.util.BasicFX;
-import jloda.fx.util.SelectionEffectBlue;
 import jloda.graph.Edge;
 import phylosketch.commands.CreateNodeCommand;
 import phylosketch.commands.DrawEdgeCommand;
@@ -93,7 +92,12 @@ public class PaneInteraction {
 			}
 		});
 
+		// will create a node if mouse is pressed and then not moved or released within two seconds
+		var createNodePause = new PauseTransition(Duration.seconds(1.5));
+
 		view.setOnMouseClicked(me -> {
+			createNodePause.stop();
+
 			if (me.isStillSincePress() && me.getClickCount() == 1) {
 				allowResize.set(false);
 				for (var textField : BasicFX.getAllRecursively(view, TextField.class)) {
@@ -107,21 +111,16 @@ public class PaneInteraction {
 			}
 
 			if (view.getMode() == DrawView.Mode.Edit && me.isStillSincePress() && !inMultiTouchGesture.get()) {
-				if (view.getGraph().getNumberOfNodes() == 0 || me.getClickCount() == 2) {
+				if (me.getClickCount() == 2) {
+					createNodePause.stop();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
-					if (false) {
-						var shape = DrawView.getShape(view.getGraph().getLastNode());
-						shape.setEffect(SelectionEffectBlue.getInstance());
-					}
 				}
 			}
 			me.consume();
 		});
 
-		// will create a node if mouse is pressed and then not moved or released within two seconds
-		var createNodeTransition = new PauseTransition(Duration.seconds(1.5));
-		createNodeTransition.setOnFinished(e -> {
+		createNodePause.setOnFinished(e -> {
 			var location = view.screenToLocal(mouseX, mouseY);
 			view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
 			path.getElements().setAll(new MoveTo(location.getX(), location.getY()));
@@ -145,19 +144,18 @@ public class PaneInteraction {
 						inDrawingEdge.set(true);
 						view.setCursor(Cursor.CROSSHAIR);
 					}
-					createNodeTransition.playFromStart();
+					if (!inDrawingEdge.get())
+						createNodePause.playFromStart();
 				}
-				if (view.getMode() != DrawView.Mode.Capture && !inDrawingEdge.get()) {
+				if (!inDrawingEdge.get()) {
 					inRubberBandSelection.set(true);
-					me.consume();
 				}
 			}
 			me.consume();
 		});
 
 		view.setOnMouseDragged(me -> {
-			createNodeTransition.stop();
-
+			createNodePause.stop();
 			if (inDrawingEdge.get()) {
 				if (!path.getElements().isEmpty()) {
 					if (!view.getEdgesGroup().getChildren().contains(path))
@@ -186,6 +184,7 @@ public class PaneInteraction {
 				var down = selectionRectangle.screenToLocal(mouseDownX, mouseDownY);
 				var now = selectionRectangle.screenToLocal(me.getScreenX(), me.getScreenY());
 				var delta = now.subtract(down);
+				selectionRectangle.setVisible(Math.abs(delta.getX()) > 5 || Math.abs(delta.getY()) > 5);
 				selectionRectangle.setX(delta.getX() > 0 ? down.getX() : now.getX());
 				selectionRectangle.setWidth(Math.abs(delta.getX()));
 				selectionRectangle.setY(delta.getY() > 0 ? down.getY() : now.getY());
@@ -195,7 +194,7 @@ public class PaneInteraction {
 		});
 
 		view.setOnMouseReleased(me -> {
-			createNodeTransition.stop();
+			createNodePause.stop();
 			view.setCursor(Cursor.DEFAULT);
 
 			if (inDrawingEdge.get()) {

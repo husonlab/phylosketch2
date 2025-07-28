@@ -132,7 +132,6 @@ public class RerootCommand extends UndoableRedoableCommand {
 					}
 					if (oldRootId != null)
 						graph.setRoot(graph.findNodeById(oldRootId));
-
 				};
 
 				redo = () -> {
@@ -189,8 +188,9 @@ public class RerootCommand extends UndoableRedoableCommand {
 			} else if (v.getInDegree() == 0) { // is already root, just need to redirect some inconsistent edges
 				if (new ReverseEdgesCommand(view, view.getGraph().findNodeById(oldNodeId)).isRedoable()) {
 					undo = () -> {
-						if (reverseEdgesCommand != null && reverseEdgesCommand.isUndoable())
+						if (reverseEdgesCommand != null && reverseEdgesCommand.isUndoable()) {
 							reverseEdgesCommand.undo();
+						}
 					};
 					redo = () -> {
 						reverseEdgesCommand = new ReverseEdgesCommand(view, view.getGraph().findNodeById(oldNodeId));

@@ -21,6 +21,7 @@
 package phylosketch.view;
 
 import javafx.geometry.Point2D;
+import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
 
 import java.util.Collection;
@@ -57,29 +58,65 @@ public record RootPosition(phylosketch.view.RootPosition.Side side, Point2D loca
 		if (nodes.size() <= 1) {
 			side = Side.Center;
 		} else {
-			var xValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getX).toList();
-			var averageLeafX = xValues.stream().mapToDouble(d -> d).average().orElse(0.0);
-			var yValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getY).toList();
-			var averageLeafY = yValues.stream().mapToDouble(d -> d).average().orElse(0.0);
+			if (true) {
+				var countLeft = 0;
+				var countRight = 0;
+				var countTop = 0;
+				var countBottom = 0;
 
-			if (averageLeafX > minX + 0.1 * width && averageLeafX < maxX - 0.1 * width
-				&& averageLeafY > minY + 0.1 * height && averageLeafY < maxY - 0.1 * height) {
-				side = Side.Center;
+				for (var v : nodes) {
+					if (v.isLeaf()) {
+						var pv = DrawView.getPoint(v);
+						for (var u : v.parents()) {
+							var pu = DrawView.getPoint(u);
+							var angle = GeometryUtilsFX.computeAngle(pv.subtract(pu));
+							if (angle > 45 && angle <= 135) {
+								countTop++;
+							} else if (angle > 135 && angle <= 225) {
+								countRight++;
+							} else if (angle > 225 && angle <= 315) {
+								countBottom++;
+							} else {
+								countLeft++;
+							}
+
+						}
+					}
+				}
+				if (countLeft > 2 * countRight && countLeft > 2 * countBottom & countLeft > 2 * countTop) {
+					side = Side.Left;
+				} else if (countRight > 2 * countLeft && countRight > 2 * countTop && countRight > 2 * countBottom) {
+					side = Side.Right;
+				} else if (countTop > 2 * countBottom && countTop > 2 * countLeft && countTop > 2 * countRight) {
+					side = Side.Top;
+				} else if (countBottom > 2 * countTop && countBottom > 2 * countLeft && countBottom > 2 * countRight) {
+					side = Side.Bottom;
+				} else side = Side.Center;
 			} else {
+				var xValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getX).toList();
+				var averageLeafX = xValues.stream().mapToDouble(d -> d).average().orElse(0.0);
+				var yValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getY).toList();
+				var averageLeafY = yValues.stream().mapToDouble(d -> d).average().orElse(0.0);
 
-				var zScoreX = zScore(averageRootX, xValues);
-				var zScoreY = zScore(averageRootY, yValues);
-
-				if (Math.abs(zScoreX) > Math.abs(zScoreY)) {
-					if (averageLeafX - averageRootX > 0)
-						side = Side.Left;
-					else
-						side = Side.Right;
+				if (averageRootX > minX + 0.1 * width && averageRootX < maxX - 0.1 * width
+					&& averageRootY > minY + 0.1 * height && averageRootY < maxY - 0.1 * height) {
+					side = Side.Center;
 				} else {
-					if (averageLeafY - averageRootY > 0)
-						side = Side.Top;
-					else
-						side = Side.Bottom;
+
+					var zScoreX = zScore(averageRootX, xValues);
+					var zScoreY = zScore(averageRootY, yValues);
+
+					if (Math.abs(zScoreX) > Math.abs(zScoreY)) {
+						if (averageLeafX - averageRootX > 0)
+							side = Side.Left;
+						else
+							side = Side.Right;
+					} else {
+						if (averageLeafY - averageRootY > 0)
+							side = Side.Top;
+						else
+							side = Side.Bottom;
+					}
 				}
 			}
 		}

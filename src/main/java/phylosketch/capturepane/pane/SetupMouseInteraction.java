@@ -20,8 +20,10 @@
 
 package phylosketch.capturepane.pane;
 
-import javafx.geometry.Bounds;
+import javafx.beans.property.ObjectProperty;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import phylosketch.view.DrawView;
 
 /**
@@ -34,11 +36,44 @@ public class SetupMouseInteraction {
 	private static double mouseDownX;
 	private static double mouseDownY;
 
-	private static Bounds sourceRect;
+	public static void apply(DrawView view, CapturePane capturePane, Node resizeHandle,
+							 ObjectProperty<Rectangle> selectionRectangle) {
 
-	public static void apply(DrawView view, CapturePane capturePane, Node resizeHandle) {
+		if (false)
+			capturePane.getMainPane().setOnMouseClicked(view.getOnMouseClicked());
 
-		capturePane.getMainPane().setOnMouseClicked(view.getOnMouseClicked());
+		if (false) {
+			selectionRectangle.set(new Rectangle(10, 10));
+			selectionRectangle.get().setFill(Color.TRANSPARENT);
+			selectionRectangle.get().setStroke(Color.LIGHTBLUE);
+
+			capturePane.getMainPane().getChildren().add(selectionRectangle.get());
+
+			capturePane.getImageView().setOnMousePressed(e -> {
+				mouseX = mouseDownX = e.getScreenX();
+				mouseY = mouseDownY = e.getScreenY();
+				var rect = selectionRectangle.get();
+				rect.setX(mouseX);
+				rect.setY(mouseY);
+				rect.setWidth(0);
+				rect.setHeight(0);
+				rect.setVisible(false);
+				e.consume();
+			});
+
+			capturePane.getImageView().setOnMouseDragged(e -> {
+				var dx = e.getScreenX() - mouseX;
+				var dy = e.getScreenY() - mouseY;
+				var rect = selectionRectangle.get();
+				rect.setWidth(rect.getWidth() + dx);
+				rect.setHeight(rect.getHeight() + dy);
+				rect.setVisible(true);
+				e.consume();
+
+				mouseX = mouseDownX = e.getScreenX();
+				mouseY = mouseDownY = e.getScreenY();
+			});
+		}
 
 		{
 			var imageView = capturePane.getImageView();

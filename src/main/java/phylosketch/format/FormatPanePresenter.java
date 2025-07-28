@@ -392,8 +392,13 @@ public class FormatPanePresenter {
 		controller.getShowArrowsButton().setOnAction(a -> {
 			if (canUpdate) {
 				var select = !view.getSelectedOrAllEdges().stream().allMatch(view::isShowArrow);
-				controller.getShowArrowsButton().setSelected(select);
 				view.getUndoManager().doAndAdd(new ShowArrowsCommand(view, view.getSelectedOrAllEdges(), select));
+			}
+		});
+
+		controller.getShowReticulateButton().setOnAction(a -> {
+			if (canUpdate) {
+				view.getUndoManager().doAndAdd(new ToggleReticulateEdgeCommand(view));
 			}
 		});
 

@@ -24,6 +24,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
@@ -58,6 +59,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem clearMenuItem;
+
+	@FXML
+	private MenuItem applyModificationMenuItem;
 
 	@FXML
 	private MenuItem mergeNodesMenuItem;
@@ -368,6 +372,9 @@ public class MainWindowController {
 	CheckMenuItem capturePhylogenyItem;
 
 	@FXML
+	MenuItem cropImageMenuItem;
+
+	@FXML
 	private Menu layoutMenu;
 
 	@FXML
@@ -569,6 +576,7 @@ public class MainWindowController {
 			deleteButton.disableProperty().bind(deleteMenuItem.disableProperty());
 		}
 
+		scrollPane.setPadding(new Insets(10));
 		scrollPane.setFitToWidth(true);
 		scrollPane.setFitToHeight(true);
 		scrollPane.setPannable(true);
@@ -580,7 +588,7 @@ public class MainWindowController {
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
 		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, declareTransferAcceptorMenuItem, induceMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(applyModificationMenuItem, mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, declareTransferAcceptorMenuItem, induceMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -618,6 +626,7 @@ public class MainWindowController {
 		captureLinesItem.setGraphic(MaterialIcons.graphic(MaterialIcons.water));
 		captureLabelsItem.setGraphic(MaterialIcons.graphic(MaterialIcons.text_fields));
 		capturePhylogenyItem.setGraphic(MaterialIcons.graphic(MaterialIcons.account_tree));
+		cropImageMenuItem.setGraphic(MaterialIcons.graphic(MaterialIcons.crop));
 
 		(new ToggleGroup()).getToggles().addAll(leftRootSideMenuItem, rightRootSideMenuItem, topRootSideMenuItem, bottomRootSideMenuItem, centerRootSideMenuItem);
 	}
@@ -1035,6 +1044,10 @@ public class MainWindowController {
 		return modeMenuButton;
 	}
 
+	public MenuItem getApplyModificationMenuItem() {
+		return applyModificationMenuItem;
+	}
+
 	public MenuItem getMergeNodesMenuItem() {
 		return mergeNodesMenuItem;
 	}
@@ -1129,6 +1142,10 @@ public class MainWindowController {
 
 	public CheckMenuItem getCapturePhylogenyItem() {
 		return capturePhylogenyItem;
+	}
+
+	public MenuItem getCropImageMenuItem() {
+		return cropImageMenuItem;
 	}
 
 	public Rectangle getSelectionRectangle() {

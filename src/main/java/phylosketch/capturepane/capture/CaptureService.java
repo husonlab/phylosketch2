@@ -27,6 +27,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import jloda.fx.util.AService;
+import jloda.fx.window.NotificationManager;
+import jloda.util.Basic;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -63,6 +65,10 @@ public class CaptureService extends AService<Boolean> {
 	 * constructor
 	 */
 	public CaptureService() {
+		setOnFailed(e -> {
+			Basic.caught(getException());
+			NotificationManager.showError("Image capture failed: " + getException());
+		});
 
 		setCallable(() -> {
 			if (getGoal() == NONE)
@@ -89,10 +95,15 @@ public class CaptureService extends AService<Boolean> {
 				var matrix = ImageUtils.convertToBinaryArray(getInputImage());
 
 				if (true) {
-					if (ImageUtils.tooMuchBlack(matrix, 0.30))
+					if (ImageUtils.tooMuchBlack(matrix, 0.30)) {
 						throw new RuntimeException("Image has too much foreground");
+					}
 				}
 				Skeletonization.apply(matrix);
+
+				if (true)
+					DotConnector.apply(matrix);
+
 				skeletonImage = ImageUtils.convertToImage(matrix, Color.HOTPINK);
 
 				CapturePointsSegments.apply(getProgressListener(), matrix, 0, endPoints, segments);

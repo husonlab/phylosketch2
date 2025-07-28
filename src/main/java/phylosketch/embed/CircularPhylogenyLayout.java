@@ -21,9 +21,11 @@ package phylosketch.embed;
 
 import javafx.geometry.Point2D;
 import jloda.fx.util.GeometryUtilsFX;
+import jloda.graph.DAGTraversals;
 import jloda.graph.Node;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
+import jloda.util.CollectionUtils;
 import jloda.util.IteratorUtils;
 import jloda.util.Single;
 import phylosketch.embed.optimize.OptimizeLayout;
@@ -54,15 +56,22 @@ public class CircularPhylogenyLayout {
 		try (var nodeRadiusMap = tree.newNodeDoubleArray()) {
 			if (!toScale) {
 				final var maxDepth = computeMaxDepth(tree);
-				try (var visited = tree.newNodeSet()) {
-					tree.postorderTraversal(tree.getRoot(), v -> !visited.contains(v), v -> {
-						if (tree.isLeaf(v)) {
-							nodeRadiusMap.put(v, (double) maxDepth);
-						} else {
-							nodeRadiusMap.put(v, IteratorUtils.asStream(tree.lsaChildren(v)).mapToDouble(nodeRadiusMap::get).min().orElse(maxDepth) - 1);
+				DAGTraversals.postOrderTraversal(tree.getRoot(), v -> IteratorUtils.asList(v.children()), v -> {
+					if (v.isLeaf()) {
+						nodeRadiusMap.put(v, (double) maxDepth);
+					} else {
+						var min = Double.MAX_VALUE;
+						for (var e : v.outEdges()) {
+							var w = e.getTarget();
+							if (!tree.isTreeEdge(e) && tree.hasTransferAcceptorEdges() && !tree.isTransferAcceptorEdge(e) && CollectionUtils.intersects(tree.getTransferAcceptorEdges(), IteratorUtils.asSet(w.inEdges())))
+								min = Math.min(nodeRadiusMap.get(w), min);
+							else
+								min = Math.min(nodeRadiusMap.get(w) - 1, min);
 						}
-					});
-				}
+						nodeRadiusMap.put(v, min);
+					}
+				});
+
 				var excess = nodeRadiusMap.get(tree.getRoot());
 				if (excess > 0) {
 					nodeRadiusMap.entrySet().forEach(entry -> entry.setValue(entry.getValue() - excess));
@@ -74,7 +83,7 @@ public class CircularPhylogenyLayout {
 				var smallOffsetForReticulateEdge = (percentOffset / 100.0) * averageWeight;
 
 				nodeRadiusMap.put(tree.getRoot(), 0.0);
-				tree.preorderTraversal(v -> {
+				DAGTraversals.preOrderTraversal(tree.getRoot(), v -> IteratorUtils.asList(v.children()), v -> {
 					var max = 0.0;
 					for (var e : v.inEdges()) {
 						var w = e.getSource();

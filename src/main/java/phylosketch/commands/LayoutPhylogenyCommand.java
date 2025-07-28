@@ -55,7 +55,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	/**
 	 * layout all selected (or if none selected, all) components
 	 *
-	 * @param view    the view
+	 * @param view the view
 	 */
 	public LayoutPhylogenyCommand(DrawView view, boolean circular, boolean toScale) {
 		super("layout");
