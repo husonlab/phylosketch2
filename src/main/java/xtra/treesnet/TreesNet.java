@@ -53,6 +53,7 @@ public class TreesNet extends Application {
 				System.err.println("Loading trees and network...");
 				viewer.getPresenter().load(initialTreesFile, initialNetworkFile);
 				viewer.getPresenter().embedNetwork();
+				viewer.getPresenter().mapExample();
 			} catch (IOException e) {
 				System.err.println(e.getMessage());
 			}

@@ -1,6 +1,6 @@
 # PhyloSketch App
 
-Daniel H. Huson, University of Tübingen, 2024
+Daniel H. Huson, University of Tübingen, 2025
 
 ## Introduction
 
