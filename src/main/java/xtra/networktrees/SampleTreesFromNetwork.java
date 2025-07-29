@@ -75,6 +75,10 @@ public class SampleTreesFromNetwork {
 				var outEdge = v.getFirstOutEdge();
 				var q = outEdge.getTarget();
 				var newEdge = tree.newEdge(p, q);
+				if (tree.hasEdgeWeights())
+					tree.setWeight(newEdge, tree.getWeight(inEdge) + tree.getWeight(outEdge));
+				if (tree.hasEdgeConfidences())
+					tree.setConfidence(newEdge, 0.5 * (tree.getConfidence(inEdge) + tree.getConfidence(outEdge)));
 				var list = new ArrayList<>(CollectionUtils.concatenate(edgeToPathMap.get(inEdge), edgeToPathMap.get(outEdge)));
 				edgeToPathMap.put(newEdge, list);
 				edgeToPathMap.remove(inEdge);
