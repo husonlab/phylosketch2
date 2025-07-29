@@ -41,4 +41,6 @@ module phylosketch {
 
 	opens xtra.treesnet;
 	exports xtra.treesnet;
+	exports xtra.networktrees;
+
 }
