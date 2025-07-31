@@ -27,11 +27,11 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import jloda.fx.control.RichTextLabel;
+import jloda.fx.phylo.embed.Averaging;
+import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
 import jloda.fx.util.BasicFX;
 import jloda.graph.NodeArray;
 import jloda.phylo.PhyloTree;
-import phylosketch.embed.HeightAndAngles;
-import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.utils.ScaleUtils;
 
 /**
@@ -58,7 +58,7 @@ public class EmbedNetwork {
 		var labels = new Group();
 
 		try (NodeArray<Point2D> points = network.newNodeArray(); NodeArray<Circle> circles = network.newNodeArray()) {
-			RectangularPhylogenyLayout.apply(network, toScale, HeightAndAngles.Averaging.ChildAverage, true, points);
+			RectangularPhylogenyLayout.apply(network, toScale, Averaging.ChildAverage, true, points);
 			ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 
 			for (var v : network.nodes()) {

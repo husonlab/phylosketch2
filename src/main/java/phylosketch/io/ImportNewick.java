@@ -21,6 +21,8 @@
 package phylosketch.io;
 
 import javafx.geometry.Point2D;
+import jloda.fx.phylo.embed.Averaging;
+import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
@@ -29,8 +31,6 @@ import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
 import jloda.util.IteratorUtils;
 import phylosketch.draw.DrawNetwork;
-import phylosketch.embed.HeightAndAngles;
-import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
@@ -91,7 +91,7 @@ public class ImportNewick {
 				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
 				try (NodeArray<Point2D> points = tree.newNodeArray()) {
-					RectangularPhylogenyLayout.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage, true, points);
+					RectangularPhylogenyLayout.apply(tree, hasWeights, Averaging.ChildAverage, true, points);
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
 
@@ -143,7 +143,7 @@ public class ImportNewick {
 		var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
 		try (NodeArray<Point2D> points = tree.newNodeArray()) {
-			RectangularPhylogenyLayout.apply(tree, hasWeights, HeightAndAngles.Averaging.ChildAverage, true, points);
+			RectangularPhylogenyLayout.apply(tree, hasWeights, Averaging.ChildAverage, true, points);
 
 			ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 			DrawNetwork.apply(view, tree, points);

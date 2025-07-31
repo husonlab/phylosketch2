@@ -19,14 +19,14 @@
 
 package phylosketch.tools;
 
+import jloda.fx.phylo.embed.Averaging;
+import jloda.fx.phylo.embed.OptimizeLayout;
+import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
 import jloda.fx.util.ArgsOptions;
 import jloda.graph.Node;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.util.*;
-import phylosketch.embed.HeightAndAngles;
-import phylosketch.embed.RectangularPhylogenyLayout;
-import phylosketch.embed.optimize.OptimizeLayout;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -175,7 +175,7 @@ public class SampleNetworks {
 							if (timeLayout) {
 								var start = System.currentTimeMillis();
 
-								RectangularPhylogenyLayout.apply(network, false, HeightAndAngles.Averaging.ChildAverage, OptimizeLayout.How.Rectangular, random, new HashMap<>());
+								RectangularPhylogenyLayout.apply(network, false, Averaging.ChildAverage, OptimizeLayout.How.Rectangular, random, new HashMap<>());
 								if (true)
 									System.out.printf("%s: taxa=%d, h=%d, time=%ds%n", label, IteratorUtils.count(network.leaves()),
 											network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(),
