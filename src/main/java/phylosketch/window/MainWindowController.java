@@ -1044,6 +1044,14 @@ public class MainWindowController {
 		return modeMenuButton;
 	}
 
+	public Menu getModeMenu() {
+		return modeMenu;
+	}
+
+	public RadioMenuItem getCaptureModeItem() {
+		return captureModeItem;
+	}
+
 	public MenuItem getApplyModificationMenuItem() {
 		return applyModificationMenuItem;
 	}

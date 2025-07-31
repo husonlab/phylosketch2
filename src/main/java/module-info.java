@@ -15,7 +15,6 @@ module phylosketch {
 	requires java.scripting;
 
 	requires org.bytedeco.tesseract;
-	//requires org.bytedeco.opencv;
 
 	opens phylosketch.format;
 	opens phylosketch.help;
@@ -34,8 +33,6 @@ module phylosketch {
 	opens phylosketch.capturepane.pane;
 	exports phylosketch.capturepane.capture;
 	exports phylosketch.capturepane.pane;
-	exports phylosketch.embed.optimize;
-	exports phylosketch.embed;
 	exports phylosketch.utils;
 	opens phylosketch.utils;
 

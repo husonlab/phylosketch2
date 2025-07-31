@@ -21,6 +21,9 @@
 package phylosketch.commands;
 
 import javafx.geometry.Point2D;
+import jloda.fx.phylo.embed.Averaging;
+import jloda.fx.phylo.embed.CircularPhylogenyLayout;
+import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
@@ -33,9 +36,6 @@ import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import jloda.util.CollectionUtils;
 import phylosketch.draw.DrawNetwork;
-import phylosketch.embed.CircularPhylogenyLayout;
-import phylosketch.embed.HeightAndAngles;
-import phylosketch.embed.RectangularPhylogenyLayout;
 import phylosketch.io.ReorderChildren;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.GraphRelaxation;
@@ -163,15 +163,14 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							tree.setRoot(root);
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
 							LSAUtils.setLSAChildrenAndTransfersMap(tree);
-							try (NodeArray<Point2D> points = tree.newNodeArray()) {
-
+							try (NodeArray<Point2D> points = tree.newNodeArray(); var angles = tree.newNodeDoubleArray()) {
 								if (circular) {
-									CircularPhylogenyLayout.apply(tree, toScale, HeightAndAngles.Averaging.ChildAverage, true, points);
+									CircularPhylogenyLayout.apply(tree, toScale, Averaging.ChildAverage, true, angles, points);
 									if (false && !tree.hasEdgeWeights()) {
 										GraphRelaxation.apply(tree.getNodesAsList(), points, 10);
 									}
 								} else {
-									RectangularPhylogenyLayout.apply(tree, toScale, HeightAndAngles.Averaging.ChildAverage, true, points);
+									RectangularPhylogenyLayout.apply(tree, toScale, Averaging.ChildAverage, true, points);
 								}
 								ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, points, circular);
