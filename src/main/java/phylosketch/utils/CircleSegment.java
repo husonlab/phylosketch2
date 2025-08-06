@@ -21,6 +21,8 @@
 package phylosketch.utils;
 
 import javafx.geometry.Point2D;
+import jloda.fx.util.GeometryUtilsFX;
+import jloda.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,32 +56,39 @@ public class CircleSegment {
 	 * @return points in segment
 	 */
 	public static List<Point2D> apply(Point2D center, double radius, double startAngle, double endAngle, double d) {
-		List<Point2D> points = new ArrayList<>();
+		var points = new ArrayList<Point2D>();
 
-		// Normalize angles to [0, 360)
-		startAngle = (startAngle % 360 + 360) % 360;
-		endAngle = (endAngle % 360 + 360) % 360;
+		startAngle = GeometryUtilsFX.modulo360(startAngle);
+		endAngle = GeometryUtilsFX.modulo360(endAngle);
+
+		var flip = (((endAngle - startAngle) + 360) % 360) > 180;
+
+		if (flip) {
+			var tmp = endAngle;
+			endAngle = startAngle;
+			startAngle = tmp;
+		}
 
 		// Handle wrapping: if endAngle < startAngle, wrap around the circle
 		if (endAngle < startAngle) {
 			endAngle += 360;
 		}
 
-		// Convert degrees to radians
-		double startRadians = Math.toRadians(startAngle);
-		double endRadians = Math.toRadians(endAngle);
-		double totalAngle = endRadians - startRadians;
+		var startRadians = Math.toRadians(startAngle);
+		var endRadians = Math.toRadians(endAngle);
+		var totalAngle = endRadians - startRadians;
 
-		// Calculate the number of segments needed
-		double arcLength = radius * totalAngle; // Arc length = r * theta (in radians)
-		int numSegments = Math.max(2, (int) Math.ceil(arcLength / d));
+		var arcLength = radius * totalAngle; // Arc length = r * theta (in radians)
+		var numSegments = Math.max(2, (int) Math.ceil(arcLength / d));
 
-		// Generate points
-		for (int i = 0; i <= numSegments; i++) {
-			double angle = startRadians + (i * totalAngle / numSegments);
-			double x = center.getX() + radius * Math.cos(angle);
-			double y = center.getY() + radius * Math.sin(angle);
+		for (var i = 0; i <= numSegments; i++) {
+			var angle = startRadians + (i * totalAngle / numSegments);
+			var x = center.getX() + radius * Math.cos(angle);
+			var y = center.getY() + radius * Math.sin(angle);
 			points.add(new Point2D(x, y));
+		}
+		if (flip) {
+			CollectionUtils.reverseInPlace(points);
 		}
 
 		return points;

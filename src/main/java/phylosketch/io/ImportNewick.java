@@ -22,7 +22,7 @@ package phylosketch.io;
 
 import javafx.geometry.Point2D;
 import jloda.fx.phylo.embed.Averaging;
-import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
@@ -38,6 +38,7 @@ import phylosketch.view.RootPosition;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Random;
 
 /**
  * newick import
@@ -90,8 +91,8 @@ public class ImportNewick {
 
 				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
-				try (NodeArray<Point2D> points = tree.newNodeArray()) {
-					RectangularPhylogenyLayout.apply(tree, hasWeights, Averaging.ChildAverage, true, points);
+				try (var angles = tree.newNodeDoubleArray(); NodeArray<Point2D> points = tree.newNodeArray()) {
+					LayoutRootedPhylogeny.apply(tree, hasWeights ? LayoutRootedPhylogeny.Phylogram : LayoutRootedPhylogeny.CladogramLate, Averaging.ChildAverage, true, new Random(666), angles, points);
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
 
@@ -106,7 +107,7 @@ public class ImportNewick {
 					var yMax = yMin + height;
 					ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 					yMin += height + gap;
-					DrawNetwork.apply(view, tree, points);
+					DrawNetwork.apply(view, tree, angles, points);
 				}
 			}
 		}
@@ -142,11 +143,10 @@ public class ImportNewick {
 
 		var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
 
-		try (NodeArray<Point2D> points = tree.newNodeArray()) {
-			RectangularPhylogenyLayout.apply(tree, hasWeights, Averaging.ChildAverage, true, points);
-
-			ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
-			DrawNetwork.apply(view, tree, points);
+		try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
+			LayoutRootedPhylogeny.apply(tree, hasWeights ? LayoutRootedPhylogeny.Phylogram : LayoutRootedPhylogeny.CladogramLate, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+			ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+			DrawNetwork.apply(view, tree, nodeAngleMap, nodePointMap);
 			var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 			newNodes.removeAll(originalNodes);
 

@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.scene.shape.Shape;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.GeometryUtilsFX;
@@ -34,6 +35,7 @@ import phylosketch.view.RootPosition;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * layout labels command
@@ -104,10 +106,10 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 	}
 
 	/**
-	 * compute label layout coordinates based on root location
+	 * compute richText layout coordinates based on root location
 	 *
 	 * @param rootPosition root location
-	 * @param label        label
+	 * @param label        richText
 	 * @return layout coordinates (relative to node position)
 	 */
 	public static Point2D computeLabelLayout(RootPosition rootPosition, Node v, RichTextLabel label) {
@@ -118,22 +120,55 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			case Right -> new Point2D(-label.getWidth() - 5, -Math.max(7, label.getHeight() / 2));
 			case Left -> new Point2D(10, -Math.max(7, label.getHeight() / 2));
 			case Center -> {
-				var points = v.adjacentEdgesStream(false)
-						.map(e -> (v == e.getTarget() ? PathUtils.getPointAwayFromEnd(DrawView.getPath(e), 5) : PathUtils.getPointAwayFromStart(DrawView.getPath(e), 5)))
-						.toList();
-				var referenceLocation = (points.isEmpty() ? rootPosition.location() :
-						new Point2D(points.stream().mapToDouble(Point2D::getX).average().orElse(0.0), points.stream().mapToDouble(Point2D::getY).average().orElse(0.0)));
-				var direction = DrawView.getPoint(v).subtract(referenceLocation);
-				var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
-				var offset = direction.multiply(20 / Math.max(1, direction.magnitude()));
-				if (angle < 90 || angle > 270)
-					offset = offset.subtract(0, 0.5 * label.getHeight());
-				else
-					offset = offset.subtract(label.getWidth(), 0.5 * label.getHeight());
+				if (true) {
+					if (v.getInDegree() == 0)
+						yield Point2D.ZERO;
 
-				yield offset;
+					var direction = DrawView.getPoint(v).subtract(rootPosition.location());
+					var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
+
+					if (true)
+						yield direction.normalize().multiply(50).subtract(mapAngle(angle) * label.getWidth(), 0.5 * label.getHeight());
+					else {
+
+						var edgeWidth = v.inEdgesStream(false).map(DrawView::getPath).filter(Objects::nonNull).mapToDouble(Shape::getStrokeWidth).max().orElse(1.0);
+
+						Point2D offset;
+						if (angle > 45 && angle < 135) {
+							offset = new Point2D(-0.5 * label.getEstimatedWidth(), +label.getFontSize() + 0.5 * edgeWidth + 5);
+						} else if (angle > 135 && angle < 225) {
+							offset = new Point2D(-label.getEstimatedWidth() - 0.5 * edgeWidth - 5, -0.5 * label.getFontSize() - 5);
+						} else if (angle > 225 && angle < 315) {
+							offset = new Point2D(-0.5 * label.getEstimatedWidth(), -label.getFontSize() - 0.5 * edgeWidth - 5);
+						} else {
+							offset = new Point2D(0.5 * edgeWidth + 5, -0.5 * label.getFontSize());
+						}
+						offset = offset.add(direction.normalize().multiply(20));
+						yield offset;
+					}
+				} else {
+
+					var points = v.adjacentEdgesStream(false)
+							.map(e -> (v == e.getTarget() ? PathUtils.getPointAwayFromEnd(DrawView.getPath(e), 5) : PathUtils.getPointAwayFromStart(DrawView.getPath(e), 5)))
+							.toList();
+					var referenceLocation = (points.isEmpty() ? rootPosition.location() :
+							new Point2D(points.stream().mapToDouble(Point2D::getX).average().orElse(0.0), points.stream().mapToDouble(Point2D::getY).average().orElse(0.0)));
+					var direction = DrawView.getPoint(v).subtract(referenceLocation);
+					var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
+					var offset = direction.multiply(40 / Math.max(1, direction.magnitude()));
+					if (angle < 90 || angle > 270)
+						offset = offset.subtract(0, 0.5 * label.getHeight());
+					else
+						offset = offset.subtract(label.getWidth(), 0.5 * label.getHeight());
+					yield offset;
+				}
 			}
 		};
+	}
+
+	public static double mapAngle(double angle) {
+		angle = angle % 360; // ensure 0 <= angle < 360
+		return (angle <= 180) ? (angle / 180.0) : (2 - angle / 180.0);
 	}
 
 	@Override

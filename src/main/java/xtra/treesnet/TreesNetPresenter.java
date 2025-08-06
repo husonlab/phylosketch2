@@ -55,7 +55,7 @@ public class TreesNetPresenter {
 	public void embedNetwork() {
 		controller.getCenterPane().getChildren().clear();
 		if (document.getEmbedWidth() > 120 && document.getEmbedHeight() > 120) {
-			controller.getCenterPane().getChildren().add(EmbedNetwork.apply(document.getNetwork(), controller.getToScaleToggle().isSelected(), 20, document.getEmbedWidth() - 120, 20, document.getEmbedHeight() - 120));
+			controller.getCenterPane().getChildren().add(EmbedNetwork.apply(document.getNetwork(), 10, controller.getToScaleToggle().isSelected(), 20, document.getEmbedWidth() - 120, 20, document.getEmbedHeight() - 120));
 		}
 	}
 

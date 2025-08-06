@@ -60,11 +60,26 @@ public class SampleTreesFromNetwork {
 			}
 			for (var v : tree.nodeStream().filter(v -> v.getInDegree() > 1).toList()) {
 				var edges = IteratorUtils.asList(v.inEdges());
-				var keep = edges.get(random.nextInt(v.getInDegree()));
-				for (var e : edges) {
-					if (e != keep) {
-						edgeToPathMap.remove(e);
-						tree.deleteEdge(e);
+				if (!edges.isEmpty()) {
+					var keep = edges.get(edges.size() - 1);
+					if (tree.hasEdgeProbabilities() && isApproximatelyOne(edges.stream().mapToDouble(tree::getProbability).sum())) {
+						var x = random.nextDouble();
+						var total = 0.0;
+						for (var e : edges) {
+							total += tree.getProbability(e);
+							if (x <= total) {
+								keep = e;
+								break;
+							}
+						}
+					} else if (edges.size() > 1) {
+						keep = edges.get(random.nextInt(v.getInDegree()));
+					}
+					for (var e : edges) {
+						if (e != keep) {
+							edgeToPathMap.remove(e);
+							tree.deleteEdge(e);
+						}
 					}
 				}
 			}
@@ -129,5 +144,10 @@ public class SampleTreesFromNetwork {
 				System.err.println(e.getId() + " -> " + StringUtils.toString(pair.edgeToPathMap().get(e).stream().map(f -> f.getId()).toArray(), ","));
 			}
 		}
+	}
+
+	public static boolean isApproximatelyOne(double value) {
+		double epsilon = 1e-9; // tolerance level
+		return Math.abs(value - 1.0) < epsilon;
 	}
 }

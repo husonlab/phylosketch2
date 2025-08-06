@@ -22,8 +22,7 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import jloda.fx.phylo.embed.Averaging;
-import jloda.fx.phylo.embed.CircularPhylogenyLayout;
-import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
@@ -38,7 +37,6 @@ import jloda.util.CollectionUtils;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.io.ReorderChildren;
 import phylosketch.paths.PathUtils;
-import phylosketch.utils.GraphRelaxation;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
 
@@ -57,7 +55,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view the view
 	 */
-	public LayoutPhylogenyCommand(DrawView view, boolean circular, boolean toScale) {
+	public LayoutPhylogenyCommand(DrawView view, LayoutRootedPhylogeny layout) {
 		super("layout");
 		var command = new CompositeCommand("layout");
 		var nodes = view.getSelectedOrAllNodes();
@@ -67,7 +65,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 				for (var v : nodes) {
 					reticulateEdges.addAll(v.outEdgesStream(false).filter(e -> component.contains(e.getTarget()) && view.getGraph().isReticulateEdge(e) && !view.getGraph().isTransferAcceptorEdge(e)).toList());
 				}
-				command.add(new LayoutPhylogenyCommand(view, component, circular, toScale));
+				command.add(new LayoutPhylogenyCommand(view, component, layout));
 				if (!reticulateEdges.isEmpty()) {
 					if (false)
 						command.add(new QuadraticCurveCommand(view, reticulateEdges));
@@ -90,7 +88,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 * @param view      the view
 	 * @param component the nodes of the component
 	 */
-	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, boolean circular, boolean toScale) {
+	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, LayoutRootedPhylogeny layout) {
 		super("layout");
 
 		if (isRootedComponent(component)) {
@@ -127,7 +125,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 					var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
 					var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
 
-					if (circular) {
+					if (layout.isCircular()) {
 						var dx = xMax - xMin;
 						var dy = yMax - yMin;
 						var d = Math.min(dx, dy);
@@ -163,17 +161,10 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							tree.setRoot(root);
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
 							LSAUtils.setLSAChildrenAndTransfersMap(tree);
-							try (NodeArray<Point2D> points = tree.newNodeArray(); var angles = tree.newNodeDoubleArray()) {
-								if (circular) {
-									CircularPhylogenyLayout.apply(tree, toScale, Averaging.ChildAverage, true, angles, points);
-									if (false && !tree.hasEdgeWeights()) {
-										GraphRelaxation.apply(tree.getNodesAsList(), points, 10);
-									}
-								} else {
-									RectangularPhylogenyLayout.apply(tree, toScale, Averaging.ChildAverage, true, points);
-								}
-								ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
-								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, points, circular);
+							try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
+								LayoutRootedPhylogeny.apply(tree, layout, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+								ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout.isCircular());
 								for (var v : tree.nodes()) {
 									if (tree2GraphNodeMap.containsKey(v)) {
 										var w = tree2GraphNodeMap.get(v);

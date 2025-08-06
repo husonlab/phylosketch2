@@ -46,6 +46,7 @@ import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.dialog.SetParameterDialog;
 import jloda.fx.find.FindToolBar;
 import jloda.fx.find.Searcher;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.qr.QRViewUtils;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.*;
@@ -423,16 +424,23 @@ public class MainWindowPresenter {
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getRectangularCladogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false, false)));
-		controller.getRectangularCladogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getRectangularCladogramEarlyMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CladogramEarly)));
+		controller.getRectangularCladogramEarlyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getCircularCladogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, true, false)));
-		controller.getCircularCladogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getRectangularCladogramLateMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CladogramLate)));
+		controller.getRectangularCladogramLateMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getRectangularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, false, true)));
+
+		controller.getCircularCladogramEarlyMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CircularCladogramEarly)));
+		controller.getCircularCladogramEarlyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getCircularCladogramLateMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CircularCladogramLate)));
+		controller.getCircularCladogramLateMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+
+		controller.getRectangularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.Phylogram)));
 		controller.getRectangularPhylogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getCircularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, true, true)));
+		controller.getCircularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CircularPhylogram)));
 		controller.getCircularPhylogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 

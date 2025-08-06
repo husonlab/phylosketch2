@@ -22,7 +22,6 @@ package phylosketch.draw;
 
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Path;
-import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Edge;
 import jloda.graph.EdgeArray;
 import jloda.graph.Node;
@@ -50,7 +49,7 @@ public class DrawNetwork {
 	 * @param tree   the source tree
 	 * @param points the points
 	 */
-	public static void apply(DrawView view, PhyloTree tree, Map<Node, Point2D> points) {
+	public static void apply(DrawView view, PhyloTree tree, Map<Node, Double> angles, Map<Node, Point2D> points) {
 		try (NodeArray<Node> srcTarNode = tree.newNodeArray(); EdgeArray<Edge> srcTarEdge = tree.newEdgeArray()) {
 			for (var v : tree.nodes()) {
 				srcTarNode.put(v, view.createNode());
@@ -61,7 +60,7 @@ public class DrawNetwork {
 				srcTarEdge.put(e, f);
 			}
 
-			apply(view, tree, srcTarNode, srcTarEdge, points, false);
+			apply(view, tree, srcTarNode, srcTarEdge, angles, points, false);
 		}
 	}
 
@@ -75,7 +74,7 @@ public class DrawNetwork {
 	 * @param points     the points as a function of source tree nodes
 	 * @param circular
 	 */
-	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Point2D> points, boolean circular) {
+	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Double> angles, Map<Node, Point2D> points, boolean circular) {
 		var rootPoint = (circular ? points.get(tree.getRoot()) : null);
 
 		for (var v : tree.nodes()) {
@@ -95,30 +94,8 @@ public class DrawNetwork {
 			var reticulate = false;
 			if (e.getTarget().getInDegree() == 1 || tree.isTransferAcceptorEdge(e)) {
 				if (circular) {
-					var angleV = GeometryUtilsFX.computeAngle(vPoint.subtract(rootPoint));
-					var angleW = GeometryUtilsFX.computeAngle(wPoint.subtract(rootPoint));
-					var cPoint = GeometryUtilsFX.rotateAbout(vPoint, angleW - angleV, rootPoint);
-
-					double startAngle;
-					double endAngle;
-					boolean flip;
-
-					if (angleW > angleV && Math.abs(angleW - angleV) <= 180 || angleW < angleV && Math.abs(angleW - angleV) >= 180) {
-						startAngle = angleV;
-						endAngle = angleW;
-						flip = false;
-					} else {
-						startAngle = angleW;
-						endAngle = angleV;
-						flip = true;
-					}
-
-					var circleSegment = CircleSegment.apply(rootPoint, vPoint.distance(rootPoint), startAngle, endAngle);
-					if (flip)
-						circleSegment = CollectionUtils.reverse(circleSegment);
-
-					list = CollectionUtils.concatenate(circleSegment,
-							PathNormalize.apply(List.of(cPoint, wPoint), 2, 5));
+					var circleSegment = CircleSegment.apply(rootPoint, vPoint.distance(rootPoint), angles.get(e.getSource()), angles.get(e.getTarget()));
+					list = PathNormalize.apply(CollectionUtils.concatenate(circleSegment, List.of(wPoint)), 2, 5);
 				} else {
 					list = CollectionUtils.concatenate(
 							PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),

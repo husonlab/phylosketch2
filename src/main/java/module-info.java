@@ -40,4 +40,6 @@ module phylosketch {
 	exports xtra.treesnet;
 	exports xtra.networktrees;
 
+	exports xtra.daniel;
+
 }
