@@ -21,10 +21,7 @@
 package phylosketch.paths;
 
 import javafx.geometry.Point2D;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.PathElement;
+import javafx.scene.shape.*;
 import jloda.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -75,6 +72,10 @@ public class PathUtils {
 			return new Point2D(moveTo.getX(), moveTo.getY());
 		} else if (pathElement instanceof LineTo lineTo) {
 			return new Point2D(lineTo.getX(), lineTo.getY());
+		} else if (pathElement instanceof QuadCurveTo quadCurveTo) {
+			return new Point2D(quadCurveTo.getX(), quadCurveTo.getY());
+		} else if (pathElement instanceof CubicCurveTo cubicCurveTo) {
+			return new Point2D(cubicCurveTo.getX(), cubicCurveTo.getY());
 		} else {
 			return new Point2D(0, 0);
 		}
