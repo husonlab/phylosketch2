@@ -56,6 +56,9 @@ public class CircleSegment {
 	 * @return points in segment
 	 */
 	public static List<Point2D> apply(Point2D center, double radius, double startAngle, double endAngle, double d) {
+		if (Math.abs(startAngle - endAngle) < 1) {
+			return List.of(GeometryUtilsFX.translateByAngle(center, startAngle, radius));
+		}
 		var points = new ArrayList<Point2D>();
 
 		startAngle = GeometryUtilsFX.modulo360(startAngle);
@@ -92,5 +95,10 @@ public class CircleSegment {
 		}
 
 		return points;
+	}
+
+	public static Point2D getEndPoint(Point2D center, double radius, double startAngle, double endAngle) {
+		var circle = apply(center, radius, startAngle, endAngle);
+		return circle.get(circle.size() - 1);
 	}
 }

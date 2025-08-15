@@ -90,9 +90,11 @@ public class ImportNewick {
 				LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
 				var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
+				var layout = LayoutRootedPhylogeny.Layout.Rectangular;
+				var scaling = (hasWeights ? LayoutRootedPhylogeny.Scaling.ToScale : LayoutRootedPhylogeny.Scaling.LateBranching);
 
 				try (var angles = tree.newNodeDoubleArray(); NodeArray<Point2D> points = tree.newNodeArray()) {
-					LayoutRootedPhylogeny.apply(tree, hasWeights ? LayoutRootedPhylogeny.Phylogram : LayoutRootedPhylogeny.CladogramLate, Averaging.ChildAverage, true, new Random(666), angles, points);
+					LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.ChildAverage, true, new Random(666), angles, points);
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
 
@@ -107,7 +109,7 @@ public class ImportNewick {
 					var yMax = yMin + height;
 					ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 					yMin += height + gap;
-					DrawNetwork.apply(view, tree, angles, points);
+					DrawNetwork.apply(view, tree, angles, points, layout, scaling);
 				}
 			}
 		}
@@ -142,11 +144,13 @@ public class ImportNewick {
 		LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
 		var hasWeights = tree.hasEdgeWeights() && tree.edgeStream().anyMatch(e -> tree.getWeight(e) != 1.0 && tree.getWeight(e) != 0.0);
+		var layout = LayoutRootedPhylogeny.Layout.Rectangular;
+		var scaling = (hasWeights ? LayoutRootedPhylogeny.Scaling.ToScale : LayoutRootedPhylogeny.Scaling.LateBranching);
 
 		try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
-			LayoutRootedPhylogeny.apply(tree, hasWeights ? LayoutRootedPhylogeny.Phylogram : LayoutRootedPhylogeny.CladogramLate, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+			LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
 			ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-			DrawNetwork.apply(view, tree, nodeAngleMap, nodePointMap);
+			DrawNetwork.apply(view, tree, nodeAngleMap, nodePointMap, layout, scaling);
 			var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 			newNodes.removeAll(originalNodes);
 

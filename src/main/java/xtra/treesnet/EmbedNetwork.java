@@ -30,13 +30,16 @@ import jloda.fx.control.RichTextLabel;
 import jloda.fx.phylo.embed.Averaging;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.GeometryUtilsFX;
+import jloda.fx.util.RunAfterAWhile;
 import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.CircleSegment;
 import phylosketch.utils.ScaleUtils;
+import xtra.daniel.LabelPlacer;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -45,7 +48,7 @@ import java.util.Random;
  */
 public class EmbedNetwork {
 	/**
-	 * embed a network an return a group of edges and labels
+	 * embed a network and return a group of edges and labels
 	 *
 	 * @param network   the network
 	 * @param edgeWidth the width to use for the edges
@@ -57,7 +60,7 @@ public class EmbedNetwork {
 	 * @return group
 	 */
 	public static Group apply(PhyloTree network, double edgeWidth, boolean toScale, double xMin, double xMax, double yMin, double yMax) {
-		return apply(network, toScale ? LayoutRootedPhylogeny.Phylogram : LayoutRootedPhylogeny.CladogramEarly, edgeWidth, xMin, xMax, yMin, yMax);
+		return apply(network, LayoutRootedPhylogeny.Layout.Rectangular, toScale ? LayoutRootedPhylogeny.Scaling.ToScale : LayoutRootedPhylogeny.Scaling.EarlyBranching, edgeWidth, xMin, xMax, yMin, yMax);
 	}
 
 	/**
@@ -73,8 +76,8 @@ public class EmbedNetwork {
 	 * @param yMax    bounding box
 	 * @return group of shapes
 	 */
-	public static Group apply(PhyloTree network, LayoutRootedPhylogeny layout, double edgeWidth, double xMin, double xMax, double yMin, double yMax) {
-		if (layout.isCircular()) {
+	public static Group apply(PhyloTree network, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling, double edgeWidth, double xMin, double xMax, double yMin, double yMax) {
+		if (layout == LayoutRootedPhylogeny.Layout.Circular || layout == LayoutRootedPhylogeny.Layout.Radial) {
 			var width = Math.min(xMax - xMin, yMax - yMin);
 			xMax = xMin + width;
 			yMax = yMin + width;
@@ -87,13 +90,13 @@ public class EmbedNetwork {
 		var edges = new Group();
 		var labels = new Group();
 
-		try (var nodeAngleMap = network.newNodeDoubleArray(); NodeArray<Point2D> points = network.newNodeArray(); NodeArray<Circle> circles = network.newNodeArray()) {
-			LayoutRootedPhylogeny.apply(network, layout, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, points);
+		try (var nodeAngleMap = network.newNodeDoubleArray(); NodeArray<Point2D> pointMap = network.newNodeArray(); NodeArray<Circle> circles = network.newNodeArray()) {
+			LayoutRootedPhylogeny.apply(network, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, pointMap);
 
-			ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
+			ScaleUtils.scaleToBox(pointMap, xMin, xMax, yMin, yMax);
 
 			for (var v : network.nodes()) {
-				var point = points.get(v);
+				var point = pointMap.get(v);
 				var circle = new Circle(1.5);
 				circle.getStyleClass().add("graph-node");
 				circle.setTranslateX(point.getX());
@@ -106,69 +109,76 @@ public class EmbedNetwork {
 
 			for (var e : network.edges()) {
 				var path = new Path();
-				var source = circles.get(e.getSource());
-				var target = circles.get(e.getTarget());
+				var rootPoint = pointMap.get(network.getRoot());
+				var sourcePoint = pointMap.get(e.getSource());
+				var targetPoint = pointMap.get(e.getTarget());
 
-				var moveTo = new MoveTo();
-				moveTo.xProperty().bind(source.translateXProperty());
-				moveTo.yProperty().bind(source.translateYProperty());
-				path.getElements().add(moveTo);
 
-				if ((network.isTreeEdge(e) || network.isTransferAcceptorEdge(e)) && !layout.isCircular()) {
-					var lineTo = new LineTo();
-					lineTo.xProperty().bind(source.translateXProperty());
-					lineTo.yProperty().bind(target.translateYProperty());
-					path.getElements().add(lineTo);
-				}
+				path.getElements().add(new MoveTo(sourcePoint.getX(), sourcePoint.getY()));
 
-				if (((network.isTreeEdge(e) || network.isTransferAcceptorEdge(e)) && !layout.isCircular()) || network.isTransferEdge(e)) {
-					var lineTo = new LineTo();
-					lineTo.xProperty().bind(target.translateXProperty());
-					lineTo.yProperty().bind(target.translateYProperty());
-					path.getElements().add(lineTo);
-				} else if ((network.isTreeEdge(e) || network.isTransferAcceptorEdge(e)) && layout.isCircular()) {
-					var rootPoint = points.get(network.getRoot());
-					var sourcePoint = points.get(e.getSource());
-					var circle = CircleSegment.apply(rootPoint, rootPoint.distance(sourcePoint), nodeAngleMap.get(e.getSource()), nodeAngleMap.get(e.getTarget()));
-					path.getElements().addAll(PathUtils.toPathElements(circle));
+				if ((network.isTreeEdge(e) || network.isTransferAcceptorEdge(e))) {
+					switch (layout) {
+						case Rectangular -> {
+							path.getElements().add(new LineTo(sourcePoint.getX(), targetPoint.getY()));
+							path.getElements().add(new LineTo(targetPoint.getX(), targetPoint.getY()));
+						}
+						case Circular -> {
+							var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
+							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+							var circle = CircleSegment.apply(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
+							path.getElements().addAll(PathUtils.toPathElements(circle));
+							path.getElements().add(new LineTo(targetPoint.getX(), targetPoint.getY()));
+						}
+						case Radial -> {
+							path.getElements().add(new LineTo(targetPoint.getX(), targetPoint.getY()));
+						}
+					}
+				} else if (network.isTransferEdge(e)) {
+					path.getElements().add(new LineTo(sourcePoint.getX(), targetPoint.getY()));
+					path.getElements().add(new LineTo(targetPoint.getX(), targetPoint.getY()));
+				} else { // reticulate edge
+					switch (layout) {
+						case Rectangular -> {
+							var quadCurveTo = new QuadCurveTo();
+							quadCurveTo.setControlX(sourcePoint.getX());
+							quadCurveTo.setControlY(targetPoint.getY());
+							quadCurveTo.setX(targetPoint.getX());
+							quadCurveTo.setY(targetPoint.getY());
+							path.getElements().add(quadCurveTo);
 
-					var lineTo = new LineTo();
-					lineTo.xProperty().bind(target.translateXProperty());
-					lineTo.yProperty().bind(target.translateYProperty());
-					path.getElements().add(lineTo);
-				} else if (layout.isCircular()) { // reticulate edge
-					var rootPoint = points.get(network.getRoot());
-					var sourcePoint = points.get(e.getSource());
-					var circle = CircleSegment.apply(rootPoint, rootPoint.distance(sourcePoint), nodeAngleMap.get(e.getSource()), nodeAngleMap.get(e.getTarget()));
-					var controlPoint = circle.get(circle.size() / 2);
-					var quadCurveTo = new QuadCurveTo();
-					quadCurveTo.setControlX(controlPoint.getX());
-					quadCurveTo.setControlY(controlPoint.getY());
-					quadCurveTo.xProperty().bind(target.translateXProperty());
-					quadCurveTo.yProperty().bind(target.translateYProperty());
-					path.getElements().add(quadCurveTo);
+						}
+						case Circular -> {
+							var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
+							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
 
-				}
-				else { // reticulate edge
-					var quadCurveTo = new QuadCurveTo();
-					quadCurveTo.controlXProperty().bind(source.translateXProperty());
-					quadCurveTo.controlYProperty().bind(target.translateYProperty());
-					quadCurveTo.xProperty().bind(target.translateXProperty());
-					quadCurveTo.yProperty().bind(target.translateYProperty());
-					path.getElements().add(quadCurveTo);
-				}
-				if (network.isTreeEdge(e) || network.isTransferAcceptorEdge(e)) {
-					path.getStyleClass().add("graph-edge");
-				} else {
-					path.getStyleClass().add("graph-special-edge");
-					path.setStrokeLineCap(StrokeLineCap.ROUND);
+							var controlPoint = CircleSegment.getEndPoint(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
+							var quadCurveTo = new QuadCurveTo();
+							quadCurveTo.setControlX(controlPoint.getX());
+							quadCurveTo.setControlY(controlPoint.getY());
+							quadCurveTo.setX(targetPoint.getX());
+							quadCurveTo.setY(targetPoint.getY());
+							path.getElements().add(quadCurveTo);
+
+						}
+						case Radial -> {
+							var diff = targetPoint.distance(rootPoint) - sourcePoint.distance(rootPoint);
+							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+							var controlPoint = GeometryUtilsFX.translateByAngle(targetPoint, targetAngle, -diff);
+							var quadCurveTo = new QuadCurveTo();
+							quadCurveTo.setControlX(controlPoint.getX());
+							quadCurveTo.setControlY(controlPoint.getY());
+							quadCurveTo.setX(targetPoint.getX());
+							quadCurveTo.setY(targetPoint.getY());
+							path.getElements().add(quadCurveTo);
+						}
+					}
 				}
 				/*
 				if(e.getSource().getInDegree()>0 && e.getTarget().getOutDegree()>0)
 					path.setStrokeLineCap(StrokeLineCap.ROUND);
 				path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 				 */
-				if (layout.isCircular()) {
+				if (layout == LayoutRootedPhylogeny.Layout.Circular || layout == LayoutRootedPhylogeny.Layout.Radial) {
 					path.setStrokeLineCap(StrokeLineCap.ROUND);
 					path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 				}
@@ -180,29 +190,26 @@ public class EmbedNetwork {
 				path.applyCss();
 			}
 
+			var rootPoint = pointMap.get(network.getRoot());
+			var list = new ArrayList<Runnable>();
 			for (var v : network.nodes()) {
 				var label = network.getLabel(v);
 				if (label != null && !label.isBlank() && v.getData() instanceof Circle circle) {
 					var richText = new RichTextLabel(label);
 					richText.getStyleClass().add("graph-label");
-					richText.applyCss();
-
-					Point2D offset;
-					var angle = GeometryUtilsFX.modulo360(nodeAngleMap.getOrDefault(v, 0.0));
-					if (angle > 45 && angle < 135) {
-						offset = new Point2D(-0.5 * richText.getEstimatedWidth(), +richText.getFontSize() + 0.5 * edgeWidth + 5);
-					} else if (angle > 135 && angle < 225) {
-						offset = new Point2D(-richText.getEstimatedWidth() - 0.5 * edgeWidth - 5, -0.5 * richText.getFontSize() - 5);
-					} else if (angle > 225 && angle < 315) {
-						offset = new Point2D(-0.5 * richText.getEstimatedWidth(), -richText.getFontSize() - 0.5 * edgeWidth - 5);
-					} else {
-						offset = new Point2D(0.5 * edgeWidth + 5, -0.5 * richText.getFontSize());
-					}
-					richText.setTranslateX(circle.getTranslateX() + offset.getX());
-					richText.setTranslateY(circle.getTranslateY() + offset.getY());
+					richText.setVisible(false);
+					list.add(() -> {
+						LabelPlacer.placeLeafLabel(richText, pointMap.get(v), circle.getRadius(), layout == LayoutRootedPhylogeny.Layout.Rectangular, rootPoint, edgeWidth / 2.0 + 5);
+						richText.setVisible(true);
+					});
 					labels.getChildren().add(richText);
 				}
 			}
+			RunAfterAWhile.applyInFXThread(list, () -> {
+				for (var runnable : list) {
+					runnable.run();
+				}
+			});
 		}
 
 		edges.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, Color.BLACK, 0.5, 0.5, 0.0, 0.0));

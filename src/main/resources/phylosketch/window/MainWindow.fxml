@@ -502,19 +502,23 @@
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem fx:id="rectangularPhylogramMenuItem" mnemonicParsing="false"
-                                          text="Rectangular Phylogram"/>
-                                <MenuItem fx:id="rectangularCladogramEarlyMenuItem" mnemonicParsing="false"
-                                          text="Rectangular Cladogram Early"/>
-                                <MenuItem fx:id="rectangularCladogramLateMenuItem" mnemonicParsing="false"
-                                          text="Rectangular Cladogram Late"/>
+                                <Menu mnemonicParsing="false" text="Layout Phylogeny">
+                                    <MenuItem fx:id="layoutPhylogenyMenuItem" mnemonicParsing="false" text="Apply"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem fx:id="circularPhylogramMenuItem" mnemonicParsing="false"
-                                          text="Circular Phylogram"/>
-                                <MenuItem fx:id="circularCladogramEarlyMenuItem" mnemonicParsing="false"
-                                          text="Circular Caldogram Early"/>
-                                <MenuItem fx:id="circularCladogramLateMenuItem" mnemonicParsing="false"
-                                          text="Circular Caldogram Late"/>
+                                    <RadioMenuItem fx:id="rectangularLayoutMenuItem" mnemonicParsing="false"
+                                                   text="Rectangular Layout"/>
+                                    <RadioMenuItem fx:id="circularLayoutMenuItem" mnemonicParsing="false"
+                                                   text="Circular Layout"/>
+                                    <RadioMenuItem fx:id="radialLayoutMenuItem" mnemonicParsing="false"
+                                                   text="Radial Layout"/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <RadioMenuItem fx:id="phylogramMenuItem" mnemonicParsing="false"
+                                                   text="To-Scale Phylogram"/>
+                                    <RadioMenuItem fx:id="cladogramEarlyMenuItem" mnemonicParsing="false"
+                                                   text="Early-Branching Cladogram"/>
+                                    <RadioMenuItem fx:id="cladogramLateMenuItem" mnemonicParsing="false"
+                                                   text="Late-Branching Cladogram"/>
+                                </Menu>
                             </Menu>
 
                             <Menu mnemonicParsing="false" text="View">

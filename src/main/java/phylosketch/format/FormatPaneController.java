@@ -25,6 +25,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.icons.MaterialIcons;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.ComboBoxUtils;
 import phylosketch.view.LineType;
 
@@ -211,6 +212,14 @@ public class FormatPaneController {
 	@FXML
 	private Button applyModificationButton;
 
+	@FXML
+	private ChoiceBox<LayoutRootedPhylogeny.Layout> layoutCBox;
+
+	@FXML
+	private ChoiceBox<LayoutRootedPhylogeny.Scaling> scalingCBox;
+
+	@FXML
+	private Button applyLayoutPhylogenyButton;
 
 	@FXML
 	private void initialize() {
@@ -248,6 +257,9 @@ public class FormatPaneController {
 
 		MaterialIcons.setIcon(applyModificationButton, MaterialIcons.auto_fix_high);
 
+		MaterialIcons.setIcon(applyLayoutPhylogenyButton, MaterialIcons.play_circle);
+
+
 		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
 		ComboBoxUtils.ensureDoubleInput(nodeLabelSizeCBox);
 		edgeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
@@ -273,6 +285,9 @@ public class FormatPaneController {
 		useNodesToLabelCBox.setValue("Leaves");
 
 		uniqueLabelsToggleButton.setSelected(true);
+
+		layoutCBox.getItems().addAll(LayoutRootedPhylogeny.Layout.values());
+		scalingCBox.getItems().addAll(LayoutRootedPhylogeny.Scaling.values());
 	}
 
 
@@ -510,5 +525,17 @@ public class FormatPaneController {
 
 	public Button getApplyModificationButton() {
 		return applyModificationButton;
+	}
+
+	public ChoiceBox<LayoutRootedPhylogeny.Layout> getLayoutCBox() {
+		return layoutCBox;
+	}
+
+	public ChoiceBox<LayoutRootedPhylogeny.Scaling> getScalingCBox() {
+		return scalingCBox;
+	}
+
+	public Button getApplyLayoutPhylogenyButton() {
+		return applyLayoutPhylogenyButton;
 	}
 }

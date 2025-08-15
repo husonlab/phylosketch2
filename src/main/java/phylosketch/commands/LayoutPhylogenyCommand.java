@@ -55,7 +55,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view the view
 	 */
-	public LayoutPhylogenyCommand(DrawView view, LayoutRootedPhylogeny layout) {
+	public LayoutPhylogenyCommand(DrawView view, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
 		super("layout");
 		var command = new CompositeCommand("layout");
 		var nodes = view.getSelectedOrAllNodes();
@@ -65,7 +65,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 				for (var v : nodes) {
 					reticulateEdges.addAll(v.outEdgesStream(false).filter(e -> component.contains(e.getTarget()) && view.getGraph().isReticulateEdge(e) && !view.getGraph().isTransferAcceptorEdge(e)).toList());
 				}
-				command.add(new LayoutPhylogenyCommand(view, component, layout));
+				command.add(new LayoutPhylogenyCommand(view, component, layout, scaling));
 				if (!reticulateEdges.isEmpty()) {
 					if (false)
 						command.add(new QuadraticCurveCommand(view, reticulateEdges));
@@ -88,7 +88,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 * @param view      the view
 	 * @param component the nodes of the component
 	 */
-	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, LayoutRootedPhylogeny layout) {
+	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
 		super("layout");
 
 		if (isRootedComponent(component)) {
@@ -125,7 +125,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 					var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
 					var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
 
-					if (layout.isCircular()) {
+					if (layout != LayoutRootedPhylogeny.Layout.Rectangular) {
 						var dx = xMax - xMin;
 						var dy = yMax - yMin;
 						var d = Math.min(dx, dy);
@@ -162,9 +162,9 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
 							LSAUtils.setLSAChildrenAndTransfersMap(tree);
 							try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
-								LayoutRootedPhylogeny.apply(tree, layout, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+								LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
 								ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout.isCircular());
+								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout, scaling);
 								for (var v : tree.nodes()) {
 									if (tree2GraphNodeMap.containsKey(v)) {
 										var w = tree2GraphNodeMap.get(v);
