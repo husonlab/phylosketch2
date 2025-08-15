@@ -139,6 +139,11 @@ public class SetupResize {
 
 		resizeHandle.setOnMouseDragged(me -> {
 			var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
+			if (me.isShiftDown()) {
+				var min = Math.min(diff.getX(), diff.getY());
+				diff = new Point2D(min, min);
+			}
+
 			if (rectangle.getWidth() + diff.getX() >= 20 && rectangle.getHeight() + diff.getY() >= 20) {
 
 				if (nodePointMap.isEmpty()) {

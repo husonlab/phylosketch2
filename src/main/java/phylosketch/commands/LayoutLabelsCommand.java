@@ -127,7 +127,7 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 					var direction = DrawView.getPoint(v).subtract(rootPosition.location());
 					var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
 
-					if (true)
+					if (false)
 						yield direction.normalize().multiply(50).subtract(mapAngle(angle) * label.getWidth(), 0.5 * label.getHeight());
 					else {
 

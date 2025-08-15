@@ -20,6 +20,7 @@
 
 package phylosketch.window;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -33,6 +34,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import jloda.fx.control.ZoomableScrollPane;
 import jloda.fx.icons.MaterialIcons;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
@@ -268,7 +270,6 @@ public class MainWindowController {
 	@FXML
 	private Menu labelsMenu;
 
-
 	@FXML
 	private MenuItem labelLeavesABCMenuItem;
 
@@ -417,22 +418,25 @@ public class MainWindowController {
 	private MenuItem layoutLabelMenuItem;
 
 	@FXML
-	private MenuItem rectangularCladogramEarlyMenuItem;
+	private MenuItem layoutPhylogenyMenuItem;
 
 	@FXML
-	private MenuItem rectangularCladogramLateMenuItem;
+	private RadioMenuItem radialLayoutMenuItem;
 
 	@FXML
-	private MenuItem circularCladogramEarlyMenuItem;
+	private RadioMenuItem rectangularLayoutMenuItem;
 
 	@FXML
-	private MenuItem circularCladogramLateMenuItem;
+	private RadioMenuItem circularLayoutMenuItem;
 
 	@FXML
-	private MenuItem rectangularPhylogramMenuItem;
+	private RadioMenuItem phylogramMenuItem;
 
 	@FXML
-	private MenuItem circularPhylogramMenuItem;
+	private RadioMenuItem cladogramEarlyMenuItem;
+
+	@FXML
+	private RadioMenuItem cladogramLateMenuItem;
 
 	@FXML
 	private MenuItem rotateLeftMenuItem;
@@ -477,6 +481,11 @@ public class MainWindowController {
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
 
 	private final Rectangle selectionRectangle = new Rectangle();
+
+	private final ToggleGroup layoutToggleGroup = new ToggleGroup();
+
+	private final ToggleGroup scalingToggleGroup = new ToggleGroup();
+
 
 	@FXML
 	private void initialize() {
@@ -530,7 +539,7 @@ public class MainWindowController {
 							var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
 							menuItem.setOnAction(e -> mainWindow.getStage().toFront());
 							menuItem.setAccelerator(new KeyCharacterCombination("" + (++count), KeyCombination.SHORTCUT_DOWN));
-							windowMenu.getItems().add(menuItem);
+							Platform.runLater(() -> windowMenu.getItems().add(menuItem));
 						} catch (Exception ignored) {
 						}
 					}
@@ -542,7 +551,7 @@ public class MainWindowController {
 							try {
 								var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
 							menuItem.setOnAction(e -> auxStage.toFront());
-							windowMenu.getItems().add(menuItem);
+								Platform.runLater(() -> windowMenu.getItems().add(menuItem));
 							} catch (Exception ignored) {
 							}
 						}
@@ -592,9 +601,15 @@ public class MainWindowController {
 		scrollPane.setRequireShiftOrControlToZoom(true);
 
 		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(layoutMenu.getItems()));
+
+		var layoutItem = new MenuItem("Layout Phylogeny");
+		layoutItem.setOnAction(e -> layoutPhylogenyMenuItem.fire());
+		layoutItem.disableProperty().bind(layoutPhylogenyMenuItem.disableProperty());
+
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(rotateLeftMenuItem, rotateRightMenuItem, flipHorizontalMenuItem, flipVerticalMenuItem, new SeparatorMenuItem(), resizeModeCheckMenuItem, new SeparatorMenuItem(), layoutLabelMenuItem, layoutItem)));
+
 		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(applyModificationMenuItem, mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, declareTransferAcceptorMenuItem, induceMenuItem)));
+		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(applyModificationMenuItem, mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, declareTransferAcceptorMenuItem, new SeparatorMenuItem(), induceMenuItem)));
 
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
@@ -635,6 +650,16 @@ public class MainWindowController {
 		cropImageMenuItem.setGraphic(MaterialIcons.graphic(MaterialIcons.crop));
 
 		(new ToggleGroup()).getToggles().addAll(leftRootSideMenuItem, rightRootSideMenuItem, topRootSideMenuItem, bottomRootSideMenuItem, centerRootSideMenuItem);
+
+		layoutToggleGroup.getToggles().addAll(radialLayoutMenuItem, circularLayoutMenuItem, rectangularLayoutMenuItem);
+		radialLayoutMenuItem.setUserData(LayoutRootedPhylogeny.Layout.Radial);
+		circularLayoutMenuItem.setUserData(LayoutRootedPhylogeny.Layout.Circular);
+		rectangularLayoutMenuItem.setUserData(LayoutRootedPhylogeny.Layout.Rectangular);
+
+		scalingToggleGroup.getToggles().addAll(phylogramMenuItem, cladogramEarlyMenuItem, cladogramLateMenuItem);
+		phylogramMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.ToScale);
+		cladogramEarlyMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.EarlyBranching);
+		cladogramLateMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.LateBranching);
 	}
 
 	public static MaterialIcons getIcon(DrawView.Mode mode) {
@@ -1014,30 +1039,6 @@ public class MainWindowController {
 		return layoutLabelMenuItem;
 	}
 
-	public MenuItem getRectangularCladogramEarlyMenuItem() {
-		return rectangularCladogramEarlyMenuItem;
-	}
-
-	public MenuItem getCircularCladogramEarlyMenuItem() {
-		return circularCladogramEarlyMenuItem;
-	}
-
-	public MenuItem getRectangularCladogramLateMenuItem() {
-		return rectangularCladogramLateMenuItem;
-	}
-
-	public MenuItem getCircularCladogramLateMenuItem() {
-		return circularCladogramLateMenuItem;
-	}
-
-	public MenuItem getRectangularPhylogramMenuItem() {
-		return rectangularPhylogramMenuItem;
-	}
-
-	public MenuItem getCircularPhylogramMenuItem() {
-		return circularPhylogramMenuItem;
-	}
-
 	public MenuItem getRotateLeftMenuItem() {
 		return rotateLeftMenuItem;
 	}
@@ -1196,5 +1197,17 @@ public class MainWindowController {
 
 	public Menu getRootSideMenu() {
 		return rootSideMenu;
+	}
+
+	public MenuItem getLayoutPhylogenyMenuItem() {
+		return layoutPhylogenyMenuItem;
+	}
+
+	public ToggleGroup getLayoutToggleGroup() {
+		return layoutToggleGroup;
+	}
+
+	public ToggleGroup getScalingToggleGroup() {
+		return scalingToggleGroup;
 	}
 }

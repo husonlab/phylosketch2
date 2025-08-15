@@ -60,6 +60,7 @@ import jloda.util.StringUtils;
 import phylosketch.capturepane.pane.CapturePane;
 import phylosketch.capturepane.pane.SetupCaptureMenuItems;
 import phylosketch.commands.*;
+import phylosketch.format.FormatPaneController;
 import phylosketch.format.FormatPaneView;
 import phylosketch.io.ExportNewick;
 import phylosketch.io.PhyloSketchIO;
@@ -424,26 +425,6 @@ public class MainWindowPresenter {
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getRectangularCladogramEarlyMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CladogramEarly)));
-		controller.getRectangularCladogramEarlyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-		controller.getRectangularCladogramLateMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CladogramLate)));
-		controller.getRectangularCladogramLateMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-
-		controller.getCircularCladogramEarlyMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CircularCladogramEarly)));
-		controller.getCircularCladogramEarlyMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-		controller.getCircularCladogramLateMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CircularCladogramLate)));
-		controller.getCircularCladogramLateMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-		controller.getRectangularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.Phylogram)));
-		controller.getRectangularPhylogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-		controller.getCircularPhylogramMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, LayoutRootedPhylogeny.CircularPhylogram)));
-		controller.getCircularPhylogramMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), false));
@@ -575,6 +556,8 @@ public class MainWindowPresenter {
 		formatPaneView.getController().getApplyModificationButton().setOnAction(controller.getApplyModificationMenuItem().getOnAction());
 		formatPaneView.getController().getApplyModificationButton().disableProperty().bind(controller.getApplyModificationMenuItem().disableProperty());
 		controller.getApplyModificationMenuItem().textProperty().addListener((v, o, n) -> formatPaneView.getController().getApplyModificationButton().setTooltip(new Tooltip(n)));
+
+		setupLayoutScalingPhylogeny(view, controller, formatPaneView.getController());
 	}
 
 	public static void openString(String string) {
@@ -647,5 +630,49 @@ public class MainWindowPresenter {
 				ProgramProperties.put("LoadImageDirectory", file.getParent());
 			}
 		}
+	}
+
+	private void setupLayoutScalingPhylogeny(DrawView view, MainWindowController controller, FormatPaneController formatController) {
+
+		var layout = new SimpleObjectProperty<LayoutRootedPhylogeny.Layout>(this.getClass(), "layout");
+		var scaling = new SimpleObjectProperty<LayoutRootedPhylogeny.Scaling>(this.getClass(), "scaling");
+
+		formatController.getApplyLayoutPhylogenyButton().setOnAction(v -> {
+			if (layout.get() != null && scaling.get() != null)
+				view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, layout.get(), scaling.get()));
+		});
+		formatController.getApplyLayoutPhylogenyButton().disableProperty().bind(view.getGraphFX().emptyProperty().or(scaling.isNull()).or(layout.isNull()));
+		controller.getLayoutPhylogenyMenuItem().setOnAction(formatController.getApplyLayoutPhylogenyButton().getOnAction());
+		controller.getLayoutPhylogenyMenuItem().disableProperty().bind(formatController.getApplyLayoutPhylogenyButton().disableProperty());
+
+		formatController.getLayoutCBox().valueProperty().bindBidirectional(layout);
+		controller.getLayoutToggleGroup().selectedToggleProperty().addListener((v, o, n) -> {
+			if (n != null && n.getUserData() instanceof LayoutRootedPhylogeny.Layout value)
+				layout.set(value);
+		});
+		layout.addListener((v, o, n) -> {
+			if (n == null)
+				controller.getLayoutToggleGroup().selectToggle(null);
+			else {
+				controller.getLayoutToggleGroup().getToggles().stream().filter(t -> t.getUserData() == n).forEach(t -> t.setSelected(true));
+				formatController.getApplyLayoutPhylogenyButton().fire();
+			}
+		});
+		ProgramProperties.track(layout, LayoutRootedPhylogeny.Layout::valueOf, LayoutRootedPhylogeny.Layout.Rectangular);
+
+		formatController.getScalingCBox().valueProperty().bindBidirectional(scaling);
+		controller.getScalingToggleGroup().selectedToggleProperty().addListener((v, o, n) -> {
+			if (n != null && n.getUserData() instanceof LayoutRootedPhylogeny.Scaling value)
+				scaling.set(value);
+		});
+		scaling.addListener((v, o, n) -> {
+			if (n == null)
+				controller.getScalingToggleGroup().selectToggle(null);
+			else {
+				controller.getScalingToggleGroup().getToggles().stream().filter(t -> t.getUserData() == n).forEach(t -> t.setSelected(true));
+				formatController.getApplyLayoutPhylogenyButton().fire();
+			}
+		});
+		ProgramProperties.track(scaling, LayoutRootedPhylogeny.Scaling::valueOf, LayoutRootedPhylogeny.Scaling.LateBranching);
 	}
 }

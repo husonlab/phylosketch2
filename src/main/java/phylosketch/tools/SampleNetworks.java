@@ -20,8 +20,7 @@
 package phylosketch.tools;
 
 import jloda.fx.phylo.embed.Averaging;
-import jloda.fx.phylo.embed.OptimizeLayout;
-import jloda.fx.phylo.embed.RectangularPhylogenyLayout;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.ArgsOptions;
 import jloda.graph.Node;
 import jloda.phylo.NewickIO;
@@ -175,7 +174,7 @@ public class SampleNetworks {
 							if (timeLayout) {
 								var start = System.currentTimeMillis();
 
-								RectangularPhylogenyLayout.apply(network, false, Averaging.ChildAverage, OptimizeLayout.How.Rectangular, random, new HashMap<>());
+								LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.ChildAverage, true, random, new HashMap<>(), new HashMap<>());
 								if (true)
 									System.out.printf("%s: taxa=%d, h=%d, time=%ds%n", label, IteratorUtils.count(network.leaves()),
 											network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(),

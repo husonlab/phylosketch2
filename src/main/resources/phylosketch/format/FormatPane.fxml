@@ -24,7 +24,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1"
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
         <AnchorPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
@@ -610,9 +610,39 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <Accordion>
+        <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Edit Nodes and Edges">
+                <TitledPane animated="false" text="Layout Phylogeny">
+                    <content>
+                        <VBox alignment="CENTER">
+                            <GridPane hgap="5.0" vgap="5.0">
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                                </rowConstraints>
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="-Infinity"/>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="-Infinity"/>
+                                </columnConstraints>
+                                <children>
+                                    <Label minWidth="10.0" text="Layout"/>
+                                    <Label layoutX="10.0" layoutY="17.0" text="Scaling" GridPane.rowIndex="1"/>
+                                    <ChoiceBox fx:id="layoutCBox" prefWidth="134.0" GridPane.columnIndex="1"/>
+                                    <ChoiceBox fx:id="scalingCBox" layoutX="110.0" layoutY="12.0" prefWidth="134.0"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                    <Button fx:id="applyLayoutPhylogenyButton" mnemonicParsing="false" text="Apply"
+                                            GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                                </children>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane animated="false" text="Modify Phylogeny">
                     <content>
                         <VBox alignment="CENTER">
                         <GridPane>
@@ -675,7 +705,7 @@
                                     </tooltip>
                                 </Button>
                                 <Button fx:id="applyModificationButton" layoutX="22.0" layoutY="102.0"
-                                        mnemonicParsing="false" text="Apply">
+                                        mnemonicParsing="false" text="Magic">
                                     <tooltip>
                                         <Tooltip text="Apply the currently most suitable modification"/>
                                     </tooltip>
