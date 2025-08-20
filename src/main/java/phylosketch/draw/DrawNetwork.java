@@ -30,8 +30,6 @@ import jloda.graph.EdgeArray;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.PhyloTree;
-import jloda.util.CollectionUtils;
-import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.CircleSegment;
 import phylosketch.utils.QuadraticCurve;
@@ -71,11 +69,11 @@ public class DrawNetwork {
 	/**
 	 * for a given tree that has already been copied into the view graph
 	 *
-	 * @param view       the view
-	 * @param tree       the source tree
-	 * @param srcTarNode mapping of nodes in tree to nodes in view graph
-	 * @param srcTarEdge mapping of edges in tree to edges in view graph
-	 * @param nodePointMap     the points as a function of source tree nodes
+	 * @param view         the view
+	 * @param tree         the source tree
+	 * @param srcTarNode   mapping of nodes in tree to nodes in view graph
+	 * @param srcTarEdge   mapping of edges in tree to edges in view graph
+	 * @param nodePointMap the points as a function of source tree nodes
 	 */
 	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Double> nodeAngleMap, Map<Node, Point2D> nodePointMap, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
 		var rootPoint = (layout == LayoutRootedPhylogeny.Layout.Rectangular ? null : nodePointMap.get(tree.getRoot()));
@@ -85,155 +83,88 @@ public class DrawNetwork {
 			view.setLocation(w, nodePointMap.get(v));
 		}
 
-		if (true) {
-			for (var oe : tree.edges()) {
-				var source = srcTarNode.apply(oe.getSource());
-				var target = srcTarNode.apply(oe.getTarget());
-				var e = srcTarEdge.apply(oe);
-				var sourcePoint = DrawView.getPoint(source);
-				var targetPoint = DrawView.getPoint(target);
+		for (var oe : tree.edges()) {
+			var source = srcTarNode.apply(oe.getSource());
+			var target = srcTarNode.apply(oe.getTarget());
+			var e = srcTarEdge.apply(oe);
+			var sourcePoint = DrawView.getPoint(source);
+			var targetPoint = DrawView.getPoint(target);
 
-				var path = new Path();
-
-				path.getElements().add(new MoveTo(sourcePoint.getX(), sourcePoint.getY()));
-
-				if (tree.isTreeEdge(e) || tree.isTransferAcceptorEdge(e)) {
-					switch (layout) {
-						case Rectangular -> {
-							var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
-							path.getElements().setAll(PathUtils.createPath(List.of(sourcePoint, controlPoint, targetPoint), true).getElements());
-						}
-						case Circular -> {
-							var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
-							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
-							var circle = CircleSegment.apply(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
-							path.getElements().addAll(PathUtils.toPathElements(circle));
-							var last = circle.get(circle.size() - 1);
-							path.getElements().addAll(PathUtils.createPath(List.of(last, targetPoint), true).getElements());
-						}
-						case Radial -> {
-							path.getElements().setAll(PathUtils.createPath(List.of(sourcePoint, targetPoint), true).getElements());
-						}
-					}
-				} else if (tree.isTransferEdge(e)) {
-					path.getElements().setAll(PathUtils.createPath(List.of(sourcePoint, targetPoint), true).getElements());
-				} else { // reticulate edge
-					switch (layout) {
-						case Rectangular -> {
-							var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
-							path.getElements().addAll(PathUtils.createElements(QuadraticCurve.apply(sourcePoint, controlPoint, targetPoint, 5)));
-						}
-						case Circular -> {
-							var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
-							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
-							var controlPoint = CircleSegment.getEndPoint(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
-							path.getElements().addAll(PathUtils.createElements(QuadraticCurve.apply(sourcePoint, controlPoint, targetPoint, 5)));
-						}
-						case Radial -> {
-							var diff = targetPoint.distance(rootPoint) - sourcePoint.distance(rootPoint);
-							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
-							var controlPoint = GeometryUtilsFX.translateByAngle(targetPoint, targetAngle, -diff);
-							path.getElements().addAll(PathUtils.createElements(QuadraticCurve.apply(sourcePoint, controlPoint, targetPoint, 5)));
-						}
-					}
-				}
-
-				DrawView.getPath(e).getElements().setAll(path.getElements());
-
-
-				if (tree.isReticulateEdge(oe))
-					view.getGraph().setReticulate(e, true);
-				if (tree.isTransferAcceptorEdge(oe))
-					view.getGraph().setTransferAcceptor(e, true);
-				if (view.getGraph().isReticulateEdge(oe) && !view.getGraph().isTransferAcceptorEdge(oe)) {
-					view.setShowArrow(e, true);
-					path.getStyleClass().add("graph-special-edge");
-				}
-				if (tree.hasEdgeWeights() && tree.getEdgeWeights().get(oe) != null) {
-					view.getGraph().setWeight(e, tree.getWeight(oe));
-				}
-				if (tree.hasEdgeConfidences() && tree.getEdgeConfidences().get(oe) != null) {
-					view.getGraph().setConfidence(e, tree.getConfidence(oe));
-				}
-				if (tree.hasEdgeProbabilities() && tree.getEdgeProbabilities().get(oe) != null) {
-					view.getGraph().setProbability(e, tree.getProbability(oe));
-				}
+			if (tree.isReticulateEdge(oe))
+				view.getGraph().setReticulate(e, true);
+			if (tree.isTransferAcceptorEdge(oe))
+				view.getGraph().setTransferAcceptor(e, true);
+			if (tree.hasEdgeWeights() && tree.getEdgeWeights().get(oe) != null) {
+				view.getGraph().setWeight(e, tree.getWeight(oe));
 			}
-			for (var v : tree.nodes()) {
-				var w = srcTarNode.apply(v);
-				if (tree.getLabel(v) != null) {
-
-					if (DrawView.getLabel(v) == null) {
-						view.createLabel(w, tree.getLabel(v));
-					} else if (!DrawView.getLabel(v).getRawText().equals(tree.getLabel(v))) {
-						view.setLabel(w, tree.getLabel(v));
-					}
-				}
+			if (tree.hasEdgeConfidences() && tree.getEdgeConfidences().get(oe) != null) {
+				view.getGraph().setConfidence(e, tree.getConfidence(oe));
 			}
-		} else {
-			var circular = (layout != LayoutRootedPhylogeny.Layout.Rectangular);
-			for (var oe : tree.edges()) {
-				var v = srcTarNode.apply(oe.getSource());
-				var w = srcTarNode.apply(oe.getTarget());
-				var e = srcTarEdge.apply(oe);
-				var vPoint = DrawView.getPoint(v);
-				var wPoint = DrawView.getPoint(w);
-
-				List<Point2D> list;
-
-				var reticulate = false;
-				if (oe.getTarget().getInDegree() == 1 || tree.isTransferAcceptorEdge(oe)) {
-					if (circular) {
-						var circleSegment = CircleSegment.apply(rootPoint, vPoint.distance(rootPoint), nodeAngleMap.get(oe.getSource()), nodeAngleMap.get(oe.getTarget()));
-						list = PathNormalize.apply(CollectionUtils.concatenate(circleSegment, List.of(wPoint)), 2, 5);
-					} else {
-						list = CollectionUtils.concatenate(
-								PathNormalize.apply(List.of(vPoint, new Point2D(vPoint.getX(), wPoint.getY())), 2, 5),
-								PathNormalize.apply(List.of(new Point2D(vPoint.getX(), wPoint.getY()), wPoint), 2, 5));
-					}
-				} else if (tree.isTransferEdge(oe) || (tree.isReticulateEdge(oe) && circular)) {
-					var control = QuadraticCurve.computeControlForBowEdge(vPoint, wPoint);
-					list = QuadraticCurve.apply(vPoint, control, wPoint);
-					reticulate = true;
-				} else if (circular) {
-					list = PathNormalize.apply(List.of(vPoint, wPoint), 2, 5);
-					reticulate = true;
-				} else {
-					list = QuadraticCurve.apply(vPoint, new Point2D(vPoint.getX(), wPoint.getY()), wPoint);
-					reticulate = true;
-				}
-
-				var path = DrawView.setPoints(e, list);
-
-				if (tree.isReticulateEdge(oe))
-					view.getGraph().setReticulate(e, true);
-				if (tree.isTransferAcceptorEdge(oe))
-					view.getGraph().setTransferAcceptor(e, true);
-				if (reticulate && !view.getGraph().isTransferAcceptorEdge(oe)) {
-					view.setShowArrow(e, true);
-					path.getStyleClass().add("graph-special-edge");
-				}
-				if (tree.hasEdgeWeights() && tree.getEdgeWeights().get(oe) != null) {
-					view.getGraph().setWeight(e, tree.getWeight(oe));
-				}
-				if (tree.hasEdgeConfidences() && tree.getEdgeConfidences().get(oe) != null) {
-					view.getGraph().setConfidence(e, tree.getConfidence(oe));
-				}
-				if (tree.hasEdgeProbabilities() && tree.getEdgeProbabilities().get(oe) != null) {
-					view.getGraph().setProbability(e, tree.getProbability(oe));
-				}
+			if (tree.hasEdgeProbabilities() && tree.getEdgeProbabilities().get(oe) != null) {
+				view.getGraph().setProbability(e, tree.getProbability(oe));
 			}
 
 
-			for (var v : tree.nodes()) {
-				var w = srcTarNode.apply(v);
-				if (tree.getLabel(v) != null) {
+			var path = new Path();
 
-					if (DrawView.getLabel(v) == null) {
-						view.createLabel(w, tree.getLabel(v));
-					} else if (!DrawView.getLabel(v).getRawText().equals(tree.getLabel(v))) {
-						view.setLabel(w, tree.getLabel(v));
+			path.getElements().add(new MoveTo(sourcePoint.getX(), sourcePoint.getY()));
+
+			if (tree.isTreeEdge(oe) || tree.isTransferAcceptorEdge(oe)) {
+				switch (layout) {
+					case Rectangular -> {
+						var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
+						path.getElements().setAll(PathUtils.createPath(List.of(sourcePoint, controlPoint, targetPoint), true).getElements());
 					}
+					case Circular -> {
+						var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
+						var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+						var circle = CircleSegment.apply(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
+						path.getElements().addAll(PathUtils.toPathElements(circle));
+						var last = circle.get(circle.size() - 1);
+						path.getElements().addAll(PathUtils.createPath(List.of(last, targetPoint), true).getElements());
+					}
+					case Radial -> {
+						path.getElements().setAll(PathUtils.createPath(List.of(sourcePoint, targetPoint), true).getElements());
+					}
+				}
+			} else if (tree.isTransferEdge(oe)) {
+				path.getElements().setAll(PathUtils.createPath(List.of(sourcePoint, targetPoint), true).getElements());
+			} else { // reticulate edge
+				switch (layout) {
+					case Rectangular -> {
+						var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
+						path.getElements().addAll(PathUtils.createElements(QuadraticCurve.apply(sourcePoint, controlPoint, targetPoint, 5)));
+					}
+					case Circular -> {
+						var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
+						var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+						var controlPoint = CircleSegment.getEndPoint(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
+						path.getElements().addAll(PathUtils.createElements(QuadraticCurve.apply(sourcePoint, controlPoint, targetPoint, 5)));
+					}
+					case Radial -> {
+						var diff = targetPoint.distance(rootPoint) - sourcePoint.distance(rootPoint);
+						var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+						var controlPoint = GeometryUtilsFX.translateByAngle(targetPoint, targetAngle, -diff);
+						path.getElements().addAll(PathUtils.createElements(QuadraticCurve.apply(sourcePoint, controlPoint, targetPoint, 5)));
+					}
+				}
+			}
+
+			DrawView.getPath(e).getElements().setAll(path.getElements());
+
+			if (tree.isReticulateEdge(oe) && !tree.isTransferAcceptorEdge(oe)) {
+				view.setShowArrow(e, true);
+				DrawView.getPath(e).getStyleClass().add("graph-special-edge");
+			}
+		}
+
+		for (var ov : tree.nodes()) {
+			var v = srcTarNode.apply(ov);
+			if (tree.getLabel(ov) != null) {
+				if (DrawView.getLabel(ov) == null) {
+					view.createLabel(v, tree.getLabel(ov));
+				} else if (!DrawView.getLabel(ov).getRawText().equals(tree.getLabel(ov))) {
+					view.setLabel(v, tree.getLabel(ov));
 				}
 			}
 		}

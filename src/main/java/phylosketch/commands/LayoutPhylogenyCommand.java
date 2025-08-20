@@ -30,7 +30,6 @@ import jloda.graph.EdgeArray;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
-import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import jloda.util.CollectionUtils;
@@ -160,9 +159,9 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 						if (root != null) {
 							tree.setRoot(root);
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
-							LSAUtils.setLSAChildrenAndTransfersMap(tree);
+
 							try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
-								LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.ChildAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+								LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
 								ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
 								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout, scaling);
 								for (var v : tree.nodes()) {

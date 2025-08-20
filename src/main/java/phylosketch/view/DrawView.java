@@ -36,6 +36,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.graph.GraphFX;
+import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
@@ -88,6 +89,11 @@ public class DrawView extends Pane {
 
 	private final ObservableMap<Edge, Path> edgeOutlineMap = FXCollections.observableHashMap();
 	private final BooleanProperty showOutlines = new SimpleBooleanProperty(this, "showOutlines", false);
+
+
+	private final ObjectProperty<LayoutRootedPhylogeny.Layout> layout = new SimpleObjectProperty<LayoutRootedPhylogeny.Layout>(this.getClass(), "layout");
+	private final ObjectProperty<LayoutRootedPhylogeny.Scaling> scaling = new SimpleObjectProperty<LayoutRootedPhylogeny.Scaling>(this.getClass(), "scaling");
+
 
 	private final NodeLabelEditBox nodeLabelEditBox = new NodeLabelEditBox();
 
@@ -615,5 +621,21 @@ public class DrawView extends Pane {
 
 	public NodeLabelEditBox getNodeLabelEditBox() {
 		return nodeLabelEditBox;
+	}
+
+	public LayoutRootedPhylogeny.Layout getLayout() {
+		return layout.get();
+	}
+
+	public ObjectProperty<LayoutRootedPhylogeny.Layout> layoutProperty() {
+		return layout;
+	}
+
+	public LayoutRootedPhylogeny.Scaling getScaling() {
+		return scaling.get();
+	}
+
+	public ObjectProperty<LayoutRootedPhylogeny.Scaling> scalingProperty() {
+		return scaling;
 	}
 }

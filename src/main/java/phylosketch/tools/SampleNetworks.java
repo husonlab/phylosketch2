@@ -174,7 +174,7 @@ public class SampleNetworks {
 							if (timeLayout) {
 								var start = System.currentTimeMillis();
 
-								LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.ChildAverage, true, random, new HashMap<>(), new HashMap<>());
+								LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, random, new HashMap<>(), new HashMap<>());
 								if (true)
 									System.out.printf("%s: taxa=%d, h=%d, time=%ds%n", label, IteratorUtils.count(network.leaves()),
 											network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(),

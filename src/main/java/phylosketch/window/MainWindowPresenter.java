@@ -634,8 +634,8 @@ public class MainWindowPresenter {
 
 	private void setupLayoutScalingPhylogeny(DrawView view, MainWindowController controller, FormatPaneController formatController) {
 
-		var layout = new SimpleObjectProperty<LayoutRootedPhylogeny.Layout>(this.getClass(), "layout");
-		var scaling = new SimpleObjectProperty<LayoutRootedPhylogeny.Scaling>(this.getClass(), "scaling");
+		var layout = view.layoutProperty();
+		var scaling = view.scalingProperty();
 
 		formatController.getApplyLayoutPhylogenyButton().setOnAction(v -> {
 			if (layout.get() != null && scaling.get() != null)
