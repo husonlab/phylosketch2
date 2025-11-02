@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
@@ -56,7 +57,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 	 * @param view       the window
 	 * @param horizontal flip horizontally, if true, otherwise vertically
 	 */
-	public FlipCommand(DrawView view, boolean horizontal) {
+	public FlipCommand(DrawView view, boolean horizontal, BooleanProperty isRunning) {
 		super("flip");
 
 		var nodes = view.getSelectedOrAllNodes();
@@ -112,6 +113,7 @@ public class FlipCommand extends UndoableRedoableCommand {
 		}
 
 		undo = () -> {
+			isRunning.set(true);
 			var first = new PauseTransition(Duration.seconds(0.1));
 			first.setOnFinished(a -> {
 				for (var entry : nodeMidPointMap.entrySet()) {
@@ -139,11 +141,15 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
-			sequential.setOnFinished(a -> layoutCommmand.undo());
+			sequential.setOnFinished(a -> {
+				layoutCommmand.undo();
+				isRunning.set(false);
+			});
 			sequential.play();
 		};
 
 		redo = () -> {
+			isRunning.set(true);
 			var first = new PauseTransition(Duration.seconds(0.1));
 			first.setOnFinished(a -> {
 				for (var entry : nodeMidPointMap.entrySet()) {
@@ -172,7 +178,10 @@ public class FlipCommand extends UndoableRedoableCommand {
 				}
 			});
 			var sequential = new SequentialTransition(first, second);
-			sequential.setOnFinished(a -> layoutCommmand.redo());
+			sequential.setOnFinished(a -> {
+				layoutCommmand.redo();
+				isRunning.set(false);
+			});
 			sequential.play();
 		};
 	}

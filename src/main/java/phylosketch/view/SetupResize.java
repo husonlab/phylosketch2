@@ -279,12 +279,6 @@ public class SetupResize {
 	}
 
 	public record Box(double xMin, double yMin, double xMax, double yMax) {
-		public Box(Collection<Point2D> points) {
-			this(points.stream().mapToDouble(Point2D::getX).min().orElse(0.0),
-					points.stream().mapToDouble(Point2D::getY).min().orElse(0.0),
-					points.stream().mapToDouble(Point2D::getX).max().orElse(0.0),
-					points.stream().mapToDouble(Point2D::getY).max().orElse(0.0));
-		}
 
 		public double width() {
 			return xMax - xMin;

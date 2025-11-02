@@ -204,13 +204,13 @@ public class FormatPaneController {
 	private Button crossEdgesButton;
 
 	@FXML
-	private ToggleButton resizeModeToggle;
-
-	@FXML
 	private Button transferAcceptorButton;
 
 	@FXML
 	private Button applyModificationButton;
+
+	@FXML
+	private Button induceButton;
 
 	@FXML
 	private ChoiceBox<LayoutRootedPhylogeny.Layout> layoutCBox;
@@ -220,6 +220,24 @@ public class FormatPaneController {
 
 	@FXML
 	private Button applyLayoutPhylogenyButton;
+
+	@FXML
+	private Button verticalFlipButton;
+
+	@FXML
+	private Button horizontalFlipButton;
+
+	@FXML
+	private Button rotateLeftButton;
+
+	@FXML
+	private ToggleButton rotateRightButton;
+
+	@FXML
+	private Button layoutLabelsButton;
+
+	@FXML
+	private ToggleButton resizeModeButton;
 
 	@FXML
 	private void initialize() {
@@ -258,6 +276,15 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(applyModificationButton, MaterialIcons.auto_fix_high);
 
 		MaterialIcons.setIcon(applyLayoutPhylogenyButton, MaterialIcons.play_circle);
+
+		MaterialIcons.setIcon(verticalFlipButton, MaterialIcons.swap_vert, "", false);
+		MaterialIcons.setIcon(horizontalFlipButton, MaterialIcons.swap_horiz, "", false);
+
+		MaterialIcons.setIcon(rotateLeftButton, MaterialIcons.rotate_left, "", false);
+		MaterialIcons.setIcon(rotateRightButton, MaterialIcons.rotate_right, "", false);
+
+		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
+		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 
 
 		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
@@ -511,10 +538,6 @@ public class FormatPaneController {
 		return reverseEdgesButton;
 	}
 
-	public ToggleButton getResizeModeToggle() {
-		return resizeModeToggle;
-	}
-
 	public Button getTransferAcceptorButton() {
 		return transferAcceptorButton;
 	}
@@ -527,6 +550,10 @@ public class FormatPaneController {
 		return applyModificationButton;
 	}
 
+	public Button getInduceButton() {
+		return induceButton;
+	}
+
 	public ChoiceBox<LayoutRootedPhylogeny.Layout> getLayoutCBox() {
 		return layoutCBox;
 	}
@@ -537,5 +564,29 @@ public class FormatPaneController {
 
 	public Button getApplyLayoutPhylogenyButton() {
 		return applyLayoutPhylogenyButton;
+	}
+
+	public Button getVerticalFlipButton() {
+		return verticalFlipButton;
+	}
+
+	public Button getHorizontalFlipButton() {
+		return horizontalFlipButton;
+	}
+
+	public Button getRotateLeftButton() {
+		return rotateLeftButton;
+	}
+
+	public ToggleButton getRotateRightButton() {
+		return rotateRightButton;
+	}
+
+	public Button getLayoutLabelsButton() {
+		return layoutLabelsButton;
+	}
+
+	public ToggleButton getResizeModeButton() {
+		return resizeModeButton;
 	}
 }

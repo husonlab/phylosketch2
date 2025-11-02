@@ -25,6 +25,8 @@ import jloda.fx.phylo.embed.Averaging;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.AService;
+import jloda.fx.window.NotificationManager;
 import jloda.graph.Edge;
 import jloda.graph.EdgeArray;
 import jloda.graph.Node;
@@ -33,6 +35,7 @@ import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
 import jloda.util.Basic;
 import jloda.util.CollectionUtils;
+import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.io.ReorderChildren;
 import phylosketch.paths.PathUtils;
@@ -159,22 +162,54 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 						if (root != null) {
 							tree.setRoot(root);
 							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
+							var xMinF = xMin;
+							var xMaxF = xMax;
+							var yMinF = yMin;
+							var yMaxF = yMax;
 
-							try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
-								LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-								ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-								DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout, scaling);
-								for (var v : tree.nodes()) {
-									if (tree2GraphNodeMap.containsKey(v)) {
-										var w = tree2GraphNodeMap.get(v);
-										newPoints.put(w.getId(), DrawView.getPoint(w));
-										for (var e : w.outEdges()) {
-											newPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
+							if (true) {
+								AService.run(() -> {
+											var nodeAngleMap = tree.newNodeDoubleArray();
+											NodeArray<Point2D> nodePointMap = tree.newNodeArray();
+											LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+											ScaleUtils.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+											return new Pair<>(nodeAngleMap, nodePointMap);
+										},
+										p -> {
+
+											DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, p.getFirst(), p.getSecond(), layout, scaling);
+											for (var v : tree.nodes()) {
+												if (tree2GraphNodeMap.containsKey(v)) {
+													var w = tree2GraphNodeMap.get(v);
+													newPoints.put(w.getId(), DrawView.getPoint(w));
+													for (var e : w.outEdges()) {
+														newPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
+													}
+												}
+											}
+											p.getFirst().close();
+											p.getSecond().close();
+										},
+										e -> {
+											NotificationManager.showError("Layout failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+										});
+							} else {
+								try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
+									LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+									ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+									DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout, scaling);
+									for (var v : tree.nodes()) {
+										if (tree2GraphNodeMap.containsKey(v)) {
+											var w = tree2GraphNodeMap.get(v);
+											newPoints.put(w.getId(), DrawView.getPoint(w));
+											for (var e : w.outEdges()) {
+												newPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
+											}
 										}
 									}
+								} catch (Exception ex) {
+									Basic.caught(ex);
 								}
-							} catch (Exception ex) {
-								Basic.caught(ex);
 							}
 						}
 					}

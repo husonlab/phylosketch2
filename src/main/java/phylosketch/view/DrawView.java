@@ -62,7 +62,7 @@ import java.util.*;
  * Daniel Huson, 9.2024
  */
 public class DrawView extends Pane {
-	public enum Mode {Edit, Move, View, Capture}
+	public enum Mode {Sketch, Move, View, Capture}
 
 	private final PhyloTree graph;
 	private final GraphFX<PhyloTree> graphFX;
@@ -82,7 +82,7 @@ public class DrawView extends Pane {
 	private final Group otherGroup = new Group();
 	private final Group world = new Group();
 
-	private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(this, "mode", Mode.Edit);
+	private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(this, "mode", Mode.Sketch);
 	private final BooleanProperty movable = new SimpleBooleanProperty(this, "movable");
 
 	private final ObservableMap<Edge, Shape> edgeArrowMap = FXCollections.observableHashMap();
@@ -100,8 +100,8 @@ public class DrawView extends Pane {
 	private final UndoManager undoManager = new UndoManager();
 
 	public DrawView() {
-		mode.addListener((v, o, n) -> movable.set(n == Mode.Edit || n == Mode.Move));
-		movable.set(mode.get() == Mode.Edit || mode.get() == Mode.Move);
+		mode.addListener((v, o, n) -> movable.set(n == Mode.Sketch || n == Mode.Move));
+		movable.set(mode.get() == Mode.Sketch || mode.get() == Mode.Move);
 
 		setPadding(new javafx.geometry.Insets(20));
 
@@ -217,7 +217,7 @@ public class DrawView extends Pane {
 	public void clear() {
 		graph.clear();
 		for (var child : world.getChildren()) {
-			if (child instanceof Group group)
+			if (child instanceof Group group && group != otherGroup)
 				group.getChildren().clear();
 		}
 		undoManager.clear();
@@ -254,6 +254,10 @@ public class DrawView extends Pane {
 
 	public Group getOtherGroup() {
 		return otherGroup;
+	}
+
+	public Group getWorld() {
+		return world;
 	}
 
 	public UndoManager getUndoManager() {

@@ -140,7 +140,7 @@ public class ImportNewick {
 		LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
 		try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
-			LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+			LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, tree.getNumberOfTaxa() <= 100, new Random(666), nodeAngleMap, nodePointMap);
 			ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
 			DrawNetwork.apply(view, tree, nodeAngleMap, nodePointMap, view.getLayout(), view.getScaling());
 			var newNodes = IteratorUtils.asSet(view.getGraph().nodes());

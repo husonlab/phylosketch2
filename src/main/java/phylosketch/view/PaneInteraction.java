@@ -28,7 +28,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -66,7 +65,7 @@ public class PaneInteraction {
 	/**
 	 * setup the interaction
 	 */
-	public static void setup(DrawView view, MainWindowController controller, BooleanProperty allowResize) {
+	public static void setup(DrawView view, MainWindowController controller, DragLineBoxSupport dragLineBoxSupport, BooleanProperty allowResize) {
 		if (false) { // for debugging zoom and pan interference
 			var inMultiTouchLabel = new Label("multi-touch");
 			var inDrawingEdgeLabel = new Label("drawing edge");
@@ -79,18 +78,45 @@ public class PaneInteraction {
 			});
 
 			inDrawingEdge.addListener((v, o, n) -> {
-				if (n)
+				if (n) {
 					view.getChildren().add(inDrawingEdgeLabel);
-				else
+				} else {
 					view.getChildren().remove(inDrawingEdgeLabel);
+				}
 			});
 		}
+
 
 		inMultiTouchGesture.addListener((v, o, n) -> {
 			if (n) {
 				inDrawingEdge.set(false);
 			}
 		});
+
+		/*
+		var rubberBandSelection=new RubberBandSelection(view,(rectangle,extendSelection,executorService)->{
+			if (PhyloSketch.isDesktop() && !extendSelection) {
+				view.getNodeSelection().clearSelection();
+				view.getEdgeSelection().clearSelection();
+			}
+
+			var nodes = view.getGraph().nodeStream().filter(v -> rectangle.contains(DrawView.getPoint(v))).collect(Collectors.toSet());
+			nodes.forEach(v -> view.getNodeSelection().toggleSelection(v));
+
+			var edges = new HashSet<Edge>();
+			for (var e : view.getGraph().edges()) {
+				if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget()) && DrawView.getPoints(e).stream().allMatch(rectangle::contains))
+					edges.add(e);
+			}
+			edges.forEach(e -> view.getEdgeSelection().toggleSelection(e));
+
+		});
+		 */
+
+		var hDragLine = dragLineBoxSupport.hDragLine();
+		var vDragLine = dragLineBoxSupport.vDragLine();
+		var box = dragLineBoxSupport.box();
+
 
 		// will create a node if mouse is pressed and then not moved or released within two seconds
 		var createNodePause = new PauseTransition(Duration.seconds(1.5));
@@ -110,7 +136,7 @@ public class PaneInteraction {
 				view.getEdgeSelection().clearSelection();
 			}
 
-			if (view.getMode() == DrawView.Mode.Edit && me.isStillSincePress() && !inMultiTouchGesture.get()) {
+			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !inMultiTouchGesture.get()) {
 				if (me.getClickCount() == 2) {
 					createNodePause.stop();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -136,7 +162,7 @@ public class PaneInteraction {
 			mouseY = mouseDownY = me.getScreenY();
 
 			if (!inMultiTouchGesture.get()) {
-				if (view.getMode() == DrawView.Mode.Edit) {
+				if (view.getMode() == DrawView.Mode.Sketch) {
 					path.getElements().clear();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					if (DrawEdgeCommand.findNode(view, location) != null || DrawEdgeCommand.findEdge(view, location) != null) {
@@ -156,23 +182,29 @@ public class PaneInteraction {
 
 		view.setOnMouseDragged(me -> {
 			createNodePause.stop();
+			var location = view.sceneToLocal(me.getSceneX(), me.getSceneY());
 			if (inDrawingEdge.get()) {
 				if (!path.getElements().isEmpty()) {
 					if (!view.getEdgesGroup().getChildren().contains(path))
 						view.getEdgesGroup().getChildren().add(path);
-					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					path.getElements().add(new LineTo(location.getX(), location.getY()));
-				}
-				{
-					view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
-					var qPoint = view.screenToLocal(me.getScreenX(), me.getScreenY());
-					var hasX = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(qPoint.getX() - x) <= 1);
-					if (hasX) {
-						view.getOtherGroup().getChildren().add(createDragLine(true, qPoint.getX(), qPoint.getY()));
+
+					if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
+						path.getElements().add(new LineTo(location.getX(), location.getY()));
 					}
-					var hasY = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(qPoint.getY() - y) <= 1);
-					if (hasY) {
-						view.getOtherGroup().getChildren().add(createDragLine(false, qPoint.getX(), qPoint.getY()));
+					{
+						var hasX = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(location.getX() - x) <= 1);
+						var hasY = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(location.getY() - y) <= 1);
+						if (hasX) {
+							if (!view.getOtherGroup().getChildren().contains(hDragLine))
+								view.getOtherGroup().getChildren().add(hDragLine);
+						} else
+							view.getOtherGroup().getChildren().remove(hDragLine);
+
+						if (hasY) {
+							if (!view.getOtherGroup().getChildren().contains(vDragLine))
+								view.getOtherGroup().getChildren().add(vDragLine);
+						} else
+							view.getOtherGroup().getChildren().remove(vDragLine);
 					}
 				}
 			} else if (inRubberBandSelection.get()) {
@@ -182,12 +214,12 @@ public class PaneInteraction {
 					selectionRectangle.applyCss();
 				}
 				var down = selectionRectangle.screenToLocal(mouseDownX, mouseDownY);
-				var now = selectionRectangle.screenToLocal(me.getScreenX(), me.getScreenY());
-				var delta = now.subtract(down);
+				var delta = location.subtract(down);
+
 				selectionRectangle.setVisible(Math.abs(delta.getX()) > 5 || Math.abs(delta.getY()) > 5);
-				selectionRectangle.setX(delta.getX() > 0 ? down.getX() : now.getX());
+				selectionRectangle.setX(delta.getX() > 0 ? down.getX() : location.getX());
 				selectionRectangle.setWidth(Math.abs(delta.getX()));
-				selectionRectangle.setY(delta.getY() > 0 ? down.getY() : now.getY());
+				selectionRectangle.setY(delta.getY() > 0 ? down.getY() : location.getY());
 				selectionRectangle.setHeight(Math.abs(delta.getY()));
 			}
 			me.consume();
@@ -226,8 +258,9 @@ public class PaneInteraction {
 				}
 			}
 
-			view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), n -> "drag-line".equals(n.getId())));
 			view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
+			view.getOtherGroup().getChildren().remove(hDragLine);
+			view.getOtherGroup().getChildren().remove(vDragLine);
 			me.consume();
 		});
 
@@ -248,12 +281,5 @@ public class PaneInteraction {
 			}
 		}
 		return false;
-	}
-
-	public static Line createDragLine(boolean horizontal, double translateX, double translateY) {
-		var line = NodeInteraction.createDragLine(horizontal);
-		line.setTranslateX(translateX);
-		line.setTranslateY(translateY);
-		return line;
 	}
 }

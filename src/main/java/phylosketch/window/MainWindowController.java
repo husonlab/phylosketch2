@@ -25,6 +25,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
@@ -37,11 +38,13 @@ import jloda.fx.icons.MaterialIcons;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
+import jloda.fx.util.RunAfterAWhile;
 import jloda.fx.window.MainWindowManager;
+import phylosketch.main.PhyloSketch;
 import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 public class MainWindowController {
 	@FXML
@@ -129,9 +132,6 @@ public class MainWindowController {
 	private Menu fileMenu;
 
 	@FXML
-	private MenuButton fileMenuButton;
-
-	@FXML
 	private MenuItem findAgainMenuItem;
 
 	@FXML
@@ -162,13 +162,7 @@ public class MainWindowController {
 	private MenuItem newMenuItem;
 
 	@FXML
-	private MenuItem newRecentFileMenuItem;
-
-	@FXML
 	private MenuItem openMenuItem;
-
-	@FXML
-	private MenuItem openRecentFileMenuItem;
 
 	@FXML
 	private MenuItem pageSetupMenuItem;
@@ -268,9 +262,6 @@ public class MainWindowController {
 	private MenuItem selectFromPreviousMenuItem;
 
 	@FXML
-	private Menu labelsMenu;
-
-	@FXML
 	private MenuItem labelLeavesABCMenuItem;
 
 	@FXML
@@ -316,13 +307,7 @@ public class MainWindowController {
 	private Button redoButton;
 
 	@FXML
-	private Button selectButton;
-
-	@FXML
 	private MenuButton selectMenuButton;
-
-	@FXML
-	private MenuButton layoutMenuButton;
 
 	@FXML
 	private Button deleteButton;
@@ -373,9 +358,6 @@ public class MainWindowController {
 	CheckMenuItem capturePhylogenyItem;
 
 	@FXML
-	MenuItem cropImageMenuItem;
-
-	@FXML
 	private Menu layoutMenu;
 
 	@FXML
@@ -400,7 +382,7 @@ public class MainWindowController {
 	private Menu modeMenu;
 
 	@FXML
-	private RadioMenuItem editModeItem;
+	private RadioMenuItem sketchModeItem;
 
 	@FXML
 	private RadioMenuItem moveModeItem;
@@ -454,19 +436,6 @@ public class MainWindowController {
 	private MenuButton modeMenuButton;
 
 	@FXML
-	private Button importButton;
-
-	@FXML
-	private BorderPane toolBorderPane;
-
-	@FXML
-	private HBox leftHBox;
-	@FXML
-	private HBox rightHBox;
-	@FXML
-	private HBox overflowHBox;
-
-	@FXML
 	private CheckMenuItem showQRCode;
 
 	@FXML
@@ -476,7 +445,14 @@ public class MainWindowController {
 	private CheckMenuItem outlineEdgesMenuItem;
 
 	@FXML
-	private VBox firstVBox;
+	private GridPane toolbarGrid;
+
+	@FXML
+	private ToolBar leftBar;
+
+	@FXML
+	private ToolBar rightBar;
+
 
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
 
@@ -490,11 +466,10 @@ public class MainWindowController {
 	@FXML
 	private void initialize() {
 
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off, !PhyloSketch.isDesktop());
+		modeMenuButton.setPrefWidth(!PhyloSketch.isDesktop() ? 60 : 110);
 
-		MaterialIcons.setIcon(fileMenuButton, MaterialIcons.file_open);
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off);
-
-		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
+		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, !PhyloSketch.isDesktop());
 
 		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
 		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
@@ -502,18 +477,17 @@ public class MainWindowController {
 		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
 		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
 
-		MaterialIcons.setIcon(findButton, MaterialIcons.search);
-		MaterialIcons.setIcon(selectButton, MaterialIcons.select_all);
+		MaterialIcons.setIcon(findButton, MaterialIcons.search, !PhyloSketch.isDesktop());
 
-		MaterialIcons.setIcon(importButton, MaterialIcons.file_download);
-
-		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.checklist_rtl);
-		MaterialIcons.setIcon(layoutMenuButton, MaterialIcons.shape_line);
+		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, !PhyloSketch.isDesktop());
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
-		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
+		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, !PhyloSketch.isDesktop());
 
-		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.rocket_launch);
+		// MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, !PhyloSketch.isDesktop());
+		captureMenuButton.setGraphic(new Label(captureMenuButton.getText()));
+		captureMenuButton.setStyle("-fx-background-color: transparent;");
+		captureMenuButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -530,27 +504,36 @@ public class MainWindowController {
 
 		final InvalidationListener invalidationListener = observable -> {
 			windowMenu.getItems().setAll(originalWindowMenuItems);
-			var count = 0;
+			var count = 1;
+			var seen = new HashSet<String>();
 			for (var mainWindow : MainWindowManager.getInstance().getMainWindows()) {
-				if (mainWindow.getStage() != null) {
-					var title = mainWindow.getStage().getTitle();
-					if (title != null) {
+				if (mainWindow.getStage() != null && mainWindow.getStage().getTitle() != null) {
+					var title = mainWindow.getStage().getTitle().replaceAll("- " + ProgramProperties.getProgramName(), "");
+					while (seen.contains(title)) {
+						title = title + "+";
+					}
+					seen.add(title);
+
 						try {
-							var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
-							menuItem.setOnAction(e -> mainWindow.getStage().toFront());
-							menuItem.setAccelerator(new KeyCharacterCombination("" + (++count), KeyCombination.SHORTCUT_DOWN));
-							Platform.runLater(() -> windowMenu.getItems().add(menuItem));
+							var menuItem = new MenuItem(title);
+							menuItem.setOnAction(e -> Platform.runLater(() -> mainWindow.getStage().toFront()));
+							if (count <= 9)
+								menuItem.setAccelerator(new KeyCharacterCombination("" + (count++), KeyCombination.SHORTCUT_DOWN));
+							windowMenu.getItems().add(menuItem);
 						} catch (Exception ignored) {
 						}
-					}
 				}
 				if (MainWindowManager.getInstance().getAuxiliaryWindows(mainWindow) != null) {
 					for (var auxStage : MainWindowManager.getInstance().getAuxiliaryWindows(mainWindow)) {
-						var title = auxStage.getTitle();
-						if (title != null) {
+						if (auxStage.getTitle() != null) {
+							var title = auxStage.getTitle().replaceAll("- " + ProgramProperties.getProgramName(), "");
+							while (seen.contains(title)) {
+								title = title + "+";
+							}
+							seen.add(title);
 							try {
-								var menuItem = new MenuItem(title.replaceAll("- " + ProgramProperties.getProgramName(), ""));
-							menuItem.setOnAction(e -> auxStage.toFront());
+								var menuItem = new MenuItem(title);
+								menuItem.setOnAction(e -> Platform.runLater(auxStage::toFront));
 								Platform.runLater(() -> windowMenu.getItems().add(menuItem));
 							} catch (Exception ignored) {
 							}
@@ -559,22 +542,10 @@ public class MainWindowController {
 				}
 			}
 		};
-		MainWindowManager.getInstance().changedProperty().addListener(invalidationListener);
-		invalidationListener.invalidated(null);
-
-		{
-			newRecentFileMenuItem.setOnAction(e -> newMenuItem.getOnAction().handle(e));
-			newRecentFileMenuItem.disableProperty().bind(newMenuItem.disableProperty());
-			openRecentFileMenuItem.setOnAction(e -> openMenuItem.getOnAction().handle(e));
-			openRecentFileMenuItem.disableProperty().bind(openMenuItem.disableProperty());
-
-			var keep = new ArrayList<>(fileMenuButton.getItems());
-
-			recentFilesMenu.getItems().addListener((InvalidationListener) e -> {
-				fileMenuButton.getItems().setAll(keep);
-				fileMenuButton.getItems().addAll(BasicFX.copyMenu(recentFilesMenu.getItems()));
-			});
-		}
+		MainWindowManager.getInstance().changedProperty()
+				.addListener(e -> RunAfterAWhile.applyInFXThread(invalidationListener, () -> invalidationListener.invalidated(null)));
+		RunAfterAWhile.applyInFXThread(invalidationListener, () -> invalidationListener.invalidated(null));
+		// todo: if the file is bigger, this update comes too late and the title is missing
 
 		{
 			zoomInButton.setOnAction(e -> zoomInMenuItem.getOnAction().handle(e));
@@ -606,11 +577,6 @@ public class MainWindowController {
 		layoutItem.setOnAction(e -> layoutPhylogenyMenuItem.fire());
 		layoutItem.disableProperty().bind(layoutPhylogenyMenuItem.disableProperty());
 
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(rotateLeftMenuItem, rotateRightMenuItem, flipHorizontalMenuItem, flipVerticalMenuItem, new SeparatorMenuItem(), resizeModeCheckMenuItem, new SeparatorMenuItem(), layoutLabelMenuItem, layoutItem)));
-
-		layoutMenuButton.getItems().add(new SeparatorMenuItem());
-		layoutMenuButton.getItems().addAll(BasicFX.copyMenu(List.of(applyModificationMenuItem, mergeNodesMenuItem, deleteThruNodesMenuItem, reverseEdgesMenuItem, crossEdgesMenuItem, declareRootMenuItem, declareTransferAcceptorMenuItem, new SeparatorMenuItem(), induceMenuItem)));
-
 		copyExportMenuItem.setOnAction(e->copyMenuItem.getOnAction().handle(e));
 		copyExportMenuItem.disableProperty().bind(copyMenuItem.disableProperty());
 
@@ -619,21 +585,17 @@ public class MainWindowController {
 
 		centerPane.getChildren().add(scrollPane);
 
-		overflowHBox.setMinHeight(HBox.USE_PREF_SIZE);
-		overflowHBox.setMaxHeight(HBox.USE_PREF_SIZE);
-		overflowHBox.setPrefHeight(0);
-		overflowHBox.setVisible(false);
-
 		centerAnchorPane.setMinWidth(AnchorPane.USE_PREF_SIZE);
 		centerAnchorPane.setMaxWidth(AnchorPane.USE_PREF_SIZE);
+		centerAnchorPane.prefWidthProperty().bind(rootPane.widthProperty());
+
 		bottomAnchorPane.setMinWidth(AnchorPane.USE_PREF_SIZE);
 		bottomAnchorPane.setMaxWidth(AnchorPane.USE_PREF_SIZE);
 
 		bottomAnchorPane.setMinHeight(AnchorPane.USE_PREF_SIZE);
 		bottomAnchorPane.setMaxHeight(AnchorPane.USE_PREF_SIZE);
 		bottomAnchorPane.prefHeightProperty().bind(bottomFlowPane.heightProperty());
-
-		rootPane.widthProperty().addListener(getWidthChangeListener());
+		bottomAnchorPane.prefWidthProperty().bind(rootPane.widthProperty());
 
 		selectionRectangle.setStroke(Color.GREEN);
 		selectionRectangle.setFill(Color.TRANSPARENT);
@@ -644,10 +606,12 @@ public class MainWindowController {
 		clearCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.hide_image));
 		saveCaptureImageItem.setGraphic(MaterialIcons.graphic(MaterialIcons.save_as));
 		showCaptureRootLocationItem.setGraphic(MaterialIcons.graphic(MaterialIcons.rocket, "-fx-rotate: 90;"));
+
+		rootSideMenu.setGraphic(MaterialIcons.graphic(MaterialIcons.zoom_out_map, "-fx-rotate: 45;"));
+
 		captureLinesItem.setGraphic(MaterialIcons.graphic(MaterialIcons.water));
 		captureLabelsItem.setGraphic(MaterialIcons.graphic(MaterialIcons.text_fields));
 		capturePhylogenyItem.setGraphic(MaterialIcons.graphic(MaterialIcons.account_tree));
-		cropImageMenuItem.setGraphic(MaterialIcons.graphic(MaterialIcons.crop));
 
 		(new ToggleGroup()).getToggles().addAll(leftRootSideMenuItem, rightRootSideMenuItem, topRootSideMenuItem, bottomRootSideMenuItem, centerRootSideMenuItem);
 
@@ -660,11 +624,15 @@ public class MainWindowController {
 		phylogramMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.ToScale);
 		cladogramEarlyMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.EarlyBranching);
 		cladogramLateMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.LateBranching);
+
+		ChangeListener<Number> widthChangedListener = (v, o, n) -> relayout();
+		toolbarGrid.widthProperty().addListener(widthChangedListener);
+		Platform.runLater(this::relayout);
 	}
 
 	public static MaterialIcons getIcon(DrawView.Mode mode) {
 		return switch (mode) {
-			case Edit -> MaterialIcons.edit;
+			case Sketch -> MaterialIcons.edit;
 			case Move -> MaterialIcons.transform;
 			case Capture -> MaterialIcons.image;
 			case View -> MaterialIcons.lock;
@@ -673,10 +641,10 @@ public class MainWindowController {
 
 	public void setupModeMenu(ObjectProperty<DrawView.Mode> modeProperty) {
 		var toggleGroup = new ToggleGroup();
-		toggleGroup.getToggles().addAll(editModeItem, moveModeItem, viewModeItem, captureModeItem);
+		toggleGroup.getToggles().addAll(sketchModeItem, moveModeItem, viewModeItem, captureModeItem);
 		modeProperty.addListener((v, o, n) -> {
 			switch (n) {
-				case Edit -> editModeItem.setSelected(true);
+				case Sketch -> sketchModeItem.setSelected(true);
 				case Move -> moveModeItem.setSelected(true);
 				case View -> viewModeItem.setSelected(true);
 				case Capture -> captureModeItem.setSelected(true);
@@ -684,26 +652,23 @@ public class MainWindowController {
 		});
 	}
 
-	public ChangeListener<Number> getWidthChangeListener() {
-		return (v, o, n) -> {
-			if (n.doubleValue() < 600 && !overflowHBox.isVisible()) {
-				toolBorderPane.getChildren().remove(rightHBox);
-				overflowHBox.getChildren().add(rightHBox);
-				overflowHBox.setVisible(true);
-				overflowHBox.setPrefHeight(32);
-			}
-			if (n.doubleValue() > 600 && overflowHBox.isVisible()) {
-				overflowHBox.getChildren().remove(rightHBox);
-				toolBorderPane.setRight(rightHBox);
-				overflowHBox.setVisible(false);
-				overflowHBox.setPrefHeight(0);
-			}
 
-			if (n.doubleValue() >= 375) {
-				centerAnchorPane.setPrefWidth(n.doubleValue());
-				bottomAnchorPane.setPrefWidth(n.doubleValue());
-			}
-		};
+	private void relayout() {
+		double requiredWidth = toolbarGrid.snappedLeftInset()
+							   + leftBar.prefWidth(-1)
+							   + toolbarGrid.getHgap()
+							   + rightBar.prefWidth(-1)
+							   + toolbarGrid.snappedRightInset();
+		var stack = toolbarGrid.getWidth() < requiredWidth;
+
+		GridPane.setColumnSpan(leftBar, stack ? 2 : 1);
+		GridPane.setRowIndex(leftBar, 0);
+		GridPane.setColumnIndex(leftBar, 0);
+
+		GridPane.setColumnSpan(rightBar, stack ? 2 : 1);
+		GridPane.setRowIndex(rightBar, stack ? 1 : 0);
+		GridPane.setColumnIndex(rightBar, stack ? 0 : 1);
+		GridPane.setHalignment(rightBar, HPos.RIGHT);
 	}
 
 	public MenuItem getAboutMenuItem() {
@@ -774,10 +739,6 @@ public class MainWindowController {
 		return fileMenu;
 	}
 
-	public MenuButton getFileMenuButton() {
-		return fileMenuButton;
-	}
-
 	public MenuItem getFindAgainMenuItem() {
 		return findAgainMenuItem;
 	}
@@ -819,16 +780,8 @@ public class MainWindowController {
 		return newMenuItem;
 	}
 
-	public MenuItem getNewRecentFileMenuItem() {
-		return newRecentFileMenuItem;
-	}
-
 	public MenuItem getOpenMenuItem() {
 		return openMenuItem;
-	}
-
-	public MenuItem getOpenRecentFileMenuItem() {
-		return openRecentFileMenuItem;
 	}
 
 	public MenuItem getPageSetupMenuItem() {
@@ -1015,10 +968,6 @@ public class MainWindowController {
 		return extendSelectionMenuItem;
 	}
 
-	public Button getSelectButton() {
-		return selectButton;
-	}
-
 	public MenuItem getDeclareRootMenuItem() {
 		return declareRootMenuItem;
 	}
@@ -1087,10 +1036,6 @@ public class MainWindowController {
 		return crossEdgesMenuItem;
 	}
 
-	public Button getImportButton() {
-		return importButton;
-	}
-
 	public AnchorPane getCenterAnchorPane() {
 		return centerAnchorPane;
 	}
@@ -1105,10 +1050,6 @@ public class MainWindowController {
 
 	public CheckMenuItem getShowNewick() {
 		return showNewick;
-	}
-
-	public HBox getLeftHBox() {
-		return leftHBox;
 	}
 
 	public ToggleButton getShowSettingsButton() {
@@ -1167,10 +1108,6 @@ public class MainWindowController {
 		return capturePhylogenyItem;
 	}
 
-	public MenuItem getCropImageMenuItem() {
-		return cropImageMenuItem;
-	}
-
 	public Rectangle getSelectionRectangle() {
 		return selectionRectangle;
 	}
@@ -1209,5 +1146,9 @@ public class MainWindowController {
 
 	public ToggleGroup getScalingToggleGroup() {
 		return scalingToggleGroup;
+	}
+
+	public StackPane getCenterPane() {
+		return centerPane;
 	}
 }

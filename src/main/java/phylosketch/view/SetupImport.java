@@ -1,5 +1,5 @@
 /*
- * ImportButtonUtils.java Copyright (C) 2025 Daniel H. Huson
+ * SetupImport.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -21,12 +21,9 @@
 package phylosketch.view;
 
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.input.Clipboard;
 import javafx.scene.input.TransferMode;
-import jloda.fx.util.ClipboardUtils;
+import javafx.scene.layout.Pane;
 import jloda.util.FileUtils;
 import jloda.util.StringUtils;
 import phylosketch.main.PhyloSketch;
@@ -38,44 +35,18 @@ import static jloda.fx.util.ClipboardUtils.isImageFile;
 import static jloda.fx.util.ClipboardUtils.isTextFile;
 
 /**
- * setup the import button
- * Daniel Huson, 4.2024
+ * setup draw pane is import drag-and-drop target
+ * Daniel Huson, 11.2025
  */
-@Deprecated
-public class ImportButtonUtils {
-
-	public static void setup(MenuItem pasteMenuItem, Button importButton, Consumer<String> importStringConsumer,
-							 Consumer<Image> importImageConsumer) {
+public class SetupImport {
+	public static void apply(Pane pane, Consumer<String> importStringConsumer, java.util.function.Consumer<Image> importImageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
 		var isDesktop = new SimpleBooleanProperty(PhyloSketch.isDesktop());
 
-		if (importStringConsumer != null)
-			importButton.disableProperty().bind(isDesktop.and(dragOver.not()).and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
-		else if (importImageConsumer != null)
-			importButton.disableProperty().bind(isDesktop.and(dragOver.not()).and(ClipboardUtils.hasImageProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
 
-		importButton.setOnAction(e -> {
-			if (importStringConsumer != null) {
-				var text = ClipboardUtils.getTextFilesContentOrString(100000);
-				if (text != null) {
-					importStringConsumer.accept(text);
-				}
-			}
-			if (importImageConsumer != null) {
-				var image = (PhyloSketch.isDesktop() ? ClipboardUtils.getImageFileContentOrImage() : Clipboard.getSystemClipboard().getImage());
-				if (image != null) {
-					importImageConsumer.accept(image);
-				}
-			}
-		});
-		if (pasteMenuItem != null) {
-			pasteMenuItem.setOnAction(importButton.getOnAction());
-			pasteMenuItem.disableProperty().bind(importButton.disableProperty());
-		}
-
-		importButton.setOnDragOver(e -> {
+		pane.setOnDragOver(e -> {
 			var db = e.getDragboard();
-			if (e.getGestureSource() != importButton && db.getString() != null || db.hasFiles()) {
+			if (e.getGestureSource() == pane && db.getString() != null || db.hasFiles()) {
 				e.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 				dragOver.set(true);
 			}
@@ -83,7 +54,7 @@ public class ImportButtonUtils {
 		});
 
 		// Set up event handler for when files are dropped onto the button
-		importButton.setOnDragDropped(e -> {
+		pane.setOnDragDropped(e -> {
 			var db = e.getDragboard();
 			boolean success = false;
 			if (db.getString() != null && importStringConsumer != null) {
@@ -94,6 +65,8 @@ public class ImportButtonUtils {
 				for (var file : db.getFiles()) {
 					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
 						if (importStringConsumer != null) {
+							System.err.println("file");
+
 							if (isTextFile(file)) {
 								try {
 									buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
@@ -101,7 +74,8 @@ public class ImportButtonUtils {
 								} catch (IOException ignored) {
 								}
 							}
-						} else if (importImageConsumer != null) {
+						}
+						if (importImageConsumer != null) {
 							if (isImageFile(file)) {
 								importImageConsumer.accept(new Image(file.toURI().toString()));
 								success = true;
@@ -116,7 +90,7 @@ public class ImportButtonUtils {
 			e.setDropCompleted(success);
 			e.consume();
 		});
-		importButton.setOnDragExited(event -> {
+		pane.setOnDragExited(event -> {
 			dragOver.set(false);
 			event.consume();
 		});

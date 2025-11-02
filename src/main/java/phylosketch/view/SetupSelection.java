@@ -50,7 +50,7 @@ public class SetupSelection {
 		var nodeSelection = view.getNodeSelection();
 		var edgeSelection = view.getEdgeSelection();
 
-		controller.getSelectButton().setOnAction(a -> {
+		controller.getExtendSelectionMenuItem().setOnAction(a -> {
 			if (nodeSelection.size() == 0 && edgeSelection.size() > 0) {
 				var nodes = new HashSet<Node>();
 				for (var e : edgeSelection.getSelectedItems()) {
@@ -80,7 +80,7 @@ public class SetupSelection {
 				edgeSelection.clearSelection();
 			}
 		});
-		controller.getSelectAllMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getExtendSelectionMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectAllMenuItem().setOnAction(e -> {
 			graph.nodes().forEach(nodeSelection::select);
@@ -99,9 +99,6 @@ public class SetupSelection {
 			graph.edges().forEach(edgeSelection::toggleSelection);
 		});
 		controller.getSelectInvertMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
-
-		controller.getExtendSelectionMenuItem().setOnAction(e -> controller.getSelectButton().fire());
-		controller.getExtendSelectionMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectTreeEdgesMenuItem().setOnAction(c -> graph.edgeStream().filter(e -> graph.isTreeEdge(e) || graph.isTransferAcceptorEdge(e)).forEach(edgeSelection::select));
 		controller.getSelectTreeEdgesMenuItem().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));

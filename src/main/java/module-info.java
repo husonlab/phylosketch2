@@ -3,6 +3,8 @@ module phylosketch {
 
 	requires transitive jloda_core;
 	requires transitive jloda_fx;
+	requires transitive jloda_phylogeny;
+
 	requires transitive javafx.controls;
     requires transitive javafx.fxml;
 	requires java.sql.rowset;

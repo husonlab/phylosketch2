@@ -98,7 +98,7 @@ public class EdgeInteraction {
 							});
 
 							path.setOnMousePressed(me -> {
-								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Edit && me.isShiftDown());
+								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 
 								if (inMove) {
 									mouseDownX = me.getScreenX();

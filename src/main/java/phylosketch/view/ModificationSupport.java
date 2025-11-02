@@ -63,7 +63,7 @@ public class ModificationSupport {
 		controller.getDeclareTransferAcceptorMenuItem().setOnAction(a -> view.getUndoManager().doAndAdd(new DeclareTransferAcceptorEdgesCommand(view, view.getEdgeSelection().getSelectedItems())));
 		controller.getDeclareTransferAcceptorMenuItem().setDisable(true);
 
-		controller.getApplyModificationMenuItem().textProperty().bind(Bindings.createStringBinding(() -> currentMendItem.get() != null ? "Apply " + currentMendItem.get().getText() : "Apply", currentMendItem));
+		controller.getApplyModificationMenuItem().textProperty().bind(Bindings.createStringBinding(() -> currentMendItem.get() != null ? "Mend (" + currentMendItem.get().getText() + ")" : "Mend", currentMendItem));
 		controller.getApplyModificationMenuItem().setOnAction(e -> {
 			if (currentMendItem.get() != null)
 				currentMendItem.get().fire();
@@ -75,10 +75,10 @@ public class ModificationSupport {
 
 		var invalidationListener = (InvalidationListener) e ->
 				RunAfterAWhile.applyInFXThread(ModificationSupport.this, () -> {
-					controller.getInduceMenuItem().setDisable(view.getNodeSelection().size() < 2 || view.getNodeSelection().size() == view.getGraph().getNumberOfNodes());
 
 					currentMendItem.set(null);
 
+					controller.getInduceMenuItem().setDisable(true);
 					controller.getDeleteThruNodesMenuItem().setDisable(true);
 					controller.getCrossEdgesMenuItem().setDisable(true);
 					controller.getMergeNodesMenuItem().setDisable(true);
@@ -86,9 +86,10 @@ public class ModificationSupport {
 					controller.getDeclareTransferAcceptorMenuItem().setDisable(true);
 					controller.getReverseEdgesMenuItem().setDisable(true);
 
-					if (view.getMode() != DrawView.Mode.Edit)
+					if (view.getMode() != DrawView.Mode.Sketch)
 						return;
 
+					controller.getInduceMenuItem().setDisable(view.getNodeSelection().size() < 2 || view.getNodeSelection().size() == view.getGraph().getNumberOfNodes());
 
 					if (view.getEdgeSelection().size() > 0 && view.getNodeSelection().size() == 0) {
 						if (view.getEdgeSelection().size() == view.getEdgeSelection().getSelectedItems().stream().map(Edge::getTarget).filter(v -> v.getInDegree() > 1).collect(Collectors.toSet()).size()) {
@@ -102,20 +103,16 @@ public class ModificationSupport {
 							currentMendItem.set(controller.getReverseEdgesMenuItem());
 					}
 
-					for (var v : view.getSelectedOrAllNodes()) {
-						if (v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank()) {
-							controller.getDeleteThruNodesMenuItem().setDisable(false);
-							if (currentMendItem.get() == null)
-								currentMendItem.set(controller.getDeleteThruNodesMenuItem());
-						}
-						if (v.getInDegree() == 2 && v.getOutDegree() == 2 && DrawView.getLabel(v).getRawText().isBlank()) {
-							controller.getCrossEdgesMenuItem().setDisable(false);
-							if (currentMendItem.get() == null)
-								currentMendItem.set(controller.getCrossEdgesMenuItem());
-						}
-						if (!controller.getCrossEdgesMenuItem().isDisable() && !controller.getCrossEdgesMenuItem().isDisable())
-							break;
+					if (currentMendItem.get() == null && view.getSelectedOrAllNodes().stream().allMatch(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank())) {
+						controller.getDeleteThruNodesMenuItem().setDisable(false);
+						currentMendItem.set(controller.getDeleteThruNodesMenuItem());
 					}
+
+					if (currentMendItem.get() == null && view.getSelectedOrAllNodes().stream().allMatch(v -> v.getInDegree() == 2 && v.getOutDegree() == 2 && DrawView.getLabel(v).getRawText().isBlank())) {
+						controller.getCrossEdgesMenuItem().setDisable(false);
+						currentMendItem.set(controller.getCrossEdgesMenuItem());
+					}
+
 					if (view.getNodeSelection().size() >= 2) {
 						controller.getMergeNodesMenuItem().setDisable(false);
 						if (currentMendItem.get() == null)
@@ -155,6 +152,17 @@ public class ModificationSupport {
 							}
 						}
 					}
+
+					if (currentMendItem.get() == null && view.getSelectedOrAllNodes().stream().anyMatch(v -> v.getInDegree() == 1 && v.getOutDegree() == 1 && DrawView.getLabel(v).getRawText().isBlank())) {
+						controller.getDeleteThruNodesMenuItem().setDisable(false);
+						currentMendItem.set(controller.getDeleteThruNodesMenuItem());
+					}
+
+					if (currentMendItem.get() == null && view.getSelectedOrAllNodes().stream().allMatch(v -> v.getInDegree() == 2 && v.getOutDegree() == 2 && DrawView.getLabel(v).getRawText().isBlank())) {
+						controller.getCrossEdgesMenuItem().setDisable(false);
+						currentMendItem.set(controller.getCrossEdgesMenuItem());
+					}
+
 				});
 
 		view.getNodeSelection().getSelectedItems().addListener(invalidationListener);

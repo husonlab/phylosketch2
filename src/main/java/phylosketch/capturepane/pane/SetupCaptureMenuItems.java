@@ -34,8 +34,6 @@ import phylosketch.view.RootPosition;
 import phylosketch.window.MainWindow;
 import phylosketch.window.MainWindowController;
 
-import static phylosketch.capturepane.capture.ImageUtils.cropImage;
-
 /**
  * setup capture pane and associated menu items
  * Daniel Huson, 1.2025
@@ -54,6 +52,8 @@ public class SetupCaptureMenuItems {
 		canSetup.bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture).and(capturePane.hasImageProperty()));
 		var canCapture = new SimpleBooleanProperty(capturePane, "canCapture", false);
 		canCapture.bind(canSetup.and(capturePane.hasRootLocationProperty()));
+
+		controller.getCaptureMenuButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture));
 
 		controller.getCaptureMenuButton().getGraphic().setOnMouseClicked(e -> {
 			if (!capturePane.getRootGroup().isVisible())
@@ -74,7 +74,7 @@ public class SetupCaptureMenuItems {
 			}, () -> {
 				capturePane.getImageView().setImage(null);
 				capturePane.reset();
-				view.setMode(DrawView.Mode.Edit);
+				view.setMode(DrawView.Mode.Sketch);
 			});
 			view.getUndoManager().doAndAdd(removeCommand);
 		});
@@ -170,23 +170,6 @@ public class SetupCaptureMenuItems {
 
 		controller.getCapturePhylogenyItem().setOnAction(e -> view.getUndoManager().doAndAdd("capture", capturePane::reset, () -> capturePane.run(CaptureService.PHYLOGENY)));
 		controller.getCapturePhylogenyItem().disableProperty().bind(capturePane.hasRootLocationProperty().not().or(canCapture.not()));
-
-		controller.getCropImageMenuItem().setOnAction(e -> {
-			var x = 100;
-			var y = 100;
-			var width = 200;
-			var height = 200;
-			capturePane.getImageView().setImage(cropImage(capturePane.getImageView().getImage(), x, y, width, height));
-		});
-		controller.getCropImageMenuItem().disableProperty().bind(capturePane.hasImageProperty().not());
-
-		capturePane.getImageView().imageProperty().addListener((v, o, n) -> {
-			view.getUndoManager().add("crop", () -> capturePane.getImageView().setImage(o),
-					() -> capturePane.getImageView().setImage(n)
-			);
-		});
-
-
 
 		// controller.getCaptureMenuButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture));
 

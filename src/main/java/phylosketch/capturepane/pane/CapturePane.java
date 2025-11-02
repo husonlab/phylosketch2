@@ -25,6 +25,7 @@ import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -106,7 +107,7 @@ public class CapturePane extends HBox {
 		MaterialIcons.setIcon(closeButton, MaterialIcons.close);
 		closeButton.setOnAction(a -> {
 			imageView.setImage(null);
-			view.setMode(DrawView.Mode.Edit);
+			view.setMode(DrawView.Mode.Sketch);
 		});
 
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
@@ -268,5 +269,9 @@ public class CapturePane extends HBox {
 
 	public PropertySettingPane getPropertySettingPane() {
 		return propertySettingPane;
+	}
+
+	public void setImage(Image image) {
+		getImageView().setImage(image);
 	}
 }

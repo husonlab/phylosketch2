@@ -133,28 +133,6 @@ public class MainWindowPresenter {
 		controller.getShowSettingsButton().selectedProperty().bindBidirectional(formatPaneView.getPane().visibleProperty());
 
 
-		if (false) {
-			view.getGraphFX().getNodeList().addListener((ListChangeListener<? super jloda.graph.Node>) a -> {
-				while (a.next()) {
-					for (var v : a.getAddedSubList()) {
-						System.err.println("Node added: " + v.getId());
-					}
-					for (var v : a.getRemoved()) {
-						System.err.println("Node removed: " + v.getId());
-					}
-				}
-			});
-			view.getGraphFX().getEdgeList().addListener((ListChangeListener<? super jloda.graph.Edge>) a -> {
-				while (a.next()) {
-					for (var e : a.getAddedSubList()) {
-						System.err.println("Edge added: " + e.getId());
-					}
-					for (var e : a.getRemoved()) {
-						System.err.println("Edge removed: " + e.getId());
-					}
-				}
-			});
-		}
 		{
 			var object = new Object();
 			view.getGraphFX().lastUpdateProperty().addListener(e -> {
@@ -162,9 +140,11 @@ public class MainWindowPresenter {
 			});
 		}
 
-		PaneInteraction.setup(view, controller, allowResize);
-		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
-		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getSelectButton().fire());
+		var dragLineBoxSupport = DragLineBoxSupport.setup(view);
+
+		PaneInteraction.setup(view, controller, dragLineBoxSupport, allowResize);
+		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), dragLineBoxSupport, () -> controller.getExtendSelectionMenuItem().fire());
+		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getExtendSelectionMenuItem().fire());
 
 		ModificationSupport.setup(view, controller);
 
@@ -190,25 +170,26 @@ public class MainWindowPresenter {
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
-		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, false, true, view.modeProperty(), controller.getModeMenuButton());
+		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, true, true, view.modeProperty(), controller.getModeMenuButton());
+		controller.getModeMenuButton().setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		controller.setupModeMenu(view.modeProperty());
 
 		capturePane = new CapturePane(view, controller);
 		SetupCaptureMenuItems.apply(window, controller, capturePane);
 
 		ChangeListener<DrawView.Mode> listener = (v, o, n) -> {
-			if (n == DrawView.Mode.Edit) {
+			if (n == DrawView.Mode.Sketch) {
 				controller.getDeleteMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems())));
 				controller.getDeleteMenuItem().disableProperty().bind((view.getNodeSelection().sizeProperty().isEqualTo(0)
-						.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit)));
-				controller.getModeMenuButton().setTooltip(new Tooltip("Edit mode on, allows interactive creation of new nodes and edges"));
+						.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
+				controller.getModeMenuButton().setTooltip(new Tooltip("Sketch mode on, allows interactive creation of new nodes and edges"));
 			} else if (n == DrawView.Mode.Move) {
 				controller.getDeleteMenuItem().disableProperty().bind(new SimpleBooleanProperty(false));
 				controller.getModeMenuButton().setTooltip(new Tooltip("Move mode on, allows interactive relocation of nodes and reshaping of edges"));
 			} else if (n == DrawView.Mode.Capture) {
 				controller.getModeMenuButton().setTooltip(new Tooltip("Capture mode on, allows capture of phylogeny from image"));
 			} else {
-				controller.getModeMenuButton().setTooltip(new Tooltip("Edit mode off, press to allow editing"));
+				controller.getModeMenuButton().setTooltip(new Tooltip("View mode on, view network without editing nodes or edges"));
 			}
 		};
 
@@ -235,7 +216,7 @@ public class MainWindowPresenter {
 				for (var node : e.getAddedSubList()) {
 					if (node instanceof RichTextLabel richTextLabel && richTextLabel.getUserData() instanceof Integer nodeId) {
 						richTextLabel.setOnContextMenuRequested(cm -> {
-							if (view.getMode() == DrawView.Mode.Edit || view.getMode() == DrawView.Mode.Move) {
+							if (view.getMode() == DrawView.Mode.Sketch || view.getMode() == DrawView.Mode.Move) {
 								var v = view.getGraph().findNodeById(nodeId);
 								var editLabelItem = new MenuItem("Edit Label");
 								editLabelItem.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
@@ -291,7 +272,7 @@ public class MainWindowPresenter {
 
 		controller.getClearMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getGraph().getNodesAsList(),
 				Collections.emptyList())));
-		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit)));
+		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
 
 		controller.getZoomInMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.1, 1.1));
 		controller.getZoomOutMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1));
@@ -417,7 +398,7 @@ public class MainWindowPresenter {
 		});
 		controller.getResizeModeCheckMenuItem().disableProperty().bind(
 				(controller.getResizeModeCheckMenuItem().selectedProperty()
-						.or(view.modeProperty().isEqualTo(DrawView.Mode.Edit))
+						.or(view.modeProperty().isEqualTo(DrawView.Mode.Sketch))
 						.or(view.modeProperty().isEqualTo(DrawView.Mode.Move))
 				).not().or(view.getGraphFX().emptyProperty())
 		);
@@ -429,23 +410,25 @@ public class MainWindowPresenter {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), false));
 		});
-		controller.getRotateLeftMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getRotateLeftMenuItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).or(view.getGraphFX().emptyProperty()));
 		controller.getRotateRightMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), true));
 		});
-		controller.getRotateRightMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+
+		var isFlipping = new SimpleBooleanProperty(this, "isFlipping", false);
 
 		controller.getFlipHorizontalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new FlipCommand(view, true));
+			view.getUndoManager().doAndAdd(new FlipCommand(view, true, isFlipping));
 		});
-		controller.getFlipHorizontalMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty().or(isFlipping));
 		controller.getFlipVerticalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new FlipCommand(view, false));
+			view.getUndoManager().doAndAdd(new FlipCommand(view, false, isFlipping));
 		});
-		controller.getFlipVerticalMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty().or(isFlipping));
 
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply());
 		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(window.dirtyProperty()));
@@ -483,11 +466,7 @@ public class MainWindowPresenter {
 			}
 		});
 
-		if (PhyloSketch.isDesktop())
-			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
-
-		ImportButtonUtils.setup(controller.getPasteMenuItem(), controller.getImportButton(),
-				s -> {
+		SetupImport.apply(view, s -> {
 					var pasteCommand = new PasteCommand(view, s);
 					if (pasteCommand.isRedoable()) {
 						view.getUndoManager().doAndAdd(pasteCommand);
@@ -496,23 +475,32 @@ public class MainWindowPresenter {
 				},
 				image -> {
 					var pasteCommand = UndoableRedoableCommand.create("image", () -> {
-						capturePane.getImageView().setImage(null);
-						view.setMode(DrawView.Mode.Edit);
+						capturePane.setImage(null);
+						view.setMode(DrawView.Mode.Sketch);
 					}, () -> {
 						view.setMode(DrawView.Mode.Capture);
-						capturePane.getImageView().setImage(image);
+						capturePane.setImage(image);
 					});
 					view.getUndoManager().doAndAdd(pasteCommand);
 				});
-		controller.getImportButton().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
 
 
-		controller.getOpenImageFileItem().setOnAction(e -> loadImageDialog(window.getStage(), image -> {
-					view.setMode(DrawView.Mode.Capture);
-					capturePane.getImageView().setImage(image);
-				})
+		if (PhyloSketch.isDesktop())
+			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
+
+		controller.getOpenImageFileItem().setOnAction(e -> {
+					if (window.isEmpty() || !PhyloSketch.isDesktop()) {
+						loadImageDialog(window.getStage(), image -> {
+							window.getDrawView().setMode(DrawView.Mode.Capture);
+							window.getPresenter().getCapturePane().setImage(image);
+						});
+					} else {
+						var newWindow = NewWindow.apply();
+						Platform.runLater(() -> newWindow.getController().getOpenImageFileItem().fire());
+					}
+				}
 		);
-		controller.getOpenImageFileItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Edit).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
+		controller.getOpenImageFileItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
 
 		controller.getFindAgainMenuItem().setOnAction(e -> {
 			if (false)
@@ -547,9 +535,6 @@ public class MainWindowPresenter {
 		formatPaneView.getController().getCrossEdgesButton().setOnAction(controller.getCrossEdgesMenuItem().getOnAction());
 		formatPaneView.getController().getCrossEdgesButton().disableProperty().bind(controller.getCrossEdgesMenuItem().disableProperty());
 
-		formatPaneView.getController().getResizeModeToggle().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
-		formatPaneView.getController().getResizeModeToggle().disableProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().disableProperty());
-
 		formatPaneView.getController().getTransferAcceptorButton().setOnAction(controller.getDeclareTransferAcceptorMenuItem().getOnAction());
 		formatPaneView.getController().getTransferAcceptorButton().disableProperty().bind(controller.getDeclareTransferAcceptorMenuItem().disableProperty());
 
@@ -557,6 +542,10 @@ public class MainWindowPresenter {
 		formatPaneView.getController().getApplyModificationButton().disableProperty().bind(controller.getApplyModificationMenuItem().disableProperty());
 		controller.getApplyModificationMenuItem().textProperty().addListener((v, o, n) -> formatPaneView.getController().getApplyModificationButton().setTooltip(new Tooltip(n)));
 
+		formatPaneView.getController().getInduceButton().setOnAction(controller.getInduceMenuItem().getOnAction());
+		formatPaneView.getController().getInduceButton().disableProperty().bind(controller.getInduceMenuItem().disableProperty());
+
+		setupLayout(view, controller, formatPaneView.getController());
 		setupLayoutScalingPhylogeny(view, controller, formatPaneView.getController());
 	}
 
@@ -632,7 +621,7 @@ public class MainWindowPresenter {
 		}
 	}
 
-	private void setupLayoutScalingPhylogeny(DrawView view, MainWindowController controller, FormatPaneController formatController) {
+	private static void setupLayoutScalingPhylogeny(DrawView view, MainWindowController controller, FormatPaneController formatController) {
 
 		var layout = view.layoutProperty();
 		var scaling = view.scalingProperty();
@@ -674,5 +663,20 @@ public class MainWindowPresenter {
 			}
 		});
 		ProgramProperties.track(scaling, LayoutRootedPhylogeny.Scaling::valueOf, LayoutRootedPhylogeny.Scaling.LateBranching);
+	}
+
+	private static void setupLayout(DrawView view, MainWindowController controller, FormatPaneController formatController) {
+		formatController.getRotateLeftButton().setOnAction(controller.getRotateLeftMenuItem().getOnAction());
+		formatController.getRotateLeftButton().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+		formatController.getRotateRightButton().setOnAction(controller.getRotateRightMenuItem().getOnAction());
+		formatController.getRotateRightButton().disableProperty().bind(controller.getRotateRightMenuItem().disableProperty());
+		formatController.getHorizontalFlipButton().setOnAction(controller.getFlipHorizontalMenuItem().getOnAction());
+		formatController.getHorizontalFlipButton().disableProperty().bind(controller.getFlipHorizontalMenuItem().disableProperty());
+		formatController.getVerticalFlipButton().setOnAction(controller.getFlipVerticalMenuItem().getOnAction());
+		formatController.getVerticalFlipButton().disableProperty().bind(controller.getFlipVerticalMenuItem().disableProperty());
+		formatController.getResizeModeButton().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
+		formatController.getResizeModeButton().disableProperty().bind(controller.getResizeModeCheckMenuItem().disableProperty());
+		formatController.getLayoutLabelsButton().setOnAction(controller.getLayoutLabelMenuItem().getOnAction());
+		formatController.getLayoutLabelsButton().disableProperty().bind(controller.getLayoutLabelMenuItem().disableProperty());
 	}
 }
