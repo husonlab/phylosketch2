@@ -29,6 +29,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Path;
@@ -41,6 +42,7 @@ import jloda.util.StringUtils;
 import phylosketch.commands.*;
 import phylosketch.view.DrawView;
 import phylosketch.view.LineType;
+import phylosketch.view.NodeShape;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -150,6 +152,14 @@ public class FormatPanePresenter {
 			}
 		});
 
+		controller.getNodeShapeChoiceBox().valueProperty().addListener((var, o, n) -> {
+			if (canUpdate) {
+				if (n != null) {
+					view.getUndoManager().doAndAdd(new NodeShapeCommand(view, n));
+				}
+			}
+		});
+
 		controller.getNodeFillPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				view.getUndoManager().doAndAdd(new NodeColorCommand(view, NodeColorCommand.Which.fill, n));
@@ -212,8 +222,10 @@ public class FormatPanePresenter {
 		{
 			var object = new Object();
 			InvalidationListener updateShowNodesListener = e -> {
-				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> ((Circle) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5))).getRadius());
-				var color = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5)).getFill());
+				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> (notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle, 1.5))).getSize());
+				var nodeShape = exactlyOne(view.getSelectedOrAllNodes(), v -> (notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle, 1.5))));
+				var fillColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5)).getFill());
+				var strokeColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5)).getStroke());
 				var label = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getText());
 				var labelFont = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontFamily());
 				var labelSize = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontSize());
@@ -224,8 +236,10 @@ public class FormatPanePresenter {
 					try {
 						controller.getNodeShapeChoiceBox().setValue(null);
 
+						controller.getNodeShapeChoiceBox().setValue(nodeShape != null ? nodeShape.getType() : null);
 						controller.getNodeSizeCBox().setValue(nodeSize);
-						controller.getNodeFillPicker().setValue(color);
+						controller.getNodeFillPicker().setValue(fillColor);
+						controller.getNodeStrokePicker().setValue(strokeColor);
 						controller.getNodeLabelTextField().setText(label);
 						controller.getNodeLabelFontChoiceBox().setValue(labelFont);
 						controller.getNodeLabelSizeCBox().setValue(labelSize);
@@ -490,7 +504,17 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getDeclareRootButton().setOnAction(e -> {
+		controller.getDragButton().setOnAction(e -> {
+			var rootPane = controller.getRootPane();
+			var left = AnchorPane.getLeftAnchor(rootPane);
+			var right = AnchorPane.getRightAnchor(rootPane);
+			if (left != null) {
+				AnchorPane.setLeftAnchor(rootPane, null);
+				AnchorPane.setRightAnchor(rootPane, left);
+			} else if (right != null) {
+				AnchorPane.setLeftAnchor(rootPane, right);
+				AnchorPane.setRightAnchor(rootPane, null);
+			}
 		});
 
 		AccordionManager.apply(controller.getRootPane(), BasicFX.getAllRecursively(controller.getRootPane(), Accordion.class), 3);

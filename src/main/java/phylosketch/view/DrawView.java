@@ -33,7 +33,10 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Shape;
+import javafx.scene.shape.StrokeLineCap;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.graph.GraphFX;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
@@ -150,7 +153,7 @@ public class DrawView extends Pane {
 						else if (shape.getEffect() instanceof HoverShadow effect)
 							effect.setInput(SelectionEffect.create(Color.GOLD));
 					}
-					nodeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == v.getId()).forEach(label -> label.setEffect(SelectionEffect.create(Color.GOLD)));
+					nodeLabelsGroup.getChildren().stream().filter(label -> label.getUserData() instanceof Integer id && id == v.getId() && label.isVisible()).forEach(label -> label.setEffect(SelectionEffect.create(Color.GOLD)));
 				}
 			} else if (a.wasRemoved()) {
 				var v = a.getElementRemoved();
@@ -274,7 +277,7 @@ public class DrawView extends Pane {
 
 	public Node createNode() {
 		var v = graph.newNode();
-		setShape(v, new Circle(1.5));
+		setShape(v, new NodeShape(NodeShape.Type.Circle, 1.5));
 		ensureLabelExists(v);
 		return v;
 	}
@@ -286,20 +289,30 @@ public class DrawView extends Pane {
 	}
 
 	public Node createNode(Point2D location, int recycleNodeId) {
-		var v = createNode(new Circle(1.5), "", recycleNodeId);
+		var v = createNode(new NodeShape(NodeShape.Type.Circle, 1.5), "", recycleNodeId);
 		setLocation(v, location);
 		return v;
 	}
 
-	public void setShape(Node v, Shape shape) {
-		shape.getStyleClass().add("graph-node");
-		v.setData(shape);
-		shape.setUserData(v);
-		if (!nodesGroup.getChildren().contains(shape))
-			nodesGroup.getChildren().add(shape);
+	public void setShape(Node v, NodeShape shape) {
+		var oldShape = getShape(v);
+		if (oldShape == null) {
+			shape.getStyleClass().add("graph-node");
+			v.setData(shape);
+			shape.setUserData(v);
+			if (!nodesGroup.getChildren().contains(shape))
+				nodesGroup.getChildren().add(shape);
+		} else {
+			oldShape.setType(shape.getType());
+			oldShape.setSize(shape.getSize());
+			oldShape.setStroke(shape.getStroke());
+			oldShape.setFill(shape.getFill());
+			oldShape.setTranslateX(shape.getTranslateX());
+			oldShape.setTranslateY(shape.getTranslateY());
+		}
 	}
 
-	public Node createNode(Shape shape, String text, int recycledId) {
+	public Node createNode(NodeShape shape, String text, int recycledId) {
 		var v = recycledId != -1 ? graph.newNode(null, recycledId) : graph.newNode();
 		setShape(v, shape);
 		ensureLabelExists(v);
@@ -375,6 +388,7 @@ public class DrawView extends Pane {
 		var shape = (Shape) v.getData();
 		graph.setLabel(v, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);
+		label.textProperty().addListener(e -> label.setVisible(!label.getRawText().isBlank()));
 		v.setInfo(label);
 		label.setUserData(v.getId());
 		label.translateXProperty().bind(shape.translateXProperty());
@@ -395,6 +409,7 @@ public class DrawView extends Pane {
 		var path = (Path) e.getData();
 		graph.setLabel(e, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);
+		label.textProperty().addListener(a -> label.setVisible(!label.getRawText().isBlank()));
 
 		e.setInfo(label);
 		label.setUserData(e.getId());
@@ -504,8 +519,8 @@ public class DrawView extends Pane {
 			createLabel(e, "");
 	}
 
-	public static Shape getShape(Node v) {
-		return (Shape) v.getData();
+	public static NodeShape getShape(Node v) {
+		return (NodeShape) v.getData();
 	}
 
 	public static Path getPath(Edge e) {

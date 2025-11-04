@@ -27,6 +27,7 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -34,10 +35,12 @@ import javafx.scene.shape.Rectangle;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.ClipboardUtils;
 import phylosketch.capturepane.capture.CaptureService;
+import phylosketch.capturepane.capture.PhyloImageAnalyzer;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 import phylosketch.window.MainWindowController;
+import phylosketch.window.WindowNotifications;
 
 /**
  * maintain an image in the background for image capturepane
@@ -45,6 +48,7 @@ import phylosketch.window.MainWindowController;
  */
 public class CapturePane extends HBox {
 	private final DrawView view;
+	private final AnchorPane windowPane;
 
 	private final Pane mainPane = new Pane();
 	private final ImageView imageView = new ImageView();
@@ -72,6 +76,7 @@ public class CapturePane extends HBox {
 
 	public CapturePane(DrawView view, MainWindowController controller) {
 		this.view = view;
+		windowPane = controller.getRootPane();
 
 		imageView.setOpacity(0.5);
 
@@ -272,6 +277,10 @@ public class CapturePane extends HBox {
 	}
 
 	public void setImage(Image image) {
+
+		PhyloImageAnalyzer.analyze(image, s -> {
+			WindowNotifications.show(windowPane, s, WindowNotifications.MessageType.WARNING);
+		});
 		getImageView().setImage(image);
 	}
 }

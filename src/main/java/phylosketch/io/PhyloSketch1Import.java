@@ -21,9 +21,7 @@ package phylosketch.io;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
 import jloda.fx.util.FontUtils;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -103,19 +101,9 @@ public class PhyloSketch1Import {
 									view.setLocation(v, new Point2D(Double.parseDouble(value), view.getLocation(v).getY()));
 							case "y" ->
 									view.setLocation(v, new Point2D(view.getLocation(v).getX(), Double.parseDouble(value)));
-							case "w" -> {
-								if (DrawView.getShape(v) instanceof Circle circle) {
-									circle.setRadius(0.5 * Double.parseDouble(value));
-								} else if (DrawView.getShape(v) instanceof Rectangle rectangle) {
-									rectangle.setWidth(Double.parseDouble(value));
-								}
-							}
-							case "h" -> {
-								if (DrawView.getShape(v) instanceof Circle circle) {
-									circle.setRadius(0.5 * Double.parseDouble(value));
-								} else if (DrawView.getShape(v) instanceof Rectangle rectangle) {
-									rectangle.setHeight(Double.parseDouble(value));
-								}
+							case "w", "h" -> {
+								if (DrawView.getShape(v) != null)
+									DrawView.getShape(v).setSize(Double.parseDouble(value));
 							}
 							case "font" -> {
 								var font = FontUtils.valueOf(value);

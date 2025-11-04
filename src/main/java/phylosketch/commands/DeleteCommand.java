@@ -23,7 +23,6 @@ package phylosketch.commands;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.Shape;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -31,6 +30,7 @@ import jloda.util.IteratorUtils;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
+import phylosketch.view.NodeShape;
 
 import java.util.*;
 
@@ -113,7 +113,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	public record NodeData(int id, String text, Shape shape, String label) {
+	public record NodeData(int id, String text, NodeShape shape, String label) {
 		public NodeData(DrawView view, Node v) {
 			this(v.getId(), view.getGraph().getLabel(v), DrawView.getShape(v), DrawView.getLabel(v).getText());
 		}

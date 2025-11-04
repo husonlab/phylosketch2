@@ -45,7 +45,7 @@ public class NodeInteraction {
 	private static double mouseX;
 	private static double mouseY;
 
-	private static boolean inMove = false;
+	public static boolean inMove = false;
 
 	/**
 	 * setup node interactions
@@ -139,8 +139,6 @@ public class NodeInteraction {
 										} else
 											view.getOtherGroup().getChildren().remove(vDragLine);
 									}
-									if (false)
-									me.consume();
 								}
 							});
 

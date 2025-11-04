@@ -22,48 +22,47 @@ package phylosketch.commands;
 
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.view.DrawView;
+import phylosketch.view.NodeShape;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * node size command
- * Daniel Huson, 11.2024
+ * node shape command
+ * Daniel Huson, 11.2025
  */
-public class NodeSizeCommand extends UndoableRedoableCommand {
+public class NodeShapeCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private final Map<Integer, Double> oldSizeMap = new HashMap<>();
-	private final Map<Integer, Double> newSizeMap = new HashMap<>();
+	private final Map<Integer, NodeShape.Type> oldMap = new HashMap<>();
+	private final Map<Integer, NodeShape.Type> newMap = new HashMap<>();
 
 
-	public NodeSizeCommand(DrawView view, double size) {
-		super("node size");
+	public NodeShapeCommand(DrawView view, NodeShape.Type newNodeShapeType) {
+		super("node shape");
 
 		for (var v : view.getSelectedOrAllNodes()) {
 			var shape = DrawView.getShape(v);
-			var oldSize = shape.getSize();
-				var id = v.getId();
-			oldSizeMap.put(id, oldSize);
-			newSizeMap.put(id, 2 * size);
+			var id = v.getId();
+			oldMap.put(id, shape.getType());
+			newMap.put(id, newNodeShapeType);
 		}
-		if (newSizeMap.isEmpty()) {
+
+		if (newMap.isEmpty()) {
 			undo = null;
 			redo = null;
 		} else {
 			undo = () -> {
-				for (var entry : oldSizeMap.entrySet()) {
+				for (var entry : oldMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
-					var shape = DrawView.getShape(v);
-					shape.setSize(entry.getValue());
+					DrawView.getShape(v).setType(entry.getValue());
 				}
 			};
 			redo = () -> {
-				for (var entry : newSizeMap.entrySet()) {
+				for (var entry : newMap.entrySet()) {
 					var v = view.getGraph().findNodeById(entry.getKey());
-					var shape = DrawView.getShape(v);
-					shape.setSize(entry.getValue());
+					DrawView.getShape(v).setType(entry.getValue());
 				}
 			};
 		}

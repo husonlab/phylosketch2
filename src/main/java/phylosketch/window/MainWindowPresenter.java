@@ -182,7 +182,7 @@ public class MainWindowPresenter {
 				controller.getDeleteMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getNodeSelection().getSelectedItems(), view.getEdgeSelection().getSelectedItems())));
 				controller.getDeleteMenuItem().disableProperty().bind((view.getNodeSelection().sizeProperty().isEqualTo(0)
 						.and(view.getEdgeSelection().sizeProperty().isEqualTo(0))).or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
-				controller.getModeMenuButton().setTooltip(new Tooltip("Sketch mode on, allows interactive creation of new nodes and edges"));
+				controller.getModeMenuButton().setTooltip(new Tooltip("Sketch mode on, allows interactive editing of new nodes and edges"));
 			} else if (n == DrawView.Mode.Move) {
 				controller.getDeleteMenuItem().disableProperty().bind(new SimpleBooleanProperty(false));
 				controller.getModeMenuButton().setTooltip(new Tooltip("Move mode on, allows interactive relocation of nodes and reshaping of edges"));
@@ -314,22 +314,22 @@ public class MainWindowPresenter {
 		});
 		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().and(capturePane.hasImageProperty().not()));
 
-		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "leaves", "ABC", true)));
+		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "ABC", "leaves", true)));
 		controller.getLabelLeavesABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLabelLeaves123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "leaves", "t1t2t3", true)));
+		controller.getLabelLeaves123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "t1t2t3", "leaves", true)));
 		controller.getLabelLeaves123MenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getLabelLeavesMenuItem().setOnAction(c -> LabelLeaves.labelLeaves(window.getStage(), view));
 		controller.getLabelLeavesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLabelInternalABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "internal", "ABC", true)));
+		controller.getLabelInternalABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "ABC", "internal", true)));
 		controller.getLabelInternalABCMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getLabelInternal123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "internal", "t1t2t3", true)));
+		controller.getLabelInternal123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "t1t2t3", "internal", true)));
 		controller.getLabelInternal123MenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getClearLabelsMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "all", "none", true)));
+		controller.getClearLabelsMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "none", "all", true)));
 		controller.getClearLabelsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getNodeLabelsGroup().getChildren()));
 
 		controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
@@ -466,7 +466,7 @@ public class MainWindowPresenter {
 			}
 		});
 
-		SetupImport.apply(view, s -> {
+		SetupImport.apply(view, controller.getPasteMenuItem(), s -> {
 					var pasteCommand = new PasteCommand(view, s);
 					if (pasteCommand.isRedoable()) {
 						view.getUndoManager().doAndAdd(pasteCommand);
@@ -488,7 +488,7 @@ public class MainWindowPresenter {
 		if (PhyloSketch.isDesktop())
 			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
 
-		controller.getOpenImageFileItem().setOnAction(e -> {
+		controller.getLoadCaptureImageItem().setOnAction(e -> {
 					if (window.isEmpty() || !PhyloSketch.isDesktop()) {
 						loadImageDialog(window.getStage(), image -> {
 							window.getDrawView().setMode(DrawView.Mode.Capture);
@@ -496,11 +496,11 @@ public class MainWindowPresenter {
 						});
 					} else {
 						var newWindow = NewWindow.apply();
-						Platform.runLater(() -> newWindow.getController().getOpenImageFileItem().fire());
+						Platform.runLater(() -> newWindow.getController().getLoadCaptureImageItem().fire());
 					}
 				}
 		);
-		controller.getOpenImageFileItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
+		controller.getLoadCaptureImageItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
 
 		controller.getFindAgainMenuItem().setOnAction(e -> {
 			if (false)

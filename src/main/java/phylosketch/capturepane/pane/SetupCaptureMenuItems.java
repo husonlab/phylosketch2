@@ -27,7 +27,6 @@ import javafx.scene.layout.AnchorPane;
 import jloda.fx.dialog.ExportImageDialog;
 import jloda.fx.undo.UndoableRedoableCommand;
 import phylosketch.capturepane.capture.CaptureService;
-import phylosketch.main.PhyloSketch;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
@@ -103,13 +102,6 @@ public class SetupCaptureMenuItems {
 			}
 		});
 
-		if (PhyloSketch.isDesktop()) {
-			controller.getLoadCaptureImageItem().setOnAction(e -> controller.getOpenImageFileItem().fire());
-			controller.getLoadCaptureImageItem().disableProperty().bind(controller.getOpenImageFileItem().disableProperty());
-		} else {
-			controller.getCaptureMenuButton().getItems().remove(controller.getLoadCaptureImageItem());
-		}
-
 		controller.getShowCaptureRootLocationItem().setOnAction(e -> {
 			var showing = capturePane.getRootGroup().isVisible();
 			view.getUndoManager().doAndAdd("show root location", () -> capturePane.getRootGroup().setVisible(showing), () -> capturePane.getRootGroup().setVisible(!showing));
@@ -160,6 +152,7 @@ public class SetupCaptureMenuItems {
 		listener.invalidated(null);
 
 		controller.getRootSideMenu().disableProperty().bind(canSetup.not());
+		controller.getAdvancedMenu().disableProperty().bind(canSetup.not());
 
 		controller.getCaptureLabelsItem().setOnAction(e ->
 				view.getUndoManager().doAndAdd("capture", capturePane::reset, () -> capturePane.run(CaptureService.WORDS)));

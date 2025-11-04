@@ -24,7 +24,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane fx:id="rootPane" prefHeight="400.0" xmlns="http://javafx.com/javafx/23.0.1"
+<AnchorPane fx:id="rootPane" prefHeight="400.0" xmlns="http://javafx.com/javafx/22.0.2"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="phylosketch.window.MainWindowController">
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <center>
@@ -56,9 +56,6 @@
                                         </accelerator>
                                     </MenuItem>
                                     <Menu fx:id="recentFilesMenu" mnemonicParsing="false" text="Recent"/>
-                                    <SeparatorMenuItem mnemonicParsing="false"/>
-                                    <MenuItem fx:id="openImageFileItem" mnemonicParsing="false"
-                                              text="Load Image For Capture..."/>
 
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
@@ -296,6 +293,42 @@
                                     </MenuItem>
                                 </items>
                             </Menu>
+                            <Menu fx:id="captureMenu" mnemonicParsing="false" text="Capture">
+                                <items>
+                                    <MenuItem fx:id="loadCaptureImageItem" mnemonicParsing="false"
+                                              text="Load Image..."/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <CheckMenuItem fx:id="showCaptureRootLocationItem" mnemonicParsing="false"
+                                                   text="Place Root"/>
+                                    <Menu fx:id="rootSideMenu" text="Root Side">
+                                        <RadioMenuItem fx:id="leftRootSideMenuItem" mnemonicParsing="false"
+                                                       text="Left"/>
+                                        <RadioMenuItem fx:id="topRootSideMenuItem" mnemonicParsing="false" text="Top"/>
+                                        <RadioMenuItem fx:id="rightRootSideMenuItem" mnemonicParsing="false"
+                                                       text="Right"/>
+                                        <RadioMenuItem fx:id="bottomRootSideMenuItem" mnemonicParsing="false"
+                                                       text="Bottom"/>
+                                        <RadioMenuItem fx:id="centerRootSideMenuItem" mnemonicParsing="false"
+                                                       text="Center"/>
+                                    </Menu>
+                                    <CheckMenuItem fx:id="capturePhylogenyItem" mnemonicParsing="false"
+                                                   text="Capture Phylogeny"/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <MenuItem fx:id="clearCaptureImageItem" mnemonicParsing="false"
+                                              text="Remove Image"/>
+                                    <MenuItem fx:id="saveCaptureImageItem" mnemonicParsing="false"
+                                              text="Save Image..."/>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
+                                    <Menu fx:id="advancedMenu" text="Advanced">
+                                        <CheckMenuItem fx:id="captureLabelsItem" mnemonicParsing="false"
+                                                       text="Capture Labels"/>
+                                        <CheckMenuItem fx:id="captureLinesItem" mnemonicParsing="false"
+                                                       text="Capture Lines"/>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
+                                        <CheckMenuItem fx:id="showCaptureParametersItem" text="Parameters..."/>
+                                    </Menu>
+                                </items>
+                            </Menu>
                             <Menu fx:id="labelsMenu" mnemonicParsing="false" text="Labels">
                                 <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..."/>
                                 <MenuItem fx:id="labelLeaves123MenuItem" text="Label Leaves t1,t2,t3..."/>
@@ -458,44 +491,17 @@
                                             <Tooltip text="Select nodes and edges"/>
                                         </tooltip>
                                     </MenuButton>
-                                    <MenuButton fx:id="captureMenuButton" mnemonicParsing="false" text="Run Capture">
+                                    <ToggleButton fx:id="findButton" mnemonicParsing="false" text="Find"
+                                                  HBox.hgrow="NEVER">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="Show the find tool bar and press again to show the find-and-replace tool bar"/>
+                                        </tooltip>
+                                    </ToggleButton>
+                                    <MenuButton fx:id="captureMenuButton" mnemonicParsing="false" text="Capture">
                                         <tooltip>
                                             <Tooltip text="Capture phylogeny from image"/>
                                         </tooltip>
-                                        <items>
-                                            <MenuItem fx:id="loadCaptureImageItem" mnemonicParsing="false"
-                                                      text="Load Image..."/>
-                                            <CheckMenuItem fx:id="showCaptureRootLocationItem" mnemonicParsing="false"
-                                                           text="Place Root"/>
-                                            <Menu fx:id="rootSideMenu" text="Root Side">
-                                                <RadioMenuItem fx:id="leftRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Left"/>
-                                                <RadioMenuItem fx:id="topRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Top"/>
-                                                <RadioMenuItem fx:id="rightRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Right"/>
-                                                <RadioMenuItem fx:id="bottomRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Bottom"/>
-                                                <RadioMenuItem fx:id="centerRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Center"/>
-                                            </Menu>
-                                            <CheckMenuItem fx:id="capturePhylogenyItem" mnemonicParsing="false"
-                                                           text="Capture Phylogeny"/>
-                                            <SeparatorMenuItem mnemonicParsing="false"/>
-                                            <MenuItem fx:id="clearCaptureImageItem" mnemonicParsing="false"
-                                                      text="Remove Image"/>
-                                            <MenuItem fx:id="saveCaptureImageItem" mnemonicParsing="false"
-                                                      text="Save Image..."/>
-                                            <SeparatorMenuItem mnemonicParsing="false"/>
-                                            <Menu text="Advanced">
-                                                <CheckMenuItem fx:id="captureLabelsItem" mnemonicParsing="false"
-                                                               text="Capture Labels"/>
-                                                <CheckMenuItem fx:id="captureLinesItem" mnemonicParsing="false"
-                                                               text="Capture Lines"/>
-                                                <SeparatorMenuItem mnemonicParsing="false"/>
-                                                <CheckMenuItem fx:id="showCaptureParametersItem" text="Parameters..."/>
-                                            </Menu>
-                                        </items>
                                     </MenuButton>
 
 
@@ -535,13 +541,7 @@
                                     </Button>
                                     <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
                                             HBox.hgrow="NEVER"/>
-                                    <ToggleButton fx:id="findButton" mnemonicParsing="false" text="Find"
-                                                  HBox.hgrow="NEVER">
-                                        <tooltip>
-                                            <Tooltip
-                                                    text="Show the find tool bar and press again to show the find-and-replace tool bar"/>
-                                        </tooltip>
-                                    </ToggleButton>
+
                                     <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
                                             HBox.hgrow="NEVER"/>
                                     <MenuButton fx:id="exportMenuButton" mnemonicParsing="false" text="Export">

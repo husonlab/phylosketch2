@@ -24,7 +24,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/22.0.2" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
         <AnchorPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
@@ -120,8 +120,14 @@
                         </TitledPane>
                     </panes>
                 </Accordion>
-                <Button fx:id="closeButton" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false"
-                        prefHeight="24.0" text="x" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                <HBox alignment="CENTER" layoutX="222.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <Button fx:id="dragButton" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity"
+                                minHeight="-Infinity" mnemonicParsing="false" prefHeight="24.0" text="D"/>
+                        <Button fx:id="closeButton" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity"
+                                minHeight="-Infinity" mnemonicParsing="false" prefHeight="24.0" text="x"/>
+                    </children>
+                </HBox>
             </children>
         </AnchorPane>
         <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">

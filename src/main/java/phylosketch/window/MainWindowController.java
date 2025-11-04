@@ -51,6 +51,9 @@ public class MainWindowController {
 	private MenuItem aboutMenuItem;
 
 	@FXML
+	private Menu advancedMenu;
+
+	@FXML
 	private FlowPane bottomFlowPane;
 
 	@FXML
@@ -76,6 +79,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem reverseEdgesMenuItem;
+
+	@FXML
+	private Menu captureMenu;
 
 	@FXML
 	private MenuItem crossEdgesMenuItem;
@@ -124,9 +130,6 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem exportImageMenuItem;
-
-	@FXML
-	private MenuItem openImageFileItem;
 
 	@FXML
 	private Menu fileMenu;
@@ -500,6 +503,12 @@ public class MainWindowController {
 			//editMenu.getItems().remove(getPreferencesMenuItem());
 		}
 
+		if (!PhyloSketch.isDesktop()) {
+			captureMenu.getItems().remove(loadCaptureImageItem);
+		}
+
+		captureMenuButton.getItems().addAll(BasicFX.copyMenu(captureMenu.getItems()));
+
 		final var originalWindowMenuItems = new ArrayList<>(windowMenu.getItems());
 
 		final InvalidationListener invalidationListener = observable -> {
@@ -652,7 +661,6 @@ public class MainWindowController {
 		});
 	}
 
-
 	private void relayout() {
 		double requiredWidth = toolbarGrid.snappedLeftInset()
 							   + leftBar.prefWidth(-1)
@@ -673,6 +681,10 @@ public class MainWindowController {
 
 	public MenuItem getAboutMenuItem() {
 		return aboutMenuItem;
+	}
+
+	public Menu getAdvancedMenu() {
+		return advancedMenu;
 	}
 
 	public FlowPane getBottomFlowPane() {
@@ -1066,10 +1078,6 @@ public class MainWindowController {
 
 	public CheckMenuItem getShowHelpWindow() {
 		return showHelpWindow;
-	}
-
-	public MenuItem getOpenImageFileItem() {
-		return openImageFileItem;
 	}
 
 	public MenuButton getCaptureMenuButton() {

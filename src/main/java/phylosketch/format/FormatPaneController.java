@@ -28,6 +28,7 @@ import jloda.fx.icons.MaterialIcons;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.ComboBoxUtils;
 import phylosketch.view.LineType;
+import phylosketch.view.NodeShape;
 
 /**
  * format pane controller
@@ -153,7 +154,7 @@ public class FormatPaneController {
 	private Button nodeLabelUnderlineButton;
 
 	@FXML
-	private ChoiceBox<?> nodeShapeChoiceBox;
+	private ChoiceBox<NodeShape.Type> nodeShapeChoiceBox;
 
 	@FXML
 	private ComboBox<Double> nodeSizeCBox;
@@ -240,6 +241,9 @@ public class FormatPaneController {
 	private ToggleButton resizeModeButton;
 
 	@FXML
+	private Button dragButton;
+
+	@FXML
 	private void initialize() {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
@@ -286,6 +290,7 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
 		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 
+		MaterialIcons.setIcon(dragButton, MaterialIcons.import_export, "-fx-rotate: 90;", true);
 
 		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
 		ComboBoxUtils.ensureDoubleInput(nodeLabelSizeCBox);
@@ -315,8 +320,11 @@ public class FormatPaneController {
 
 		layoutCBox.getItems().addAll(LayoutRootedPhylogeny.Layout.values());
 		scalingCBox.getItems().addAll(LayoutRootedPhylogeny.Scaling.values());
-	}
 
+
+		nodeShapeChoiceBox.getItems().addAll(NodeShape.Type.values());
+		nodeShapeChoiceBox.setValue(NodeShape.Type.Circle);
+	}
 
 	public ColorPicker getEdgeColorPicker() {
 		return edgeColorPicker;
@@ -438,7 +446,7 @@ public class FormatPaneController {
 		return nodeLabelUnderlineButton;
 	}
 
-	public ChoiceBox<?> getNodeShapeChoiceBox() {
+	public ChoiceBox<NodeShape.Type> getNodeShapeChoiceBox() {
 		return nodeShapeChoiceBox;
 	}
 
@@ -588,5 +596,9 @@ public class FormatPaneController {
 
 	public ToggleButton getResizeModeButton() {
 		return resizeModeButton;
+	}
+
+	public Button getDragButton() {
+		return dragButton;
 	}
 }

@@ -24,7 +24,10 @@ import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Shape;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.util.ColorUtilsFX;
 import jloda.fx.window.MainWindowManager;
@@ -38,6 +41,7 @@ import jloda.util.StringUtils;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
+import phylosketch.view.NodeShape;
 
 import java.io.*;
 import java.util.Arrays;
@@ -69,25 +73,14 @@ public class PhyloSketchIO {
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
 				nodeKeyNames, (key, v) -> {
-					var shape = (Shape) v.getData();
+					var shape = DrawView.getShape(v);
 					var label = (RichTextLabel) v.getInfo();
 					var value = String.valueOf(switch (key) {
 						case "taxon" -> graph.hasTaxa(v) ? graph.getTaxon(v) : "";
-						case "shape" -> shape.getClass().getSimpleName().toLowerCase();
+						case "shape" -> DrawView.getShape(v).getType().name();
 						case "size" -> {
-							var buf=new StringBuilder();
-							if(shape instanceof Rectangle rectangle) {
-								buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",rectangle.getWidth()));
-								buf.append(",");
-								buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",rectangle.getHeight()));
-							} else if(shape instanceof Circle circle) {
-								buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",circle.getRadius()));
-							} else {
-								buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getBoundsInLocal().getWidth()));
-								buf.append(",");
-								buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getBoundsInLocal().getHeight()));
-							}
-							yield buf.toString();
+							var size = shape.getSize();
+							yield StringUtils.removeTrailingZerosAfterDot("%.1f", size) + "," + StringUtils.removeTrailingZerosAfterDot("%.1f", size);
 						}
 						case "stroke" -> (shape.getFill() != null
 										  && !(!MainWindowManager.isUseDarkTheme() && shape.getFill() == Color.WHITE)
@@ -162,31 +155,17 @@ public class PhyloSketchIO {
 					graph.addTaxon(v, Integer.parseInt(value));
 				}
 				case "shape" -> {
-					var shape = value.equals("square") ? new Rectangle(1.5, 1.5) : new Circle(1.5);
-					shape.strokeProperty().addListener((a, o, n) -> {
-						System.err.println("Stroke changed: " + o + " -> " + n);
-					});
+					var type = StringUtils.valueOfIgnoreCase(NodeShape.Type.class, value);
+					var shape = new NodeShape(type != null ? type : NodeShape.Type.Circle, 1.5);
 					view.setShape(v, shape);
 				}
 				case "size" -> {
-					if (v.getData() instanceof Shape shape) {
+					if (v.getData() instanceof NodeShape shape) {
 						var tokens = StringUtils.split(value, ',');
-						if (shape instanceof Rectangle rectangle) {
-							if (tokens.length == 1 && NumberUtils.isDouble(tokens[0])) {
-								var w = NumberUtils.parseDouble(tokens[0]);
-								rectangle.setWidth(w);
-								rectangle.setHeight(w);
-							} else if (tokens.length >= 2 && NumberUtils.isDouble(tokens[0]) && NumberUtils.isDouble(tokens[1])) {
-								var w = NumberUtils.parseDouble(tokens[0]);
-								var h = NumberUtils.parseDouble(tokens[1]);
-								rectangle.setWidth(w);
-								rectangle.setHeight(h);
-							}
-						} else if (shape instanceof Circle circle) {
-							if (tokens.length >= 1 && NumberUtils.isDouble(tokens[0])) {
-								var w = NumberUtils.parseDouble(tokens[0]);
-								circle.setRadius(w);
-							}
+						if (tokens.length >= 1) {
+							var width = Double.parseDouble(tokens[0]);
+							//var height=(tokens.length>=2?Double.parseDouble(tokens[1]):width);
+							shape.setSize(width);
 						}
 					}
 				}
@@ -283,8 +262,8 @@ public class PhyloSketchIO {
 
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
-			if(!(v.getData() instanceof Shape)) {
-				view.setShape(v, new Circle(1.5));
+			if (!(v.getData() instanceof NodeShape)) {
+				view.setShape(v, new NodeShape(NodeShape.Type.Circle, 1.5));
 				view.ensureLabelExists(v);
 			}
 			view.ensureLabelExists(v);

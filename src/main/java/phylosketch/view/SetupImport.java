@@ -21,9 +21,11 @@
 package phylosketch.view;
 
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
+import jloda.fx.util.ClipboardUtils;
 import jloda.util.FileUtils;
 import jloda.util.StringUtils;
 import phylosketch.main.PhyloSketch;
@@ -39,7 +41,7 @@ import static jloda.fx.util.ClipboardUtils.isTextFile;
  * Daniel Huson, 11.2025
  */
 public class SetupImport {
-	public static void apply(Pane pane, Consumer<String> importStringConsumer, java.util.function.Consumer<Image> importImageConsumer) {
+	public static void apply(Pane pane, MenuItem pasteMenuItem, Consumer<String> importStringConsumer, Consumer<Image> importImageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
 		var isDesktop = new SimpleBooleanProperty(PhyloSketch.isDesktop());
 
@@ -57,7 +59,7 @@ public class SetupImport {
 		pane.setOnDragDropped(e -> {
 			var db = e.getDragboard();
 			boolean success = false;
-			if (db.getString() != null && importStringConsumer != null) {
+			if (db.getString() != null && !db.getString().isBlank() && importStringConsumer != null) {
 				importStringConsumer.accept(db.getString());
 				success = true;
 			} else if (db.hasFiles()) {
@@ -65,8 +67,6 @@ public class SetupImport {
 				for (var file : db.getFiles()) {
 					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
 						if (importStringConsumer != null) {
-							System.err.println("file");
-
 							if (isTextFile(file)) {
 								try {
 									buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
@@ -93,6 +93,37 @@ public class SetupImport {
 		pane.setOnDragExited(event -> {
 			dragOver.set(false);
 			event.consume();
+		});
+
+		pasteMenuItem.setOnAction(e -> {
+			if (ClipboardUtils.hasFiles()) {
+				for (var file : ClipboardUtils.getFiles()) {
+					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
+						if (importStringConsumer != null) {
+							if (isTextFile(file)) {
+								try {
+									importStringConsumer.accept(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
+									break;
+								} catch (IOException ignored) {
+								}
+							}
+						}
+						if (importImageConsumer != null) {
+							if (isImageFile(file)) {
+								var uri = file.toURI().toString();
+								var image = new Image(uri);
+								importImageConsumer.accept(image);
+								return;
+							}
+						}
+					}
+				}
+			}
+			if (importImageConsumer != null && ClipboardUtils.hasImage())
+				importImageConsumer.accept(ClipboardUtils.getImage());
+			else if (importStringConsumer != null && ClipboardUtils.hasString())
+				importStringConsumer.accept(ClipboardUtils.getString());
+
 		});
 	}
 }

@@ -173,7 +173,7 @@ public class PaneInteraction {
 					if (!inDrawingEdge.get())
 						createNodePause.playFromStart();
 				}
-				if (!inDrawingEdge.get()) {
+				if (!inDrawingEdge.get() && !NodeInteraction.inMove) {
 					inRubberBandSelection.set(true);
 				}
 			}
@@ -258,6 +258,7 @@ public class PaneInteraction {
 				}
 			}
 
+			inRubberBandSelection.set(false);
 			view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
 			view.getOtherGroup().getChildren().remove(hDragLine);
 			view.getOtherGroup().getChildren().remove(vDragLine);
