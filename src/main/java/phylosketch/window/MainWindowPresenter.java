@@ -406,29 +406,30 @@ public class MainWindowPresenter {
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
 		controller.getLayoutLabelMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
+		var isRotatingOrFlipping = new SimpleBooleanProperty(this, "isRotatingOrFlipping", false);
+
 		controller.getRotateLeftMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), false));
+			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), false, isRotatingOrFlipping));
 		});
-		controller.getRotateLeftMenuItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).or(view.getGraphFX().emptyProperty()));
+		controller.getRotateLeftMenuItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).or(view.getGraphFX().emptyProperty().or(isRotatingOrFlipping)));
 		controller.getRotateRightMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), true));
+			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), true, isRotatingOrFlipping));
 		});
 		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
-		var isFlipping = new SimpleBooleanProperty(this, "isFlipping", false);
 
 		controller.getFlipHorizontalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new FlipCommand(view, true, isFlipping));
+			view.getUndoManager().doAndAdd(new FlipCommand(view, true, isRotatingOrFlipping));
 		});
-		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty().or(isFlipping));
+		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 		controller.getFlipVerticalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new FlipCommand(view, false, isFlipping));
+			view.getUndoManager().doAndAdd(new FlipCommand(view, false, isRotatingOrFlipping));
 		});
-		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty().or(isFlipping));
+		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply());
 		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(window.dirtyProperty()));

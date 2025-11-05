@@ -678,12 +678,12 @@
                                                 <Tooltip text="Flip vertically"/>
                                             </tooltip>
                                         </Button>
-                                        <ToggleButton fx:id="rotateRightButton" mnemonicParsing="false"
+                                        <Button fx:id="rotateRightButton" mnemonicParsing="false"
                                                       text="Rotate Right" GridPane.columnIndex="1">
                                             <tooltip>
                                                 <Tooltip text="Rotate right"/>
                                             </tooltip>
-                                        </ToggleButton>
+                                        </Button>
                                         <Button fx:id="rotateLeftButton" layoutX="22.0" layoutY="102.0"
                                                 mnemonicParsing="false" text="Rotate Left">
                                             <tooltip>

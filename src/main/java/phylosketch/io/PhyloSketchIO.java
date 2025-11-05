@@ -68,7 +68,7 @@ public class PhyloSketchIO {
 	 */
 	public static void save(Writer w, DrawView view, ImageView backgroundImageView) throws IOException {
 		var graph = view.getGraph();
-		var nodeKeyNames = List.of("taxon", "shape", "size", "stroke", "fill", "x", "y", "label", "label_dx", "label_dy");
+		var nodeKeyNames = List.of("taxon", "shape", "size", "stroke", "fill", "x", "y", "label", "label_dx", "label_dy", "label_angle");
 		var edgeKeyNames = List.of("weight", "confidence", "probability", "path", "stroke", "stroke_dash_array", "stroke_width", "arrow", "label", "acceptor");
 		var comment="Created by PhyloSketch App on %s".formatted(Basic.getDateString("yyyy-MM-dd HH:mm:ss"));
 		GraphGML.writeGML(graph, comment, graph.getName(), true, 1, w,
@@ -93,6 +93,9 @@ public class PhyloSketchIO {
 						case "label" -> DrawView.getLabel(v).getText().trim();
 						case "label_dx" -> label != null ?  StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutX()) : "";
 						case "label_dy" -> label != null ? StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutY()) : "";
+						case "label_angle" ->
+								label != null && label.getRotate() != 0 ? StringUtils.removeTrailingZerosAfterDot("%.1f", label.getRotate()) : "";
+
 						default -> "";
 					});
 					return (value.isBlank() ? null : value);
@@ -203,6 +206,13 @@ public class PhyloSketchIO {
 					if (NumberUtils.isDouble(value)) {
 						view.ensureLabelExists(v);
 						DrawView.getLabel(v).setLayoutY(NumberUtils.parseDouble(value));
+					}
+				}
+				case "label_angle" -> {
+					if (NumberUtils.isDouble(value)) {
+						view.ensureLabelExists(v);
+						DrawView.getLabel(v).setRotate(NumberUtils.parseDouble(value));
+						DrawView.getLabel(v).ensureUpright();
 					}
 				}
 			}

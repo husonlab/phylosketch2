@@ -105,7 +105,7 @@ public class ImportNewick {
 					var yMax = yMin + height;
 					ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 					yMin += height + gap;
-					DrawNetwork.apply(view, tree, angles, points, view.getLayout(), view.getScaling());
+					DrawNetwork.apply(view, tree, points, view.getLayout());
 				}
 			}
 		}
@@ -142,7 +142,7 @@ public class ImportNewick {
 		try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
 			LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, tree.getNumberOfTaxa() <= 100, new Random(666), nodeAngleMap, nodePointMap);
 			ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-			DrawNetwork.apply(view, tree, nodeAngleMap, nodePointMap, view.getLayout(), view.getScaling());
+			DrawNetwork.apply(view, tree, nodePointMap, view.getLayout());
 			var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 			newNodes.removeAll(originalNodes);
 

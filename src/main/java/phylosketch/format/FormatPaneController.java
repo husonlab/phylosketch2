@@ -232,7 +232,7 @@ public class FormatPaneController {
 	private Button rotateLeftButton;
 
 	@FXML
-	private ToggleButton rotateRightButton;
+	private Button rotateRightButton;
 
 	@FXML
 	private Button layoutLabelsButton;
@@ -586,7 +586,7 @@ public class FormatPaneController {
 		return rotateLeftButton;
 	}
 
-	public ToggleButton getRotateRightButton() {
+	public Button getRotateRightButton() {
 		return rotateRightButton;
 	}
 

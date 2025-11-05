@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
@@ -43,15 +44,15 @@ public class RotateCommand extends UndoableRedoableCommand {
 	private final Runnable redo;
 
 	private final Map<Integer, Point2D> nodeOldPointMap = new HashMap<>();
+	private final Map<Integer, Point2D> labelOldPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeOldPointsMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeMidPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeMidPointsMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
+	private final Map<Integer, Point2D> labelNewPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
 
-	private boolean undoLabelCommand;
-
-	public RotateCommand(DrawView view, Collection<Node> nodes, boolean positiveRotation) {
+	public RotateCommand(DrawView view, Collection<Node> nodes, boolean positiveRotation, BooleanProperty isRunning) {
 		super("rotate");
 
 		var angle = (positiveRotation ? 90 : -90);
@@ -66,6 +67,16 @@ public class RotateCommand extends UndoableRedoableCommand {
 			nodeMidPointMap.put(v.getId(), mid);
 			var rotated = GeometryUtilsFX.rotateAbout(point, angle, center);
 			nodeNewPointMap.put(v.getId(), rotated);
+			var label = DrawView.getLabel(v);
+			if (label != null && !label.getRawText().isBlank()) {
+				var labelAngle = label.getRotate();
+				var labelPoint = new Point2D(label.getLayoutX(), label.getLayoutY());
+				labelOldPointMap.put(v.getId(), labelPoint);
+				var newLabelAngle = GeometryUtilsFX.modulo360(angle + labelAngle);
+				var shift = GeometryUtilsFX.rotateAbout(new Point2D(0.5 * label.getWidth() + 10, 0), newLabelAngle, new Point2D(0, 0));
+				var labelNewPoint = new Point2D(-0.5 * label.getWidth(), -0.5 * label.getHeight()).add(shift);
+				labelNewPointMap.put(v.getId(), labelNewPoint);
+			}
 		}
 		for (var e : view.getGraph().edges()) {
 			if (nodes.contains(e.getSource()) || nodes.contains(e.getTarget())) {
@@ -116,22 +127,30 @@ public class RotateCommand extends UndoableRedoableCommand {
 			var second = new PauseTransition(Duration.seconds(0.1));
 			second.setOnFinished(a -> {
 				nodeOldPointMap.forEach((key, value) -> {
-					if (view.getGraph().findNodeById(key).getData() instanceof Shape shape) {
-						shape.setTranslateX(value.getX());
-						shape.setTranslateY(value.getY());
-					}
+					var v = view.getGraph().findNodeById(key);
+					var shape = DrawView.getShape(v);
+					shape.setTranslateX(value.getX());
+					shape.setTranslateY(value.getY());
+				});
+				labelOldPointMap.forEach((key, value) -> {
+					var v = view.getGraph().findNodeById(key);
+					var label = DrawView.getLabel(v);
+					label.setLayoutX(value.getX());
+					label.setLayoutY(value.getY());
+					label.setRotate(GeometryUtilsFX.modulo360(label.getRotate() - angle));
+					label.ensureUpright();
 				});
 				edgeOldPointsMap.forEach((key, value) -> {
 					var e = view.getGraph().findEdgeById(key);
 					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(value, false).getElements());
 				});
 			});
-			var sequential = new SequentialTransition(first, second);
-			sequential.setOnFinished(a -> {
-				if (undoLabelCommand)
-					view.getUndoManager().undo();
-			});
-			sequential.play();
+			if (!isRunning.get()) {
+				isRunning.set(true);
+				var sequential = new SequentialTransition(first, second);
+				sequential.setOnFinished(e -> isRunning.set(false));
+				sequential.play();
+			}
 		};
 
 		redo = () -> {
@@ -147,16 +166,21 @@ public class RotateCommand extends UndoableRedoableCommand {
 					var e = view.getGraph().findEdgeById(entry.getKey());
 					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
 				}
+				labelNewPointMap.forEach((key, value) -> {
+					var v = view.getGraph().findNodeById(key);
+					var label = DrawView.getLabel(v);
+					label.setLayoutX(value.getX());
+					label.setLayoutY(value.getY());
+					label.setRotate(GeometryUtilsFX.modulo360(label.getRotate() + angle));
+					label.ensureUpright();
+				});
 			});
-			var sequential = getSequentialTransition(view, first);
-			sequential.setOnFinished(a -> {
-				var command = new LayoutLabelsCommand(view, null, nodes);
-				if (command.isUndoable() && command.isRedoable()) {
-					undoLabelCommand = true;
-					view.getUndoManager().doAndAdd(command);
-				} else undoLabelCommand = false;
-			});
-			sequential.play();
+			if (!isRunning.get()) {
+				isRunning.set(true);
+				var sequential = getSequentialTransition(view, first);
+				sequential.setOnFinished(e -> isRunning.set(false));
+				sequential.play();
+			}
 		};
 	}
 

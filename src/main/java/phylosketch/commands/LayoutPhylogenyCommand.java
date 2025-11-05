@@ -37,7 +37,6 @@ import jloda.util.Basic;
 import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
-import phylosketch.io.ReorderChildren;
 import phylosketch.paths.PathUtils;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
@@ -161,7 +160,6 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 						var root = tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny().orElse(null);
 						if (root != null) {
 							tree.setRoot(root);
-							ReorderChildren.apply(tree, v -> DrawView.getPoint(tree2GraphNodeMap.get(v)), ReorderChildren.SortBy.Location);
 							var xMinF = xMin;
 							var xMaxF = xMax;
 							var yMinF = yMin;
@@ -177,7 +175,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 										},
 										p -> {
 
-											DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, p.getFirst(), p.getSecond(), layout, scaling);
+											DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, p.getSecond(), layout);
 											for (var v : tree.nodes()) {
 												if (tree2GraphNodeMap.containsKey(v)) {
 													var w = tree2GraphNodeMap.get(v);
@@ -197,7 +195,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 								try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
 									LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
 									ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-									DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodeAngleMap, nodePointMap, layout, scaling);
+									DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodePointMap, layout);
 									for (var v : tree.nodes()) {
 										if (tree2GraphNodeMap.containsKey(v)) {
 											var w = tree2GraphNodeMap.get(v);

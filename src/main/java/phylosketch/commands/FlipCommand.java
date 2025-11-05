@@ -27,6 +27,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.GeometryUtilsFX;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
@@ -45,10 +46,14 @@ public class FlipCommand extends UndoableRedoableCommand {
 	private final Runnable redo;
 
 	private final Map<Integer, Point2D> nodeOldPointMap = new HashMap<>();
+	private final Map<Integer, Point2D> labelOldPointMap = new HashMap<>();
+	private final Map<Integer, Double> labelOldRotateMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeOldPointsMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeMidPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeMidPointsMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
+	private final Map<Integer, Point2D> labelNewPointMap = new HashMap<>();
+	private final Map<Integer, Double> labelNewRotateMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
 
 	/**
@@ -74,6 +79,27 @@ public class FlipCommand extends UndoableRedoableCommand {
 			nodeMidPointMap.put(v.getId(), mid);
 			var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
 			nodeNewPointMap.put(v.getId(), flipped);
+			var label = DrawView.getLabel(v);
+			if (label != null && !label.getRawText().isBlank()) {
+				var labelAngle = label.getRotate();
+				var labelPoint = new Point2D(label.getLayoutX(), label.getLayoutY());
+				labelOldPointMap.put(v.getId(), labelPoint);
+
+				var newLabelAngle = GeometryUtilsFX.modulo360(horizontal ? 180 - labelAngle : 360 - labelAngle);
+				var changeAngle = newLabelAngle - labelAngle;
+
+				labelOldRotateMap.put(v.getId(), -changeAngle);
+				labelNewRotateMap.put(v.getId(), changeAngle);
+
+				if (true) {
+					var labelNewPoint = new Point2D(horizontal ? labelPoint.getX() : -labelPoint.getX(), horizontal ? -labelPoint.getY() : labelPoint.getY());
+					labelNewPointMap.put(v.getId(), labelNewPoint);
+				} else {
+					var shift = GeometryUtilsFX.rotateAbout(new Point2D(0.5 * label.getWidth() + 10, 0), newLabelAngle, new Point2D(0, 0));
+					var labelNewPoint = new Point2D(-0.5 * label.getWidth(), -0.5 * label.getHeight()).add(shift);
+					labelNewPointMap.put(v.getId(), labelNewPoint);
+				}
+			}
 		}
 		for (var e : view.getGraph().edges()) {
 			if (nodes.contains(e.getSource()) || nodes.contains(e.getTarget())) {
@@ -135,6 +161,15 @@ public class FlipCommand extends UndoableRedoableCommand {
 						shape.setTranslateY(entry.getValue().getY());
 					}
 				}
+				labelOldPointMap.forEach((key, value) -> {
+					var v = view.getGraph().findNodeById(key);
+					var label = DrawView.getLabel(v);
+					label.setLayoutX(value.getX());
+					label.setLayoutY(value.getY());
+					var angle = labelOldRotateMap.get(key);
+					label.setRotate(GeometryUtilsFX.modulo360(label.getRotate() + angle));
+					label.ensureUpright();
+				});
 				for (var entry : edgeOldPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
 					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
@@ -172,6 +207,16 @@ public class FlipCommand extends UndoableRedoableCommand {
 						shape.setTranslateY(entry.getValue().getY());
 					}
 				}
+				labelNewPointMap.forEach((key, value) -> {
+					var v = view.getGraph().findNodeById(key);
+					var label = DrawView.getLabel(v);
+					label.setLayoutX(value.getX());
+					label.setLayoutY(value.getY());
+					var angle = labelNewRotateMap.get(key);
+					label.setRotate(GeometryUtilsFX.modulo360(label.getRotate() + angle));
+					label.ensureUpright();
+				});
+
 				for (var entry : edgeNewPointsMap.entrySet()) {
 					var e = view.getGraph().findEdgeById(entry.getKey());
 					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());

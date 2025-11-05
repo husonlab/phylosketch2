@@ -34,6 +34,7 @@ import phylosketch.paths.PathUtils;
 import phylosketch.utils.CircleSegment;
 import phylosketch.utils.QuadraticCurve;
 import phylosketch.view.DrawView;
+import phylosketch.view.LayoutLabels;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class DrawNetwork {
 	 * @param tree   the source tree
 	 * @param points the points
 	 */
-	public static void apply(DrawView view, PhyloTree tree, Map<Node, Double> angles, Map<Node, Point2D> points, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
+	public static void apply(DrawView view, PhyloTree tree, Map<Node, Point2D> points, LayoutRootedPhylogeny.Layout layout) {
 		try (NodeArray<Node> srcTarNode = tree.newNodeArray(); EdgeArray<Edge> srcTarEdge = tree.newEdgeArray()) {
 			for (var v : tree.nodes()) {
 				srcTarNode.put(v, view.createNode());
@@ -62,7 +63,7 @@ public class DrawNetwork {
 				srcTarEdge.put(e, f);
 			}
 
-			apply(view, tree, srcTarNode, srcTarEdge, angles, points, layout, scaling);
+			apply(view, tree, srcTarNode, srcTarEdge, points, layout);
 		}
 	}
 
@@ -75,12 +76,19 @@ public class DrawNetwork {
 	 * @param srcTarEdge   mapping of edges in tree to edges in view graph
 	 * @param nodePointMap the points as a function of source tree nodes
 	 */
-	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Double> nodeAngleMap, Map<Node, Point2D> nodePointMap, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
-		var rootPoint = (layout == LayoutRootedPhylogeny.Layout.Rectangular ? null : nodePointMap.get(tree.getRoot()));
+	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Point2D> nodePointMap, LayoutRootedPhylogeny.Layout layout) {
+		var rootNode = (tree.getRoot() != null) ? tree.getRoot() : tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny().orElse(tree.getFirstNode());
+		var rootPoint = (layout == LayoutRootedPhylogeny.Layout.Rectangular ? null : nodePointMap.get(rootNode));
 
 		for (var v : tree.nodes()) {
 			var w = srcTarNode.apply(v);
 			view.setLocation(w, nodePointMap.get(v));
+			var label = DrawView.getLabel(v);
+			if (label != null) {
+				label.setRotate(0);
+				label.setLayoutX(0);
+				label.setLayoutY(0);
+			}
 		}
 
 		for (var oe : tree.edges()) {
@@ -168,11 +176,8 @@ public class DrawNetwork {
 				}
 			}
 		}
-	}
 
-	public static boolean isTreeOrTransferAcceptor(Edge e) {
-		var tree = (PhyloTree) e.getOwner();
-		return tree.isTreeEdge(e) || tree.isTransferAcceptorEdge(e);
+		LayoutLabels.apply(view, tree.getRoot(), tree.getNodesAsList(), layout, 10);
 	}
 }
 

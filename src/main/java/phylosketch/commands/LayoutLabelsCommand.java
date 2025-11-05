@@ -29,7 +29,6 @@ import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.CollectionUtils;
-import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 
@@ -120,55 +119,28 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 			case Right -> new Point2D(-label.getWidth() - 5, -Math.max(7, label.getHeight() / 2));
 			case Left -> new Point2D(10, -Math.max(7, label.getHeight() / 2));
 			case Center -> {
-				if (true) {
-					if (v.getInDegree() == 0)
-						yield Point2D.ZERO;
+				if (v.getInDegree() == 0)
+					yield Point2D.ZERO;
 
-					var direction = DrawView.getPoint(v).subtract(rootPosition.location());
-					var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
+				var direction = DrawView.getPoint(v).subtract(rootPosition.location());
+				var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
 
-					if (false)
-						yield direction.normalize().multiply(50).subtract(mapAngle(angle) * label.getWidth(), 0.5 * label.getHeight());
-					else {
+				var edgeWidth = v.inEdgesStream(false).map(DrawView::getPath).filter(Objects::nonNull).mapToDouble(Shape::getStrokeWidth).max().orElse(1.0);
 
-						var edgeWidth = v.inEdgesStream(false).map(DrawView::getPath).filter(Objects::nonNull).mapToDouble(Shape::getStrokeWidth).max().orElse(1.0);
-
-						Point2D offset;
-						if (angle > 45 && angle < 135) {
-							offset = new Point2D(-0.5 * label.getEstimatedWidth(), +label.getFontSize() + 0.5 * edgeWidth + 5);
-						} else if (angle > 135 && angle < 225) {
-							offset = new Point2D(-label.getEstimatedWidth() - 0.5 * edgeWidth - 5, -0.5 * label.getFontSize() - 5);
-						} else if (angle > 225 && angle < 315) {
-							offset = new Point2D(-0.5 * label.getEstimatedWidth(), -label.getFontSize() - 0.5 * edgeWidth - 5);
-						} else {
-							offset = new Point2D(0.5 * edgeWidth + 5, -0.5 * label.getFontSize());
-						}
-						offset = offset.add(direction.normalize().multiply(20));
-						yield offset;
-					}
+				Point2D offset;
+				if (angle > 45 && angle < 135) {
+					offset = new Point2D(-0.5 * label.getEstimatedWidth(), +label.getFontSize() + 0.5 * edgeWidth + 5);
+				} else if (angle > 135 && angle < 225) {
+					offset = new Point2D(-label.getEstimatedWidth() - 0.5 * edgeWidth - 5, -0.5 * label.getFontSize() - 5);
+				} else if (angle > 225 && angle < 315) {
+					offset = new Point2D(-0.5 * label.getEstimatedWidth(), -label.getFontSize() - 0.5 * edgeWidth - 5);
 				} else {
-
-					var points = v.adjacentEdgesStream(false)
-							.map(e -> (v == e.getTarget() ? PathUtils.getPointAwayFromEnd(DrawView.getPath(e), 5) : PathUtils.getPointAwayFromStart(DrawView.getPath(e), 5)))
-							.toList();
-					var referenceLocation = (points.isEmpty() ? rootPosition.location() :
-							new Point2D(points.stream().mapToDouble(Point2D::getX).average().orElse(0.0), points.stream().mapToDouble(Point2D::getY).average().orElse(0.0)));
-					var direction = DrawView.getPoint(v).subtract(referenceLocation);
-					var angle = GeometryUtilsFX.modulo360(GeometryUtilsFX.computeAngle(direction));
-					var offset = direction.multiply(40 / Math.max(1, direction.magnitude()));
-					if (angle < 90 || angle > 270)
-						offset = offset.subtract(0, 0.5 * label.getHeight());
-					else
-						offset = offset.subtract(label.getWidth(), 0.5 * label.getHeight());
-					yield offset;
+					offset = new Point2D(0.5 * edgeWidth + 5, -0.5 * label.getFontSize());
 				}
+				offset = offset.add(direction.normalize().multiply(20));
+				yield offset;
 			}
 		};
-	}
-
-	public static double mapAngle(double angle) {
-		angle = angle % 360; // ensure 0 <= angle < 360
-		return (angle <= 180) ? (angle / 180.0) : (2 - angle / 180.0);
 	}
 
 	@Override
