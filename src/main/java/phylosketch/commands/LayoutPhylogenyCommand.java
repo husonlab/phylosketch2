@@ -33,7 +33,6 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
-import jloda.util.Basic;
 import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
@@ -50,6 +49,12 @@ import java.util.*;
 public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
+
+	private final Map<Integer, Point2D> oldPoints = new HashMap<>();
+	private final Map<Integer, List<Point2D>> oldPaths = new HashMap<>();
+	private final Map<Integer, Point2D> oldLabelPoints = new HashMap<>();
+	private final Map<Integer, Double> oldLabelAngles = new HashMap<>();
+
 
 	/**
 	 * layout all selected (or if none selected, all) components
@@ -94,23 +99,29 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 
 		if (isRootedComponent(component)) {
 
-			var oldPoints = new HashMap<Integer, Point2D>();
-			var oldPaths = new HashMap<Integer, List<Point2D>>();
-
 			for (var v : component) {
 				oldPoints.put(v.getId(), DrawView.getPoint(v));
 				for (var e : v.outEdges()) {
 					oldPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
 				}
+				var label = DrawView.getLabel(v);
+				if (label != null) {
+					oldLabelPoints.put(v.getId(), new Point2D(label.getLayoutX(), label.getLayoutY()));
+					oldLabelAngles.put(v.getId(), label.getRotate());
+				}
 			}
-
-			var newPoints = new HashMap<Integer, Point2D>();
-			var newPaths = new HashMap<Integer, List<Point2D>>();
 
 			undo = () -> {
 				for (var vId : oldPoints.keySet()) {
 					var v = view.getGraph().findNodeById(vId);
 					view.setLocation(v, oldPoints.get(vId));
+					var label = DrawView.getLabel(v);
+					if (label != null) {
+						label.setRotate(oldLabelAngles.get(vId));
+						label.setLayoutX(oldLabelPoints.get(vId).getX());
+						label.setLayoutY(oldLabelPoints.get(vId).getY());
+						label.ensureUpright();
+					}
 				}
 				for (var eId : oldPaths.keySet()) {
 					var e = view.getGraph().findEdgeById(eId);
@@ -119,106 +130,64 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 			};
 
 			redo = () -> {
-				if (newPoints.isEmpty()) {
-					var graph = view.getGraph();
-					var xMin = component.stream().mapToDouble(DrawView::getX).min().orElse(0);
-					var xMax = component.stream().mapToDouble(DrawView::getX).max().orElse(0);
-					var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
-					var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
+				var graph = view.getGraph();
+				var xMin = component.stream().mapToDouble(DrawView::getX).min().orElse(0);
+				var xMax = component.stream().mapToDouble(DrawView::getX).max().orElse(0);
+				var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
+				var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
 
-					if (layout != LayoutRootedPhylogeny.Layout.Rectangular) {
-						var dx = xMax - xMin;
-						var dy = yMax - yMin;
-						var d = Math.min(dx, dy);
-						var xGap = xMax - xMin - d;
-						var yGap = yMax - yMin - d;
-						xMin += 0.5 * xGap;
-						xMax -= 0.5 * xGap;
-						yMin += 0.5 * yGap;
-						yMax -= 0.5 * yGap;
-					}
+				if (layout != LayoutRootedPhylogeny.Layout.Rectangular) {
+					var dx = xMax - xMin;
+					var dy = yMax - yMin;
+					var d = Math.min(dx, dy);
+					var xGap = xMax - xMin - d;
+					var yGap = yMax - yMin - d;
+					xMin += 0.5 * xGap;
+					xMax -= 0.5 * xGap;
+					yMin += 0.5 * yGap;
+					yMax -= 0.5 * yGap;
+				}
 
-					var tree = new PhyloTree();
-					try (NodeArray<Node> tree2GraphNodeMap = tree.newNodeArray(); EdgeArray<Edge> tree2GraphEdgeMap = tree.newEdgeArray()) {
-						try (NodeArray<Node> graph2TreeNode = graph.newNodeArray(); EdgeArray<Edge> graph2TreeEdge = graph.newEdgeArray()) {
-							tree.copy(graph, graph2TreeNode, graph2TreeEdge);
-							graph.nodeStream().filter(u -> !component.contains(u)).map(graph2TreeNode::get).forEach(tree::deleteNode);
-							for (var v : component) {
-								tree2GraphNodeMap.put(graph2TreeNode.get(v), v);
-								for (var e : v.outEdges()) {
-									var f = graph2TreeEdge.get(e);
-									tree2GraphEdgeMap.put(f, e);
-									if ((graph.hasReticulateEdges() && graph.isReticulateEdge(e)) || e.getTarget().getInDegree() > 1) {
-										tree.setReticulate(f, true);
-									}
-									if (graph.hasTransferAcceptorEdges() && graph.isTransferAcceptorEdge(e)) {
-										tree.setTransferAcceptor(f, true);
-									}
+				var tree = new PhyloTree();
+				try (NodeArray<Node> tree2GraphNodeMap = tree.newNodeArray(); EdgeArray<Edge> tree2GraphEdgeMap = tree.newEdgeArray()) {
+					try (NodeArray<Node> graph2TreeNode = graph.newNodeArray(); EdgeArray<Edge> graph2TreeEdge = graph.newEdgeArray()) {
+						tree.copy(graph, graph2TreeNode, graph2TreeEdge);
+						graph.nodeStream().filter(u -> !component.contains(u)).map(graph2TreeNode::get).forEach(tree::deleteNode);
+						for (var v : component) {
+							tree2GraphNodeMap.put(graph2TreeNode.get(v), v);
+							for (var e : v.outEdges()) {
+								var f = graph2TreeEdge.get(e);
+								tree2GraphEdgeMap.put(f, e);
+								if ((graph.hasReticulateEdges() && graph.isReticulateEdge(e)) || e.getTarget().getInDegree() > 1) {
+									tree.setReticulate(f, true);
+								}
+								if (graph.hasTransferAcceptorEdges() && graph.isTransferAcceptorEdge(e)) {
+									tree.setTransferAcceptor(f, true);
 								}
 							}
 						}
-						var root = tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny().orElse(null);
-						if (root != null) {
-							tree.setRoot(root);
-							var xMinF = xMin;
-							var xMaxF = xMax;
-							var yMinF = yMin;
-							var yMaxF = yMax;
+					}
+					var root = tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny().orElse(null);
+					if (root != null) {
+						tree.setRoot(root);
+						var xMinF = xMin;
+						var xMaxF = xMax;
+						var yMinF = yMin;
+						var yMaxF = yMax;
 
-							if (true) {
-								AService.run(() -> {
-											var nodeAngleMap = tree.newNodeDoubleArray();
-											NodeArray<Point2D> nodePointMap = tree.newNodeArray();
-											LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-											ScaleUtils.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
-											return new Pair<>(nodeAngleMap, nodePointMap);
-										},
-										p -> {
-
-											DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, p.getSecond(), layout);
-											for (var v : tree.nodes()) {
-												if (tree2GraphNodeMap.containsKey(v)) {
-													var w = tree2GraphNodeMap.get(v);
-													newPoints.put(w.getId(), DrawView.getPoint(w));
-													for (var e : w.outEdges()) {
-														newPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
-													}
-												}
-											}
-											p.getFirst().close();
-											p.getSecond().close();
-										},
-										e -> {
-											NotificationManager.showError("Layout failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-										});
-							} else {
-								try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
+						AService.run(() -> {
+									var nodeAngleMap = tree.newNodeDoubleArray();
+									NodeArray<Point2D> nodePointMap = tree.newNodeArray();
 									LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-									ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
-									DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, nodePointMap, layout);
-									for (var v : tree.nodes()) {
-										if (tree2GraphNodeMap.containsKey(v)) {
-											var w = tree2GraphNodeMap.get(v);
-											newPoints.put(w.getId(), DrawView.getPoint(w));
-											for (var e : w.outEdges()) {
-												newPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
-											}
-										}
-									}
-								} catch (Exception ex) {
-									Basic.caught(ex);
-								}
-							}
-						}
-					}
-				} else {
-					for (var vId : newPoints.keySet()) {
-						var v = view.getGraph().findNodeById(vId);
-						view.setLocation(v, newPoints.get(vId));
-					}
-					for (var eId : newPaths.keySet()) {
-						var e = view.getGraph().findEdgeById(eId);
-						DrawView.setPoints(e, newPaths.get(eId));
+									ScaleUtils.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+									return new Pair<>(nodeAngleMap, nodePointMap);
+								},
+								p -> {
+									DrawNetwork.apply(view, tree, tree2GraphNodeMap, tree2GraphEdgeMap, p.getSecond(), layout);
+									p.getFirst().close();
+									p.getSecond().close();
+								},
+								e -> NotificationManager.showError("Layout failed: " + e.getClass().getSimpleName() + ": " + e.getMessage()));
 					}
 				}
 			};

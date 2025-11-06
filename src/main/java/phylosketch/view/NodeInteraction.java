@@ -20,13 +20,10 @@
 
 package phylosketch.view;
 
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import phylosketch.commands.MoveNodesCommand;
@@ -64,19 +61,6 @@ public class NodeInteraction {
 				if (c.wasAdded()) {
 					for (javafx.scene.Node n : c.getAddedSubList()) {
 						if (n instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
-							if (false) { // todo: don't want this
-								shape.setOnContextMenuRequested(a -> {
-									if (view.getNodeSelection().isSelected(v) && view.getMode() == DrawView.Mode.Move) {
-										var resizeItem = new CheckMenuItem("Resize Mode");
-										resizeItem.setSelected(resizeMode.get());
-										resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
-										var contextMenu = new ContextMenu(resizeItem);
-										contextMenu.show(shape, a.getScreenX(), a.getScreenY());
-									}
-									a.consume();
-								});
-							}
-
 							shape.setOnMouseClicked(me -> {
 								if (me.isStillSincePress() && !me.isControlDown()) {
 									if (PhyloSketch.isDesktop() && me.isShiftDown()) {
@@ -87,8 +71,6 @@ public class NodeInteraction {
 											view.getNodeSelection().clearSelection();
 										}
 										view.getNodeSelection().select(v);
-									} else {
-										if (false) Platform.runLater(runSelectionButton);
 									}
 								}
 								me.consume();

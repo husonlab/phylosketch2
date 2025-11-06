@@ -33,7 +33,6 @@ public class LayoutLabels {
 	public static void apply(DrawView view, jloda.graph.Node root, Collection<jloda.graph.Node> nodes, LayoutRootedPhylogeny.Layout layout, double labelGap) {
 		if (layout == LayoutRootedPhylogeny.Layout.Circular) {
 			var rootLocation = view.getLocation(root);
-
 			for (var v : nodes) {
 				if (v.isLeaf()) {
 					var location = view.getLocation(v);
@@ -66,7 +65,6 @@ public class LayoutLabels {
 			}
 		} else if (layout == LayoutRootedPhylogeny.Layout.Radial) {
 			var rootLocation = view.getLocation(root);
-
 			for (var v : nodes) {
 				if (v.isLeaf()) {
 					var location = view.getLocation(v);
@@ -90,5 +88,6 @@ public class LayoutLabels {
 				}
 			}
 		}
+		view.setHorizontalLabels(layout == LayoutRootedPhylogeny.Layout.Radial);
 	}
 }

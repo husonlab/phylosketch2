@@ -115,7 +115,10 @@ public class PhyloSketch1Import {
 							}
 							case "lr" -> {
 								var angle = Double.parseDouble(value);
-								System.err.println("label rotate: to implemented");
+								var label = DrawView.getLabel(v);
+								label.setRotate(angle);
+								label.ensureUpright();
+
 							}
 						}
 					}

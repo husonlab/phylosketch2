@@ -24,6 +24,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import jloda.fx.icons.MaterialIcons;
 import jloda.graph.Node;
@@ -38,16 +39,43 @@ import java.util.function.Consumer;
  */
 public class NodeLabelEditBox extends HBox {
 	private final TextField textField;
+	private final Button cancelButton;
 
+	/**
+	 * construct a node label edit box that allows editing of a node label
+	 */
 	public NodeLabelEditBox() {
 		textField = new TextField();
-		textField.focusedProperty().addListener((a, o, n) -> {
-			if (n)
-				textField.selectAll();
-		});
 		getChildren().add(textField);
+
+		var dragButton = new Button("Drag");
+		MaterialIcons.setIcon(dragButton, MaterialIcons.swap_horiz);
+		var previous = new double[1];
+		dragButton.setOnMousePressed(e -> {
+			previous[0] = e.getSceneX();
+		});
+		dragButton.setOnMouseDragged(e -> {
+			var dx = e.getSceneX() - previous[0];
+			textField.setPrefWidth(Math.min(1000, Math.max(100, textField.getWidth() + dx)));
+			previous[0] = e.getSceneX();
+		});
+		dragButton.setOnMouseReleased(e -> textField.requestFocus());
+		getChildren().add(dragButton);
+
+		cancelButton = new Button("Cancel");
+		MaterialIcons.setIcon(cancelButton, MaterialIcons.cancel);
+		getChildren().add(cancelButton);
 	}
 
+	/**
+	 * set the node edit label box
+	 * @param drawView the view
+	 * @param screenX screen x
+	 * @param screenY screen y
+	 * @param v the node
+	 * @param canceled canceled property
+	 * @param runAfter run after method
+	 */
 	public static void show(DrawView drawView, double screenX, double screenY, Node v, BooleanProperty canceled, Runnable runAfter) {
 		var vid = v.getId();
 		var oldLabel = DrawView.getLabel(v).getText();
@@ -59,29 +87,33 @@ public class NodeLabelEditBox extends HBox {
 	private void show(DrawView view, String oldText, double screenX, double screenY, BooleanProperty canceled, Consumer<String> consumeNewText, Runnable runAfter) {
 		var local = view.screenToLocal(screenX, screenY);
 
-		Button cancel;
-		if (canceled != null) {
-			cancel = new Button("Cancel");
-			MaterialIcons.setIcon(cancel, MaterialIcons.cancel);
-			cancel.setOnAction(e -> canceled.set(true));
-			getChildren().add(cancel);
-		} else cancel = null;
-
 		setTranslateX(local.getX());
 		setTranslateY(local.getY());
-		setVisible(true);
 
 		textField.setText(oldText);
+		setVisible(true);
 		textField.requestFocus();
+		textField.selectAll();
+
+		cancelButton.setOnAction(e -> {
+			if (canceled != null)
+				canceled.set(true);
+			setVisible(false);
+		});
+		textField.setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.ESCAPE) {
+				if (canceled != null)
+					canceled.set(true);
+				setVisible(false);
+			}
+		});
+
 		textField.setOnAction(e -> {
 			var newLabel = textField.getText();
 			if (!newLabel.equals(oldText)) {
 				consumeNewText.accept(newLabel);
 			}
 			setVisible(false);
-			if (cancel != null)
-				getChildren().remove(cancel);
-
 			if (runAfter != null)
 				Platform.runLater(runAfter);
 		});

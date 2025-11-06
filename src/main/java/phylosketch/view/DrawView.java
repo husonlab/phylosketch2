@@ -97,8 +97,9 @@ public class DrawView extends Pane {
 	private final ObjectProperty<LayoutRootedPhylogeny.Layout> layout = new SimpleObjectProperty<LayoutRootedPhylogeny.Layout>(this.getClass(), "layout");
 	private final ObjectProperty<LayoutRootedPhylogeny.Scaling> scaling = new SimpleObjectProperty<LayoutRootedPhylogeny.Scaling>(this.getClass(), "scaling");
 
-
 	private final NodeLabelEditBox nodeLabelEditBox = new NodeLabelEditBox();
+
+	private final BooleanProperty horizontalLabels = new SimpleBooleanProperty(this, "horizontalLabels", true);
 
 	private final UndoManager undoManager = new UndoManager();
 
@@ -112,6 +113,7 @@ public class DrawView extends Pane {
 		var shapeIcebergMap = new HashMap<Shape, Shape>();
 
 		nodesGroup.getChildren().addListener(createIcebergListener(shapeIcebergMap, nodeIcebergsGroup));
+		nodesGroup.getChildren().addListener((InvalidationListener) e -> setHorizontalLabels(true));
 		edgesGroup.getChildren().addListener(createIcebergListener(shapeIcebergMap, edgeIcebergsGroup));
 		edgesGroup.getChildren().addListener((ListChangeListener<? super javafx.scene.Node>) a -> {
 			if (showOutlines.get()) {
@@ -136,7 +138,6 @@ public class DrawView extends Pane {
 				shape.setStroke(n ? Color.WHITE : Color.BLACK);
 			}
 		});
-
 
 		graph = new PhyloTree();
 		graphFX = new GraphFX<>(graph);
@@ -656,5 +657,17 @@ public class DrawView extends Pane {
 
 	public ObjectProperty<LayoutRootedPhylogeny.Scaling> scalingProperty() {
 		return scaling;
+	}
+
+	public boolean isHorizontalLabels() {
+		return horizontalLabels.get();
+	}
+
+	public BooleanProperty horizontalLabelsProperty() {
+		return horizontalLabels;
+	}
+
+	public void setHorizontalLabels(boolean horizontalLabels) {
+		this.horizontalLabels.set(horizontalLabels);
 	}
 }

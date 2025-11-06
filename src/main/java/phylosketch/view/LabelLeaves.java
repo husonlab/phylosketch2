@@ -56,7 +56,7 @@ public class LabelLeaves {
     }
 
 	private static void relabelRec(DrawView drawView, List<Node> leaves, BooleanProperty canceled) {
-        if (!leaves.isEmpty()) {
+		if (!leaves.isEmpty() && !canceled.get()) {
             var v = leaves.remove(0);
 			var shape = DrawView.getShape(v);
             var bounds = shape.getBoundsInLocal();

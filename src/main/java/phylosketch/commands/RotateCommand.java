@@ -45,17 +45,27 @@ public class RotateCommand extends UndoableRedoableCommand {
 
 	private final Map<Integer, Point2D> nodeOldPointMap = new HashMap<>();
 	private final Map<Integer, Point2D> labelOldPointMap = new HashMap<>();
+	private final Map<Integer, Double> labelOldAngleMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeOldPointsMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeMidPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeMidPointsMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
+	private final Map<Integer, Double> labelNewAngleMap = new HashMap<>();
 	private final Map<Integer, Point2D> labelNewPointMap = new HashMap<>();
 	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
 
 	public RotateCommand(DrawView view, Collection<Node> nodes, boolean positiveRotation, BooleanProperty isRunning) {
 		super("rotate");
 
+		if (nodes.size() <= 1) {
+			undo = redo = null;
+			return;
+		}
+
 		var angle = (positiveRotation ? 90 : -90);
+
+		var oldHorizontalLabels = view.isHorizontalLabels();
+		var newHorizontalLabels = oldHorizontalLabels || nodes.size() < view.getGraph().getNumberOfNodes();
 
 		var x = nodes.stream().map(DrawView::getPoint).mapToDouble(Point2D::getX).average().orElse(0.0);
 		var y = nodes.stream().map(DrawView::getPoint).mapToDouble(Point2D::getY).average().orElse(0.0);
@@ -72,10 +82,25 @@ public class RotateCommand extends UndoableRedoableCommand {
 				var labelAngle = label.getRotate();
 				var labelPoint = new Point2D(label.getLayoutX(), label.getLayoutY());
 				labelOldPointMap.put(v.getId(), labelPoint);
-				var newLabelAngle = GeometryUtilsFX.modulo360(angle + labelAngle);
-				var shift = GeometryUtilsFX.rotateAbout(new Point2D(0.5 * label.getWidth() + 10, 0), newLabelAngle, new Point2D(0, 0));
-				var labelNewPoint = new Point2D(-0.5 * label.getWidth(), -0.5 * label.getHeight()).add(shift);
-				labelNewPointMap.put(v.getId(), labelNewPoint);
+				labelOldAngleMap.put(v.getId(), labelAngle);
+				if (newHorizontalLabels) {
+					var other = center;
+					if (v.getParent() != null) {
+						var p = view.getLocation(v.getParent());
+						if (point.distance(p) >= 0.1)
+							other = p;
+					}
+					var currentAngle = GeometryUtilsFX.computeAngle(point.subtract(other));
+					var shift = GeometryUtilsFX.translateByAngle(new Point2D(0, 0), currentAngle + angle, 30).subtract(0.5 * label.getWidth(), 0.5 * label.getHeight());
+					labelNewAngleMap.put(v.getId(), 0.0);
+					labelNewPointMap.put(v.getId(), shift);
+				} else {
+					var newLabelAngle = GeometryUtilsFX.modulo360(angle + labelAngle);
+					labelNewAngleMap.put(v.getId(), newLabelAngle);
+					var shift = GeometryUtilsFX.rotateAbout(new Point2D(0.5 * label.getWidth() + 10, 0), newLabelAngle, new Point2D(0, 0));
+					var labelNewPoint = new Point2D(-0.5 * label.getWidth(), -0.5 * label.getHeight()).add(shift);
+					labelNewPointMap.put(v.getId(), labelNewPoint);
+				}
 			}
 		}
 		for (var e : view.getGraph().edges()) {
@@ -111,6 +136,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 		}
 
 		undo = () -> {
+			view.setHorizontalLabels(oldHorizontalLabels);
 			var first = new PauseTransition(Duration.seconds(0.1));
 			first.setOnFinished(a -> {
 				nodeMidPointMap.forEach((key, value) -> {
@@ -137,7 +163,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 					var label = DrawView.getLabel(v);
 					label.setLayoutX(value.getX());
 					label.setLayoutY(value.getY());
-					label.setRotate(GeometryUtilsFX.modulo360(label.getRotate() - angle));
+					label.setRotate(labelOldAngleMap.get(key));
 					label.ensureUpright();
 				});
 				edgeOldPointsMap.forEach((key, value) -> {
@@ -154,6 +180,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 		};
 
 		redo = () -> {
+			view.setHorizontalLabels(newHorizontalLabels);
 			var first = new PauseTransition(Duration.seconds(0.1));
 			first.setOnFinished(a -> {
 				for (var entry : nodeMidPointMap.entrySet()) {
@@ -171,7 +198,7 @@ public class RotateCommand extends UndoableRedoableCommand {
 					var label = DrawView.getLabel(v);
 					label.setLayoutX(value.getX());
 					label.setLayoutY(value.getY());
-					label.setRotate(GeometryUtilsFX.modulo360(label.getRotate() + angle));
+					label.setRotate(labelNewAngleMap.get(key));
 					label.ensureUpright();
 				});
 			});

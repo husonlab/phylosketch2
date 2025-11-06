@@ -215,12 +215,14 @@ public class MainWindowPresenter {
 			while (e.next()) {
 				for (var node : e.getAddedSubList()) {
 					if (node instanceof RichTextLabel richTextLabel && richTextLabel.getUserData() instanceof Integer nodeId) {
+
 						richTextLabel.setOnContextMenuRequested(cm -> {
 							if (view.getMode() == DrawView.Mode.Sketch || view.getMode() == DrawView.Mode.Move) {
 								var v = view.getGraph().findNodeById(nodeId);
 								var editLabelItem = new MenuItem("Edit Label");
 								editLabelItem.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
-								new ContextMenu(editLabelItem).show(node, cm.getScreenX(), cm.getScreenY());
+								var contextMenu = new ContextMenu(editLabelItem);
+								contextMenu.show(node, cm.getScreenX(), cm.getScreenY());
 							}
 						});
 					}
@@ -422,12 +424,12 @@ public class MainWindowPresenter {
 
 		controller.getFlipHorizontalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new FlipCommand(view, true, isRotatingOrFlipping));
+			view.getUndoManager().doAndAdd(new FlipCommand(view, view.getSelectedOrAllNodes(), true, isRotatingOrFlipping));
 		});
 		controller.getFlipHorizontalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 		controller.getFlipVerticalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
-			view.getUndoManager().doAndAdd(new FlipCommand(view, false, isRotatingOrFlipping));
+			view.getUndoManager().doAndAdd(new FlipCommand(view, view.getSelectedOrAllNodes(), false, isRotatingOrFlipping));
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
