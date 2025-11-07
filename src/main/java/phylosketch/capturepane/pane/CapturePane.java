@@ -105,7 +105,7 @@ public class CapturePane extends HBox {
 		});
 
 		getStyleClass().add("viewer-background");
-		setStyle("-fx-border-color: gray;-fx-padding: 5;");
+		setStyle("-fx-border-color: gray;");
 
 
 		var closeButton = new Button("Close");

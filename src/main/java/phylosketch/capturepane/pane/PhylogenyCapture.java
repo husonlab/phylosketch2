@@ -142,7 +142,6 @@ public class PhylogenyCapture {
 				doThenAdd(new SmoothCommand(view, edges), commands);
 				doThenAdd(new ShowArrowsCommand(view, edges, true), commands);
 			}
-
 		}
 		System.err.printf("Phylogeny: %d nodes, %d edges%n", view.getGraph().getNumberOfNodes(), view.getGraph().getNumberOfEdges());
 

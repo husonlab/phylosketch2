@@ -39,13 +39,17 @@ public class NodeShape extends Polygon {
 		Hexagon
 	}
 
-	private static final double DEFAULT_SIZE = 10.0;
+	private static final double DEFAULT_SIZE = 2;
 
 	private double size;   // width = height = size
 	private Type type;
 
 	public NodeShape() {
 		this(Type.Circle, DEFAULT_SIZE);
+	}
+
+	public NodeShape(Type type) {
+		this(type, DEFAULT_SIZE);
 	}
 
 	public NodeShape(Type type, double size) {

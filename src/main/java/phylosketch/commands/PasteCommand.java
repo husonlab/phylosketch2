@@ -28,6 +28,7 @@ import jloda.util.Pair;
 import jloda.util.StringUtils;
 import phylosketch.io.ImportNewick;
 import phylosketch.view.DrawView;
+import phylosketch.window.MainWindowPresenter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view the window
 	 */
-	public PasteCommand(DrawView view, String pastedString) {
+	public PasteCommand(DrawView view, MainWindowPresenter presenter, String pastedString) {
 		super("paste");
 
 		var pastedLines = StringUtils.getLinesFromString(pastedString, 1000);
@@ -78,7 +79,7 @@ public class PasteCommand extends UndoableRedoableCommand {
 			redo = () -> {
 				newNodes = null;
 				try (BufferedReader r = new BufferedReader(new StringReader(StringUtils.toString(pastedLines, "\n")))) {
-					newNodes = ImportNewick.apply(r, view);
+					newNodes = ImportNewick.apply(r, view, presenter::setScale);
 				} catch (IOException ignored) {
 					undo = null;
 					redo = null;

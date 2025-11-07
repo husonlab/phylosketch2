@@ -21,15 +21,14 @@
 package phylosketch.commands;
 
 import javafx.geometry.Point2D;
-import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
-import jloda.graph.Graph;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.util.SetUtils;
-import phylosketch.paths.PathNormalize;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathUtils;
+import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 
 import java.util.Collection;
@@ -46,30 +45,27 @@ public class RectangularCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private final int[] edgeIds;
-	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
-	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
+	private final Map<Integer, EdgePath> oldEdgeMap = new HashMap<>();
+	private final Map<Integer, EdgePath> newEdgeMap = new HashMap<>();
 
-	public RectangularCommand(Graph graph, Collection<Edge> edges) {
+	public RectangularCommand(DrawView view, Collection<Edge> edges) {
 		super("rectangular");
-		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
 
-		try (NodeArray<RootPosition> nodeRootLocationMap = graph.newNodeArray()) {
-			{
-				var nodes = edges.stream().map(Edge::nodes).flatMap(Collection::stream).collect(Collectors.toSet());
-				for (var component : ConnectedComponents.components(graph)) {
-					if (SetUtils.intersect(nodes, component)) {
-						var rootLocation = RootPosition.compute(component);
-						for (var v : component) {
-							nodeRootLocationMap.put(v, rootLocation);
-						}
+		try (NodeArray<RootPosition> nodeRootLocationMap = view.getGraph().newNodeArray()) {
+			var nodes = edges.stream().map(Edge::nodes).flatMap(Collection::stream).collect(Collectors.toSet());
+			for (var component : ConnectedComponents.components(view.getGraph())) {
+				if (SetUtils.intersect(nodes, component)) {
+					var rootLocation = RootPosition.compute(component);
+					for (var v : component) {
+						nodeRootLocationMap.put(v, rootLocation);
 					}
 				}
 			}
 
 			for (var e : edges) {
-				if (e.getData() instanceof Path path) {
-					idOldPointsMap.put(e.getId(), PathUtils.extractPoints(path));
+				if (e.getData() instanceof EdgePath path) {
+					var id = e.getId();
+					oldEdgeMap.put(id, path.copy());
 
 					var first = PathUtils.getCoordinates(path.getElements().get(0));
 					var last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
@@ -78,29 +74,28 @@ public class RectangularCommand extends UndoableRedoableCommand {
 						case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);
 						case Left, Right, Center -> List.of(first, new Point2D(first.getX(), last.getY()), last);
 					};
-
-					idNewPointsMap.put(e.getId(), PathNormalize.refine(points, 5));
+					var newPath = new EdgePath();
+					newPath.setRectangular(points.get(0), points.get(1), points.get(2));
+					newEdgeMap.put(id, newPath);
 				}
 			}
 		}
 
+
 		undo = () -> {
-			for (var id : edgeIds) {
-				var e = graph.findEdgeById(id);
-				if (e.getData() instanceof Path path) {
-					path.getElements().setAll(PathUtils.toPathElements(idOldPointsMap.get(id)));
-				}
+			for (var entry : oldEdgeMap.entrySet()) {
+				var e = view.getGraph().findEdgeById(entry.getKey());
+				var path = DrawView.getPath(e);
+				path.set(entry.getValue().getElements(), entry.getValue().getType());
 			}
 		};
 		redo = () -> {
-			for (var id : edgeIds) {
-				var e = graph.findEdgeById(id);
-				if (e.getData() instanceof Path path) {
-					path.getElements().setAll(PathUtils.toPathElements(idNewPointsMap.get(id)));
-				}
+			for (var entry : newEdgeMap.entrySet()) {
+				var e = view.getGraph().findEdgeById(entry.getKey());
+				var path = DrawView.getPath(e);
+				path.set(entry.getValue().getElements(), entry.getValue().getType());
 			}
 		};
-
 	}
 
 	@Override

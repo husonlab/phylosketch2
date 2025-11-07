@@ -43,7 +43,7 @@ public class PathNormalize {
 	 * @return normalized path elements
 	 */
 	public static List<PathElement> apply(Path path, double dMin, double dMax) {
-		return PathUtils.toPathElements(apply(PathUtils.getPoints(path), dMin, dMax));
+		return PathUtils.createElements(apply(PathUtils.getPoints(path), dMin, dMax));
 	}
 
 	/**

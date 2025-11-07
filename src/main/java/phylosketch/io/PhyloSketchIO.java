@@ -24,8 +24,6 @@ import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.control.RichTextLabel;
@@ -38,7 +36,7 @@ import jloda.util.Basic;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
-import phylosketch.paths.PathUtils;
+import phylosketch.paths.EdgePath;
 import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.NodeShape;
@@ -90,12 +88,11 @@ public class PhyloSketchIO {
 										   && !(MainWindowManager.isUseDarkTheme() && shape.getFill()==Color.WHITE))? shape.getFill():"";
 						case "x" -> StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateX());
 						case "y" ->  StringUtils.removeTrailingZerosAfterDot("%.1f",shape.getTranslateY());
-						case "label" -> DrawView.getLabel(v).getText().trim();
+						case "label" -> (label.getRawText().isBlank() ? "" : DrawView.getLabel(v).getText().trim());
 						case "label_dx" -> label != null ?  StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutX()) : "";
 						case "label_dy" -> label != null ? StringUtils.removeTrailingZerosAfterDot("%.1f",label.getLayoutY()) : "";
 						case "label_angle" ->
 								label != null && label.getRotate() != 0 ? StringUtils.removeTrailingZerosAfterDot("%.1f", label.getRotate()) : "";
-
 						default -> "";
 					});
 					return (value.isBlank() ? null : value);
@@ -103,7 +100,7 @@ public class PhyloSketchIO {
 					var path = (Path) e.getData();
 
 					var value = (path == null ? "" : String.valueOf(switch (key) {
-						case "path" -> pathToString(path);
+						case "path" -> PathIO.toString(path);
 						case "stroke" ->
 								(path.getStroke()!=null
 								 && !(!MainWindowManager.isUseDarkTheme() && path.getStroke() == Color.BLACK)
@@ -159,7 +156,7 @@ public class PhyloSketchIO {
 				}
 				case "shape" -> {
 					var type = StringUtils.valueOfIgnoreCase(NodeShape.Type.class, value);
-					var shape = new NodeShape(type != null ? type : NodeShape.Type.Circle, 1.5);
+					var shape = new NodeShape(type != null ? type : NodeShape.Type.Circle);
 					view.setShape(v, shape);
 				}
 				case "size" -> {
@@ -231,7 +228,7 @@ public class PhyloSketchIO {
 						graph.setProbability(e, NumberUtils.parseDouble(value));
 				}
 				case "path" -> {
-					var path = stringToPath(value);
+					var path = new EdgePath(PathIO.fromString(value));
 					view.addPath(e, path);
 				}
 				case "stroke" -> {
@@ -273,17 +270,19 @@ public class PhyloSketchIO {
 		// create shapes for any nodes for which shape not given
 		for(var v:graph.nodes()) {
 			if (!(v.getData() instanceof NodeShape)) {
-				view.setShape(v, new NodeShape(NodeShape.Type.Circle, 1.5));
+				view.setShape(v, new NodeShape(NodeShape.Type.Circle));
 				view.ensureLabelExists(v);
 			}
 			view.ensureLabelExists(v);
 		}
+
 		// create paths for any edges for which path not given
 		for(var e:graph.edges()) {
-			if(!(e.getData() instanceof Path)) {
+			if (!(e.getData() instanceof EdgePath)) {
 				var a=new Point2D(((Shape)e.getSource().getData()).getTranslateX(), ((Shape)e.getSource().getData()).getTranslateY());
 				var b=new Point2D(((Shape)e.getTarget().getData()).getTranslateX(), ((Shape)e.getTarget().getData()).getTranslateY());
-				var path = PathUtils.createPath(List.of(a, b), true);
+				var path = new EdgePath();
+				path.setStraight(a, b);
 				view.addPath(e, path);
 			}
 			view.ensureLabelExists(e);
@@ -301,35 +300,5 @@ public class PhyloSketchIO {
 			view.setMode(DrawView.Mode.Capture);
 	}
 
-	private static String pathToString(Path path) {
-		var buf = new StringBuilder();
-		if (path != null) {
-			for (var item : path.getElements()) {
-				var point = PathUtils.getCoordinates(item);
-				if (!buf.isEmpty())
-					buf.append(",");
-				buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f", point.getX()));
-				buf.append(",");
-				buf.append(StringUtils.removeTrailingZerosAfterDot("%.1f", point.getY()));
-			}
-		}
-		return buf.toString();
-	}
-
-	private static Path stringToPath(String text) {
-		var tokens = text.split(",");
-
-		var path = new Path();
-		for (var i = 0; i + 1 < tokens.length; i += 2) {
-			var x = Double.parseDouble(tokens[i]);
-			var y = Double.parseDouble(tokens[i + 1]);
-			if (i == 0) {
-				path.getElements().add(new MoveTo(x, y));
-			} else {
-				path.getElements().add(new LineTo(x, y));
-			}
-		}
-		return path;
-	}
 }
 

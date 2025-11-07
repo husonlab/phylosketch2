@@ -31,7 +31,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Path;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.CompositeCommand;
@@ -222,10 +221,10 @@ public class FormatPanePresenter {
 		{
 			var object = new Object();
 			InvalidationListener updateShowNodesListener = e -> {
-				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> (notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle, 1.5))).getSize());
-				var nodeShape = exactlyOne(view.getSelectedOrAllNodes(), v -> (notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle, 1.5))));
-				var fillColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5)).getFill());
-				var strokeColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new Circle(1.5)).getStroke());
+				var nodeSize = exactlyOne(view.getSelectedOrAllNodes(), v -> (notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle))).getSize());
+				var nodeShape = exactlyOne(view.getSelectedOrAllNodes(), v -> (notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle))));
+				var fillColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle)).getFill());
+				var strokeColor = exactlyOne(view.getSelectedOrAllNodes(), v -> (Color) notNullOrElse(v, DrawView::getShape, () -> new NodeShape(NodeShape.Type.Circle)).getStroke());
 				var label = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getText());
 				var labelFont = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontFamily());
 				var labelSize = exactlyOne(view.getSelectedOrAllNodes(), v -> notNullOrElse(v, DrawView::getLabel, RichTextLabel::new).getFontSize());
@@ -399,7 +398,7 @@ public class FormatPanePresenter {
 
 		controller.getEdgeRectangularButton().setOnAction(e -> {
 			if (canUpdate)
-				view.getUndoManager().doAndAdd(new RectangularCommand(view.getGraph(), view.getSelectedOrAllEdges()));
+				view.getUndoManager().doAndAdd(new RectangularCommand(view, view.getSelectedOrAllEdges()));
 		});
 		controller.getEdgeRectangularButton().disableProperty().bind(controller.getSmoothButton().disableProperty());
 

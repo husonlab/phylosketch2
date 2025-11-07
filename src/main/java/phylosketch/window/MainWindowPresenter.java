@@ -90,12 +90,15 @@ public class MainWindowPresenter {
 	private final FindToolBar findToolBar;
 	private final FormatPaneView formatPaneView;
 	private final CapturePane capturePane;
+	private final MainWindowController controller;
+	private final DrawView view;
+
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 
 	public MainWindowPresenter(MainWindow window) {
-		var controller = window.getController();
-		var view = window.getDrawView();
+		view = window.getDrawView();
+		controller = window.getController();
 
 		findToolBar = new FindToolBar(window.getStage(), setupSearcher(view));
 		findToolBar.setShowFindToolBar(false);
@@ -470,10 +473,12 @@ public class MainWindowPresenter {
 		});
 
 		SetupImport.apply(view, controller.getPasteMenuItem(), s -> {
-					var pasteCommand = new PasteCommand(view, s);
+					var clean = (view.getGraph().getNumberOfNodes() == 0);
+					var pasteCommand = new PasteCommand(view, window.getPresenter(), s);
 					if (pasteCommand.isRedoable()) {
 						view.getUndoManager().doAndAdd(pasteCommand);
-						allowResize.set(true);
+						if (!clean)
+							allowResize.set(true);
 					}
 				},
 				image -> {
@@ -550,7 +555,10 @@ public class MainWindowPresenter {
 
 		setupLayout(view, controller, formatPaneView.getController());
 		setupLayoutScalingPhylogeny(view, controller, formatPaneView.getController());
+
+		setupModeHints(view, getCapturePane());
 	}
+
 
 	public static void openString(String string) {
 		if (string != null && !string.isBlank()) {
@@ -681,5 +689,40 @@ public class MainWindowPresenter {
 		formatController.getResizeModeButton().disableProperty().bind(controller.getResizeModeCheckMenuItem().disableProperty());
 		formatController.getLayoutLabelsButton().setOnAction(controller.getLayoutLabelMenuItem().getOnAction());
 		formatController.getLayoutLabelsButton().disableProperty().bind(controller.getLayoutLabelMenuItem().disableProperty());
+	}
+
+	private void setupModeHints(DrawView view, CapturePane capturePane) {
+		var message = new Text();
+		InvalidationListener updateModeMessageListener = e -> {
+			RunAfterAWhile.applyInFXThread(message, () -> {
+				view.getOtherGroup().getChildren().remove(message);
+				if (view.getGraph().getNumberOfNodes() == 0 && capturePane.getImageView().getImage() == null) {
+					switch (view.getMode()) {
+						case Capture -> message.setText("""
+								To capture a phylogeny from an image:
+																
+								(1) Use the Load Image item to load an image, or paste one into the window.
+								(2) Use the Place Root item to show the root locator, drag it to the root.
+								(3) Click on the root locator to set the relative position of the root (left, right, etc)
+								(4) Use the Capture Phylogeny item to run the capture algorithm.
+								(5) Set the mode to Sketch and improve the capture interactively.
+								""");
+						case Move -> message.setText("Click and drag on nodes, edges and labels to move them.");
+						case View -> message.setText("View the phylogeny without editing.");
+						case Sketch ->
+								message.setText("To creat a node, double-click on the pane. Then press-drag to create edges.");
+					}
+					view.getOtherGroup().getChildren().add(message);
+				}
+			});
+		};
+		view.modeProperty().addListener(updateModeMessageListener);
+		view.getGraphFX().getNodeList().addListener(updateModeMessageListener);
+		updateModeMessageListener.invalidated(null);
+		view.getUndoManager().undoStackSizeProperty().addListener(updateModeMessageListener);
+	}
+
+	public void setScale(Double sx, Double sy) {
+		// todo: need to some kind for scaling for large phylogenies
 	}
 }

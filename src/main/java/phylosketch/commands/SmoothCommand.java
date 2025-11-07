@@ -20,17 +20,15 @@
 
 package phylosketch.commands;
 
-import javafx.geometry.Point2D;
-import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,42 +36,54 @@ import java.util.Map;
  * Daniel Huson, 9.2024
  */
 public class SmoothCommand extends UndoableRedoableCommand {
-	private final Runnable undo;
-	private final Runnable redo;
+	private Runnable undo;
+	private Runnable redo;
 
-	private final int[] edgeIds;
-	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
-	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
+	private final Map<Integer, EdgePath> oldEdgeMap = new HashMap<>();
+	private final Map<Integer, EdgePath> newEdgeMap = new HashMap<>();
 
 	public SmoothCommand(DrawView view, Collection<Edge> edges) {
 		super("smooth");
-		var graph = view.getGraph();
-		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
 
+		if (edges == null || edges.isEmpty()) {
+			return;
+		}
 		for (var e : edges) {
-			if (e.getData() instanceof Path path) {
-				idOldPointsMap.put(e.getId(), PathUtils.extractPoints(path));
-				idNewPointsMap.put(e.getId(), PathSmoother.apply(PathUtils.extractPoints(path), 50));
+			if (e.getData() instanceof EdgePath path) {
+				var id = e.getId();
+				oldEdgeMap.put(id, path.copy());
+				var points = PathSmoother.apply(PathUtils.extractPoints(path), 50);
+				var newPath = new EdgePath();
+				newPath.setFreeform(points);
+				newEdgeMap.put(id, newPath);
 			}
 		}
 
 		undo = () -> {
-			for (var id : edgeIds) {
-				var e = graph.findEdgeById(id);
-				if (e != null && e.getData() instanceof Path path) {
-					path.getElements().setAll(PathUtils.toPathElements(idOldPointsMap.get(id)));
-				}
-			}
+			oldEdgeMap.forEach((key, value) -> {
+				var e = view.getGraph().findEdgeById(key);
+				var path = DrawView.getPath(e);
+				path.set(value.getElements(), value.getType());
+			});
 		};
 		redo = () -> {
-			for (var id : edgeIds) {
-				var e = graph.findEdgeById(id);
-				if (e != null && e.getData() instanceof Path path) {
-					path.getElements().setAll(PathUtils.toPathElements(idNewPointsMap.get(id)));
-				}
-			}
+			newEdgeMap.forEach((key, value) -> {
+				var e = view.getGraph().findEdgeById(key);
+				var path = DrawView.getPath(e);
+				path.set(value.getElements(), value.getType());
+			});
 		};
 
+	}
+
+	@Override
+	public boolean isUndoable() {
+		return undo != null;
+	}
+
+	@Override
+	public boolean isRedoable() {
+		return redo != null;
 	}
 
 	@Override

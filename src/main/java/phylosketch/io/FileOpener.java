@@ -67,7 +67,7 @@ public class FileOpener implements Consumer<String> {
 			else if (firstLine.startsWith("<nex:nexml") || firstLine.startsWith("<?xml version="))
 				NotificationManager.showWarning("NEXML: not implemented");
 			else if (firstLine.startsWith("(") || firstLine.contains(")")) {
-				ImportNewick.apply(fileName, window.getDrawView());
+				ImportNewick.apply(fileName, window.getDrawView(), window.getPresenter()::setScale);
 				window.dirtyProperty().set(true);
 				window.getDrawView().setMode(DrawView.Mode.View);
 			}

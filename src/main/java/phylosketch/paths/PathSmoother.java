@@ -63,6 +63,6 @@ public class PathSmoother {
 
 	public static void apply(Path path, int iterations) {
 		var points = PathUtils.getPoints(path);
-		path.getElements().setAll(PathUtils.toPathElements(apply(points, iterations)));
+		path.getElements().setAll(PathUtils.createElements(apply(points, iterations)));
 	}
 }

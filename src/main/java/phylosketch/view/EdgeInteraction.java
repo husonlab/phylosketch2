@@ -20,23 +20,21 @@
 
 package phylosketch.view;
 
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import phylosketch.main.PhyloSketch;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathReshape;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static phylosketch.paths.PathUtils.copy;
 import static phylosketch.paths.PathUtils.getCoordinates;
 
 /**
@@ -44,16 +42,16 @@ import static phylosketch.paths.PathUtils.getCoordinates;
  * Daniel Huson, 9.2024
  */
 public class EdgeInteraction {
-	private static double mouseDownX;
-	private static double mouseDownY;
-
 	private static boolean inMove;
 
 	private static int pathIndex;
 	private static List<PathElement> originalElements;
+	private static EdgePath.Type originalType;
 
 	private static double mouseX;
 	private static double mouseY;
+
+	private static boolean insideEdge;
 
 	/**
 	 * setup edge interactions
@@ -67,7 +65,7 @@ public class EdgeInteraction {
 			while (c.next()) {
 				if (c.wasAdded()) {
 					for (Node n : c.getAddedSubList()) {
-						if (n instanceof Path path && path.getUserData() instanceof jloda.graph.Edge e) {
+						if (n instanceof EdgePath path && path.getUserData() instanceof jloda.graph.Edge e) {
 
 							path.setOnContextMenuRequested(a -> {
 								if (view.getEdgeSelection().isSelected(e) && view.getMode() == DrawView.Mode.Move) {
@@ -81,36 +79,38 @@ public class EdgeInteraction {
 							});
 
 							path.setOnMouseClicked(me -> {
-								if (me.isStillSincePress() && !me.isControlDown()) {
-									if (PhyloSketch.isDesktop() && me.isShiftDown()) {
-										view.getEdgeSelection().toggleSelection(e);
-									} else if (!view.getEdgeSelection().isSelected(e)) {
-										if (PhyloSketch.isDesktop()) {
-											view.getEdgeSelection().clearSelection();
-											view.getNodeSelection().clearSelection();
+								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
+								if (path.isPointOnStroke(local.getX(), local.getY())) {
+									if (me.isStillSincePress() && !me.isControlDown()) {
+										if (PhyloSketch.isDesktop() && me.isShiftDown()) {
+											view.getEdgeSelection().toggleSelection(e);
+										} else if (!view.getEdgeSelection().isSelected(e)) {
+											if (PhyloSketch.isDesktop()) {
+												view.getEdgeSelection().clearSelection();
+												view.getNodeSelection().clearSelection();
+											}
+											view.getEdgeSelection().select(e);
 										}
-										view.getEdgeSelection().select(e);
-									} else {
-										if (false) Platform.runLater(runSelectionButton);
 									}
+									me.consume();
 								}
-								me.consume();
 							});
 
 							path.setOnMousePressed(me -> {
-								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
+								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
+								if (path.isPointOnStroke(local.getX(), local.getY())) {
+									inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 
-								if (inMove) {
-									mouseDownX = me.getScreenX();
-									mouseDownY = me.getScreenY();
-									var local = view.screenToLocal(mouseDownX, mouseDownY);
-									pathIndex = findIndex(path, local);
-									originalElements = copy(path.getElements());
-									mouseX = me.getScreenX();
-									mouseY = me.getScreenY();
-									me.consume();
-								} else
-									pathIndex = -1;
+									if (inMove) {
+										pathIndex = findIndex(path, local);
+										originalElements = new ArrayList<>(path.getElements());
+										originalType = path.getType();
+										mouseX = me.getSceneX();
+										mouseY = me.getSceneY();
+										me.consume();
+									} else
+										pathIndex = -1;
+								} else inMove = false;
 							});
 							path.setOnMouseDragged(me -> {
 								if (inMove) {
@@ -123,11 +123,14 @@ public class EdgeInteraction {
 									}
 
 									if (pathIndex != -1) {
-										var local = view.screenToLocal(me.getScreenX(), me.getScreenY());
-										var d = local.subtract(view.screenToLocal(mouseX, mouseY));
+										if (path.getType() != EdgePath.Type.Freeform) {
+											path.changeToFreeform();
+										}
+										var local = view.sceneToLocal(me.getSceneX(), me.getSceneY());
+										var d = local.subtract(view.sceneToLocal(mouseX, mouseY));
 										PathReshape.apply(path, pathIndex, d.getX(), d.getY());
-										mouseX = me.getScreenX();
-										mouseY = me.getScreenY();
+										mouseX = me.getSceneX();
+										mouseY = me.getSceneY();
 									}
 									me.consume();
 								}
@@ -140,7 +143,7 @@ public class EdgeInteraction {
 										path.getElements().setAll(refinedElements);
 
 										view.getUndoManager().add("reshape",
-												() -> path.getElements().setAll(theOriginalElements),
+												() -> path.set(theOriginalElements, originalType),
 												() -> path.getElements().setAll(refinedElements));
 									}
 									me.consume();
@@ -148,17 +151,24 @@ public class EdgeInteraction {
 								}
 							});
 							path.setOnMouseEntered(me -> {
-								var hoverShadow = new HoverShadow(path.getStroke(), 3);
-								if (path.getEffect() != null) {
-									hoverShadow.setInput(path.getEffect());
-								}
-								path.setEffect(hoverShadow);
+								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
+								if (path.isPointOnStroke(local.getX(), local.getY())) {
+									var hoverShadow = new HoverShadow(path.getStroke(), 3);
+									if (path.getEffect() != null) {
+										hoverShadow.setInput(path.getEffect());
+									}
+									path.setEffect(hoverShadow);
+									insideEdge = true;
+								} else insideEdge = false;
 							});
 							path.setOnMouseExited(me -> {
-								if (path.getEffect() instanceof HoverShadow hoverShadow && hoverShadow.getInput() != null) {
-									path.setEffect(hoverShadow.getInput());
-								} else {
-									path.setEffect(null);
+								if (insideEdge) {
+									if (path.getEffect() instanceof HoverShadow hoverShadow && hoverShadow.getInput() != null) {
+										path.setEffect(hoverShadow.getInput());
+									} else {
+										path.setEffect(null);
+									}
+									insideEdge = false;
 								}
 							});
 						}
@@ -168,11 +178,14 @@ public class EdgeInteraction {
 		});
 	}
 
-	private static int findIndex(Path path, Point2D local) {
+	private static int findIndex(EdgePath path, Point2D local) {
 		var bestDistance = 10.0;
 		int index = -1;
 
-		ObservableList<PathElement> elements = path.getElements();
+		var tmp = path.copy();
+		tmp.changeToFreeform();
+
+		var elements = tmp.getElements();
 		for (int i = 1; i + 1 < elements.size(); i++) {  // can't be first or last
 			var element = elements.get(i);
 			var coordinates = getCoordinates(element);

@@ -28,16 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PathUtils {
-	public static ArrayList<PathElement> toPathElements(List<Point2D> points) {
-		var result = new ArrayList<PathElement>();
-		for (var i = 0; i < points.size(); i++) {
-			if (i == 0)
-				result.add(new MoveTo(points.get(i).getX(), points.get(i).getY()));
-			else
-				result.add(new LineTo(points.get(i).getX(), points.get(i).getY()));
-		}
-		return result;
-	}
 
 	public static ArrayList<Point2D> getPoints(Path path) {
 		return new ArrayList<>(path.getElements().stream().map(PathUtils::getCoordinates).toList());
@@ -76,6 +66,8 @@ public class PathUtils {
 			return new Point2D(quadCurveTo.getX(), quadCurveTo.getY());
 		} else if (pathElement instanceof CubicCurveTo cubicCurveTo) {
 			return new Point2D(cubicCurveTo.getX(), cubicCurveTo.getY());
+		} else if (pathElement instanceof ArcTo arcTo) {
+			return new Point2D(arcTo.getX(), arcTo.getY());
 		} else {
 			return new Point2D(0, 0);
 		}
@@ -84,13 +76,17 @@ public class PathUtils {
 	public static Path createPath(List<Point2D> points, boolean normalize) {
 		var path = new Path();
 		path.getStyleClass().add("graph-edge");
-		path.getElements().addAll(createElements(points));
-		if (normalize)
-			path.getElements().setAll(PathNormalize.apply(path, 2, 5));
+		path.getElements().addAll(createElements(points, normalize));
 		return path;
 	}
 
 	public static List<PathElement> createElements(List<Point2D> points) {
+		return createElements(points, false);
+	}
+
+	public static List<PathElement> createElements(List<Point2D> points, boolean normalize) {
+		if (normalize)
+			points = PathNormalize.apply(points, 2, 5);
 		var list = new ArrayList<PathElement>();
 		for (var point : points) {
 			if (list.isEmpty())
@@ -147,7 +143,7 @@ public class PathUtils {
 				firstIndex = i;
 			}
 		}
-		return split(path, true, firstIndex);
+		return split(path, firstIndex);
 	}
 
 	public static Point2D nudgeOntoPath(Path path, Point2D aPoint) {
@@ -191,16 +187,16 @@ public class PathUtils {
 				secondIndex = i;
 			}
 		}
-		return split(path, true, firstIndex, secondIndex);
+		return split(path, firstIndex, secondIndex);
 	}
 
 
-	public static List<List<Point2D>> split(Path path, boolean normalize, int... elementIndices) {
+	public static List<List<Point2D>> split(Path path, int... elementIndices) {
 		var points = extractPoints(path);
 		var list = new ArrayList<List<Point2D>>();
 		var prev = 0;
 		for (int index : elementIndices) {
-			list.add(new ArrayList<>(points.subList(prev, index)));
+			list.add(new ArrayList<>(points.subList(prev, index + 1)));
 			prev = index;
 		}
 		list.add(new ArrayList<>(points.subList(prev, points.size())));

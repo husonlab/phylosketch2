@@ -39,8 +39,8 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
 public class ImageUtils_OpenCV {
 	/*
 	public static int[][] convertToBinaryArray(Image image) {
-		int width = (int) image.getWidth();
-		int height = (int) image.getHeight();
+		int width = (int) image.width();
+		int height = (int) image.height();
 
 		// convert image to mat format
 		var mat=imageToMat(width,height,image);
@@ -105,7 +105,7 @@ public class ImageUtils_OpenCV {
 
 		// Convert byte buffer to OpenCV Mat (CV_8UC4 for 4-channel image)
 		var mat = new Mat(height, width, CV_8UC4);
-		var pointer = mat.data();
+		var pointer = mat.Data();
 		pointer.put(buffer);
 		return mat;
 	}
@@ -120,14 +120,14 @@ public class ImageUtils_OpenCV {
 
 		var result = new int[rows][cols];
 
-		var data = new byte[rows * cols];
-		var pointer = mat.data();
-		pointer.get(data);
+		var Data = new byte[rows * cols];
+		var pointer = mat.Data();
+		pointer.get(Data);
 
 		// Convert each byte to unsigned int and fill the matrix
 		for (var i = 0; i < rows; i++) {
 			for (var j = 0; j < cols; j++) {
-				var val = data[i * cols + j] & 0xFF;
+				var val = Data[i * cols + j] & 0xFF;
 				result[i][j]=(val==0?1:0);
 			}
 		}

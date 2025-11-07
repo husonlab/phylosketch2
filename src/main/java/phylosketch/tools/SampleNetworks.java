@@ -165,6 +165,14 @@ public class SampleNetworks {
 									network.setReticulate(f, true);
 								}
 							}
+							if (true) {
+								for (var v : network.nodes()) {
+									var list = IteratorUtils.asList(v.adjacentEdges());
+									Collections.shuffle(list, new Random(666));
+									network.rearrangeAdjacentEdges(v, list);
+								}
+							}
+
 							var label = "n%d.%d".formatted(countInputTrees, replicate + 1);
 							if (options.isVerbose() && !timeLayout) {
 								System.out.printf("%s: taxa=%d, h=%d%n", label, IteratorUtils.count(network.leaves()),
@@ -184,7 +192,6 @@ public class SampleNetworks {
 								w.flush();
 							}
 						}
-
 					}
 				}
 			}

@@ -29,11 +29,14 @@ import javafx.util.Duration;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathReshape;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * the flip coordinates command
@@ -46,13 +49,13 @@ public class FlipCommand extends UndoableRedoableCommand {
 	private final Map<Integer, Point2D> nodeOldPointMap = new HashMap<>();
 	private final Map<Integer, Point2D> labelOldPointMap = new HashMap<>();
 	private final Map<Integer, Double> labelOldAngleMap = new HashMap<>();
-	private final Map<Integer, List<Point2D>> edgeOldPointsMap = new HashMap<>();
+	private final Map<Integer, EdgePath> oldEdgeMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeMidPointMap = new HashMap<>();
-	private final Map<Integer, List<Point2D>> edgeMidPointsMap = new HashMap<>();
+	private final Map<Integer, EdgePath> midEdgeMap = new HashMap<>();
 	private final Map<Integer, Point2D> nodeNewPointMap = new HashMap<>();
 	private final Map<Integer, Point2D> labelNewPointMap = new HashMap<>();
 	private final Map<Integer, Double> labelNewAngleMap = new HashMap<>();
-	private final Map<Integer, List<Point2D>> edgeNewPointsMap = new HashMap<>();
+	private final Map<Integer, EdgePath> newEdgeMap = new HashMap<>();
 
 	/**
 	 * flip all or currently selected nodes
@@ -115,44 +118,46 @@ public class FlipCommand extends UndoableRedoableCommand {
 					var labelNewPoint = GeometryUtilsFX.translateByAngle(0, 0, newLabelAngle, 10);
 
 					//var shift = GeometryUtilsFX.rotateAbout(new Point2D(0.5 * label.getWidth() + 10, 0), newLabelAngle, new Point2D(0, 0));
-					//var labelNewPoint = new Point2D(-0.5 * label.getWidth(), -0.5 * label.getHeight()).add(shift);
+					//var labelNewPoint = new Point2D(-0.5 * label.width(), -0.5 * label.getHeight()).add(shift);
 					labelNewPointMap.put(v.getId(), labelNewPoint);
 				}
 			}
 		}
 		for (var e : view.getGraph().edges()) {
 			if (nodes.contains(e.getSource()) || nodes.contains(e.getTarget())) {
-				var points = DrawView.getPoints(e);
-				edgeOldPointsMap.put(e.getId(), points);
+				var edgePath = DrawView.getPath(e);
+				oldEdgeMap.put(e.getId(), edgePath.copy());
 				if (nodes.contains(e.getSource()) && nodes.contains(e.getTarget())) {
-					var midPoints = new ArrayList<Point2D>();
-					for (var point : points) {
-						midPoints.add(new Point2D(horizontal ? x : point.getX(), horizontal ? point.getY() : y));
+					if (horizontal) {
+						var min = PathUtils.getPoints(edgePath).stream().mapToDouble(Point2D::getY).min().orElse(0.0);
+						var max = PathUtils.getPoints(edgePath).stream().mapToDouble(Point2D::getY).max().orElse(0.0);
+						midEdgeMap.put(e.getId(), new EdgePath(new Point2D(x, min), new Point2D(x, max)));
+					} else {
+						var min = PathUtils.getPoints(edgePath).stream().mapToDouble(Point2D::getX).min().orElse(0.0);
+						var max = PathUtils.getPoints(edgePath).stream().mapToDouble(Point2D::getX).max().orElse(0.0);
+						midEdgeMap.put(e.getId(), new EdgePath(new Point2D(min, y), new Point2D(max, y)));
 					}
-					edgeMidPointsMap.put(e.getId(), midPoints);
-					var flippedPoints = new ArrayList<Point2D>();
-					for (var point : points) {
-						var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
-						flippedPoints.add(flipped);
-					}
-					edgeNewPointsMap.put(e.getId(), flippedPoints);
+					var flipped = edgePath.flip(center, horizontal);
+					newEdgeMap.put(e.getId(), flipped);
 				} else if (nodes.contains(e.getSource())) {
-					var path = PathUtils.createPath(points, false);
+					var path = edgePath.copy();
+					path.changeToFreeform();
 					var id = 0;
-					var point = points.get(id);
+					var point = PathUtils.getCoordinates(path.getElements().get(id));
 					var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
-					var diff = flipped.subtract(points.get(id));
+					var diff = flipped.subtract(point);
 					PathReshape.apply(path, id, diff.getX(), diff.getY());
-					edgeNewPointsMap.put(e.getId(), PathUtils.getPoints(path));
+					newEdgeMap.put(e.getId(), path);
 
 				} else if (nodes.contains(e.getTarget())) {
-					var path = PathUtils.createPath(points, false);
+					var path = edgePath.copy();
+					path.changeToFreeform();
 					var id = path.getElements().size() - 1;
-					var point = points.get(id);
+					var point = PathUtils.getCoordinates(path.getElements().get(id));
 					var flipped = new Point2D(horizontal ? x - (point.getX() - x) : point.getX(), horizontal ? point.getY() : y - (point.getY() - y));
-					var diff = flipped.subtract(points.get(id));
+					var diff = flipped.subtract(point);
 					PathReshape.apply(path, id, diff.getX(), diff.getY());
-					edgeNewPointsMap.put(e.getId(), PathUtils.getPoints(path));
+					newEdgeMap.put(e.getId(), path);
 				}
 			}
 		}
@@ -168,10 +173,11 @@ public class FlipCommand extends UndoableRedoableCommand {
 						shape.setTranslateY(entry.getValue().getY());
 					}
 				}
-				for (var entry : edgeMidPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+				midEdgeMap.forEach((key, value) -> {
+					var e = view.getGraph().findEdgeById(key);
+					var path = DrawView.getPath(e);
+					path.set(value.getElements(), value.getType());
+				});
 			});
 			var second = new PauseTransition(Duration.seconds(0.1));
 			second.setOnFinished(a -> {
@@ -191,10 +197,11 @@ public class FlipCommand extends UndoableRedoableCommand {
 						label.ensureUpright();
 					}
 				});
-				for (var entry : edgeOldPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+				oldEdgeMap.forEach((key, value) -> {
+					var e = view.getGraph().findEdgeById(key);
+					var path = DrawView.getPath(e);
+					path.set(value.getElements(), value.getType());
+				});
 			});
 			var sequential = new SequentialTransition(first, second);
 			sequential.setOnFinished(a -> {
@@ -215,10 +222,11 @@ public class FlipCommand extends UndoableRedoableCommand {
 						shape.setTranslateY(entry.getValue().getY());
 					}
 				}
-				for (var entry : edgeMidPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+				midEdgeMap.forEach((key, value) -> {
+					var e = view.getGraph().findEdgeById(key);
+					var path = DrawView.getPath(e);
+					path.set(value.getElements(), value.getType());
+				});
 			});
 			var second = new PauseTransition(Duration.seconds(0.1));
 			second.setOnFinished(a -> {
@@ -237,19 +245,26 @@ public class FlipCommand extends UndoableRedoableCommand {
 					label.setRotate(GeometryUtilsFX.modulo360(labelNewAngleMap.get(key)));
 					label.ensureUpright();
 				});
-
-				for (var entry : edgeNewPointsMap.entrySet()) {
-					var e = view.getGraph().findEdgeById(entry.getKey());
-					DrawView.getPath(e).getElements().setAll(PathUtils.createPath(entry.getValue(), false).getElements());
-				}
+				newEdgeMap.forEach((key, value) -> {
+					var e = view.getGraph().findEdgeById(key);
+					var path = DrawView.getPath(e);
+					path.set(value.getElements(), value.getType());
+				});
 			});
 			var sequential = new SequentialTransition(first, second);
-			sequential.setOnFinished(a -> {
-				layoutCommmand.redo();
-				isRunning.set(false);
-			});
+			sequential.setOnFinished(e -> isRunning.set(false));
 			sequential.play();
 		};
+	}
+
+	@Override
+	public boolean isUndoable() {
+		return undo != null;
+	}
+
+	@Override
+	public boolean isRedoable() {
+		return redo != null;
 	}
 
 	@Override

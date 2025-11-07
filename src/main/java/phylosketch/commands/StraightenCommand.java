@@ -20,17 +20,15 @@
 
 package phylosketch.commands;
 
-import javafx.geometry.Point2D;
-import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
-import jloda.graph.Graph;
-import phylosketch.paths.PathNormalize;
+import jloda.phylo.PhyloTree;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathUtils;
+import phylosketch.view.DrawView;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,39 +39,36 @@ public class StraightenCommand extends UndoableRedoableCommand {
 	private final Runnable undo;
 	private final Runnable redo;
 
-	private final int[] edgeIds;
-	private final Map<Integer, List<Point2D>> idOldPointsMap = new HashMap<>();
-	private final Map<Integer, List<Point2D>> idNewPointsMap = new HashMap<>();
+	private final Map<Integer, EdgePath> oldEdgeMap = new HashMap<>();
+	private final Map<Integer, EdgePath> newEdgeMap = new HashMap<>();
 
-	public StraightenCommand(Graph graph, Collection<Edge> edges) {
-		super("setup");
-		edgeIds = edges.stream().mapToInt(e -> e.getId()).toArray();
+	public StraightenCommand(PhyloTree graph, Collection<Edge> edges) {
+		super("straighten");
 
 		for (var e : edges) {
-			if (e.getData() instanceof Path path) {
-				idOldPointsMap.put(e.getId(), PathUtils.extractPoints(path));
-				var points = List.of(PathUtils.getCoordinates(path.getElements().get(0)), PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1)));
-				idNewPointsMap.put(e.getId(), PathNormalize.refine(points, 5));
+			if (e.getData() instanceof EdgePath path) {
+				var id = e.getId();
+				oldEdgeMap.put(id, path.copy());
+				var newPath = new EdgePath();
+				newPath.setStraight(PathUtils.getCoordinates(path.getElements().get(0)), PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1)));
+				newEdgeMap.put(id, newPath);
 			}
 		}
 
 		undo = () -> {
-			for (var id : edgeIds) {
-				var e = graph.findEdgeById(id);
-				if (e.getData() instanceof Path path) {
-					path.getElements().setAll(PathUtils.toPathElements(idOldPointsMap.get(id)));
-				}
+			for (var entry : oldEdgeMap.entrySet()) {
+				var e = graph.findEdgeById(entry.getKey());
+				var path = DrawView.getPath(e);
+				path.set(entry.getValue().getElements(), entry.getValue().getType());
 			}
 		};
 		redo = () -> {
-			for (var id : edgeIds) {
-				var e = graph.findEdgeById(id);
-				if (e.getData() instanceof Path path) {
-					path.getElements().setAll(PathUtils.toPathElements(idNewPointsMap.get(id)));
-				}
+			for (var entry : newEdgeMap.entrySet()) {
+				var e = graph.findEdgeById(entry.getKey());
+				var path = DrawView.getPath(e);
+				path.set(entry.getValue().getElements(), entry.getValue().getType());
 			}
 		};
-
 	}
 
 	@Override

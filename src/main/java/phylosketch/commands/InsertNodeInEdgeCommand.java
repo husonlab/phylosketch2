@@ -62,13 +62,14 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 		sourceId = e.getSource().getId();
 		targetId = e.getTarget().getId();
 
-		var path = DrawView.getPath(e);
-		stroke = (Color) path.getStroke();
-		strokeWidth = path.getStrokeWidth();
-		dashArray.addAll(path.getStrokeDashArray());
+		var edgePath = DrawView.getPath(e);
+		var workingPath = edgePath.copyToFreeform();
+		stroke = (Color) edgePath.getStroke();
+		strokeWidth = edgePath.getStrokeWidth();
+		dashArray.addAll(edgePath.getStrokeDashArray());
 		arrow = view.isShowArrow(e);
 
-		split = PathUtils.split(path, location);
+		split = PathUtils.split(workingPath, location);
 
 		deleteEdgeCommand = new DeleteCommand(view, Collections.emptyList(), List.of(e));
 

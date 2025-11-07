@@ -25,6 +25,7 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.CollectionUtils;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
 
@@ -45,7 +46,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 	private final boolean oldEdgeArrow;
 	private final Integer oldSourceId;
 	private final Integer oldTargetId;
-	private final Path oldEdgePath;
+	private final EdgePath oldEdgePath;
 
 	private int newEdgeAtSourceId = -1;
 	private int newEdgeAtTargetId = -1;
@@ -76,7 +77,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 			oldEdgeArrow = view.getEdgeArrowMap().containsKey(e);
 			oldSourceId = e.getSource().getId();
 			oldTargetId = e.getTarget().getId();
-			oldEdgePath = (Path) e.getData();
+			oldEdgePath = (EdgePath) e.getData();
 			// newRootId will be set in redo()
 		} else {
 			oldNodeId = v.getId();
@@ -151,7 +152,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 					if (oldEdgeId != -1) {
 						var index = oldEdgePath.getElements().size() / 2;
 						var edgeHit = new DrawEdgeCommand.EdgeHit(graph.findEdgeById(oldEdgeId), oldEdgePath, index);
-						var parts = PathUtils.split(edgeHit.path(), false, edgeHit.elementIndex());
+						var parts = PathUtils.split(edgeHit.path(), edgeHit.elementIndex());
 						var location = parts.get(1).get(0);
 						var w = view.createNode(location, newNodeId);
 						newNodeId = w.getId();

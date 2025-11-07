@@ -33,12 +33,12 @@ import jloda.util.IteratorUtils;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
-import phylosketch.view.RootPosition;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Random;
+import java.util.function.BiConsumer;
 
 /**
  * newick import
@@ -52,9 +52,9 @@ public class ImportNewick {
 	 * @param view     the window to import into
 	 * @throws IOException
 	 */
-	public static void apply(String fileName, DrawView view) throws IOException {
+	public static void apply(String fileName, DrawView view, BiConsumer<Double, Double> setScale) throws IOException {
 		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
-			apply(r, view);
+			apply(r, view, setScale);
 		}
 	}
 
@@ -66,10 +66,12 @@ public class ImportNewick {
 	 * @return set of new nodes
 	 * @throws IOException
 	 */
-	public static Collection<Node> apply(BufferedReader r, DrawView view) throws IOException {
-		var rootSide = RootPosition.Side.Left;
-
+	public static Collection<Node> apply(BufferedReader r, DrawView view, BiConsumer<Double, Double> setScale) throws IOException {
 		view.applyCss();
+
+		var clean = (view.getGraph().getNumberOfNodes() == 0);
+		if (clean)
+			view.setLayout(LayoutRootedPhylogeny.Layout.Rectangular);
 
 		final var width = 300;
 		var gap = 50.0;
@@ -93,6 +95,7 @@ public class ImportNewick {
 					LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, true, new Random(666), angles, points);
 
 					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
+					setScale.accept(1.0, totalHeight / height);
 
 					if (yMin + gap + height > totalHeight) {
 						yMin = gap;
@@ -102,7 +105,7 @@ public class ImportNewick {
 					}
 
 					var xMax = xMin + width;
-					var yMax = yMin + height;
+					var yMax = yMin + totalHeight;
 					ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
 					yMin += height + gap;
 					DrawNetwork.apply(view, tree, points, view.getLayout());
@@ -112,12 +115,14 @@ public class ImportNewick {
 		var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 		newNodes.removeAll(originalNodes);
 
-		view.getNodeSelection().clearSelection();
-		view.getEdgeSelection().clearSelection();
-		for (var v : newNodes) {
-			view.getNodeSelection().select(v);
-			for (var e : v.outEdges())
-				view.getEdgeSelection().select(e);
+		if (!clean) {
+			view.getNodeSelection().clearSelection();
+			view.getEdgeSelection().clearSelection();
+			for (var v : newNodes) {
+				view.getNodeSelection().select(v);
+				for (var e : v.outEdges())
+					view.getEdgeSelection().select(e);
+			}
 		}
 		return newNodes;
 	}
@@ -153,6 +158,7 @@ public class ImportNewick {
 				for (var e : v.outEdges())
 					view.getEdgeSelection().select(e);
 			}
+
 			return newNodes;
 		}
 	}

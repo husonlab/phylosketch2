@@ -20,16 +20,15 @@
 
 package phylosketch.commands;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Shape;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.algorithms.IsDAG;
 import jloda.util.Pair;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
@@ -232,8 +231,15 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 		int bestPathIndex = -1;
 
 		for (var node : view.getEdgesGroup().getChildren()) {
-			if (node instanceof Path path && path.getUserData() instanceof Edge e && e.getOwner() != null) {
-				ObservableList<PathElement> elements = path.getElements();
+			if (node instanceof EdgePath edgePath && edgePath.getUserData() instanceof Edge e && e.getOwner() != null) {
+				EdgePath path;
+				if (edgePath.getType() == EdgePath.Type.Freeform)
+					path = edgePath;
+				else {
+					path = edgePath.copy();
+					path.changeToFreeform();
+				}
+				var elements = path.getElements();
 				for (int i = 0; i < elements.size(); i++) {
 					var element = elements.get(i);
 					var coordinates = getCoordinates(element);

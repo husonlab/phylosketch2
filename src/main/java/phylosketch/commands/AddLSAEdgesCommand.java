@@ -27,11 +27,10 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
 import jloda.util.Pair;
-import phylosketch.paths.PathUtils;
+import phylosketch.paths.EdgePath;
 import phylosketch.view.DrawView;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -80,7 +79,8 @@ public class AddLSAEdgesCommand extends UndoableRedoableCommand {
 			for (var entry : newMap.entrySet()) {
 				var v = entry.getKey().getFirst();
 				var w = entry.getKey().getSecond();
-				var path = PathUtils.createPath(List.of(DrawView.getPoint(v), DrawView.getPoint(w)), true);
+				var path = new EdgePath();
+				path.setStraight(DrawView.getPoint(v), DrawView.getPoint(w));
 				var e = view.createEdge(v, w, path, entry.getValue());
 				entry.setValue(e.getId());
 				path.applyCss();

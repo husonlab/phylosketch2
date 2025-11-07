@@ -43,5 +43,6 @@ module phylosketch {
 	exports xtra.networktrees;
 
 	exports xtra.daniel;
+	opens phylosketch.io;
 
 }

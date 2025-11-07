@@ -23,6 +23,7 @@ package phylosketch.view;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
+import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoManager;
 
 public class LabelUtils {
@@ -32,18 +33,21 @@ public class LabelUtils {
 	private static double mouseY;
 	private static boolean wasDragged;
 
-	public static void makeDraggable(javafx.scene.Node label, ReadOnlyBooleanProperty allow, Pane pane, UndoManager undoManager) {
+	public static void makeDraggable(RichTextLabel label, ReadOnlyBooleanProperty allow, Pane pane, UndoManager undoManager) {
+
 		label.setOnMousePressed(e -> {
-			mouseDownX = e.getScreenX();
-			mouseDownY = e.getScreenY();
-			mouseX = e.getScreenX();
-			mouseY = e.getScreenY();
-			wasDragged = false;
-			e.consume();
+			if (!label.getRawText().isBlank()) {
+				mouseDownX = e.getScreenX();
+				mouseDownY = e.getScreenY();
+				mouseX = e.getScreenX();
+				mouseY = e.getScreenY();
+				wasDragged = false;
+				e.consume();
+			}
 
 		});
 		label.setOnMouseDragged(e -> {
-			if(allow.get()) {
+			if (allow.get() && !label.getRawText().isBlank()) {
 				var previous = pane.screenToLocal(mouseX, mouseY);
 				var current = pane.screenToLocal(e.getScreenX(), e.getScreenY());
 				var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());
@@ -56,7 +60,7 @@ public class LabelUtils {
 			e.consume();
 		});
 		label.setOnMouseReleased(e -> {
-			if (wasDragged) {
+			if (wasDragged && !label.getRawText().isBlank()) {
 				undoManager.add("move label", () -> {
 					var previous = pane.screenToLocal(mouseDownX, mouseDownY);
 					var current = pane.screenToLocal(e.getScreenX(), e.getScreenY());

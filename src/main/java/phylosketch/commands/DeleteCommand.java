@@ -20,14 +20,13 @@
 
 package phylosketch.commands;
 
-import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.IteratorUtils;
-import phylosketch.paths.PathUtils;
+import phylosketch.paths.EdgePath;
 import phylosketch.utils.ColorUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.NodeShape;
@@ -82,7 +81,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 			for (var d : edgeDataList) {
 				var v = view.getGraph().findNodeById(d.sourceId);
 				var w = view.getGraph().findNodeById(d.targetId);
-				var e = view.createEdge(v, w, new Path(), d.id);
+				var e = view.createEdge(v, w, new EdgePath(), d.id);
 				d.apply(view, e);
 			}
 		};
@@ -120,14 +119,14 @@ public class DeleteCommand extends UndoableRedoableCommand {
 	}
 
 	public record EdgeData(int id, int sourceId, int targetId, boolean arrow, Double weight,
-						   Double confidence, Double probability, String label, List<Point2D> points,
-						   Color stroke, double strokeWidth, List<Double> dashArray) {
+						   Double confidence, Double probability, String label, List<PathElement> elements,
+						   EdgePath.Type type, Color stroke, double strokeWidth, List<Double> dashArray) {
 		public EdgeData(DrawView view, Edge e) {
 			this(e.getId(), e.getSource().getId(), e.getTarget().getId(), view.getEdgeArrowMap().containsKey(e),
 					view.getGraph().hasEdgeWeights() ? view.getGraph().getWeight(e) : null,
 					view.getGraph().hasEdgeConfidences() ? view.getGraph().getConfidence(e) : null,
 					view.getGraph().hasEdgeProbabilities() ? view.getGraph().getProbability(e) : null,
-					DrawView.getLabel(e).getRawText(), PathUtils.extractPoints(DrawView.getPath(e)), (Color) DrawView.getPath(e).getStroke(),
+					DrawView.getLabel(e).getRawText(), new ArrayList<>(DrawView.getPath(e).getElements()), DrawView.getPath(e).getType(), (Color) DrawView.getPath(e).getStroke(),
 					DrawView.getPath(e).getStrokeWidth(), new ArrayList<>(DrawView.getPath(e).getStrokeDashArray()));
 		}
 
@@ -142,7 +141,7 @@ public class DeleteCommand extends UndoableRedoableCommand {
 				view.setShowArrow(e, true);
 			if (label != null)
 				view.setLabel(e, label);
-			DrawView.getPath(e).getElements().setAll(PathUtils.toPathElements(points));
+			DrawView.getPath(e).set(elements(), type());
 			ColorUtils.setStroke(DrawView.getPath(e), stroke, "graph-edge");
 			DrawView.getPath(e).setStrokeWidth(strokeWidth);
 			DrawView.getPath(e).getStrokeDashArray().setAll(dashArray);

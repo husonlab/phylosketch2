@@ -63,6 +63,14 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 			var minY = Double.MAX_VALUE;
 			var maxY = Double.MIN_VALUE;
 
+			for (var v : view.getGraph().nodes()) {
+				var local = view.getLocation(v);
+				minX = Math.min(minX, local.getX());
+				maxX = Math.max(maxX, local.getX());
+				minY = Math.min(minY, local.getY());
+				maxY = Math.max(maxY, local.getY());
+			}
+
 			for (var f : view.getGraph().edges()) {
 				var path = (Path) f.getData();
 				for (var local : PathUtils.getPoints(path)) {

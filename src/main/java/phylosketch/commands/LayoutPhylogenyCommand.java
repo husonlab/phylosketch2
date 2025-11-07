@@ -36,7 +36,7 @@ import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
-import phylosketch.paths.PathUtils;
+import phylosketch.paths.EdgePath;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
 
@@ -51,7 +51,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	private final Runnable redo;
 
 	private final Map<Integer, Point2D> oldPoints = new HashMap<>();
-	private final Map<Integer, List<Point2D>> oldPaths = new HashMap<>();
+	private final Map<Integer, EdgePath.Data> oldEdgeMap = new HashMap<>();
 	private final Map<Integer, Point2D> oldLabelPoints = new HashMap<>();
 	private final Map<Integer, Double> oldLabelAngles = new HashMap<>();
 
@@ -98,11 +98,11 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 		super("layout");
 
 		if (isRootedComponent(component)) {
-
 			for (var v : component) {
 				oldPoints.put(v.getId(), DrawView.getPoint(v));
 				for (var e : v.outEdges()) {
-					oldPaths.put(e.getId(), PathUtils.extractPoints(DrawView.getPath(e)));
+					var path = DrawView.getPath(e);
+					oldEdgeMap.put(e.getId(), new EdgePath.Data(new ArrayList<>(path.getElements()), path.getType()));
 				}
 				var label = DrawView.getLabel(v);
 				if (label != null) {
@@ -123,9 +123,10 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 						label.ensureUpright();
 					}
 				}
-				for (var eId : oldPaths.keySet()) {
+				for (var eId : oldEdgeMap.keySet()) {
 					var e = view.getGraph().findEdgeById(eId);
-					DrawView.setPoints(e, oldPaths.get(eId));
+					var path = DrawView.getPath(e);
+					path.set(oldEdgeMap.get(eId).elements(), oldEdgeMap.get(eId).type());
 				}
 			};
 

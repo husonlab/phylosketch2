@@ -43,10 +43,7 @@ import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
-import jloda.fx.util.BasicFX;
-import jloda.fx.util.GeometryUtilsFX;
-import jloda.fx.util.Icebergs;
-import jloda.fx.util.SelectionEffect;
+import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -55,6 +52,7 @@ import jloda.phylo.PhyloTree;
 import jloda.util.IteratorUtils;
 import phylosketch.commands.LayoutLabelsCommand;
 import phylosketch.main.PhyloSketch;
+import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathUtils;
 
 import java.util.*;
@@ -278,7 +276,7 @@ public class DrawView extends Pane {
 
 	public Node createNode() {
 		var v = graph.newNode();
-		setShape(v, new NodeShape(NodeShape.Type.Circle, 1.5));
+		setShape(v, new NodeShape(NodeShape.Type.Circle));
 		ensureLabelExists(v);
 		return v;
 	}
@@ -290,7 +288,7 @@ public class DrawView extends Pane {
 	}
 
 	public Node createNode(Point2D location, int recycleNodeId) {
-		var v = createNode(new NodeShape(NodeShape.Type.Circle, 1.5), "", recycleNodeId);
+		var v = createNode(new NodeShape(NodeShape.Type.Circle), "", recycleNodeId);
 		setLocation(v, location);
 		return v;
 	}
@@ -354,14 +352,14 @@ public class DrawView extends Pane {
 
 	public Edge createEdge(Node v, Node w, Path path, int recycledId) {
 		var e = (recycledId != -1 ? graph.newEdge(v, w, null, recycledId) : graph.newEdge(v, w));
-		addPath(e, path);
+		var edgePath = (path instanceof EdgePath ? (EdgePath) path : new EdgePath(path));
+		addPath(e, edgePath);
 		ensureLabelExists(e);
 		setLabel(e, "");
-		getEdgeSelection().select(e);
 		return e;
 	}
 
-	public void addPath(Edge e, Path path) {
+	public void addPath(Edge e, EdgePath path) {
 		e.setData(path);
 		path.setUserData(e);
 		path.getStyleClass().add("graph-edge");
@@ -378,7 +376,7 @@ public class DrawView extends Pane {
 					edgeLabelsGroup.getChildren().remove(label);
 				edgeArrowMap.remove(e);
 				edgeSelection.getSelectedItems().remove(e);
-				if (e.getData() instanceof Path path)
+				if (e.getData() instanceof EdgePath path)
 					edgesGroup.getChildren().remove(path);
 				graph.deleteEdge(e);
 			}
@@ -407,21 +405,29 @@ public class DrawView extends Pane {
 	}
 
 	public void createLabel(Edge e, String text) {
-		var path = (Path) e.getData();
+		var path = (EdgePath) e.getData();
 		graph.setLabel(e, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);
 		label.textProperty().addListener(a -> label.setVisible(!label.getRawText().isBlank()));
-
 		e.setInfo(label);
 		label.setUserData(e.getId());
-		InvalidationListener listener = a -> {
-			var middle = PathUtils.getMiddle(path);
-			if (middle != null) {
-				label.setTranslateX(middle.getX());
-				label.setTranslateY(middle.getY());
+
+		Runnable updateLabelLocation = () -> {
+			try {
+				if (!label.getRawText().isBlank()) {
+					var middle = path.getMiddle();
+					if (middle != null) {
+						label.setTranslateX(middle.getX());
+						label.setTranslateY(middle.getY());
+					}
+				}
+			} catch (Exception ignored) {
 			}
 		};
-		path.getElements().addListener(listener);
+		InvalidationListener listener = a -> RunAfterAWhile.applyInFXThread(updateLabelLocation, updateLabelLocation);
+		path.getElements().addListener((InvalidationListener) a -> updateLabelLocation.run());
+		path.typeProperty().addListener(listener);
+		label.textProperty().addListener(listener);
 		listener.invalidated(null);
 		edgeLabelsGroup.getChildren().add(label);
 		label.applyCss();
@@ -524,17 +530,17 @@ public class DrawView extends Pane {
 		return (NodeShape) v.getData();
 	}
 
-	public static Path getPath(Edge e) {
-		return (Path) e.getData();
+	public static EdgePath getPath(Edge e) {
+		return (EdgePath) e.getData();
 	}
 
 	public static List<Point2D> getPoints(Edge e) {
 		return PathUtils.getPoints(getPath(e));
 	}
 
-	public static Path setPoints(Edge e, List<Point2D> points) {
+	public static EdgePath setPoints(Edge e, List<Point2D> points) {
 		var path = getPath(e);
-		path.getElements().setAll(PathUtils.createElements(points));
+		path.setFreeform(points);
 		return path;
 	}
 
@@ -561,7 +567,7 @@ public class DrawView extends Pane {
 		} else {
 			for (var e : edges) {
 				if (!edgeOutlineMap.containsKey(e)) {
-					if (e.getData() instanceof Path path) {
+					if (e.getData() instanceof EdgePath path) {
 						var outline = PathUtils.createPath(PathUtils.extractPoints(path), false);
 						outline.getStyleClass().remove("graph-edge");
 						if (e.getSource().getInDegree() == 0 || e.getTarget().getOutDegree() == 0)
@@ -599,7 +605,7 @@ public class DrawView extends Pane {
 			edgeArrowMap.remove(e);
 		} else {
 			if (e.getOwner() != null && !edgeArrowMap.containsKey(e)) {
-				if (e.getData() instanceof Path path) {
+				if (e.getData() instanceof EdgePath path) {
 					var arrowHead = new Polygon(7.0, 0.0, -7.0, 4.0, -7.0, -4.0);
 					arrowHead.getStyleClass().add("graph-node");
 
@@ -609,7 +615,7 @@ public class DrawView extends Pane {
 					edgeArrowMap.put(e, arrowHead);
 
 					InvalidationListener listener = a -> {
-						var points = PathUtils.extractPoints(path);
+						var points = PathUtils.extractPoints(path.getType() == EdgePath.Type.Freeform ? path : path.copyToFreeform());
 						if (points.size() >= 2) {
 							var lastId = points.size() - 1;
 							var last = points.get(lastId);
@@ -617,15 +623,19 @@ public class DrawView extends Pane {
 							while (firstId > 0 && last.distance(points.get(firstId)) < 8) {
 								firstId--;
 							}
+							var f = Math.max(0.01, Math.min(2, path.getStrokeWidth() / 2));
+							arrowHead.getPoints().setAll(7.0 * f, 0.0 * f, -7.0 * f, 4.0 * f, -7.0 * f, -4.0 * f);
+
 							var direction = last.subtract(points.get(firstId));
 							direction = direction.multiply(1.0 / direction.magnitude());
 							arrowHead.setRotate(GeometryUtilsFX.computeAngle(direction));
-							arrowHead.setTranslateX(last.getX() - 12 * direction.getX());
-							arrowHead.setTranslateY(last.getY() - 12 * direction.getY());
+							arrowHead.setTranslateX(last.getX() - f * 12 * direction.getX());
+							arrowHead.setTranslateY(last.getY() - f * 12 * direction.getY());
 						}
 					};
 					listener.invalidated(null);
 					arrowHead.setUserData(listener);
+					path.strokeWidthProperty().addListener(new WeakInvalidationListener(listener));
 					arrowHead.setOnMouseClicked(path.getOnMouseClicked());
 					path.getElements().addListener(new WeakInvalidationListener(listener));
 					getShape(e.getTarget()).translateXProperty().addListener(new WeakInvalidationListener(listener));
@@ -649,6 +659,10 @@ public class DrawView extends Pane {
 
 	public ObjectProperty<LayoutRootedPhylogeny.Layout> layoutProperty() {
 		return layout;
+	}
+
+	public void setLayout(LayoutRootedPhylogeny.Layout layout) {
+		this.layout.set(layout);
 	}
 
 	public LayoutRootedPhylogeny.Scaling getScaling() {

@@ -26,8 +26,7 @@ import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeSet;
 import jloda.phylo.PhyloTree;
-import jloda.util.CollectionUtils;
-import phylosketch.paths.PathUtils;
+import phylosketch.paths.EdgePath;
 import phylosketch.view.DrawView;
 
 import java.util.*;
@@ -36,14 +35,20 @@ public class ReverseEdgesCommand extends UndoableRedoableCommand {
 	private Runnable undo;
 	private Runnable redo;
 
+	private EdgePath oldEdgePath;
+	private EdgePath newEdgePath;
+
 	public ReverseEdgesCommand(DrawView view, Edge e) {
 		super("reverse");
 		try (var used = view.getGraph().newNodeSet()) {
 			if (canReachDirectedRec(e.getSource(), e.getTarget(), e, Collections.emptySet(), used))
 				return;
 		}
-		var path = PathUtils.extractPoints(DrawView.getPath(e));
-		var reverse = CollectionUtils.reverse(path);
+
+		var path = DrawView.getPath(e);
+		oldEdgePath = path.copy();
+		newEdgePath = path.reverse();
+
 		var showArrow = view.isShowArrow(e);
 		var eId = e.getId();
 
@@ -52,8 +57,10 @@ public class ReverseEdgesCommand extends UndoableRedoableCommand {
 			if (showArrow)
 				view.setShowArrow(f, false);
 			f.reverse();
+			var fPath = DrawView.getPath(f);
+			fPath.set(oldEdgePath.getElements(), oldEdgePath.getType());
 			view.getEdgeSelection().select(f);
-			DrawView.getPath(f).getElements().setAll(PathUtils.toPathElements(path));
+
 			if (showArrow)
 				view.setShowArrow(f, true);
 
@@ -64,7 +71,8 @@ public class ReverseEdgesCommand extends UndoableRedoableCommand {
 				view.setShowArrow(f, false);
 			f.reverse();
 			view.getEdgeSelection().select(f);
-			DrawView.getPath(e).getElements().setAll(PathUtils.toPathElements(reverse));
+			var fPath = DrawView.getPath(f);
+			fPath.set(newEdgePath.getElements(), newEdgePath.getType());
 			if (showArrow)
 				view.setShowArrow(f, true);
 		};

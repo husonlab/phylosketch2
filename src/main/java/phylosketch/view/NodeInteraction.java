@@ -26,10 +26,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
-import phylosketch.commands.MoveNodesCommand;
+import phylosketch.commands.MoveNodesEdgesCommand;
 import phylosketch.main.PhyloSketch;
-
-import java.util.HashSet;
 
 /**
  * node interaction
@@ -43,6 +41,8 @@ public class NodeInteraction {
 	private static double mouseY;
 
 	public static boolean inMove = false;
+
+	private static MoveNodesEdgesCommand moveNodesEdgesCommand;
 
 	/**
 	 * setup node interactions
@@ -83,6 +83,7 @@ public class NodeInteraction {
 									mouseDownY = me.getSceneY();
 									mouseX = mouseDownX;
 									mouseY = mouseDownY;
+									moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, view.getNodeSelection().getSelectedItems(), null);
 									me.consume();
 								}
 							});
@@ -101,7 +102,8 @@ public class NodeInteraction {
 									var location = view.sceneToLocal(me.getSceneX(), me.getSceneY());
 									if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
 										var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
-										MoveNodesCommand.moveNodesAndEdges(view, view.getNodeSelection().getSelectedItems(), d.getX(), d.getY(), false);
+										// todo: show node moving:
+										moveNodesEdgesCommand.moveNodesAndEdges(d.getX(), d.getY());
 									}
 									mouseX = me.getSceneX();
 									mouseY = me.getSceneY();
@@ -126,13 +128,11 @@ public class NodeInteraction {
 
 							shape.setOnMouseReleased(me -> {
 								if (inMove) {
-									var nodes = new HashSet<>(view.getNodeSelection().getSelectedItems());
-									var previous = view.screenToLocal(mouseDownX, mouseDownY);
-									var location = view.screenToLocal(mouseX, mouseY);
-									var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
-									view.getUndoManager().add(new MoveNodesCommand(view, nodes, d.getX(), d.getY()));
+									if (moveNodesEdgesCommand.isUndoable())
+										view.getUndoManager().add(moveNodesEdgesCommand);
 									me.consume();
 									inMove = false;
+									moveNodesEdgesCommand = null;
 								}
 								view.getOtherGroup().getChildren().remove(hDragLine);
 								view.getOtherGroup().getChildren().remove(vDragLine);
