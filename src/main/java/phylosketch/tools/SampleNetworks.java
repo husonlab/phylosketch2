@@ -19,12 +19,16 @@
 
 package phylosketch.tools;
 
+import javafx.geometry.Point2D;
 import jloda.fx.phylo.embed.Averaging;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.ArgsOptions;
+import jloda.graph.Edge;
 import jloda.graph.Node;
+import jloda.graph.NodeArray;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
+import jloda.phylogeny.dolayout.ComputeOrthogonalDisplacement;
 import jloda.util.*;
 
 import java.io.BufferedReader;
@@ -182,14 +186,19 @@ public class SampleNetworks {
 							if (timeLayout) {
 								var start = System.currentTimeMillis();
 
-								LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, random, new HashMap<>(), new HashMap<>());
-								if (true)
-									System.out.printf("%s: taxa=%d, h=%d, time=%ds%n", label, IteratorUtils.count(network.leaves()),
-											network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(),
-											(System.currentTimeMillis() - start) / 1000);
+								try (NodeArray<Point2D> nodePointMap = network.newNodeArray()) {
+									LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, random, new HashMap<>(), nodePointMap);
+									var time = (System.currentTimeMillis() - start) / 1000.0;
+									var od = ComputeOrthogonalDisplacement.apply(network.nodes(), network.edges(), Edge::getSource, Edge::getTarget,
+											e -> network.isReticulateEdge(e) && !network.isTransferAcceptorEdge(e), v -> nodePointMap.get(v).getY());
 
-								w.write(network.toBracketString(false) + "[&&NHX:GN=%s];%n".formatted(label));
-								w.flush();
+									if (true)
+										System.out.printf("%s\ttaxa=%d\th=%d\tdo_time=%.1fs\tdo_od=%.1f%n", label, IteratorUtils.count(network.leaves()),
+												network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(), time, od);
+
+									w.write(network.toBracketString(false) + "[&&NHX:GN=%s];%n".formatted(label));
+									w.flush();
+								}
 							}
 						}
 					}

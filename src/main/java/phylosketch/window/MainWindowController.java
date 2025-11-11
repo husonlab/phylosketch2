@@ -111,6 +111,9 @@ public class MainWindowController {
 	private Button zoomOutButton;
 
 	@FXML
+	private Button zoomToFitButton;
+
+	@FXML
 	private MenuItem decreaseFontSizeMenuItem;
 
 	@FXML
@@ -479,6 +482,7 @@ public class MainWindowController {
 
 		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
 		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
+		MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
 
 		MaterialIcons.setIcon(findButton, MaterialIcons.search, !PhyloSketch.isDesktop());
 
@@ -561,6 +565,8 @@ public class MainWindowController {
 			zoomInButton.disableProperty().bindBidirectional(zoomInMenuItem.disableProperty());
 			zoomOutButton.setOnAction(e -> zoomOutMenuItem.getOnAction().handle(e));
 			zoomOutButton.disableProperty().bindBidirectional(zoomOutMenuItem.disableProperty());
+			zoomToFitButton.setOnAction(e -> zoomToFitMenuItem.getOnAction().handle(e));
+			zoomToFitButton.disableProperty().bind(zoomToFitMenuItem.disableProperty());
 
 			undoButton.setOnAction(e->undoMenuItem.getOnAction().handle(e));
 			undoButton.disableProperty().bindBidirectional(undoMenuItem.disableProperty());

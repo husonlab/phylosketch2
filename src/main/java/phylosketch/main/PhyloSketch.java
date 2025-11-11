@@ -31,10 +31,12 @@ import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
+import jloda.phylogeny.dolayout.SimulatedAnnealingMinLA;
 import jloda.util.Basic;
 import jloda.util.ProgramExecutorService;
 import jloda.util.UsageException;
 import phylosketch.io.PhyloSketchIO;
+import phylosketch.view.ZoomToFit;
 import phylosketch.window.MainWindow;
 
 import java.io.File;
@@ -113,6 +115,11 @@ public class PhyloSketch extends Application {
         ProgramProperties.put("MaxNumberRecentFiles", 100);
         options.done();
 
+        SimulatedAnnealingMinLA.DEFAULT_START_TEMPERATURE = ProgramProperties.get("SA_DEFAULT_START_TEMPERATURE", SimulatedAnnealingMinLA.DEFAULT_START_TEMPERATURE);
+        SimulatedAnnealingMinLA.DEFAULT_END_TEMPERATURE = ProgramProperties.get("SA_DEFAULT_END_TEMPERATURE", SimulatedAnnealingMinLA.DEFAULT_END_TEMPERATURE);
+        SimulatedAnnealingMinLA.DEFAULT_ITERATIONS_PER_TEMPERATURE = ProgramProperties.get("SA_DEFAULT_ITERATIONS_PER_TEMPERATURE", SimulatedAnnealingMinLA.DEFAULT_ITERATIONS_PER_TEMPERATURE);
+        SimulatedAnnealingMinLA.DEFAULT_COOLING_RATE = ProgramProperties.get("SA_DEFAULT_COOLING_RATE", SimulatedAnnealingMinLA.DEFAULT_COOLING_RATE);
+
         ProgramProperties.load(propertiesFile);
 
         if (silentMode) {
@@ -136,12 +143,12 @@ public class PhyloSketch extends Application {
             primaryStage.setTitle("Untitled - " + ProgramProperties.getProgramName());
             NotificationManager.setShowNotifications(false);
 
-            final var mainWindow = new MainWindow();
+            final var window = new MainWindow();
 
             final var windowGeometry = new WindowGeometry(ProgramProperties.get("WindowGeometry", "50 50 800 800"));
 
-            mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
-            MainWindowManager.getInstance().addMainWindow(mainWindow);
+            window.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
+            MainWindowManager.getInstance().addMainWindow(window);
 
             if(true) // reopen last
             {
@@ -151,7 +158,8 @@ public class PhyloSketch extends Application {
 						try {
 							if (false)
 								System.err.println(last);
-                            PhyloSketchIO.load(new StringReader(last), mainWindow.getDrawView(), mainWindow.getPresenter().getCapturePane().getImageView());
+                            PhyloSketchIO.load(new StringReader(last), window.getDrawView(), window.getPresenter().getCapturePane().getImageView());
+                            Platform.runLater(() -> ZoomToFit.apply(window));
 						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}

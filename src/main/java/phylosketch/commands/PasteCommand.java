@@ -20,6 +20,7 @@
 
 package phylosketch.commands;
 
+import javafx.application.Platform;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
@@ -28,7 +29,8 @@ import jloda.util.Pair;
 import jloda.util.StringUtils;
 import phylosketch.io.ImportNewick;
 import phylosketch.view.DrawView;
-import phylosketch.window.MainWindowPresenter;
+import phylosketch.view.ZoomToFit;
+import phylosketch.window.MainWindow;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -55,10 +57,12 @@ public class PasteCommand extends UndoableRedoableCommand {
 	/**
 	 * constructor
 	 *
-	 * @param view the window
+	 * @param window the window
 	 */
-	public PasteCommand(DrawView view, MainWindowPresenter presenter, String pastedString) {
+	public PasteCommand(MainWindow window, String pastedString) {
 		super("paste");
+
+		var view = window.getDrawView();
 
 		var pastedLines = StringUtils.getLinesFromString(pastedString, 1000);
 		var looksLikeNewick = !pastedLines.isEmpty() && pastedLines.stream().allMatch(s -> s.trim().startsWith("(") && (s.trim().endsWith(")") || s.trim().endsWith(";")));
@@ -78,8 +82,9 @@ public class PasteCommand extends UndoableRedoableCommand {
 			};
 			redo = () -> {
 				newNodes = null;
-				try (BufferedReader r = new BufferedReader(new StringReader(StringUtils.toString(pastedLines, "\n")))) {
-					newNodes = ImportNewick.apply(r, view, presenter::setScale);
+				try (var r = new BufferedReader(new StringReader(StringUtils.toString(pastedLines, "\n")))) {
+					newNodes = ImportNewick.apply(r, window);
+					Platform.runLater(() -> ZoomToFit.apply(window));
 				} catch (IOException ignored) {
 					undo = null;
 					redo = null;

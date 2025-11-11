@@ -539,6 +539,11 @@
                                             <Tooltip text="Zoom out"/>
                                         </tooltip>
                                     </Button>
+                                    <Button fx:id="zoomToFitButton" mnemonicParsing="false" text="Zoom To Fit">
+                                        <tooltip>
+                                            <Tooltip text="Zoom to fit"/>
+                                        </tooltip>
+                                    </Button>
                                     <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
                                             HBox.hgrow="NEVER"/>
 

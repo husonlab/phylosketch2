@@ -38,7 +38,7 @@ import java.util.*;
  * Utility to show floating notification messages in a window.
  * <p>
  * Usage:
- * WindowNotifications.show(rootAnchorPane, "Hello world", MessageType.INFO);
+ * WindowNotifications.show(rootPane, "Hello world", MessageType.INFO);
  */
 public final class WindowNotifications {
 
@@ -55,37 +55,37 @@ public final class WindowNotifications {
 	private static final double H_MARGIN = 16.0;
 	private static final double MAX_WIDTH = 420.0;
 
-	private static final Map<AnchorPane, List<Notification>> ACTIVE = new WeakHashMap<>();
+	private static final Map<Pane, List<Notification>> ACTIVE = new WeakHashMap<>();
 	private static final String OVERLAY_KEY = "windowNotificationsOverlay";
 
 	private WindowNotifications() {
 	}
 
 	/**
-	 * Show a notification on the given anchorPane.
+	 * Show a notification on the given pane.
 	 */
-	public static void show(AnchorPane anchorPane, String text, MessageType type) {
-		if (anchorPane == null || text == null || type == null) return;
+	public static void show(Pane pane, String text, MessageType type) {
+		if (pane == null || text == null || type == null) return;
 		if (!Platform.isFxApplicationThread()) {
-			Platform.runLater(() -> show(anchorPane, text, type));
+			Platform.runLater(() -> show(pane, text, type));
 			return;
 		}
 
-		Pane overlay = getOrCreateOverlay(anchorPane);
-		List<Notification> list = ACTIVE.computeIfAbsent(anchorPane, ap -> new ArrayList<>());
+		Pane overlay = getOrCreateOverlay(pane);
+		List<Notification> list = ACTIVE.computeIfAbsent(pane, ap -> new ArrayList<>());
 
-		Notification notification = createNotification(anchorPane, overlay, text, type);
+		Notification notification = createNotification(pane, overlay, text, type);
 		list.add(notification);
 		overlay.getChildren().add(notification.node);
 
-		double paneHeight = overlay.getHeight() > 0 ? overlay.getHeight() : anchorPane.getHeight();
+		double paneHeight = overlay.getHeight() > 0 ? overlay.getHeight() : pane.getHeight();
 		if (paneHeight <= 0) paneHeight = 400; // fallback for early calls
 
 		notification.node.setOpacity(0.0);
 		notification.node.setLayoutY(paneHeight + 10);
 
-		layoutNotifications(anchorPane);
-		Platform.runLater(() -> layoutNotifications(anchorPane));
+		layoutNotifications(pane);
+		Platform.runLater(() -> layoutNotifications(pane));
 
 		notification.expiry.playFromStart();
 	}
@@ -93,7 +93,7 @@ public final class WindowNotifications {
 	/**
 	 * Convenience overload with string messageType: "info", "warning", "error".
 	 */
-	public static void show(AnchorPane anchorPane, String text, String messageType) {
+	public static void show(Pane pane, String text, String messageType) {
 		MessageType type;
 		if (messageType == null) type = MessageType.INFO;
 		else switch (messageType.toLowerCase(Locale.ROOT)) {
@@ -106,7 +106,7 @@ public final class WindowNotifications {
 			default:
 				type = MessageType.INFO;
 		}
-		show(anchorPane, text, type);
+		show(pane, text, type);
 	}
 
 	// Internal wrapper
@@ -121,17 +121,19 @@ public final class WindowNotifications {
 	}
 
 	// Create or reuse an overlay pane
-	private static Pane getOrCreateOverlay(AnchorPane root) {
-		Object existing = root.getProperties().get(OVERLAY_KEY);
+	private static Pane getOrCreateOverlay(Pane root) {
+		var existing = root.getProperties().get(OVERLAY_KEY);
 		if (existing instanceof Pane) return (Pane) existing;
 
-		Pane overlay = new Pane();
+		var overlay = new Pane();
 		overlay.setPickOnBounds(false);
 
-		AnchorPane.setTopAnchor(overlay, 0.0);
-		AnchorPane.setRightAnchor(overlay, 0.0);
-		AnchorPane.setBottomAnchor(overlay, 0.0);
-		AnchorPane.setLeftAnchor(overlay, 0.0);
+		if (root instanceof AnchorPane) {
+			AnchorPane.setTopAnchor(overlay, 0.0);
+			AnchorPane.setRightAnchor(overlay, 0.0);
+			AnchorPane.setBottomAnchor(overlay, 0.0);
+			AnchorPane.setLeftAnchor(overlay, 0.0);
+		}
 
 		root.getChildren().add(overlay);
 		root.getProperties().put(OVERLAY_KEY, overlay);
@@ -143,7 +145,7 @@ public final class WindowNotifications {
 	}
 
 	// Create a single notification node
-	private static Notification createNotification(AnchorPane root, Pane overlay, String text, MessageType type) {
+	private static Notification createNotification(Pane root, Pane overlay, String text, MessageType type) {
 		Label label = new Label(text);
 		label.setWrapText(true);
 		label.setStyle("-fx-text-fill: white; -fx-font-size: 13;");
@@ -168,22 +170,20 @@ public final class WindowNotifications {
 		label.maxWidthProperty().bind(box.widthProperty().subtract(40));
 
 		String bgColor;
-		Duration lifetime;
-		switch (type) {
-			case ERROR:
+		var lifetime = switch (type) {
+			case ERROR -> {
 				bgColor = "#C53030";
-				lifetime = ERROR_LIFETIME;
-				break;
-			case WARNING:
+				yield ERROR_LIFETIME;
+			}
+			case WARNING -> {
 				bgColor = "#B7791F";
-				lifetime = WARNING_LIFETIME;
-				break;
-			case INFO:
-			default:
+				yield WARNING_LIFETIME;
+			}
+			default -> {
 				bgColor = "#2B6CB0";
-				lifetime = INFO_LIFETIME;
-				break;
-		}
+				yield INFO_LIFETIME;
+			}
+		};
 
 		box.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 6; -fx-border-radius: 6;");
 		box.setEffect(new DropShadow(8, Color.color(0, 0, 0, 0.4)));
@@ -199,7 +199,7 @@ public final class WindowNotifications {
 	/**
 	 * Stack and animate notifications bottom-up.
 	 */
-	private static void layoutNotifications(AnchorPane root) {
+	private static void layoutNotifications(Pane root) {
 		List<Notification> list = ACTIVE.get(root);
 		if (list == null || list.isEmpty()) return;
 
@@ -277,7 +277,7 @@ public final class WindowNotifications {
 		tl.play();
 	}
 
-	private static void dismiss(AnchorPane root, Notification notification) {
+	private static void dismiss(Pane root, Notification notification) {
 		if (!Platform.isFxApplicationThread()) {
 			Platform.runLater(() -> dismiss(root, notification));
 			return;

@@ -32,8 +32,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -62,10 +60,7 @@ import phylosketch.capturepane.pane.SetupCaptureMenuItems;
 import phylosketch.commands.*;
 import phylosketch.format.FormatPaneController;
 import phylosketch.format.FormatPaneView;
-import phylosketch.io.ExportNewick;
-import phylosketch.io.PhyloSketchIO;
-import phylosketch.io.Save;
-import phylosketch.io.SaveBeforeClosingDialog;
+import phylosketch.io.*;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
 import phylosketch.main.PhyloSketch;
@@ -87,6 +82,7 @@ import java.util.function.Function;
  * Daniel Huson, 9.2024
  */
 public class MainWindowPresenter {
+	private final MainWindow window;
 	private final FindToolBar findToolBar;
 	private final FormatPaneView formatPaneView;
 	private final CapturePane capturePane;
@@ -97,6 +93,7 @@ public class MainWindowPresenter {
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 
 	public MainWindowPresenter(MainWindow window) {
+		this.window = window;
 		view = window.getDrawView();
 		controller = window.getController();
 
@@ -280,8 +277,11 @@ public class MainWindowPresenter {
 		controller.getClearMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
 
 		controller.getZoomInMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.1, 1.1));
+		controller.getZoomInMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().and(capturePane.hasImageProperty().not()));
 		controller.getZoomOutMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1));
-
+		controller.getZoomOutMenuItem().disableProperty().bind(controller.getZoomInMenuItem().disableProperty());
+		controller.getZoomToFitMenuItem().setOnAction(e -> ZoomToFit.apply(window));
+		controller.getZoomToFitMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getOutlineEdgesMenuItem().selectedProperty().addListener((v, o, n) -> {
 			if (n)
@@ -472,13 +472,20 @@ public class MainWindowPresenter {
 			}
 		});
 
-		SetupImport.apply(view, controller.getPasteMenuItem(), s -> {
+		SetupImport.apply(view, controller.getPasteMenuItem(), (name, s) -> {
 					var clean = (view.getGraph().getNumberOfNodes() == 0);
-					var pasteCommand = new PasteCommand(view, window.getPresenter(), s);
-					if (pasteCommand.isRedoable()) {
-						view.getUndoManager().doAndAdd(pasteCommand);
-						if (!clean)
-							allowResize.set(true);
+					var lines = StringUtils.getLinesFromString(s, 1);
+					if (!lines.isEmpty()) {
+						if (lines.get(0).startsWith("graph [")) {
+							loadContent(name, s);
+						} else if (lines.get(0).startsWith("(nodes [)")) {
+							var pasteCommand = new PasteCommand(window, s);
+							if (pasteCommand.isRedoable()) {
+								view.getUndoManager().doAndAdd(pasteCommand);
+								if (!clean)
+									allowResize.set(true);
+							}
+						}
 					}
 				},
 				image -> {
@@ -553,31 +560,24 @@ public class MainWindowPresenter {
 		formatPaneView.getController().getInduceButton().setOnAction(controller.getInduceMenuItem().getOnAction());
 		formatPaneView.getController().getInduceButton().disableProperty().bind(controller.getInduceMenuItem().disableProperty());
 
-		setupLayout(view, controller, formatPaneView.getController());
+		setupLayout(controller, formatPaneView.getController());
 		setupLayoutScalingPhylogeny(view, controller, formatPaneView.getController());
 
 		setupModeHints(view, getCapturePane());
 	}
 
-
-	public static void openString(String string) {
-		if (string != null && !string.isBlank()) {
+	public void loadContent(String fileName, String content) {
+		if (content != null && !content.isBlank()) {
 			try {
-				var file = FileUtils.getUniqueFileName(ProgramProperties.get("SaveFileDir", System.getProperty("user.dir")), "Untitled", ".psketch");
-				FileUtils.writeLinesToFile(List.of(string), file.getPath(), false);
-				FileOpenManager.getFileOpener().accept(file.getPath());
+				var file = (fileName != null ? new File(fileName) :
+						FileUtils.getUniqueFileName(ProgramProperties.get("SaveFileDir", System.getProperty("user.dir")), "Untitled", ".psketch"));
+				FileUtils.writeLinesToFile(List.of(content), file.getPath(), false);
+				var thisWindow = (window.isEmpty() ? window : NewWindow.apply());
+				(new FileOpener()).accept(file.getPath(), thisWindow);
+				if (false) Platform.runLater(() -> ZoomToFit.apply(thisWindow));
 			} catch (IOException ignored) {
 			}
 		}
-	}
-
-	public static void setupTriggerOnEnter(TextField textField) {
-		textField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			if (event.getCode() == KeyCode.ENTER) {
-				event.consume();
-				textField.getOnAction().handle(null);
-			}
-		});
 	}
 
 	private Searcher<Node> setupSearcher(DrawView view) {
@@ -676,7 +676,7 @@ public class MainWindowPresenter {
 		ProgramProperties.track(scaling, LayoutRootedPhylogeny.Scaling::valueOf, LayoutRootedPhylogeny.Scaling.LateBranching);
 	}
 
-	private static void setupLayout(DrawView view, MainWindowController controller, FormatPaneController formatController) {
+	private static void setupLayout(MainWindowController controller, FormatPaneController formatController) {
 		formatController.getRotateLeftButton().setOnAction(controller.getRotateLeftMenuItem().getOnAction());
 		formatController.getRotateLeftButton().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 		formatController.getRotateRightButton().setOnAction(controller.getRotateRightMenuItem().getOnAction());
@@ -693,36 +693,33 @@ public class MainWindowPresenter {
 
 	private void setupModeHints(DrawView view, CapturePane capturePane) {
 		var message = new Text();
-		InvalidationListener updateModeMessageListener = e -> {
-			RunAfterAWhile.applyInFXThread(message, () -> {
-				view.getOtherGroup().getChildren().remove(message);
-				if (view.getGraph().getNumberOfNodes() == 0 && capturePane.getImageView().getImage() == null) {
-					switch (view.getMode()) {
-						case Capture -> message.setText("""
-								To capture a phylogeny from an image:
-																
-								(1) Use the Load Image item to load an image, or paste one into the window.
-								(2) Use the Place Root item to show the root locator, drag it to the root.
-								(3) Click on the root locator to set the relative position of the root (left, right, etc)
-								(4) Use the Capture Phylogeny item to run the capture algorithm.
-								(5) Set the mode to Sketch and improve the capture interactively.
-								""");
-						case Move -> message.setText("Click and drag on nodes, edges and labels to move them.");
-						case View -> message.setText("View the phylogeny without editing.");
-						case Sketch ->
-								message.setText("To creat a node, double-click on the pane. Then press-drag to create edges.");
+		RunAfterAWhile.applyInFXThread(message, () -> {
+			InvalidationListener updateModeMessageListener = e -> {
+				RunAfterAWhile.applyInFXThread(message, () -> {
+					if (view.getGraph().getNumberOfNodes() == 0 && capturePane.getImageView().getImage() == null) {
+						switch (view.getMode()) {
+							case Capture -> WindowNotifications.show(controller.getCenterAnchorPane(), """
+									Capture mode: To capture a phylogeny from an image:
+									(1) Use the Load Image item to load an image, or paste one into the window.
+									(2) Use the Place Root item to show the root locator, drag it to the root.
+									(3) Click on the root locator to set the relative position of the root (left, right, etc)
+									(4) Use the Capture Phylogeny item to run the capture algorithm.
+									(5) Set the mode to Sketch and improve the capture interactively.
+									""", WindowNotifications.MessageType.INFO);
+							case Move ->
+									WindowNotifications.show(controller.getCenterAnchorPane(), "Move mode: Click and drag on nodes, edges and labels to move them.", WindowNotifications.MessageType.INFO);
+							case View ->
+									WindowNotifications.show(controller.getCenterAnchorPane(), "View mode: View the phylogeny without editing.", WindowNotifications.MessageType.INFO);
+							case Sketch ->
+									WindowNotifications.show(controller.getCenterAnchorPane(), "Sketch mode: To creat a node, double-click on the pane. Then press-drag to create edges.", WindowNotifications.MessageType.INFO);
+						}
 					}
-					view.getOtherGroup().getChildren().add(message);
-				}
-			});
-		};
-		view.modeProperty().addListener(updateModeMessageListener);
-		view.getGraphFX().getNodeList().addListener(updateModeMessageListener);
-		updateModeMessageListener.invalidated(null);
-		view.getUndoManager().undoStackSizeProperty().addListener(updateModeMessageListener);
-	}
-
-	public void setScale(Double sx, Double sy) {
-		// todo: need to some kind for scaling for large phylogenies
+				});
+			};
+			view.modeProperty().addListener(updateModeMessageListener);
+			view.getGraphFX().getNodeList().addListener(updateModeMessageListener);
+			updateModeMessageListener.invalidated(null);
+			view.getUndoManager().undoStackSizeProperty().addListener(updateModeMessageListener);
+		});
 	}
 }

@@ -17,6 +17,7 @@ module phylosketch {
 	requires java.scripting;
 
 	requires org.bytedeco.tesseract;
+	requires jdk.compiler;
 
 	opens phylosketch.format;
 	opens phylosketch.help;

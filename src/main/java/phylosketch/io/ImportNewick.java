@@ -20,6 +20,7 @@
 
 package phylosketch.io;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import jloda.fx.phylo.embed.Averaging;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
@@ -31,14 +32,15 @@ import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
 import jloda.util.IteratorUtils;
 import phylosketch.draw.DrawNetwork;
+import phylosketch.utils.Dialogs;
 import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
+import phylosketch.window.MainWindow;
+import phylosketch.window.WindowNotifications;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Random;
-import java.util.function.BiConsumer;
+import java.util.*;
 
 /**
  * newick import
@@ -49,12 +51,14 @@ public class ImportNewick {
 	 * import from file
 	 *
 	 * @param fileName file
-	 * @param view     the window to import into
+	 * @param window     the window to import into
 	 * @throws IOException
 	 */
-	public static void apply(String fileName, DrawView view, BiConsumer<Double, Double> setScale) throws IOException {
+	public static void apply(MainWindow window, String fileName) throws IOException {
+		WindowNotifications.show(window.getController().getCenterAnchorPane(), "Importing from file " + FileUtils.getFileNameWithoutPath(fileName), WindowNotifications.MessageType.INFO);
+
 		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
-			apply(r, view, setScale);
+			apply(r, window);
 		}
 	}
 
@@ -62,26 +66,36 @@ public class ImportNewick {
 	 * import from a buffered reader
 	 *
 	 * @param r    reader
-	 * @param view window
+	 * @param window window
 	 * @return set of new nodes
 	 * @throws IOException
 	 */
-	public static Collection<Node> apply(BufferedReader r, DrawView view, BiConsumer<Double, Double> setScale) throws IOException {
+	public static Collection<Node> apply(BufferedReader r, MainWindow window) throws IOException {
+		var view = window.getDrawView();
 		view.applyCss();
 
 		var clean = (view.getGraph().getNumberOfNodes() == 0);
 		if (clean)
 			view.setLayout(LayoutRootedPhylogeny.Layout.Rectangular);
 
-		final var width = 300;
-		var gap = 50.0;
-		var totalWidth = Math.max(width + gap, view.getWidth() - gap);
-		var totalHeight = Math.max(width + gap, view.getHeight() - gap);
-		var xMin = gap;
-		var yMin = gap;
-
 		var originalNodes = IteratorUtils.asSet(view.getGraph().nodes());
 
+		final var taxonGap = 20;
+		final var vGap = 50.0;
+		final var xMin = 50.0;
+		final var minWidth = 300;
+
+		double yMin;
+		if (originalNodes.isEmpty())
+			yMin = vGap;
+		else {
+			var world = window.getDrawView().getWorld();
+			var contentBounds = world.getLayoutBounds();
+			yMin = contentBounds.getHeight() + vGap;
+		}
+
+		var trees = new ArrayList<PhyloTree>();
+		var totalLeaves = 0L;
 		while (r.ready()) {
 			var line = r.readLine();
 			if (line == null)
@@ -89,29 +103,35 @@ public class ImportNewick {
 			if (!line.isBlank() && line.trim().startsWith("(")) {
 				var tree = new PhyloTree();
 				(new NewickIO()).parseBracketNotation(tree, line, true, false);
+				trees.add(tree);
+				totalLeaves += tree.nodeStream().filter(Node::isLeaf).count();
+
+			}
+		}
+
+		if (totalLeaves > 1000) {
+			var message = "You are attempting to import %d %s with %d leaves"
+					.formatted(trees.size(), trees.size() > 1 ? "phylogenies" : "phylogeny", totalLeaves);
+			if (!Dialogs.askForConfirmation(window.getStage(), "Phylogeny import", message, "Proceed?")) {
+				return Collections.emptyList();
+			}
+		}
+
+		for (var tree : trees) {
 				LSAUtils.setLSAChildrenAndTransfersMap(tree);
 
-				try (var angles = tree.newNodeDoubleArray(); NodeArray<Point2D> points = tree.newNodeArray()) {
-					LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, true, new Random(666), angles, points);
+			try (NodeArray<Point2D> points = tree.newNodeArray()) {
+				LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, true, new Random(666), new HashMap<>(), points);
+				var numberOfLeaves = tree.nodeStream().filter(Node::isLeaf).count();
+				var phylogenyHeight = numberOfLeaves * taxonGap;
+				var phylogenyWidth = Math.min(numberOfLeaves * taxonGap, Math.max(minWidth, view.getWidth() - xMin));
 
-					var height = Math.min(width, tree.nodeStream().filter(Node::isLeaf).count() * 20);
-					setScale.accept(1.0, totalHeight / height);
-
-					if (yMin + gap + height > totalHeight) {
-						yMin = gap;
-						xMin += width + gap;
-						if (xMin + gap + height >= totalWidth)
-							break;
-					}
-
-					var xMax = xMin + width;
-					var yMax = yMin + totalHeight;
-					ScaleUtils.scaleToBox(points, xMin, xMax, yMin, yMax);
-					yMin += height + gap;
+				ScaleUtils.scaleToBox(points, xMin, xMin + phylogenyWidth, yMin, yMin + phylogenyHeight);
+				yMin += phylogenyHeight + vGap;
 					DrawNetwork.apply(view, tree, points, view.getLayout());
 				}
 			}
-		}
+
 		var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 		newNodes.removeAll(originalNodes);
 
@@ -124,6 +144,7 @@ public class ImportNewick {
 					view.getEdgeSelection().select(e);
 			}
 		}
+		Platform.runLater(() -> WindowNotifications.show(window.getController().getCenterAnchorPane(), "Imported %d phylogenies".formatted(trees.size()), WindowNotifications.MessageType.INFO));
 		return newNodes;
 	}
 

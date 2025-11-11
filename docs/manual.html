@@ -1,23 +1,3 @@
-<!--
-  ~ manual.html Copyright (C) 2025 Daniel H. Huson
-  ~
-  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
-  ~
-  ~  This program is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  This program is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~  GNU General Public License for more details.
-  ~
-  ~  You should have received a copy of the GNU General Public License
-  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -27,7 +7,7 @@
     <meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)">
     <!-- html -->
     <meta name="src" content="manual.tex">
-    <meta name="date" content="2025-11-02 14:20:00">
+    <meta name="date" content="2025-11-11 21:37:00">
     <link rel="stylesheet" type="text/css" href="manual.css">
     <style> body {
         font-family: Arial, sans-serif;
@@ -45,7 +25,7 @@
                 class="phvr7t-x-x-136">University of Tuebingen</span></div>
     <br/>
     <div class="date"><span
-            class="phvr7t-x-x-136">Version 2.1.16, Nov 2, 2025</span></div>
+            class="phvr7t-x-x-136">Version 2.2.0, Nov 11, 2025</span></div>
 </div>
 <h3 class="likesectionHead"><a
         id="x1-1000"></a>Contents</h3>
@@ -59,11 +39,11 @@
     <br/> <span class="sectionToc">4 <a
         href="#x1-50004" id="QQ2-1-5">Modes Overview</a></span>
     <br/> &#x00A0;<span class="subsectionToc">4.1 <a
-        href="#x1-60004.1" id="QQ2-1-6">Edit Mode</a></span>
+        href="#x1-60004.1" id="QQ2-1-6">Edit Mode (Sketch)</a></span>
     <br/> &#x00A0;<span class="subsectionToc">4.2 <a
-        href="#x1-70004.2" id="QQ2-1-7">Transform Mode</a></span>
+        href="#x1-70004.2" id="QQ2-1-7">Transform Mode (Move)</a></span>
     <br/> &#x00A0;<span class="subsectionToc">4.3 <a
-        href="#x1-80004.3" id="QQ2-1-8">Read-Only Mode</a></span>
+        href="#x1-80004.3" id="QQ2-1-8">Read-Only Mode (View)</a></span>
     <br/> &#x00A0;<span class="subsectionToc">4.4 <a
         href="#x1-90004.4" id="QQ2-1-9">Capture Mode</a></span>
     <br/> <span class="sectionToc">5 <a
@@ -75,9 +55,9 @@
     <br/> &#x00A0;<span class="subsectionToc">5.3 <a
         href="#x1-130005.3" id="QQ2-1-13">Run Capture Menu Button</a></span>
     <br/> &#x00A0;&#x00A0;<span class="subsubsectionToc">5.3.1 <a
-        href="#x1-180005.3.1" id="QQ2-1-18">Advanced capture items</a></span>
+        href="#x1-180005.3.1" id="QQ2-1-18">Advanced Capture Items</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.4 <a
-        href="#x1-220005.4" id="QQ2-1-22">Formatting button</a></span>
+        href="#x1-220005.4" id="QQ2-1-22">Formatting Button</a></span>
     <br/> &#x00A0;<span class="subsectionToc">5.5 <a
         href="#x1-230005.5" id="QQ2-1-23">Other Toolbar Buttons</a></span>
     <br/> <span class="sectionToc">6 <a
@@ -121,17 +101,19 @@
     <br/> &#x00A0;<span class="subsectionToc">9.4 <a
         href="#x1-420009.4" id="QQ2-1-42">View Menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.5 <a
-        href="#x1-430009.5" id="QQ2-1-43">Window menu</a></span>
+        href="#x1-430009.5" id="QQ2-1-43">Window Menu</a></span>
     <br/> &#x00A0;<span class="subsectionToc">9.6 <a
         href="#x1-440009.6" id="QQ2-1-44">Help Menu</a></span>
     <br/> <span class="sectionToc">10 <a
-        href="#x1-4500010" id="QQ2-1-45">Combing vs transfer view</a></span>
+        href="#x1-4500010" id="QQ2-1-45">Combining vs Transfer View</a></span>
     <br/> <span class="sectionToc">11 <a
-        href="#x1-4600011" id="QQ2-1-46">Support and Feedback</a></span>
+        href="#x1-4600011" id="QQ2-1-46">Example files</a></span>
     <br/> <span class="sectionToc">12 <a
-        href="#x1-4700012" id="QQ2-1-47">Known Issues</a></span>
+        href="#x1-4700012" id="QQ2-1-47">Support and Feedback</a></span>
     <br/> <span class="sectionToc">13 <a
-        href="#x1-4800013" id="QQ2-1-48">Third party software</a></span>
+        href="#x1-4800013" id="QQ2-1-48">Known Issues</a></span>
+    <br/> <span class="sectionToc">14 <a
+        href="#x1-4900014" id="QQ2-1-49">Third-Party Software</a></span>
 </div>
 <!--l. 25--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">1    </span> <a
@@ -139,432 +121,519 @@
 <!--l. 26--><p class="noindent">PhyloSketch App (also known as PhyloSketch2) is an application for interactively
     creating and
     editing phylogenetic trees and networks by drawing them. Written in Java using JavaFX, this
-    program runs on Mac OS, Linux, and Windows and is also designed for touch-screen devices
+    program runs on macOS, Linux, and Windows and is also designed for touch-screen devices
     running iOS or Android.
 <div class="center" 
 >
-    <!--l. 30--><p class="noindent">
+    <!--l. 29--><p class="noindent">
 
-    <!--l. 31-->
+    <!--l. 30-->
     <p class="noindent"><img
             src="figs/example.png" alt="PIC"
     ></div>
-<!--l. 34--><p class="indent"> PhyloSketch App is a new program based on PhyloSketch (also known as PhyloSketch1), a
-    previous program which was introduced in [<a
+<!--l. 33--><p class="indent"> PhyloSketch App is a new program based on PhyloSketch (also known as PhyloSketch1),
+    which was introduced in [<a
             href="#XFrancisetal2021">Francis et&#x00A0;al.</a>,&#x00A0;<a
-            href="#XFrancisetal2021">2021</a>]. The program uses some of the
-    same code as our SplitsTree app [<a
+            href="#XFrancisetal2021">2021</a>]. The program reuses some code from our
+    SplitsTree app [<a
             href="#XHusonBryant2024">Huson and Bryant</a>,&#x00A0;<a
-            href="#XHusonBryant2024">2024</a>]. However, most of the code and
-    algorithms are new [<a
+            href="#XHusonBryant2024">2024</a>], but most of the code and algorithms are new
+    [<a
             href="#XHuson2025">Huson</a>,&#x00A0;<a
             href="#XHuson2025">2025</a>].
-    <!--l. 38-->
+    <!--l. 36-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">2    </span> <a
         id="x1-30002"></a>Installation</h3>
 <ul class="itemize1">
-    <li class="itemize">The macOS, Linux, and Windows versions are available from the GitHub page: <a
-            href="https://github.com/husonlab/phylosketch2" class="url"><span
-            class="cmtt-12">https://github.com/husonlab/phylosketch2</span></a>
-        or <a
-                href="https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html" class="url"><span
-                class="cmtt-12">https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html</span></a>.
+    <li class="itemize">Desktop versions for macOS, Linux, and Windows are available from:
+        <ul class="itemize2">
+            <li class="itemize"><a
+                    href="https://github.com/husonlab/phylosketch2" class="url"><span
+                    class="cmtt-12">https://github.com/husonlab/phylosketch2</span></a>
+            </li>
+            <li class="itemize"><a
+                    href="https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html" class="url"><span
+                    class="cmtt-12">https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html</span></a>
+            </li>
+        </ul>
+
+
     </li>
     <li class="itemize">The iOS app is available for testing via Apple TestFlight. If you are interested in beta
-        testing, contact the author for an invitation.
-
-
+        testing,
+        contact the author for an invitation.
     </li>
     <li class="itemize">Open the app and grant any necessary permissions for accessing storage, if
         prompted.
     </li>
 </ul>
-<!--l. 46--><p class="noindent">
+<!--l. 47--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">3    </span> <a
         id="x1-40003"></a>Getting Started</h3>
-<!--l. 47--><p class="noindent">When you first open PhyloSketch, youll be presented with a canvas containing a simple
+<!--l. 48--><p class="noindent">When you first open PhyloSketch, you are presented with a canvas containing a simple
     example
-    tree. Modify the example or start creating your own phylogenetic tree or network. The toolbar at
-    the top provides access to all major functions, including mode selection, import options, and
-    various editing tools.
-    <!--l. 50-->
+    tree. You can modify this example or start creating your own phylogenetic tree or network. The
+    toolbar at the top provides access to all major functions, including mode selection, import options,
+    layout, and various editing tools.
+    <!--l. 51-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">4    </span> <a
         id="x1-50004"></a>Modes Overview</h3>
-<!--l. 51--><p class="noindent">PhyloSketch operates in four primary modes:
-    <!--l. 53-->
+<!--l. 52--><p class="noindent">PhyloSketch operates in four primary modes. The mode can be selected using the first
+    control on the toolbar. In the desktop version, tooltips and menu items may refer to these
+    as <span
+            class="phvro7t-x-x-114">Sketch</span>, <span
+            class="phvro7t-x-x-114">Move</span>, <span
+            class="phvro7t-x-x-114">View</span>, and <span
+            class="phvro7t-x-x-114">Capture </span>modes, corresponding to the modes described
+    below.
+    <!--l. 55-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.1    </span> <a
-        id="x1-60004.1"></a>Edit Mode</h4>
-<!--l. 55--><p class="noindent"><img
+        id="x1-60004.1"></a>Edit Mode (Sketch)</h4>
+<!--l. 57--><p class="noindent"><img
         src="figs/edit-mode.png" alt="PIC"
 >
 <ul class="itemize1">
     <li class="itemize">Create new nodes and edges by drawing directly on the canvas.
     </li>
-    <li class="itemize">Long press to create a new node and press-drag to create edges.
+    <li class="itemize">Long-press to create a new node, and press-drag to create edges.
     </li>
     <li class="itemize">Shift-press-drag to move nodes or reshape edges.
     </li>
-    <li class="itemize">Use this mode for building a new tree or network from scratch or for modifying one.</li>
+    <li class="itemize">Use this mode to build a new tree or network from scratch or to modify an existing
+        one.
+    </li>
 </ul>
-<!--l. 64--><p class="noindent">
+
+
+<!--l. 66--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.2    </span> <a
-        id="x1-70004.2"></a>Transform Mode</h4>
-<!--l. 66--><p class="noindent"><img
+        id="x1-70004.2"></a>Transform Mode (Move)</h4>
+<!--l. 68--><p class="noindent"><img
         src="figs/transform-mode.png" alt="PIC"
 >
 <ul class="itemize1">
     <li class="itemize">Move nodes, reshape edges, and adjust the layout of your phylogenetic tree or
         network.
     </li>
-    <li class="itemize">Touch and drag nodes or edges to reposition them.</li>
+    <li class="itemize">Touch or click and drag nodes or edges to reposition or reshape them.</li>
 </ul>
-
-
-<!--l. 73--><p class="noindent">
+<!--l. 75--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.3    </span> <a
-        id="x1-80004.3"></a>Read-Only Mode</h4>
-<!--l. 75--><p class="noindent"><img
+        id="x1-80004.3"></a>Read-Only Mode (View)</h4>
+<!--l. 77--><p class="noindent"><img
         src="figs/read-only-mode.png" alt="PIC"
 >
 <ul class="itemize1">
-    <li class="itemize">Editing is locked, but you can still select nodes or edges for viewing details.
+    <li class="itemize">Editing is disabled, but you can still select nodes or edges to inspect labels and
+        properties.
     </li>
-    <li class="itemize">Useful for viewing a tree or network without accidental modifications.</li>
+    <li class="itemize">Useful for viewing and presenting a tree or network without risk of accidental
+        modifications.
+    </li>
 </ul>
-<!--l. 83--><p class="noindent">
+<!--l. 84--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">4.4    </span> <a
         id="x1-90004.4"></a>Capture Mode</h4>
-<!--l. 85--><p class="noindent"><img
+<!--l. 86--><p class="noindent"><img
         src="figs/capture-mode.png" alt="PIC"
 >
 <ul class="itemize1">
-    <li class="itemize">Select this mode if you want the program to support you when capturing a phylogeny
-        from an image.
+    <li class="itemize">Use this mode when capturing a phylogeny from a background image.
     </li>
-    <li class="itemize">Use this mode to capture nodes, edges and labels present in the image.</li>
+    <li class="itemize">Capture nodes, edges, and labels present in the image, assisted by image-analysis
+        and OCR.
+    </li>
 </ul>
-<!--l. 93--><p class="indent"> Usually, after initial capture, Edit Mode is used to interactively complete capture of
-    the tree or
-    network.
-    <!--l. 96-->
+<!--l. 93--><p class="indent"> Usually, after initial capture, Edit Mode is used to interactively complete and refine
+    the
+    captured tree or network.
+
+
+    <!--l. 95-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">5    </span> <a
         id="x1-100005"></a>Tool Bar Overview</h3>
-<!--l. 97--><p class="noindent">The toolbar provides access to the core functionalities of PhyloSketch:
+<!--l. 96--><p class="noindent">The toolbar provides access to the core functionalities of PhyloSketch:
 <div class="center" 
 >
-    <!--l. 99--><p class="noindent">
+    <!--l. 98--><p class="noindent">
 
-    <!--l. 100-->
+    <!--l. 99-->
     <p class="noindent"><img
             src="figs/toolbar.png" alt="PIC"
     ></div>
-<!--l. 103--><p class="noindent">
+<!--l. 102--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.1    </span> <a
         id="x1-110005.1"></a>Mode Selection</h4>
-<!--l. 104--><p class="noindent">Select the desired mode (Sketch, Move, View or Capture) using the first item on the
-    toolbar.
-
-
-    <!--l. 107-->
+<!--l. 103--><p class="noindent">Select the desired mode (Edit/Sketch, Transform/Move, Read-Only/View, or Capture) using
+    the
+    first item on the toolbar.
+    <!--l. 105-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.2    </span> <a
         id="x1-120005.2"></a>Selection Menu Button</h4>
-<!--l. 108--><p class="noindent">Select nodes or edges based on their properties:
+<!--l. 106--><p class="noindent">Select nodes or edges based on their properties:
 <ul class="itemize1">
-    <li class="itemize">All - Select all nodes and edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">All  </span>Select all nodes and edges.
     </li>
-    <li class="itemize">None - Deselect all.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">None  </span>Deselect everything.
     </li>
-    <li class="itemize">Extend - Select more based on current selection.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Extend  </span>Extend the current selection based on adjacency.
     </li>
-    <li class="itemize">Invert - Invert the selection.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Invert  </span>Invert the current selection.
     </li>
-    <li class="itemize">Roots/Leaves - Select root or leaf nodes.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Roots/Leaves  </span>Select root or leaf nodes.
     </li>
-    <li class="itemize">Articulation Nodes - Select nodes that separate biconnected components.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Articulation Nodes  </span>Select nodes that separate biconnected components.
+    </li>
 </ul>
-<!--l. 118--><p class="noindent">
+<!--l. 116--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.3    </span> <a
         id="x1-130005.3"></a>Run Capture Menu Button</h4>
-<!--l. 120--><p class="noindent">When a background image has been loaded, use these items to capture a tree or network
-    from
-    the image.
+<!--l. 117--><p class="noindent">When a background image has been loaded, these items support capturing a tree or
+    network
+    from that image.
+    <!--l. 119-->
+<p class="indent"> Pressing the Run Capture menu button once attempts to locate the root in the background
+    image. Pressing it again performs the capture using the current parameters. Alternatively, use the
+    following menu items explicitly:
+
+
     <!--l. 122-->
-<p class="indent"> Press the menu button once to locate the root in the background image. Press again to
-    perform capture. Alternatively, use the following menu items.
-    <!--l. 125-->
 <p class="noindent"><span class="paragraphHead"><a
         id="x1-140005.3"></a><span
-        class="phvb7t-x-x-114">Load Image...</span></span>
+        class="phvb7t-x-x-114">Load Image</span><span
+        class="phvb7t-x-x-114">&#x2026;</span></span>
     Import an image to use as a background for the network.
-    <!--l. 127-->
+    <!--l. 124-->
 <p class="noindent"><span class="paragraphHead"><a
         id="x1-150005.3"></a><span
         class="phvb7t-x-x-114">Place Root</span></span>
-    In preparation of network capture from the background image, locate the root.
-    <!--l. 129-->
+    Locate the root in the background image as preparation for network capture.
+    <!--l. 126-->
 <p class="noindent"><span class="paragraphHead"><a
         id="x1-160005.3"></a><span
         class="phvb7t-x-x-114">Capture Phylogeny</span></span>
-    Extract phylogenetic structures from the image, converting them into a graph representation.
-    <!--l. 131-->
+    Extract phylogenetic structure from the image, converting it into a graph representation.
+    <!--l. 128-->
 <p class="noindent"><span class="paragraphHead"><a
         id="x1-170005.3"></a><span
         class="phvb7t-x-x-114">Remove Image</span></span>
     Remove the currently loaded background image from the view.
-
-
-    <!--l. 133-->
+    <!--l. 130-->
 <p class="noindent">
 <h5 class="subsubsectionHead"><span class="titlemark">5.3.1    </span> <a
-        id="x1-180005.3.1"></a>Advanced capture items</h5>
-<!--l. 137--><p class="noindent"><span class="paragraphHead"><a
+        id="x1-180005.3.1"></a>Advanced Capture Items</h5>
+<!--l. 132--><p class="noindent"><span class="paragraphHead"><a
         id="x1-190005.3.1"></a><span
         class="phvb7t-x-x-114">Capture Labels</span></span>
     Use OCR to capture the labels in the background image.
-    <!--l. 139-->
+    <!--l. 134-->
 <p class="noindent"><span class="paragraphHead"><a
         id="x1-200005.3.1"></a><span
         class="phvb7t-x-x-114">Capture Lines</span></span>
-    Detect and capture lines from the image, potentially for network reconstruction.
-    <!--l. 141-->
+    Detect and capture lines from the image, typically used for network reconstruction.
+    <!--l. 136-->
 <p class="noindent"><span class="paragraphHead"><a
         id="x1-210005.3.1"></a><span
-        class="phvb7t-x-x-114">Parameters...</span></span>
-    Open a dialog to configure various settings for network capture.
-    <!--l. 145-->
+        class="phvb7t-x-x-114">Parameters</span><span
+        class="phvb7t-x-x-114">&#x2026;</span></span>
+    Open a dialog to configure various settings for network capture (line detection, OCR,
+    thresholds, etc.).
+    <!--l. 140-->
 <p class="indent"> Here is an example of a captured network [<a
         href="#Xkoblmueller2007reticulate">Koblmueller et&#x00A0;al.</a>,&#x00A0;<a
         href="#Xkoblmueller2007reticulate">2007</a>]:
-    <!--l. 147-->
+    <!--l. 142-->
 <p class="indent"><img
         src="figs/kolbmueller2007.png" alt="PIC"
 > <img
         src="figs/kolbmueller2007-transfer.png" alt="PIC"
 >
-    <!--l. 151-->
+    <!--l. 145-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.4    </span> <a
-        id="x1-220005.4"></a>Formatting button</h4>
-<!--l. 153--><p class="noindent">This toggles the appearance of the formatting panels described below.
-    <!--l. 156-->
+        id="x1-220005.4"></a>Formatting Button</h4>
+<!--l. 146--><p class="noindent">The formatting button toggles the visibility of the formatting pane described below.
+
+
+    <!--l. 148-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">5.5    </span> <a
         id="x1-230005.5"></a>Other Toolbar Buttons</h4>
 <ul class="itemize1">
-    <li class="itemize">Delete - Remove selected nodes/edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Delete  </span>Remove selected nodes and edges.
     </li>
-    <li class="itemize">Undo/Redo - Revert or repeat actions.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Undo/Redo  </span>Revert or repeat the most recent actions.
     </li>
-    <li class="itemize">Zoom In/Out - Adjust the view of the canvas.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Zoom In/Out  </span>Adjust the zoom level for the canvas.
     </li>
-    <li class="itemize">Export Menu - Copy selections or save images.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Zoom to Fit  </span>Zoom to fit the current phylogeny in the window.
+    </li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Export Menu  </span>Copy selections or save images and data in various formats.
+    </li>
 </ul>
-
-
-<!--l. 164--><p class="noindent">
+<!--l. 157--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">6    </span> <a
         id="x1-240006"></a>Status Bar</h3>
-<!--l. 165--><p class="noindent">Reports the number of components, roots, nodes, edges, leaves, and the hybridization
-    number <span
-            class="cmmi-12">h</span>.
-    Also indicates properties like &#8216;network&#8216; or &#8216;tree-based network&#8216;.
+<!--l. 158--><p class="noindent">The status bar reports the number of components, roots, nodes, edges, leaves, and the
+    hybridization number <span
+            class="cmmi-12">h</span>. It also indicates properties such as whether the current object is a
+    <span
+            class="phvro7t-x-x-114">network </span>or a <span
+            class="phvro7t-x-x-114">tree-based network</span>.
 <div class="center" 
 >
-    <!--l. 168--><p class="noindent">
+    <!--l. 161--><p class="noindent">
 
-    <!--l. 169-->
+    <!--l. 162-->
     <p class="noindent"><img
             src="figs/statusbar.png" alt="PIC"
     ></div>
-<!--l. 172--><p class="noindent">
+<!--l. 165--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">7    </span> <a
         id="x1-250007"></a>Formatting Pane</h3>
-<!--l. 174--><p class="noindent">The formatting pane has several panels for formatting nodes and their labels, and edges
+<!--l. 166--><p class="noindent">The formatting pane has several panels for formatting nodes and their labels, and edges
     and their
     labels.
-    <!--l. 176-->
+    <!--l. 168-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.1    </span> <a
         id="x1-260007.1"></a>Node Style Panel</h4>
-<!--l. 178--><p class="noindent">This panel provides options for customizing the appearance of nodes. The following
-    items are
-    available:
+<!--l. 169--><p class="noindent">This panel provides options for customizing the appearance of nodes:
 <ul class="itemize1">
-    <li class="itemize">Shape - A dropdown menu to select the shape of the node.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Shape  </span>Dropdown menu to select the shape of nodes.
+
+
     </li>
-    <li class="itemize">Size - A combo box to specify or edit the size of the node.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Size  </span>Combo box to specify or edit the size of nodes.
     </li>
-    <li class="itemize">Color - A color picker to select the color of the node.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Color  </span>Color picker to select node color.
     </li>
-    <li class="itemize">Revert Button - A button to revert the node&#8217;s style settings (shape, size, and color) to
-        their default values.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert  </span>Button to revert a nodes style (shape, size, and color) to default
+        values.
     </li>
 </ul>
-<!--l. 187--><p class="noindent">
+<!--l. 178--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.2    </span> <a
         id="x1-270007.2"></a>Node Labels Panel</h4>
-<!--l. 188--><p class="noindent">This panel provides options for labeling nodes. The following items are available:
+<!--l. 179--><p class="noindent">This panel provides options for labeling nodes:
 <ul class="itemize1">
-    <li class="itemize">Nodes to Label - A dropdown menu to select which nodes should be labeled.
-
-
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Nodes to Label  </span>Dropdown menu to select which nodes should be labeled.
     </li>
-    <li class="itemize">Labeling Method - A dropdown menu to specify how the selected nodes should be
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Labeling Method   </span>Dropdown menu to specify how the selected nodes should be
         labeled.
     </li>
-    <li class="itemize">Unique Labels Toggle - A toggle button to enforce unique labels for nodes, preventing
-        reuse of existing labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Unique Labels  </span>Toggle button to enforce unique labels, preventing reuse of
+        existing
+        labels.
     </li>
-    <li class="itemize">Label Input Field - A text field to manually enter labels for nodes.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Label Input Field  </span>Text field to manually enter labels for nodes.
     </li>
-    <li class="itemize">Note that you can use HTML-like tags for styling text (e.g., <span class="obeylines-h"><span
-            class="verb"><span
+    <li class="itemize">You can use HTML-like tags for styling text (e.g., <span class="obeylines-h"><span class="verb"><span
             class="cmtt-12">&#x003C;i&#x003E;</span></span></span>, <span class="obeylines-h"><span class="verb"><span
             class="cmtt-12">&#x003C;b&#x003E;</span></span></span>, <span class="obeylines-h"><span class="verb"><span
-            class="cmtt-12">&#x003C;sub&#x003E;</span></span></span>).
+            class="cmtt-12">&#x003C;sub&#x003E;</span></span></span>, <span class="obeylines-h"><span class="verb"><span
+            class="cmtt-12">&#x003C;sup&#x003E;</span></span></span>).
     </li>
 </ul>
-<!--l. 198--><p class="noindent">
+<!--l. 189--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.3    </span> <a
         id="x1-280007.3"></a>Node Labels Formatting Panel</h4>
-<!--l. 199--><p class="noindent">This panel provides options for formatting node labels. The following items are
-    available:
+<!--l. 190--><p class="noindent">This panel provides options for formatting node labels:
 <ul class="itemize1">
-    <li class="itemize">Font - A dropdown menu to select the font for node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Font  </span>Dropdown menu to select the font for node labels.
     </li>
-    <li class="itemize">Revert Font Button - A button to revert the font settings to default.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Font  </span>Button to revert font settings to default.
     </li>
-    <li class="itemize">Size - A combo box to specify or edit the font size for node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Size  </span>Combo box to specify or edit the font size for node labels.
     </li>
-    <li class="itemize">Revert Size Button - A button to revert the size settings to default.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Size  </span>Button to revert size settings to default.
+
+
     </li>
-    <li class="itemize">Bold Button - A button (B) to toggle bold formatting for node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Bold </span>(B) Toggle bold formatting for node labels.
     </li>
-    <li class="itemize">Italic Button - A button (I) to toggle italic formatting for node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Italic </span>(I) Toggle italic formatting for node labels.
     </li>
-    <li class="itemize">Underline Button - A button (U) to toggle underline formatting for node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Underline </span>(U) Toggle underlining for node labels.
     </li>
-    <li class="itemize">Color - A color picker to set the text color of node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Color  </span>Color picker to set the text color of node labels.
     </li>
-    <li class="itemize">Revert Color Button - A button to revert the text color to default.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Color  </span>Button to revert text color to default.
     </li>
-    <li class="itemize">Fill - A color picker to set the background fill color of node labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Fill  </span>Color picker to set the background fill color of node labels.
     </li>
-    <li class="itemize">Revert Revert Fill Button - A button to revert the background fill color to default.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Fill  </span>Button to revert the background fill color to default.
+    </li>
 </ul>
-
-
-<!--l. 215--><p class="noindent">
+<!--l. 206--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.4    </span> <a
         id="x1-290007.4"></a>Edge Style Panel</h4>
-<!--l. 216--><p class="noindent">This panel provides options for customizing the appearance and properties of edges. The
-    following items are available:
+<!--l. 207--><p class="noindent">This panel provides options for customizing the appearance and properties of edges:
 <ul class="itemize1">
-    <li class="itemize">Shape - A set of buttons to select the shape of edges, including straight (S),
-        rectangular (R), curved (C), and smooth styles.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Shape  </span>Buttons to select the shape of edges, including straight (S),
+        rectangular (R),
+        curved (C), and smooth styles.
     </li>
-    <li class="itemize">Line - A dropdown menu to select the line style, such as solid, dashed, or dotted.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Line  </span>Dropdown menu to select the line style (solid, dashed, dotted, etc.).
     </li>
-    <li class="itemize">Width - A combo box to specify or edit the line width.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Width  </span>Combo box to specify or edit the line width.
     </li>
-    <li class="itemize">Color - A color picker to set the color of edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Color  </span>Color picker to set edge color.
     </li>
-    <li class="itemize">Revert Color Button - A button to reset the edge color to its default value.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Color  </span>Button to reset edge color to its default.
     </li>
-    <li class="itemize">Show Arrows - A button to enable or disable arrowheads on edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Show Arrows  </span>Toggle to enable or disable arrowheads on edges.
     </li>
-    <li class="itemize">Show Reticulate - A button to enable or disable orange-color highlighting of reticulate
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Show Reticulate  </span>Toggle to enable or disable orange highlighting of reticulate
         edges.
     </li>
 </ul>
-<!--l. 228--><p class="noindent">
+
+
+<!--l. 219--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.5    </span> <a
         id="x1-300007.5"></a>Edge Labels Panel</h4>
-<!--l. 229--><p class="noindent">This panel provides options for managing edge labels, including weights, support
+<!--l. 220--><p class="noindent">This panel provides options for managing edge labels, including weights, support
     values, and
-    probabilities. The following items are available:
+    probabilities:
 <ul class="itemize1">
-    <li class="itemize">Weight - A text field to set the weight or branch length of an edge.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Weight  </span>Text field to set the weight or branch length of an edge.
     </li>
-    <li class="itemize">Show Weight Toggle - A toggle button to display edge weights or branch lengths.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Show Weight  </span>Toggle to display edge weights or branch lengths.
     </li>
-    <li class="itemize">Measure Weights Button - A button to set edge weights based on coordinates.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Measure Weights  </span>Button to set edge weights based on coordinates.
     </li>
-    <li class="itemize">Support - A text field to set the confidence or support value, such as bootstrap values.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Support  </span>Text field to set confidence or support values (e.g.&#x00A0;bootstrap).
     </li>
-    <li class="itemize">Show Support Toggle - A toggle button to display confidence or support values.
-
-
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Show Support  </span>Toggle to display confidence or support values.
     </li>
-    <li class="itemize">Probability - A text field to set probabilities for reticulate edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Probability  </span>Text field to set probabilities for reticulate edges.
     </li>
-    <li class="itemize">Show Probability Toggle - A toggle button to display probabilities on reticulate edges.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Show Probability  </span>Toggle to display probabilities on reticulate edges.
+    </li>
 </ul>
-<!--l. 241--><p class="noindent">
+<!--l. 232--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.6    </span> <a
         id="x1-310007.6"></a>Edge Label Style Panel</h4>
-<!--l. 243--><p class="noindent">This panel provides options for customizing the style and appearance of edge labels.
-    The
-    following items are available:
+<!--l. 233--><p class="noindent">This panel provides options for customizing the style and appearance of edge labels:
 <ul class="itemize1">
-    <li class="itemize">Font - A dropdown menu to select the font for edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Font  </span>Dropdown menu to select the font for edge labels.
     </li>
-    <li class="itemize">Revert Font Button - A button to reset the font settings to default.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Font  </span>Button to reset font settings to default.
     </li>
-    <li class="itemize">Size - A combo box to specify or edit the font size for edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Size  </span>Combo box to specify or edit the font size for edge labels.
     </li>
-    <li class="itemize">Revert Size Button - A button to reset the size settings to default.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Size  </span>Button to reset size settings to default.
     </li>
-    <li class="itemize">Bold Button - A button (B) to toggle bold formatting for edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Bold </span>(B) Toggle bold formatting for edge labels.
     </li>
-    <li class="itemize">Italic Button - A button (I) to toggle italic formatting for edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Italic </span>(I) Toggle italic formatting for edge labels.
+
+
     </li>
-    <li class="itemize">Underline Button - A button (U) to toggle underline formatting for edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Underline </span>(U) Toggle underlining for edge labels.
     </li>
-    <li class="itemize">Color - A color picker to set the text color of edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Color  </span>Color picker to set the text color of edge labels.
     </li>
-    <li class="itemize">Revert Color Button - A button to reset the text color to default.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Color  </span>Button to reset text color to default.
     </li>
-    <li class="itemize">Fill - A color picker to set the background fill color of edge labels.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Fill  </span>Color picker to set the background fill color of edge labels.
     </li>
-    <li class="itemize">Revert Fill Button - A button to reset the background fill color to default.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Revert Fill  </span>Button to reset the background fill color to default.
+    </li>
 </ul>
-
-
-<!--l. 259--><p class="noindent">
+<!--l. 249--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.7    </span> <a
         id="x1-320007.7"></a>Draw Phylogeny</h4>
-<!--l. 261--><p class="noindent">This panel provides options for algorithmic drawing of the phylogeny.
-    <!--l. 263-->
+<!--l. 250--><p class="noindent">This panel provides options for algorithmic drawing of the phylogeny.
+    <!--l. 252-->
 <p class="indent"> There are three choices for layout:
 <ul class="itemize1">
     <li class="itemize">Rectangular,
     </li>
-    <li class="itemize">Circular and
+    <li class="itemize">Circular,
     </li>
     <li class="itemize">Radial.</li>
 </ul>
-<!--l. 269--><p class="noindent">There are three choices for scaling:
+<!--l. 259--><p class="indent"> There are three choices for scaling:
 <ul class="itemize1">
-    <li class="itemize">To Scale phylogram,
+    <li class="itemize">To-scale phylogram,
     </li>
-    <li class="itemize">Early-Branching cladogram and
+    <li class="itemize">Early-branching cladogram,
     </li>
-    <li class="itemize">Late-Branching cladogram.</li>
+    <li class="itemize">Late-branching cladogram.</li>
 </ul>
-<!--l. 275--><p class="noindent">The run button can be used to re-run layout using the current settings.
-    <!--l. 277-->
+<!--l. 266--><p class="indent"> The <span
+        class="phvro7t-x-x-114">Run </span>button re-runs the layout using the current settings.
+    <!--l. 268-->
 <p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.8    </span> <a
         id="x1-330007.8"></a>Layout Phylogeny</h4>
-<!--l. 279--><p class="noindent">This panel provides tools for geometric transformations of the displayed phylogenetic
+<!--l. 269--><p class="noindent">This panel provides tools for geometric transformations of the displayed phylogenetic
     tree or
     network:
+
+
 <ul class="itemize1">
     <li class="itemize"><span
             class="phvb7t-x-x-114">Rotate Left  </span>Rotate the entire phylogeny <span
@@ -594,255 +663,350 @@
         transformations.
     </li>
 </ul>
-
-
-<!--l. 290--><p class="noindent">
+<!--l. 280--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">7.9    </span> <a
         id="x1-340007.9"></a>Modify Phylogeny</h4>
-<!--l. 292--><p class="noindent">This panel provides options for modifying the tree or network:
+<!--l. 281--><p class="noindent">This panel provides options for modifying the tree or network:
 <ul class="itemize1">
-    <li class="itemize">Magic Wand - Apply the most pertinent modification, based on the current selection
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Magic Wand  </span>Apply the most pertinent modification, based on the current
+        selection
         of nodes and edges.
     </li>
-    <li class="itemize">Induce - Keep only the part of the phylogeny induced by the current selection.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Induce  </span>Keep only the part of the phylogeny induced by the current selection.
     </li>
-    <li class="itemize">Declare Root - Assign a specific node as the root of the phylogenetic network,
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Declare  Root    </span>Assign a specific node as the root of the phylogenetic
+        network,
         redirecting edges where necessary.
     </li>
-    <li class="itemize">Merge Nodes - Combine multiple selected nodes into a single node while preserving
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Merge Nodes  </span>Combine multiple selected nodes into a single node while
+        preserving
         connectivity.
     </li>
-    <li class="itemize">Del. Thru Nodes - Delete nodes of indegree one and outdegree one.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Del.</span><span
+            class="phvb7t-x-x-114">&#x00A0;Thru Nodes  </span>Delete nodes of indegree one and outdegree one.
     </li>
-    <li class="itemize">Reverse Edges - Invert the direction of selected edges while maintaining network
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Reverse Edges   </span>Invert the direction of selected edges while maintaining
+        network
         integrity.
     </li>
-    <li class="itemize">Cross Edges - For any selected node of degree four, replace the node with two
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Cross  Edges   </span>For any selected node of degree four, replace the node with two
         crossing edges.
+
+
     </li>
-    <li class="itemize">Acceptor Edge - Declare an edge as the recipient of a horizontal gene transfer event.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Acceptor Edge  </span>Declare an edge as the recipient of a horizontal gene transfer
+        event.
         There can be at most one such edge per reticulation node.
     </li>
 </ul>
-<!--l. 306--><p class="noindent">
+<!--l. 294--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">8    </span> <a
         id="x1-350008"></a>Working with Nodes and Edges</h3>
-<!--l. 307--><p class="noindent">
+<!--l. 295--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">8.1    </span> <a
         id="x1-360008.1"></a>Creating Nodes and Edges</h4>
 <ul class="itemize1">
     <li class="itemize">In Edit Mode, drag along the canvas to create edges.
     </li>
-    <li class="itemize">In Edit Mode, to move selected nodes and edges, shift-drag on them.
-
-
+    <li class="itemize">In Edit Mode, shift-drag on selected nodes or edges to move them.
     </li>
-    <li class="itemize">Double-click to create new nodes.</li>
+    <li class="itemize">Double-click (or long-press, on touch devices) to create new nodes.</li>
 </ul>
-<!--l. 314--><p class="noindent">
+<!--l. 302--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">8.2    </span> <a
         id="x1-370008.2"></a>Transforming Nodes and Edges</h4>
 <ul class="itemize1">
-    <li class="itemize">Drag nodes to move them.
+    <li class="itemize">In Transform Mode, drag nodes to move them.
     </li>
-    <li class="itemize">Adjust the shape of edges by dragging and reshaping.</li>
+    <li class="itemize">Drag on edges to adjust their shape and control points.</li>
 </ul>
-<!--l. 320--><p class="noindent">
+<!--l. 308--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">9    </span> <a
         id="x1-380009"></a>Menus (Non-Mobile App Only)</h3>
-<!--l. 322--><p class="noindent">
+<!--l. 310--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.1    </span> <a
         id="x1-390009.1"></a>File Menu</h4>
-<!--l. 324--><p class="noindent">The usual file-related menu item:
+<!--l. 311--><p class="noindent">The <span
+        class="phvro7t-x-x-114">File </span>menu contains the usual file-related items:
 <ul class="itemize1">
-    <li class="itemize">New&#x2026;- Create a new document.
-    </li>
-    <li class="itemize">Open&#x2026;- Open an existing document (file suffix .psketch). Additionally, you can import
-        a tree or network from a file in Newick format (file suffix .new, .tre or similar) or a file
-        created by PhyloSketch1 (file suffix .nexus).
-    </li>
-    <li class="itemize">Recent - Access a list of recently opened files.
-    </li>
-    <li class="itemize">Load Background Image - Loads a background image for tracing over or phylogeny
-        capture.
-    </li>
-    <li class="itemize">Export - Open the export submenu for saving data in different formats.
-    </li>
-    <li class="itemize">Image&#x2026;- Export the current canvas as an image file.
-    </li>
-    <li class="itemize">Newick&#x2026;- Export the current tree or network in Newick format.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">New</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Create a new document.
 
 
     </li>
-    <li class="itemize">Save&#x2026;- Save the current document.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Open</span><span
+            class="phvb7t-x-x-114">&#x2026;    </span>Open an existing document (file suffix <span
+            class="cmtt-12">.psketch</span>). Additionally, you can
+        import a tree or network from a file in Newick format (file suffix <span
+                class="cmtt-12">.new</span>, <span
+                class="cmtt-12">.tre </span>or similar)
+        or from a file created by PhyloSketch1 (file suffix <span
+                class="cmtt-12">.nexus</span>).
     </li>
-    <li class="itemize">Page Setup&#x2026;- Configure the page layout and settings for printing.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Recent  </span>Access a list of recently opened files.
     </li>
-    <li class="itemize">Print&#x2026;- Print the current document.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Export  </span>Open the export submenu for saving data in different formats.
     </li>
-    <li class="itemize">Close - Close the currently open document or window.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Image</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Export the current canvas as an image file.
     </li>
-    <li class="itemize">Quit - Exit the application.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Newick</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Export the current tree or network in Newick format.
+    </li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Save</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Save the current document.
+    </li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Page Setup</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Configure page layout and settings for printing.
+    </li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Print</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Print the current document.
+    </li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Close  </span>Close the currently open document or window.
+    </li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Quit  </span>Exit the application.
+    </li>
 </ul>
-<!--l. 355--><p class="noindent">
+<!--l. 327--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.2    </span> <a
         id="x1-400009.2"></a>Edit Menu</h4>
-<!--l. 357--><p class="noindent">The edit menu items are:
+<!--l. 328--><p class="noindent">The <span
+        class="phvro7t-x-x-114">Edit </span>menu items are:
 <ul class="itemize1">
-    <li class="itemize">Undo - Revert the last action.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Undo  </span>Revert the last action.
     </li>
-    <li class="itemize">Redo - Repeat the last undone action.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Redo  </span>Repeat the last undone action.
     </li>
-    <li class="itemize">Cut - Remove the selected items and copy them to the clipboard.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Cut  </span>Remove the selected items and copy them to the clipboard.
     </li>
-    <li class="itemize">Copy - Copy the selected items to the clipboard.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Copy  </span>Copy the selected items to the clipboard.
     </li>
-    <li class="itemize">Copy Image - Copy an image of the current canvas to the clipboard.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Copy Image  </span>Copy an image of the current canvas to the clipboard.
+
+
     </li>
-    <li class="itemize">Paste - Insert the contents of the clipboard into the current document.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Paste  </span>Insert the contents of the clipboard into the current document.
     </li>
-    <li class="itemize">Delete - Remove the selected nodes and/or edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Delete  </span>Remove the selected nodes and/or edges.
     </li>
-    <li class="itemize">Clear - Delete all nodes and edges from the canvas.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Clear  </span>Delete all nodes and edges from the canvas.
     </li>
-    <li class="itemize">Apply Modification - Applies the most pertinent modification (among the following
-        items), given the current selection of nodes and edges.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Apply Modification  </span>Apply the most pertinent modification (among the items
+        listed
+        below), given the current selection of nodes and edges.
     </li>
-    <li class="itemize">Remove Thru Nodes - Replace &#8220;thru nodes&#8221; (nodes with indegree 1 and outdegree
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Remove Thru Nodes  </span>Replace &#8220;thru nodes&#8221; (nodes with indegree 1 and
+        outdegree
         1) by direct edges.
-
-
     </li>
-    <li class="itemize">Declare Root - Change the root of the tree or network by selecting a new node or
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Declare Root   </span>Change the root of the tree or network by selecting a new node
+        or
         edge.
     </li>
-    <li class="itemize">Declare Acceptor Edge - For any reticulate node, exactly one of the incoming edges
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Declare Acceptor Edge  </span>For any reticulate node, exactly one of the incoming
+        edges
         may be declared the transfer acceptor edge. If the selected edge is already declared
         an acceptor edge, it loses this property.
     </li>
-    <li class="itemize">Mode - Switch between editing modes:
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Mode  </span>Switch between editing modes:
         <ul class="itemize2">
-            <li class="itemize">Edit Mode - Enable adding and modifying nodes and edges.
+            <li class="itemize">Edit Mode Enable adding and modifying nodes and edges.
             </li>
-            <li class="itemize">Move Mode - Allow repositioning of nodes and reshaping of edges.</li>
+            <li class="itemize">Move Mode Allow repositioning of nodes and reshaping of edges.</li>
         </ul>
     </li>
-    <li class="itemize">Find&#x2026;- Search for a node or edge by label.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Find</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Search for a node or edge by label.
     </li>
-    <li class="itemize">Find Again - Repeat the previous search to locate the next matching node.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Find Again  </span>Repeat the previous search to locate the next matching node.
     </li>
-    <li class="itemize">Add LSA Edges - Add edges representing the Lowest Stable Ancestor (LSA) relationships
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Add LSA Edges  </span>Add edges representing Lowest Stable Ancestor (LSA)
+        relationships
         between selected nodes.
     </li>
 </ul>
-<!--l. 384--><p class="noindent">
+<!--l. 353--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.3    </span> <a
         id="x1-410009.3"></a>Layout Menu</h4>
-<!--l. 385--><p class="noindent">The Layout Menu provides items for customizing the layout and appearance of
+<!--l. 354--><p class="noindent">The <span
+        class="phvro7t-x-x-114">Layout </span>menu provides items for customizing the layout and appearance of
     phylogenetic trees
     and networks. The following items are available:
+
+
 <ul class="itemize1">
-    <li class="itemize">Outlines - Toggles the display of the tree or network as an outline.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Outlines  </span>Toggle display of the tree or network as an outline.
     </li>
-    <li class="itemize">Rotate Left - Rotates the tree or network 90 degrees to the left.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Rotate Left  </span>Rotate the tree or network 90 degrees to the left.
     </li>
-    <li class="itemize">Rotate Right - Rotates the tree or network 90 degrees to the right.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Rotate Right  </span>Rotate the tree or network 90 degrees to the right.
     </li>
-    <li class="itemize">Flip Horizontal - Flips the tree or network horizontally.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Flip Horizontal  </span>Flip the tree or network horizontally.
     </li>
-    <li class="itemize">Flip Vertical - Flips the tree or network vertically.
-
-
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Flip Vertical  </span>Flip the tree or network vertically.
     </li>
-    <li class="itemize">Resize Mode - Enables or disables resize mode, allowing nodes to be resized and
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Resize Mode  </span>Enable or disable resize mode, allowing the layout to be resized
+        and
         repositioned.
     </li>
-    <li class="itemize">Layout Labels - Resets the layout of node labels for better readability.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Layout Labels  </span>Reset the layout of node and edge labels for better
+        readability.
     </li>
-    <li class="itemize">Layout Phylogeny submenu.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Layout Phylogeny </span>submenu:
         <ul class="itemize2">
-            <li class="itemize">Apply - Layout the phylogeny using the current settings.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">Apply  </span>Lay out the phylogeny using the current settings.
             </li>
-            <li class="itemize">Radial Layout - use a radial layout.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">Radial Layout  </span>Use a radial layout.
             </li>
-            <li class="itemize">Rectangular Layout - use a rectangular layout.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">Rectangular Layout  </span>Use a rectangular layout.
             </li>
-            <li class="itemize">Radial Layout - use a radial layout.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">Circular Layout  </span>Use a circular layout.
             </li>
-            <li class="itemize">Circular Layout - use a circular layout.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">To-Scale Phylogram  </span>Lay out as a phylogram.
             </li>
-            <li class="itemize">To-Scale Phylogram - layout as a phylogram.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">Early-Branching Cladogram  </span>Lay out as an early-branching cladogram.
             </li>
-            <li class="itemize">Early-Branching Cladogram - layout as an early-branching cladogram.
+            <li class="itemize"><span
+                    class="phvb7t-x-x-114">Late-Branching Cladogram  </span>Lay out as a late-branching cladogram.
             </li>
-            <li class="itemize">Late-Branching Cladogram - layout as a late-branching cladogram.</li>
         </ul>
     </li>
 </ul>
-<!--l. 410--><p class="noindent">
+<!--l. 376--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.4    </span> <a
         id="x1-420009.4"></a>View Menu</h4>
-<!--l. 412--><p class="noindent">The View Menu provides items for adjusting the appearance, scaling, and layout of the
-    canvas.
-    The following items are available:
+<!--l. 377--><p class="noindent">The <span
+        class="phvro7t-x-x-114">View </span>menu provides items for adjusting the appearance, scaling, and layout of the
+    canvas:
+
+
 <ul class="itemize1">
-    <li class="itemize">Use Dark Theme - Toggles between light and dark themes for the application
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Use Dark Theme  </span>Toggle between light and dark themes for the application
         interface.
     </li>
-    <li class="itemize">Increase Font Size - Increases the font size of labels and text in the canvas.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Increase Font Size  </span>Increase the font size of labels and text in the canvas.
     </li>
-    <li class="itemize">Decrease Font Size - Decreases the font size of labels and text in the canvas.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Decrease Font Size  </span>Decrease the font size of labels and text in the canvas.
     </li>
-    <li class="itemize">Zoom In - Zooms into the canvas for a closer view.
-
-
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Zoom In  </span>Zoom in on the canvas for a closer view.
     </li>
-    <li class="itemize">Zoom Out - Zooms out of the canvas for a broader view.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Zoom Out  </span>Zoom out of the canvas for a broader view.
     </li>
-    <li class="itemize">Zoom To Fit - Adjusts the zoom level to fit the entire canvas within the window.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Zoom To Fit  </span>Adjust the zoom level to fit the entire phylogeny within the
+        window.
     </li>
-    <li class="itemize">Enter Full Screen - Switches the application to full-screen mode for an immersive
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Enter Full Screen  </span>Switch the application to full-screen mode for an immersive
         view.
     </li>
 </ul>
-<!--l. 424--><p class="noindent">
+<!--l. 389--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.5    </span> <a
-        id="x1-430009.5"></a>Window menu</h4>
-<!--l. 426--><p class="noindent">The Window menu items are:
+        id="x1-430009.5"></a>Window Menu</h4>
+<!--l. 390--><p class="noindent">The <span
+        class="phvro7t-x-x-114">Window </span>menu items are:
 <ul class="itemize1">
-    <li class="itemize">Set Window Size&#x2026;- Allows the user to set the exact size of the window
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Set Window Size</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Set the exact size of the window.
     </li>
-    <li class="itemize">One item for each currently open document.</li>
+    <li class="itemize">One menu item for each currently open document window.</li>
 </ul>
-<!--l. 433--><p class="noindent">
+<!--l. 397--><p class="noindent">
 <h4 class="subsectionHead"><span class="titlemark">9.6    </span> <a
         id="x1-440009.6"></a>Help Menu</h4>
-<!--l. 435--><p class="noindent">The Help menu contains the following items:
+<!--l. 398--><p class="noindent">The <span
+        class="phvro7t-x-x-114">Help </span>menu contains the following items:
 <ul class="itemize1">
-    <li class="itemize">Check for Updates&#x2026;- Allows the user to check whether an update is available.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Check for Updates</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Check whether an update for the application is available.
     </li>
-    <li class="itemize">About&#x2026;- Shows an information window about the program.
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">About</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Show an information window about the program.
     </li>
-    <li class="itemize">Help Window&#x2026;- Shows a window containing this help document.</li>
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Help Window</span><span
+            class="phvb7t-x-x-114">&#x2026;  </span>Show a window containing this help document.
+    </li>
 </ul>
-<!--l. 442--><p class="noindent">
+
+
+<!--l. 405--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">10    </span> <a
-        id="x1-4500010"></a>Combing vs transfer view</h3>
-<!--l. 444--><p class="noindent">The reticulations in a rooted phylogenetic network can be drawn in two different ways.
+        id="x1-4500010"></a>Combining vs Transfer View</h3>
+<!--l. 406--><p class="noindent">The reticulations in a rooted phylogenetic network can be drawn in two different ways.
 <ul class="itemize1">
-    <li class="itemize">Combine view - all incoming edges of a reticulation node are drawn as special edges
-        that come together at the reticulation, representing similar amounts of incoming
-        genetic material, as in the case speciation-by-hybridization or reassortment, say.
-
-
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Combining  view     </span>All incoming edges of a reticulation node are drawn as
+        special edges that come together at the reticulation, representing similar amounts
+        of incoming genetic material, as in the case of speciation-by-hybridization or
+        reassortment.
     </li>
-    <li class="itemize">Transfer view - one incoming edge has been declared a &#8220;&#8217;transfer acceptor edge&#8221;
-        and
+    <li class="itemize"><span
+            class="phvb7t-x-x-114">Transfer view  </span>One incoming edge has been declared a &#8220;transfer acceptor
+        edge&#8221; and
         all other incoming edges are drawn as special edges that represent small amounts
-        of incoming genetic material, as in the case of horizontal gene transfer, say.
+        of incoming genetic material, as in the case of horizontal gene transfer.
     </li>
 </ul>
-<!--l. 455--><p class="indent"> By default, reticulations are drawn in a combining view. To obtain a transfer view,
+<!--l. 413--><p class="indent"> By default, reticulations are drawn in a combining view. To obtain a transfer view,
     select one of
     the incoming edges and use the <span
             class="cmtt-12">Declare Acceptor Edge </span>menu item or button to declare it to be
@@ -854,17 +1018,17 @@
             class="cmmi-12">i </span>to indicate which of the incoming edges of the <span
             class="cmmi-12">i</span>-th reticulation node is the acceptor
     edge.
-    <!--l. 461-->
+    <!--l. 416-->
 <p class="indent"> This example shows the (complicated) published drawing of a network (<a
         href="#XLescroart2023">Lescroart
     et&#x00A0;al.</a>&#x00A0;[<a
-        href="#XLescroart2023">2023</a>], Fig.&#x00A0;S12E) and a (simple) transfer view obtained using the <span
+        href="#XLescroart2023">2023</a>], Fig.&#x00A0;S12E) and a (simpler) transfer view obtained using the <span
         class="phvro7t-x-x-114">rectangular cladogram</span>
     <span
             class="phvro7t-x-x-114">algorithm</span>:
-<div class="center"
+<div class="center" 
 >
-    <!--l. 464--><p class="noindent">
+    <!--l. 418--><p class="noindent">
     <div class="tabular">
         <table id="TBL-2" class="tabular"
                cellspacing="0" cellpadding="0"
@@ -902,14 +1066,16 @@ name="manual1x.png" src="figs/Lescroart2023FigS12E-layout.pdf"
         </table>
     </div>
 </div>
-<!--l. 474--><p class="indent"> Here we show a captured hybridization network (<a
+
+
+<!--l. 428--><p class="indent"> Here we show a captured hybridization network (<a
         href="#XBarley2022">Barley et&#x00A0;al.</a>&#x00A0;[<a
-        href="#XBarley2022">2022</a>], Fig.&#x00A0;2) and combining
+        href="#XBarley2022">2022</a>], Fig.&#x00A0;2) and a combining
     view obtained using the <span
             class="phvro7t-x-x-114">rectangular cladogram algorithm</span>:
-<div class="center"
+<div class="center" 
 >
-    <!--l. 477--><p class="noindent">
+    <!--l. 430--><p class="noindent">
     <div class="tabular">
         <table id="TBL-4" class="tabular"
                cellspacing="0" cellpadding="0"
@@ -945,36 +1111,46 @@ name="manual1x.png" src="figs/Lescroart2023FigS12E-layout.pdf"
         </table>
     </div>
 </div>
-
-
-<!--l. 488--><p class="noindent">
+<!--l. 440--><p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">11    </span> <a
-        id="x1-4600011"></a>Support and Feedback</h3>
-<!--l. 489--><p class="noindent">For issues or suggestions, reach out via the GitHub repository or the apps support
-    page.
-    <!--l. 491-->
+        id="x1-4600011"></a>Example files</h3>
+<!--l. 442--><p class="noindent">There are several example of image files and PhyloSketch files available online here:
+    <!--l. 444-->
+<p class="indent"><a
+        href="https://github.com/husonlab/phylosketch2/tree/main/examples" class="url"><span
+        class="cmtt-12">https://github.com/husonlab/phylosketch2/tree/main/examples</span></a>
+    <!--l. 447-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">12    </span> <a
-        id="x1-4700012"></a>Known Issues</h3>
+        id="x1-4700012"></a>Support and Feedback</h3>
+<!--l. 448--><p class="noindent">For issues, bug reports, or suggestions, please use the GitHub repository or the apps
+    support
+    page linked there.
+    <!--l. 450-->
+<p class="noindent">
+<h3 class="sectionHead"><span class="titlemark">13    </span> <a
+        id="x1-4800013"></a>Known Issues</h3>
 <ul class="itemize1">
-    <li class="itemize">Status bar assumes all nodes/edges are in the same graph.
+    <li class="itemize">The status bar assumes all nodes and edges are part of the same graph.
     </li>
-    <li class="itemize">iOS resizing issuesrotate device to fix layout problems.
+    <li class="itemize">On iOS, resizing issues may occur; rotating the device usually fixes layout problems.
     </li>
     <li class="itemize">Imported layouts may require manual adjustments.
     </li>
-    <li class="itemize">Copy-paste between documents may not preserve formatting.</li>
+    <li class="itemize">Copy-paste between documents may not preserve all formatting.</li>
 </ul>
-<!--l. 500--><p class="noindent">
-<h3 class="sectionHead"><span class="titlemark">13    </span> <a
-        id="x1-4800013"></a>Third party software</h3>
-<!--l. 502--><p class="noindent">This software uses the Tesseract OCR engine, which is licensed under the Apache
+<!--l. 459--><p class="noindent">
+<h3 class="sectionHead"><span class="titlemark">14    </span> <a
+        id="x1-4900014"></a>Third-Party Software</h3>
+<!--l. 460--><p class="noindent">This software uses the Tesseract OCR engine, which is licensed under the Apache
     License,
     Version 2.0.
+
+
     <!--l. 1-->
 <p class="noindent">
 <h3 class="likesectionHead"><a
-        id="x1-4900013"></a>References</h3>
+        id="x1-5000014"></a>References</h3>
 <!--l. 1--><p class="noindent">
 <div class="thebibliography">
     <p class="bibitem"><span class="biblabel">
@@ -999,8 +1175,6 @@ name="manual1x.png" src="figs/Lescroart2023FigS12E-layout.pdf"
         David Bryant. The SplitsTree App: interactive analysis and
         visualization using phylogenetic trees and networks. <span
                 class="phvro7t-x-x-114">Nature Methods</span>, 2024.
-
-
     </p>
     <p class="bibitem"><span class="biblabel">
 <a

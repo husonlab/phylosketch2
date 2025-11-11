@@ -384,6 +384,9 @@ public class DrawView extends Pane {
 	}
 
 	public void createLabel(Node v, String text) {
+		if (v.getInfo() instanceof RichTextLabel oldLabel) {
+			nodeLabelsGroup.getChildren().remove(oldLabel);
+		}
 		var shape = (Shape) v.getData();
 		graph.setLabel(v, RichTextLabel.getRawText(text));
 		var label = new RichTextLabel(text);

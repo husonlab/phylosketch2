@@ -31,6 +31,7 @@ import jloda.util.StringUtils;
 import phylosketch.main.PhyloSketch;
 
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static jloda.fx.util.ClipboardUtils.isImageFile;
@@ -41,10 +42,9 @@ import static jloda.fx.util.ClipboardUtils.isTextFile;
  * Daniel Huson, 11.2025
  */
 public class SetupImport {
-	public static void apply(Pane pane, MenuItem pasteMenuItem, Consumer<String> importStringConsumer, Consumer<Image> importImageConsumer) {
+	public static void apply(Pane pane, MenuItem pasteMenuItem, BiConsumer<String, String> fileNameContentConsumer, Consumer<Image> imageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
 		var isDesktop = new SimpleBooleanProperty(PhyloSketch.isDesktop());
-
 
 		pane.setOnDragOver(e -> {
 			var db = e.getDragboard();
@@ -59,33 +59,40 @@ public class SetupImport {
 		pane.setOnDragDropped(e -> {
 			var db = e.getDragboard();
 			boolean success = false;
-			if (db.getString() != null && !db.getString().isBlank() && importStringConsumer != null) {
-				importStringConsumer.accept(db.getString());
+
+			if (db.getString() != null && !db.getString().isBlank() && !db.getString().startsWith("file:") && fileNameContentConsumer != null) {
+				fileNameContentConsumer.accept(null, db.getString());
 				success = true;
 			} else if (db.hasFiles()) {
 				var buf = new StringBuilder();
+				var name = "";
 				for (var file : db.getFiles()) {
 					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
-						if (importStringConsumer != null) {
+						if (fileNameContentConsumer != null) {
 							if (isTextFile(file)) {
 								try {
 									buf.append(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
 									success = true;
+									if (name != null) {
+										if (name.isBlank())
+											name = file.getPath();
+										else name = null;
+									}
 								} catch (IOException ignored) {
 								}
 							}
 						}
-						if (importImageConsumer != null) {
+						if (imageConsumer != null) {
 							if (isImageFile(file)) {
-								importImageConsumer.accept(new Image(file.toURI().toString()));
+								imageConsumer.accept(new Image(file.toURI().toString()));
 								success = true;
 								break;
 							}
 						}
 					}
 				}
-				if (!buf.isEmpty() && importStringConsumer != null)
-					importStringConsumer.accept(buf.toString());
+				if (!buf.isEmpty() && fileNameContentConsumer != null)
+					fileNameContentConsumer.accept(name, buf.toString());
 			}
 			e.setDropCompleted(success);
 			e.consume();
@@ -99,30 +106,30 @@ public class SetupImport {
 			if (ClipboardUtils.hasFiles()) {
 				for (var file : ClipboardUtils.getFiles()) {
 					if (FileUtils.fileExistsAndIsNonEmpty(file)) {
-						if (importStringConsumer != null) {
+						if (fileNameContentConsumer != null) {
 							if (isTextFile(file)) {
 								try {
-									importStringConsumer.accept(StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
+									fileNameContentConsumer.accept(file.getPath(), StringUtils.toString(FileUtils.getLinesFromFile(file.getPath()), "\n"));
 									break;
 								} catch (IOException ignored) {
 								}
 							}
 						}
-						if (importImageConsumer != null) {
+						if (imageConsumer != null) {
 							if (isImageFile(file)) {
 								var uri = file.toURI().toString();
 								var image = new Image(uri);
-								importImageConsumer.accept(image);
+								imageConsumer.accept(image);
 								return;
 							}
 						}
 					}
 				}
 			}
-			if (importImageConsumer != null && ClipboardUtils.hasImage())
-				importImageConsumer.accept(ClipboardUtils.getImage());
-			else if (importStringConsumer != null && ClipboardUtils.hasString())
-				importStringConsumer.accept(ClipboardUtils.getString());
+			if (imageConsumer != null && ClipboardUtils.hasImage())
+				imageConsumer.accept(ClipboardUtils.getImage());
+			else if (fileNameContentConsumer != null && ClipboardUtils.hasString())
+				fileNameContentConsumer.accept(null, ClipboardUtils.getString());
 
 		});
 	}

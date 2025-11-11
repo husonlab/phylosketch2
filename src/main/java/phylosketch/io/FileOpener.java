@@ -27,6 +27,7 @@ import jloda.fx.window.NotificationManager;
 import jloda.util.FileUtils;
 import phylosketch.main.NewWindow;
 import phylosketch.view.DrawView;
+import phylosketch.view.ZoomToFit;
 import phylosketch.window.MainWindow;
 
 import java.io.File;
@@ -57,6 +58,7 @@ public class FileOpener implements Consumer<String> {
 				PhyloSketchIO.open(fileName, window.getDrawView(), window.getPresenter().getCapturePane().getImageView());
 				window.fileNameProperty().set(fileName);
 				window.getDrawView().setMode(DrawView.Mode.View);
+				ZoomToFit.apply(window);
 			}
 			else if (firstLine.startsWith("#nexus")) {
 				if (PhyloSketch1Import.looksLikePhyloSketch1(firstLine)) {
@@ -67,7 +69,7 @@ public class FileOpener implements Consumer<String> {
 			else if (firstLine.startsWith("<nex:nexml") || firstLine.startsWith("<?xml version="))
 				NotificationManager.showWarning("NEXML: not implemented");
 			else if (firstLine.startsWith("(") || firstLine.contains(")")) {
-				ImportNewick.apply(fileName, window.getDrawView(), window.getPresenter()::setScale);
+				ImportNewick.apply(window, fileName);
 				window.dirtyProperty().set(true);
 				window.getDrawView().setMode(DrawView.Mode.View);
 			}

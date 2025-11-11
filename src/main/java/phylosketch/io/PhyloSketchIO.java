@@ -299,6 +299,5 @@ public class PhyloSketchIO {
 		if (BackgroundImageIO.load(backgroundImageView, r))
 			view.setMode(DrawView.Mode.Capture);
 	}
-
 }
 
