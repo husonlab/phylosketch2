@@ -39,8 +39,8 @@ module phylosketch {
 	exports phylosketch.utils;
 	opens phylosketch.utils;
 
-	opens xtra.treesnet;
-	exports xtra.treesnet;
+	exports phylosketch.paths;
+
 	exports xtra.networktrees;
 
 	exports xtra.daniel;
