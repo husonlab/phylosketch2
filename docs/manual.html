@@ -7,7 +7,7 @@
     <meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)">
     <!-- html -->
     <meta name="src" content="manual.tex">
-    <meta name="date" content="2025-11-11 21:37:00">
+    <meta name="date" content="2025-11-12 07:03:00">
     <link rel="stylesheet" type="text/css" href="manual.css">
     <style> body {
         font-family: Arial, sans-serif;
@@ -109,9 +109,9 @@
     <br/> <span class="sectionToc">11 <a
         href="#x1-4600011" id="QQ2-1-46">Example files</a></span>
     <br/> <span class="sectionToc">12 <a
-        href="#x1-4700012" id="QQ2-1-47">Support and Feedback</a></span>
+        href="#x1-4700012" id="QQ2-1-47">Advanced features</a></span>
     <br/> <span class="sectionToc">13 <a
-        href="#x1-4800013" id="QQ2-1-48">Known Issues</a></span>
+        href="#x1-4800013" id="QQ2-1-48">Support and Feedback</a></span>
     <br/> <span class="sectionToc">14 <a
         href="#x1-4900014" id="QQ2-1-49">Third-Party Software</a></span>
 </div>
@@ -1119,30 +1119,55 @@ name="manual1x.png" src="figs/Lescroart2023FigS12E-layout.pdf"
 <p class="indent"><a
         href="https://github.com/husonlab/phylosketch2/tree/main/examples" class="url"><span
         class="cmtt-12">https://github.com/husonlab/phylosketch2/tree/main/examples</span></a>
-    <!--l. 447-->
+    <!--l. 446-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">12    </span> <a
-        id="x1-4700012"></a>Support and Feedback</h3>
-<!--l. 448--><p class="noindent">For issues, bug reports, or suggestions, please use the GitHub repository or the apps
-    support
-    page linked there.
-    <!--l. 450-->
+        id="x1-4700012"></a>Advanced features</h3>
+<!--l. 448--><p class="noindent">The layout algorithm for rooted phylogenetic networks uses simulated annealing for
+    nodes of large
+    outdegree.but The default parameters are: start temperature = 1000, end temperature = 0.01,
+    1000 iterations per temperature step, cooling rate = 0.95.
+    <!--l. 451-->
+<p class="indent"> We do not expose these parameters in the UI, however, if you really want to change these,
+    then edit the properties file <span
+            class="cmtt-12">PhyloSketch2.def </span>(its location is system specific, either <img
+            src="manual2x.png" alt="~/
+" class="tilde"><span
+            class="cmtt-12">Library/Preferences/PhyloSketch2.def </span>or <img
+            src="manual3x.png" alt="~/  " class="tilde"><span
+            class="cmtt-12">.PhyloSketch2.def</span>) and write statements
+    like this: <span
+            class="cmtt-12">SA</span><span
+            class="cmtt-12">_DEFAULT</span><span
+            class="cmtt-12">_START</span><span
+            class="cmtt-12">_TEMPERATURE=2000</span>, <span
+            class="cmtt-12">SA</span><span
+            class="cmtt-12">_DEFAULT</span><span
+            class="cmtt-12">_END</span><span
+            class="cmtt-12">_TEMPERATURE=1</span>,
+    <span
+            class="cmtt-12">SA</span><span
+            class="cmtt-12">_DEFAULT</span><span
+            class="cmtt-12">_ITERATIONS</span><span
+            class="cmtt-12">_PER</span><span
+            class="cmtt-12">_TEMPERATURE=100 </span>and <span
+            class="cmtt-12">SA</span><span
+            class="cmtt-12">_DEFAULT</span><span
+            class="cmtt-12">_COOLING</span><span
+            class="cmtt-12">_RATE=0.80 </span>to
+    change the values to 2000, 1, 100 and 0.8, say, respectively.
+    <!--l. 458-->
 <p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">13    </span> <a
-        id="x1-4800013"></a>Known Issues</h3>
-<ul class="itemize1">
-    <li class="itemize">The status bar assumes all nodes and edges are part of the same graph.
-    </li>
-    <li class="itemize">On iOS, resizing issues may occur; rotating the device usually fixes layout problems.
-    </li>
-    <li class="itemize">Imported layouts may require manual adjustments.
-    </li>
-    <li class="itemize">Copy-paste between documents may not preserve all formatting.</li>
-</ul>
-<!--l. 459--><p class="noindent">
+        id="x1-4800013"></a>Support and Feedback</h3>
+<!--l. 459--><p class="noindent">For issues, bug reports, or suggestions, please use the GitHub repository or the apps
+    support
+    page linked there.
+    <!--l. 462-->
+<p class="noindent">
 <h3 class="sectionHead"><span class="titlemark">14    </span> <a
         id="x1-4900014"></a>Third-Party Software</h3>
-<!--l. 460--><p class="noindent">This software uses the Tesseract OCR engine, which is licensed under the Apache
+<!--l. 463--><p class="noindent">This software uses the Tesseract OCR engine, which is licensed under the Apache
     License,
     Version 2.0.
 
@@ -1179,7 +1204,7 @@ name="manual1x.png" src="figs/Lescroart2023FigS12E-layout.pdf"
     <p class="bibitem"><span class="biblabel">
 <a
         id="XHuson2025"></a><span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span>D.H. Huson. Sketch, capture and
-        layout phylogenies, 2025. Manuscript in preparation.
+        layout phylogenies, 2025. Manuscript under review.
     </p>
     <p class="bibitem"><span class="biblabel">
 <a
