@@ -22,7 +22,9 @@ package phylosketch.window;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
@@ -468,28 +470,38 @@ public class MainWindowController {
 
 	private final ToggleGroup scalingToggleGroup = new ToggleGroup();
 
+	private final ChangeListener<Number> widthChangeListener = (v, o, n) -> relayout();
+
+	private final BooleanProperty narrowWindow = new SimpleBooleanProperty(this, "narrowWindow", false);
 
 	@FXML
 	private void initialize() {
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off);
+		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
+		MaterialIcons.setIcon(findButton, MaterialIcons.search);
+		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all);
+		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
 
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off, !PhyloSketch.isDesktop());
+		if (true) {
+			ChangeListener<Boolean> updateToolBarDetails = (v, o, n) -> {
+				MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off, n);
+				MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, n);
+				MaterialIcons.setIcon(findButton, MaterialIcons.search, n);
+				MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, n);
+				MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, n);
+			};
+			narrowWindow.addListener(updateToolBarDetails);
+			narrowWindow.bind(toolbarGrid.widthProperty().lessThan(600));
+		}
+
 		modeMenuButton.setPrefWidth(!PhyloSketch.isDesktop() ? 60 : 110);
-
-		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, !PhyloSketch.isDesktop());
 
 		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
 		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
-
 		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
 		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
 		MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
-
-		MaterialIcons.setIcon(findButton, MaterialIcons.search, !PhyloSketch.isDesktop());
-
-		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, !PhyloSketch.isDesktop());
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
-
-		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, !PhyloSketch.isDesktop());
 
 		// MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, !PhyloSketch.isDesktop());
 		captureMenuButton.setGraphic(new Label(captureMenuButton.getText()));
@@ -497,7 +509,7 @@ public class MainWindowController {
 		captureMenuButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
-		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("/", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
+		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("-", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 
 		// if we are running on MacOS, put the specific menu items in the right places
 		if (ProgramProperties.isMacOS()) {
@@ -640,8 +652,7 @@ public class MainWindowController {
 		cladogramEarlyMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.EarlyBranching);
 		cladogramLateMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.LateBranching);
 
-		ChangeListener<Number> widthChangedListener = (v, o, n) -> relayout();
-		toolbarGrid.widthProperty().addListener(widthChangedListener);
+		toolbarGrid.widthProperty().addListener(widthChangeListener);
 		Platform.runLater(this::relayout);
 	}
 
@@ -1164,5 +1175,21 @@ public class MainWindowController {
 
 	public StackPane getCenterPane() {
 		return centerPane;
+	}
+
+	public ToolBar getLeftBar() {
+		return leftBar;
+	}
+
+	public ToolBar getRightBar() {
+		return rightBar;
+	}
+
+	public GridPane getToolbarGrid() {
+		return toolbarGrid;
+	}
+
+	public ChangeListener<Number> getWidthChangeListener() {
+		return widthChangeListener;
 	}
 }

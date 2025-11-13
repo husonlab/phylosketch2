@@ -563,7 +563,9 @@ public class MainWindowPresenter {
 		setupLayout(controller, formatPaneView.getController());
 		setupLayoutScalingPhylogeny(view, controller, formatPaneView.getController());
 
-		setupModeHints(view, getCapturePane());
+		if (PhyloSketch.isDesktop()) {
+			setupModeHints(view, getCapturePane());
+		}
 	}
 
 	public void loadContent(String fileName, String content) {
@@ -707,11 +709,11 @@ public class MainWindowPresenter {
 									(5) Set the mode to Sketch and improve the capture interactively.
 									""", WindowNotifications.MessageType.INFO);
 							case Move ->
-									WindowNotifications.show(controller.getCenterAnchorPane(), "Move mode: Click and drag on nodes, edges and labels to move them.", WindowNotifications.MessageType.INFO);
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Move mode: Click and drag on nodes, edges and labels to move them.");
 							case View ->
-									WindowNotifications.show(controller.getCenterAnchorPane(), "View mode: View the phylogeny without editing.", WindowNotifications.MessageType.INFO);
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "View mode: View the phylogeny without editing.");
 							case Sketch ->
-									WindowNotifications.show(controller.getCenterAnchorPane(), "Sketch mode: To creat a node, double-click on the pane. Then press-drag to create edges.", WindowNotifications.MessageType.INFO);
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: To creat a node, double-click on the pane. Then press-drag to create edges.");
 						}
 					}
 				});

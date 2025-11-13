@@ -57,8 +57,9 @@ public class OCR {
 		api.SetVariable("load_freq_dawg", "F"); // Disable the frequency dictionary
 		api.SetVariable("user_words", "tessdata/organism_names.txt");
 		api.SetVariable("user_words_file", "tessdata/organism_names.txt");
-
-		api.SetVariable("tessedit_char_whitelist", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+='()[],. ");
+		// todo: the white prevents words in quotes, so disabled for now
+		if (false)
+			api.SetVariable("tessedit_char_whitelist", "`'\"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+='()[],. ");
 		return api;
 	}
 

@@ -279,7 +279,7 @@ public class CapturePane extends HBox {
 	public void setImage(Image image) {
 
 		PhyloImageAnalyzer.analyze(image, s -> {
-			WindowNotifications.show(windowPane, s, WindowNotifications.MessageType.WARNING);
+			WindowNotifications.showWarning(windowPane, s);
 		});
 		getImageView().setImage(image);
 	}

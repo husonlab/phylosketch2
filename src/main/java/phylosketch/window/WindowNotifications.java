@@ -41,7 +41,6 @@ import java.util.*;
  * WindowNotifications.show(rootPane, "Hello world", MessageType.INFO);
  */
 public final class WindowNotifications {
-
 	public enum MessageType {INFO, WARNING, ERROR}
 
 	// Durations per message type
@@ -59,6 +58,18 @@ public final class WindowNotifications {
 	private static final String OVERLAY_KEY = "windowNotificationsOverlay";
 
 	private WindowNotifications() {
+	}
+
+	public static void showInfo(Pane pane, String text) {
+		show(pane, text, MessageType.INFO);
+	}
+
+	public static void showWarning(Pane pane, String text) {
+		show(pane, text, MessageType.WARNING);
+	}
+
+	public static void showError(Pane pane, String text) {
+		show(pane, text, MessageType.ERROR);
 	}
 
 	/**
@@ -96,16 +107,11 @@ public final class WindowNotifications {
 	public static void show(Pane pane, String text, String messageType) {
 		MessageType type;
 		if (messageType == null) type = MessageType.INFO;
-		else switch (messageType.toLowerCase(Locale.ROOT)) {
-			case "warning":
-				type = MessageType.WARNING;
-				break;
-			case "error":
-				type = MessageType.ERROR;
-				break;
-			default:
-				type = MessageType.INFO;
-		}
+		else type = switch (messageType.toLowerCase(Locale.ROOT)) {
+			case "warning" -> MessageType.WARNING;
+			case "error" -> MessageType.ERROR;
+			default -> MessageType.INFO;
+		};
 		show(pane, text, type);
 	}
 
@@ -146,23 +152,23 @@ public final class WindowNotifications {
 
 	// Create a single notification node
 	private static Notification createNotification(Pane root, Pane overlay, String text, MessageType type) {
-		Label label = new Label(text);
+		var label = new Label(text);
 		label.setWrapText(true);
 		label.setStyle("-fx-text-fill: white; -fx-font-size: 13;");
 
-		Region spacer = new Region();
+		var spacer = new Region();
 		spacer.setMinWidth(0);
 		spacer.setPrefWidth(10);
 		HBox.setHgrow(spacer, Priority.ALWAYS);
 
-		Button closeButton = new Button("✖");
+		var closeButton = new Button("x");
 		closeButton.setFocusTraversable(false);
 		closeButton.setStyle(
 				"-fx-background-color: transparent; " +
 				"-fx-text-fill: white; -fx-font-size: 11; -fx-padding: 0 0 0 8;"
 		);
 
-		HBox box = new HBox(10, label, spacer, closeButton);
+		var box = new HBox(10, label, spacer, closeButton);
 		box.setPadding(new Insets(8, 12, 8, 12));
 		box.setAlignment(Pos.CENTER_LEFT);
 		box.setMaxWidth(MAX_WIDTH);
@@ -188,8 +194,8 @@ public final class WindowNotifications {
 		box.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 6; -fx-border-radius: 6;");
 		box.setEffect(new DropShadow(8, Color.color(0, 0, 0, 0.4)));
 
-		PauseTransition expiry = new PauseTransition(lifetime);
-		Notification notification = new Notification(box, expiry);
+		var expiry = new PauseTransition(lifetime);
+		var notification = new Notification(box, expiry);
 		expiry.setOnFinished(e -> dismiss(root, notification));
 		closeButton.setOnAction(e -> dismiss(root, notification));
 
@@ -200,25 +206,24 @@ public final class WindowNotifications {
 	 * Stack and animate notifications bottom-up.
 	 */
 	private static void layoutNotifications(Pane root) {
-		List<Notification> list = ACTIVE.get(root);
+		var list = ACTIVE.get(root);
 		if (list == null || list.isEmpty()) return;
 
-		Pane overlay = (Pane) root.getProperties().get(OVERLAY_KEY);
+		var overlay = (Pane) root.getProperties().get(OVERLAY_KEY);
 		if (overlay == null) return;
 
-		double paneHeight = overlay.getHeight() > 0 ? overlay.getHeight() : root.getHeight();
-		double paneWidth = overlay.getWidth() > 0 ? overlay.getWidth() : root.getWidth();
+		var paneHeight = overlay.getHeight() > 0 ? overlay.getHeight() : root.getHeight();
+		var paneWidth = overlay.getWidth() > 0 ? overlay.getWidth() : root.getWidth();
 		if (paneHeight <= 0) {
 			Platform.runLater(() -> layoutNotifications(root));
 			return;
 		}
 
-		double maxAllowedWidth = Math.min(MAX_WIDTH, paneWidth - 2 * H_MARGIN);
+		var maxAllowedWidth = Math.min(MAX_WIDTH, paneWidth - 2 * H_MARGIN);
 		if (maxAllowedWidth <= 0) maxAllowedWidth = MAX_WIDTH;
 
 		for (Notification n : list) {
-			if (n.node instanceof Region) {
-				Region r = (Region) n.node;
+			if (n.node instanceof Region r) {
 				r.setMaxWidth(maxAllowedWidth);
 				r.setPrefWidth(maxAllowedWidth);
 				r.applyCss();
@@ -226,25 +231,25 @@ public final class WindowNotifications {
 			} else n.node.applyCss();
 		}
 
-		double y = paneHeight - GAP;
-		List<Notification> toRemove = new ArrayList<>();
+		var y = paneHeight - GAP;
+		var toRemove = new ArrayList<Notification>();
 
-		for (int i = list.size() - 1; i >= 0; i--) {
-			Notification n = list.get(i);
-			double h = (n.node instanceof Region)
+		for (var i = list.size() - 1; i >= 0; i--) {
+			var n = list.get(i);
+			var h = (n.node instanceof Region)
 					? ((Region) n.node).prefHeight(-1)
 					: n.node.getBoundsInParent().getHeight();
 
 			y -= h;
-			double targetY = y;
+			var targetY = y;
 
 			if (targetY + h < 0) toRemove.add(n);
 			else {
-				double nodeWidth = (n.node instanceof Region)
-						? ((Region) n.node).prefWidth(-1)
+				var nodeWidth = (n.node instanceof Region)
+						? n.node.prefWidth(-1)
 						: n.node.getBoundsInParent().getWidth();
 
-				double x = H_MARGIN;
+				var x = H_MARGIN;
 				if (paneWidth > 0 && nodeWidth < paneWidth - 2 * H_MARGIN)
 					x = (paneWidth - nodeWidth) / 2.0;
 
@@ -255,7 +260,7 @@ public final class WindowNotifications {
 		}
 
 		if (!toRemove.isEmpty()) {
-			for (Notification n : toRemove) {
+			for (var n : toRemove) {
 				n.expiry.stop();
 				overlay.getChildren().remove(n.node);
 				list.remove(n);
@@ -266,7 +271,7 @@ public final class WindowNotifications {
 	}
 
 	private static void animateToY(Node node, double targetY) {
-		Timeline tl = new Timeline(
+		var tl = new Timeline(
 				new KeyFrame(Duration.ZERO,
 						new KeyValue(node.layoutYProperty(), node.getLayoutY()),
 						new KeyValue(node.opacityProperty(), node.getOpacity())),
@@ -283,15 +288,15 @@ public final class WindowNotifications {
 			return;
 		}
 
-		List<Notification> list = ACTIVE.get(root);
+		var list = ACTIVE.get(root);
 		if (list == null || !list.contains(notification)) return;
 
-		Pane overlay = (Pane) root.getProperties().get(OVERLAY_KEY);
+		var overlay = (Pane) root.getProperties().get(OVERLAY_KEY);
 		if (overlay == null) return;
 
 		notification.expiry.stop();
 
-		FadeTransition fade = new FadeTransition(ANIM_DURATION, notification.node);
+		var fade = new FadeTransition(ANIM_DURATION, notification.node);
 		fade.setFromValue(notification.node.getOpacity());
 		fade.setToValue(0.0);
 		fade.setOnFinished(e -> {

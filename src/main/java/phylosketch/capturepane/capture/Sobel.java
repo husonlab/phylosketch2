@@ -25,6 +25,7 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 
+@Deprecated // not used
 public class Sobel {
 	public static Image applySobelFilter(Image inputImage) {
 		int width = (int) inputImage.getWidth();

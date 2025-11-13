@@ -55,7 +55,7 @@ public class ImportNewick {
 	 * @throws IOException
 	 */
 	public static void apply(MainWindow window, String fileName) throws IOException {
-		WindowNotifications.show(window.getController().getCenterAnchorPane(), "Importing from file " + FileUtils.getFileNameWithoutPath(fileName), WindowNotifications.MessageType.INFO);
+		WindowNotifications.showInfo(window.getController().getCenterAnchorPane(), "Importing from file " + FileUtils.getFileNameWithoutPath(fileName));
 
 		try (var r = new BufferedReader(FileUtils.getReaderPossiblyZIPorGZIP(fileName))) {
 			apply(r, window);
@@ -144,7 +144,7 @@ public class ImportNewick {
 					view.getEdgeSelection().select(e);
 			}
 		}
-		Platform.runLater(() -> WindowNotifications.show(window.getController().getCenterAnchorPane(), "Imported %d phylogenies".formatted(trees.size()), WindowNotifications.MessageType.INFO));
+		Platform.runLater(() -> WindowNotifications.showInfo(window.getController().getCenterAnchorPane(), "Imported %d phylogenies".formatted(trees.size())));
 		return newNodes;
 	}
 
