@@ -51,25 +51,27 @@ public class ToggleReticulateEdgeCommand extends UndoableRedoableCommand {
 
 		var commands = new ArrayList<UndoableRedoableCommand>();
 
-		if (true) {
-			for (var e : view.getSelectedOrAllEdges()) {
-				var color = (Color) DrawView.getPath(e).getStroke();
-				var isHighlighted = color.equals(Color.DARKORANGE);
+		var hightlight = (!allHighlighted);
+
+		for (var e : view.getSelectedOrAllEdges()) {
+			var color = (Color) DrawView.getPath(e).getStroke();
+			var isHighlighted = color.equals(Color.DARKORANGE);
+			if (isHighlighted != hightlight) {
 				var id = e.getId();
 				var reticulateEdge = (!view.getGraph().isTreeEdge(e) && !view.getGraph().isTransferAcceptorEdge(e));
 				if (reticulateEdge && !isHighlighted) {
-					String colorString;
+					String currentColorString;
 					{
 						if (color.equals(Color.BLACK) && darkMode || color.equals(Color.WHITE) && !darkMode)
-							colorString = "-fx-text-background-color";
-						else colorString = ColorUtilsFX.toStringCSS(color);
+							currentColorString = "-fx-text-background-color";
+						else currentColorString = ColorUtilsFX.toStringCSS(color);
 
 					}
 					commands.add(UndoableRedoableCommand.create("",
 							() -> {
 								var f = view.getGraph().findEdgeById(id);
 								var path = DrawView.getPath(f);
-								path.setStyle("-fx-stroke: %s;".formatted(colorString));
+								path.setStyle("-fx-stroke: %s;".formatted(currentColorString));
 							},
 							() -> {
 								var f = view.getGraph().findEdgeById(id);
@@ -89,51 +91,6 @@ public class ToggleReticulateEdgeCommand extends UndoableRedoableCommand {
 								path.setStyle("-fx-stroke:-fx-text-background-color;");
 							}
 					));
-
-				}
-			}
-		} else {
-
-			for (var e : view.getSelectedOrAllEdges()) {
-				if (!view.getGraph().isTreeEdge(e) && !view.getGraph().isTransferAcceptorEdge(e)) {
-					var color = (Color) DrawView.getPath(e).getStroke();
-					var isHighlighted = color.equals(Color.DARKORANGE);
-					var id = e.getId();
-
-					if (isHighlighted && allHighlighted) {
-						commands.add(UndoableRedoableCommand.create("", () -> {
-									var f = view.getGraph().findEdgeById(id);
-									var path = DrawView.getPath(f);
-									path.setStyle("-fx-stroke: darkorange;");
-								}
-								, () -> {
-									var f = view.getGraph().findEdgeById(id);
-									var path = DrawView.getPath(f);
-									path.setStyle("-fx-stroke:-fx-text-background-color;");
-								}
-						));
-					}
-					if (!isHighlighted && !allHighlighted) {
-						String colorString;
-						{
-							if (color.equals(Color.BLACK) && darkMode || color.equals(Color.WHITE) && !darkMode)
-								colorString = "-fx-text-background-color";
-							else colorString = ColorUtilsFX.toStringCSS(color);
-
-						}
-						commands.add(UndoableRedoableCommand.create("",
-								() -> {
-									var f = view.getGraph().findEdgeById(id);
-									var path = DrawView.getPath(f);
-									path.setStyle("-fx-stroke: %s;".formatted(colorString));
-								},
-								() -> {
-									var f = view.getGraph().findEdgeById(id);
-									var path = DrawView.getPath(f);
-									path.setStyle("-fx-stroke: darkorange;");
-								}
-						));
-					}
 				}
 			}
 		}

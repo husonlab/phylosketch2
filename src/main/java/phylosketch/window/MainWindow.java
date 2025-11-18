@@ -132,7 +132,7 @@ public class MainWindow implements IMainWindow {
         stage.setWidth(width);
         stage.setHeight(height);
 
-        stage.titleProperty().addListener((e) -> MainWindowManager.getInstance().fireChanged());
+        stage.titleProperty().addListener(e -> MainWindowManager.getInstance().fireChanged());
 
         presenter = new MainWindowPresenter(this);
 

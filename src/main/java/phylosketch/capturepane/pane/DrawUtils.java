@@ -33,8 +33,8 @@ import jloda.fx.selection.SelectionModel;
 import jloda.fx.util.ClipboardUtils;
 import phylosketch.capturepane.capture.Point;
 import phylosketch.capturepane.capture.Segment;
-import phylosketch.capturepane.capture.Word;
 import phylosketch.main.PhyloSketch;
+import phylosketch.ocr.OcrWord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,19 +108,19 @@ public class DrawUtils {
 		return path;
 	}
 
-	public static void createWordShapes(List<Word> wordList, SelectionModel<Word> selection, Supplier<Boolean> canSelect, Group group) {
+	public static void createWordShapes(List<OcrWord> wordList, SelectionModel<OcrWord> selection, Supplier<Boolean> canSelect, Group group) {
 		group.getChildren().clear();
 		for (var word : wordList) {
-			var awtRect = word.boundingBox();
-			var rectangle = new Rectangle(awtRect.x, awtRect.y, awtRect.width, awtRect.height);
+			var bbox = word.boundingBox();
+			var rectangle = new Rectangle(bbox.getMinX(), bbox.getMinY(), bbox.getWidth(), bbox.getHeight());
 			rectangle.setStyle("-fx-fill: rgba(240, 255, 240, 0.3);-fx-stroke: darkgreen;-fx-stroke-width: 0.5;");
 			rectangle.setUserData(word);
 
 			var label = new Label(word.text());
 			label.setFont(new Font(label.getFont().getFamily(), 14));
 			label.setStyle("-fx-text-fill: darkgreen;");
-			label.setLayoutX(awtRect.x + 1);
-			label.setLayoutY(awtRect.y + 1);
+			label.setLayoutX(bbox.getMinX() + 1);
+			label.setLayoutY(bbox.getMinY() + 1);
 			label.setUserData(word);
 
 			group.getChildren().addAll(rectangle, label);

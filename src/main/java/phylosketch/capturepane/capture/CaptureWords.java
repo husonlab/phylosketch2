@@ -20,10 +20,11 @@
 
 package phylosketch.capturepane.capture;
 
+import javafx.geometry.Rectangle2D;
 import jloda.graph.Graph;
 import jloda.graph.Node;
+import phylosketch.ocr.OcrWord;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,13 +42,13 @@ public class CaptureWords {
 	 * @param maxTextHeight the max word bounding box height
 	 * @return the list of filtered words
 	 */
-	public static List<Word> filter(Collection<Word> words, int minWordLength, double minTextHeight, double maxTextHeight,
+	public static List<OcrWord> filter(Collection<OcrWord> words, int minWordLength, double minTextHeight, double maxTextHeight,
 									boolean mustStartWithAlphaNumeric, boolean mustEndWithAlphaNumeric, boolean mustContainLetter) {
-		var list = new ArrayList<Word>();
+		var list = new ArrayList<OcrWord>();
 
 		for (var word : words) {
-			var awtRect = word.boundingBox();
-			if (word.text().length() >= minWordLength && word.confidence() >= minTextHeight && awtRect.height <= maxTextHeight && word.text().matches(".*[a-zA-Z0-9].*")) {
+			var box = word.boundingBox();
+			if (word.text().length() >= minWordLength && word.confidence() >= minTextHeight && box.getHeight() <= maxTextHeight && word.text().matches(".*[a-zA-Z0-9].*")) {
 				// trim leading non letter or digit characters
 				var text = word.text();
 
@@ -72,9 +73,9 @@ public class CaptureWords {
 				}
 
 				if (a < b) {
-					word = new Word(text.substring(a, b).trim(), word.confidence(), awtRect);
+					word = new OcrWord(text.substring(a, b).trim(), word.confidence(), box);
 					System.err.println("Extracted word:" + word);
-					list.add(new Word(word.text(), word.confidence(), awtRect));
+					list.add(new OcrWord(word.text(), word.confidence(), box));
 				}
 			}
 		}
@@ -89,26 +90,26 @@ public class CaptureWords {
 	 * @return joined pairs
 	 * todo: join more than two words
 	 */
-	public static List<Word> joinConsecutiveWords(List<Word> words) {
+	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words) {
 		var graph = new Graph();
 
 		for (var word : words) {
 			graph.newNode(word);
 		}
 		for (var v : graph.nodes()) {
-			var vWord = (Word) v.getInfo();
+			var vWord = (OcrWord) v.getInfo();
 			var bboxI = vWord.boundingBox();
 			for (var w : graph.nodes(v)) {
-				var wWord = (Word) w.getInfo();
+				var wWord = (OcrWord) w.getInfo();
 				var bboxJ = wWord.boundingBox();
-				var dx = bboxJ.x - (bboxI.x + bboxI.width);
-				if (intersect(bboxI.y, bboxI.y + bboxI.height, bboxJ.y, bboxJ.y + bboxJ.height) && dx >= 0 && dx <= 20) {
+				var dx = bboxJ.getMinX() - (bboxI.getMaxX());
+				if (intersect(bboxI.getMinY(), bboxI.getMaxY(), bboxJ.getMinY(), bboxJ.getMaxY()) && dx >= 0 && dx <= 20) {
 					graph.newEdge(v, w, dx);
 				}
 			}
 		}
 
-		var list = new ArrayList<Word>();
+		var list = new ArrayList<OcrWord>();
 
 		if (true) {
 			var changed = true;
@@ -125,29 +126,29 @@ public class CaptureWords {
 					}
 
 					if (path.size() == 1) {
-						list.add((Word) path.get(0).getInfo());
+						list.add((OcrWord) path.get(0).getInfo());
 					} else {
 						var buf = new StringBuilder();
 						for (var w : path) {
 							if (!buf.isEmpty()) {
 								buf.append(' ');
 							}
-							buf.append(((Word) w.getInfo()).text());
+							buf.append(((OcrWord) w.getInfo()).text());
 						}
-						var minX = Integer.MAX_VALUE;
-						var maxX = Integer.MIN_VALUE;
-						var minY = Integer.MAX_VALUE;
-						var maxY = Integer.MIN_VALUE;
+						var minX = Double.MAX_VALUE;
+						var maxX = Double.MIN_VALUE;
+						var minY = Double.MAX_VALUE;
+						var maxY = Double.MIN_VALUE;
 						for (var w : path) {
-							var bbox = ((Word) w.getInfo()).boundingBox();
-							minX = Math.min(minX, bbox.x);
-							maxX = Math.max(maxX, bbox.x + bbox.width);
-							minY = Math.min(minY, bbox.y);
-							maxY = Math.max(maxY, bbox.y + bbox.height);
+							var bbox = ((OcrWord) w.getInfo()).boundingBox();
+							minX = Math.min(minX, bbox.getMinX());
+							maxX = Math.max(maxX, bbox.getMaxX());
+							minY = Math.min(minY, bbox.getMinY());
+							maxY = Math.max(maxY, bbox.getMaxY());
 						}
-						var confidence = (float) path.stream().mapToDouble(w -> ((Word) w.getInfo()).confidence()).average().orElse(0.0);
-						var rect = new Rectangle(minX, minY, maxX - minX, maxY - minY);
-						list.add(new Word(buf.toString(), confidence, rect));
+						var confidence = (float) path.stream().mapToDouble(w -> ((OcrWord) w.getInfo()).confidence()).average().orElse(0.0);
+						var rect = new Rectangle2D(minX, minY, maxX - minX, maxY - minY);
+						list.add(new OcrWord(buf.toString(), confidence, rect));
 					}
 					for (var w : path) {
 						graph.deleteNode(w);
@@ -159,12 +160,12 @@ public class CaptureWords {
 
 		// add all remaining words
 		for (var w : graph.nodes()) {
-			list.add((Word) w.getInfo());
+			list.add((OcrWord) w.getInfo());
 		}
 		return list;
 	}
 
-	private static boolean intersect(int minI, int maxI, int minJ, int maxJ) {
+	private static boolean intersect(double minI, double maxI, double minJ, double maxJ) {
 		return minI <= minJ && maxI >= minJ || minI >= minJ && minI <= maxJ;
 	}
 }

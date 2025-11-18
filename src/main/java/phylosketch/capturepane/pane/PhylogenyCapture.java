@@ -31,8 +31,8 @@ import jloda.util.CollectionUtils;
 import jloda.util.IteratorUtils;
 import jloda.util.Pair;
 import phylosketch.capturepane.capture.Segment;
-import phylosketch.capturepane.capture.Word;
 import phylosketch.commands.*;
+import phylosketch.ocr.OcrWord;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 
@@ -57,7 +57,7 @@ public class PhylogenyCapture {
 
 	private final List<Property<?>> parameters = List.of(removeThruNodes, fixCrossingEdges, layoutLabels, runReroot, showArrows, rescueOrphanLabels);
 
-	public UndoableRedoableCommand apply(DrawView view, Point2D rootLocation, RootPosition.Side rootSide, List<Segment> segments, List<Word> words) {
+	public UndoableRedoableCommand apply(DrawView view, Point2D rootLocation, RootPosition.Side rootSide, List<Segment> segments, List<OcrWord> words) {
 		var originalNodes = IteratorUtils.asList(view.getGraph().nodes());
 		var originalEdges = IteratorUtils.asSet(view.getGraph().edges());
 
@@ -178,7 +178,7 @@ public class PhylogenyCapture {
 			return new RootPosition(RootPosition.Side.Center, rootLocation);
 	}
 
-	private static void matchLabels(DrawView view, RootPosition rootPosition, List<Node> nodes, List<Word> words0, boolean rescueOrphans, List<UndoableRedoableCommand> commands) {
+	private static void matchLabels(DrawView view, RootPosition rootPosition, List<Node> nodes, List<OcrWord> words0, boolean rescueOrphans, List<UndoableRedoableCommand> commands) {
 		var leaves = new ArrayList<Pair<Point2D, Node>>();
 		for (var v : nodes) {
 			if (v.isLeaf()) {
@@ -192,7 +192,7 @@ public class PhylogenyCapture {
 		while (!leaves.isEmpty() && !words.isEmpty()) {
 			var bestDistance = Double.MAX_VALUE;
 			Pair<Point2D, Node> bestLeaf = null;
-			Word bestWord = null;
+			OcrWord bestWord = null;
 
 			for (var leaf : leaves) {
 				var leafPos = leaf.getFirst();
@@ -227,18 +227,19 @@ public class PhylogenyCapture {
 								continue;
 						}
 						case Center -> {
-							if (rootPosition.location().distance(bbox.getCenterX(), bbox.getCenterY()) < rootPosition.location().distance(leafPos) - delta)
+							if (rootPosition.location().distance(0.5 * (bbox.getMinX() + bbox.getMaxX()), 0.5 * (bbox.getMinY() + bbox.getMaxY())) < rootPosition.location().distance(leafPos) - delta)
 								continue;
 						}
 					}
 
 					// see whether this is a better match
 					var distance = switch (rootPosition.side()) {
-						case Left -> leafPos.distance(bbox.getMinX(), bbox.getCenterY());
-						case Right -> leafPos.distance(bbox.getMaxX(), bbox.getCenterY());
-						case Bottom -> leafPos.distance(bbox.getCenterX(), bbox.getMaxY());
-						case Top -> leafPos.distance(bbox.getCenterX(), bbox.getMinY());
-						case Center -> leafPos.distance(bbox.getCenterX(), bbox.getCenterY());
+						case Left -> leafPos.distance(bbox.getMinX(), 0.5 * (bbox.getMinY() + bbox.getMaxY()));
+						case Right -> leafPos.distance(bbox.getMaxX(), 0.5 * (bbox.getMinY() + bbox.getMaxY()));
+						case Bottom -> leafPos.distance(0.5 * (bbox.getMinX() + bbox.getMaxX()), bbox.getMaxY());
+						case Top -> leafPos.distance(0.5 * (bbox.getMinX() + bbox.getMaxX()), bbox.getMinY());
+						case Center ->
+								leafPos.distance(0.5 * (bbox.getMinX() + bbox.getMaxX()), 0.5 * (bbox.getMinY() + bbox.getMaxY()));
 					};
 					if (distance < bestDistance) {
 						bestDistance = distance;
@@ -258,10 +259,11 @@ public class PhylogenyCapture {
 				for (var word : words) {
 					var bbox = word.boundingBox();
 					var location = switch (rootPosition.side()) {
-						case Left -> new Point2D(bbox.getMinX() - 5, bbox.getCenterY());
-						case Right -> new Point2D(bbox.getMaxX() + 5, bbox.getCenterY());
-						case Bottom -> new Point2D(bbox.getCenterX() - 2, bbox.getMinY() - 5);
-						case Top, Center -> new Point2D(bbox.getCenterX() - 2, bbox.getMaxY() + 5);
+						case Left -> new Point2D(bbox.getMinX() - 5, 0.5 * (bbox.getMinY() + bbox.getMaxY()));
+						case Right -> new Point2D(bbox.getMaxX() + 5, 0.5 * (bbox.getMinY() + bbox.getMaxY()));
+						case Bottom -> new Point2D(0.5 * (bbox.getMinX() + bbox.getMaxX()) - 2, bbox.getMinY() - 5);
+						case Top, Center ->
+								new Point2D(0.5 * (bbox.getMinX() + bbox.getMaxX()) - 2, bbox.getMaxY() + 5);
 					};
 					doThenAdd(new CreateNodeCommand(view, location, word.text()), commands);
 				}

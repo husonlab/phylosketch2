@@ -21,6 +21,7 @@
 package phylosketch.capturepane.capture;
 
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathNormalize;
 
@@ -105,7 +106,7 @@ public record Segment(ArrayList<Point> points) {
 		return new Segment(points);
 	}
 
-	public java.awt.Rectangle computeBoundingBox() {
+	public Rectangle2D computeBoundingBox() {
 		var xmin = Integer.MAX_VALUE;
 		var xmax = Integer.MIN_VALUE;
 		var ymin = Integer.MAX_VALUE;
@@ -116,6 +117,6 @@ public record Segment(ArrayList<Point> points) {
 			ymin = Math.min(ymin, p.y());
 			ymax = Math.max(ymax, p.y());
 		}
-		return new java.awt.Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
+		return new Rectangle2D(xmin, ymin, xmax - xmin, ymax - ymin);
 	}
 }

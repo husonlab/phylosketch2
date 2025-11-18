@@ -35,7 +35,9 @@ import jloda.phylogeny.dolayout.SimulatedAnnealingMinLA;
 import jloda.util.Basic;
 import jloda.util.ProgramExecutorService;
 import jloda.util.UsageException;
+import phylosketch.capturepane.capture.OCR;
 import phylosketch.io.PhyloSketchIO;
+import phylosketch.ocr.OCRService;
 import phylosketch.view.ZoomToFit;
 import phylosketch.window.MainWindow;
 
@@ -57,7 +59,11 @@ public class PhyloSketch extends Application {
 
     @Override
     public void init() {
-        Runtime.getRuntime().addShutdownHook(new Thread(ProgramProperties::store));
+        OCR.setOCRService(new OCRService());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            OCR.getOCRService().shutdown();
+            ProgramProperties.store();
+        }));
         ProgramProperties.setUseGUI(true);
     }
 
@@ -179,6 +185,7 @@ public class PhyloSketch extends Application {
 
     @Override
     public void stop() {
+        OCR.getOCRService().shutdown();
         ProgramProperties.store();
         System.exit(0);
     }

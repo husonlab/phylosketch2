@@ -34,7 +34,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeLineCap;
 import jloda.fx.control.RichTextLabel;
@@ -43,7 +42,10 @@ import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
-import jloda.fx.util.*;
+import jloda.fx.util.BasicFX;
+import jloda.fx.util.Icebergs;
+import jloda.fx.util.RunAfterAWhile;
+import jloda.fx.util.SelectionEffect;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -609,40 +611,7 @@ public class DrawView extends Pane {
 		} else {
 			if (e.getOwner() != null && !edgeArrowMap.containsKey(e)) {
 				if (e.getData() instanceof EdgePath path) {
-					var arrowHead = new Polygon(7.0, 0.0, -7.0, 4.0, -7.0, -4.0);
-					arrowHead.getStyleClass().add("graph-node");
-
-					arrowHead.strokeProperty().bind(path.strokeProperty());
-					arrowHead.fillProperty().bind(arrowHead.strokeProperty());
-					arrowHead.setOnMouseClicked(path.getOnMouseClicked());
-					edgeArrowMap.put(e, arrowHead);
-
-					InvalidationListener listener = a -> {
-						var points = PathUtils.extractPoints(path.getType() == EdgePath.Type.Freeform ? path : path.copyToFreeform());
-						if (points.size() >= 2) {
-							var lastId = points.size() - 1;
-							var last = points.get(lastId);
-							var firstId = lastId;
-							while (firstId > 0 && last.distance(points.get(firstId)) < 8) {
-								firstId--;
-							}
-							var f = Math.max(0.01, Math.min(2, path.getStrokeWidth() / 2));
-							arrowHead.getPoints().setAll(7.0 * f, 0.0 * f, -7.0 * f, 4.0 * f, -7.0 * f, -4.0 * f);
-
-							var direction = last.subtract(points.get(firstId));
-							direction = direction.multiply(1.0 / direction.magnitude());
-							arrowHead.setRotate(GeometryUtilsFX.computeAngle(direction));
-							arrowHead.setTranslateX(last.getX() - f * 12 * direction.getX());
-							arrowHead.setTranslateY(last.getY() - f * 12 * direction.getY());
-						}
-					};
-					listener.invalidated(null);
-					arrowHead.setUserData(listener);
-					path.strokeWidthProperty().addListener(new WeakInvalidationListener(listener));
-					arrowHead.setOnMouseClicked(path.getOnMouseClicked());
-					path.getElements().addListener(new WeakInvalidationListener(listener));
-					getShape(e.getTarget()).translateXProperty().addListener(new WeakInvalidationListener(listener));
-					getShape(e.getTarget()).translateYProperty().addListener(new WeakInvalidationListener(listener));
+					edgeArrowMap.put(e, ArrowHeadSetup.apply(e, path));
 				}
 			}
 		}

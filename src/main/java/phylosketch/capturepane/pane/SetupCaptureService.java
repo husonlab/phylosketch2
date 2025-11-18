@@ -22,6 +22,7 @@ package phylosketch.capturepane.pane;
 
 import javafx.collections.SetChangeListener;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.ImageView;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
@@ -30,7 +31,7 @@ import jloda.fx.util.SelectionEffectBlue;
 import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.capturepane.capture.Point;
 import phylosketch.capturepane.capture.Segment;
-import phylosketch.capturepane.capture.Word;
+import phylosketch.ocr.OcrWord;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
 import phylosketch.window.MainWindowController;
@@ -53,10 +54,10 @@ public class SetupCaptureService {
 	 */
 	public static CaptureService apply(MainWindowController controller, DrawView view, CapturePane capturePane) {
 		final CaptureService service = new CaptureService();
-		final SelectionModel<Word> wordSelection = new SetSelectionModel<>();
+		final SelectionModel<OcrWord> wordSelection = new SetSelectionModel<>();
 		final SelectionModel<Segment> pathSelection = new SetSelectionModel<>();
 
-		wordSelection.getSelectedItems().addListener((SetChangeListener<? super Word>) e -> {
+		wordSelection.getSelectedItems().addListener((SetChangeListener<? super OcrWord>) e -> {
 			if (e.wasAdded()) {
 				for (var shape : BasicFX.findRecursively(capturePane.getWordsGroup(), s -> s.getUserData() == e.getElementAdded())) {
 					shape.setEffect(SelectionEffectBlue.getInstance());
@@ -97,7 +98,7 @@ public class SetupCaptureService {
 		service.setOnSucceeded(e -> {
 			ScrollPaneUtils.runRemoveAndKeepScrollPositions(capturePane, () -> capturePane.getMainPane().getChildren().remove(skeletonImageView));
 
-			var words = new ArrayList<Word>();
+			var words = new ArrayList<OcrWord>();
 			var segments = new ArrayList<Segment>();
 			if (service.getPhase() >= CaptureService.SEGMENTS) {
 				if (true) {
@@ -126,9 +127,9 @@ public class SetupCaptureService {
 		return service;
 	}
 
-	public static List<Word> transformWords(CapturePane capturePane, ArrayList<Word> words) {
+	public static List<OcrWord> transformWords(CapturePane capturePane, ArrayList<OcrWord> words) {
 		var imageView = capturePane.getImageView();
-		var list = new ArrayList<Word>();
+		var list = new ArrayList<OcrWord>();
 		for (var word : words) {
 			var bbox = word.boundingBox();
 			var aPt = imageToPaneCoordinates(imageView, bbox.getMinX(), bbox.getMinY());
@@ -137,7 +138,7 @@ public class SetupCaptureService {
 			var width = (int) Math.abs(aPt.getX() - bPt.getX());
 			var y = (int) Math.min(aPt.getY(), bPt.getY());
 			var height = (int) Math.abs(aPt.getY() - bPt.getY());
-			list.add(new Word(word.text(), word.confidence(), new java.awt.Rectangle(x, y, width, height)));
+			list.add(new OcrWord(word.text(), word.confidence(), new Rectangle2D(x, y, width, height)));
 		}
 		return list;
 	}

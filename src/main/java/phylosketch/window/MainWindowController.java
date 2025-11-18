@@ -472,11 +472,12 @@ public class MainWindowController {
 
 	private final ChangeListener<Number> widthChangeListener = (v, o, n) -> relayout();
 
-	private final BooleanProperty narrowWindow = new SimpleBooleanProperty(this, "narrowWindow", false);
+	private final BooleanProperty windowIsNarrow = new SimpleBooleanProperty(this, "windowIsNarrow", false);
 
 	@FXML
 	private void initialize() {
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off);
+		modeMenuButton.setText(sketchModeItem.getText());
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit);
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all);
@@ -484,14 +485,14 @@ public class MainWindowController {
 
 		if (true) {
 			ChangeListener<Boolean> updateToolBarDetails = (v, o, n) -> {
-				MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit_off, n);
+				MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, n || !PhyloSketch.isDesktop());
 				MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, n);
 				MaterialIcons.setIcon(findButton, MaterialIcons.search, n);
 				MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, n);
 				MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, n);
 			};
-			narrowWindow.addListener(updateToolBarDetails);
-			narrowWindow.bind(toolbarGrid.widthProperty().lessThan(600));
+			windowIsNarrow.addListener(updateToolBarDetails);
+			windowIsNarrow.bind(toolbarGrid.widthProperty().lessThan(600));
 		}
 
 		modeMenuButton.setPrefWidth(!PhyloSketch.isDesktop() ? 60 : 110);
@@ -676,6 +677,7 @@ public class MainWindowController {
 				case Capture -> captureModeItem.setSelected(true);
 			}
 		});
+
 	}
 
 	private void relayout() {

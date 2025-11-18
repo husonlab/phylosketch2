@@ -24,13 +24,14 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import jloda.fx.util.AService;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
+import phylosketch.ocr.OcrWord;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -52,8 +53,8 @@ public class CaptureService extends AService<Boolean> {
 	private Image skeletonImage;
 	private Image greyScaleImage;
 
-	private final ArrayList<Word> allWords = new ArrayList<>();
-	private final ArrayList<Word> words = new ArrayList<>();
+	private final ArrayList<OcrWord> allWords = new ArrayList<>();
+	private final ArrayList<OcrWord> words = new ArrayList<>();
 
 	private final ArrayList<Point> endPoints = new ArrayList<>();
 	private final ArrayList<Segment> segments = new ArrayList<>();
@@ -148,7 +149,7 @@ public class CaptureService extends AService<Boolean> {
 		});
 	}
 
-	public static Rectangle shrink(Rectangle rect, int inset) {
+	public static Rectangle2D shrink(Rectangle2D rect, int inset) {
 		if (rect == null) {
 			throw new IllegalArgumentException("Rectangle cannot be null");
 		}
@@ -157,14 +158,14 @@ public class CaptureService extends AService<Boolean> {
 		}
 
 		// Ensure x and y do not extend beyond their limits
-		int newX = Math.min(rect.x + inset, rect.x + rect.width);
-		int newY = Math.min(rect.y + inset, rect.y + rect.height);
+		var newX = Math.min(rect.getMinX() + inset, rect.getMinX() + rect.getWidth());
+		var newY = Math.min(rect.getMinY() + inset, rect.getMinY() + rect.getHeight());
 
 		// Ensure width and height do not go negative
-		int newWidth = Math.max(rect.width - 2 * inset, 1);
-		int newHeight = Math.max(rect.height - 2 * inset, 1);
+		var newWidth = Math.max(rect.getWidth() - 2 * inset, 1);
+		var newHeight = Math.max(rect.getHeight() - 2 * inset, 1);
 
-		return new Rectangle(newX, newY, newWidth, newHeight);
+		return new Rectangle2D(newX, newY, newWidth, newHeight);
 	}
 
 	public void clear() {
@@ -225,11 +226,11 @@ public class CaptureService extends AService<Boolean> {
 	 *
 	 * @return words list
 	 */
-	public ArrayList<Word> getWords() {
+	public ArrayList<OcrWord> getWords() {
 		return words;
 	}
 
-	public void removeWord(Word word) {
+	public void removeWord(OcrWord word) {
 		if (!isRunning()) {
 			this.words.remove(word);
 		}

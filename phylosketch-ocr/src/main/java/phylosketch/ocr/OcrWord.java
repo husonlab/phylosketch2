@@ -1,5 +1,5 @@
 /*
- * Word.java Copyright (C) 2025 Daniel H. Huson
+ *  OcrWord.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -15,16 +15,15 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package phylosketch.capturepane.capture;
+package phylosketch.ocr;
 
-import java.awt.*;
+import javafx.geometry.Rectangle2D;
 
-public record Word(String text, float confidence, Rectangle boundingBox) {
+public record OcrWord(String text, float confidence, Rectangle2D boundingBox) {
 	public String toString() {
-		return "text=" + text + ", confidence=" + confidence + " boundingBox: x=" + boundingBox.getX()
-			   + " y=" + boundingBox.getY() + " width=" + boundingBox.getWidth() + " height=" + boundingBox.getHeight();
+		return "text=" + text + ", confidence=" + confidence + " boundingBox: x=" + boundingBox.getMinX()
+			   + " y=" + boundingBox.getMinY() + " width=" + boundingBox.getWidth() + " height=" + boundingBox.getHeight();
 	}
 }
