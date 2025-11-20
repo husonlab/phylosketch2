@@ -471,7 +471,7 @@ public class MainWindowController {
 	@FXML
 	private void initialize() {
 		modeMenuButton.setText("");
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, false);
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit);
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all);
@@ -487,7 +487,7 @@ public class MainWindowController {
 		MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
-		// MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, !PhyloSketch.isDesktop());
+		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, !PhyloSketch.isDesktop());
 		captureMenuButton.setGraphic(new Label(captureMenuButton.getText()));
 		captureMenuButton.setStyle("-fx-background-color: transparent;");
 		captureMenuButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -640,20 +640,23 @@ public class MainWindowController {
 	public void updateToolbarLayout() {
 		var narrow = (toolbarGrid.getWidth() < 600);
 
-		//MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, n);
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, narrow);
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, narrow);
 		MaterialIcons.setIcon(findButton, MaterialIcons.search, narrow);
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, narrow);
 		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, narrow);
+		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, narrow);
 
-		GridPane.setColumnSpan(leftBar, narrow ? 2 : 1);
-		GridPane.setRowIndex(leftBar, 0);
-		GridPane.setColumnIndex(leftBar, 0);
+		if (false) {
+			GridPane.setColumnSpan(leftBar, narrow ? 2 : 1);
+			GridPane.setRowIndex(leftBar, 0);
+			GridPane.setColumnIndex(leftBar, 0);
 
-		GridPane.setColumnSpan(rightBar, narrow ? 2 : 1);
-		GridPane.setRowIndex(rightBar, narrow ? 1 : 0);
-		GridPane.setColumnIndex(rightBar, narrow ? 0 : 1);
-		GridPane.setHalignment(rightBar, HPos.RIGHT);
+			GridPane.setColumnSpan(rightBar, narrow ? 2 : 1);
+			GridPane.setRowIndex(rightBar, narrow ? 1 : 0);
+			GridPane.setColumnIndex(rightBar, narrow ? 0 : 1);
+			GridPane.setHalignment(rightBar, HPos.RIGHT);
+		}
 	}
 
 	public static MaterialIcons getIcon(DrawView.Mode mode) {

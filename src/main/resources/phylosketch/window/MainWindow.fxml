@@ -482,8 +482,9 @@
                         <children>
                             <ToolBar fx:id="leftBar" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <items>
-                                    <MenuButton fx:id="modeMenuButton" maxWidth="-Infinity" minWidth="-Infinity"
-                                                mnemonicParsing="false" prefWidth="110.0" text="Mode"/>
+                                    <MenuButton fx:id="modeMenuButton" maxHeight="-Infinity" maxWidth="-Infinity"
+                                                minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
+                                                text="Mode"/>
                                     <MenuButton fx:id="selectMenuButton" maxHeight="-Infinity" maxWidth="-Infinity"
                                                 minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
                                                 text="Select">
@@ -503,8 +504,6 @@
                                             <Tooltip text="Capture phylogeny from image"/>
                                         </tooltip>
                                     </MenuButton>
-
-
                                 </items>
                             </ToolBar>
                             <ToolBar fx:id="rightBar" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -514,8 +513,6 @@
                                             <Tooltip text="Delete selected nodes and edges"/>
                                         </tooltip>
                                     </Button>
-                                    <Region layoutX="151.0" layoutY="10.0" maxWidth="1.0" minWidth="1.0"
-                                            prefHeight="20.0" prefWidth="1.0"/>
                                     <Button fx:id="undoButton" mnemonicParsing="false" text="Undo">
                                         <tooltip>
                                             <Tooltip text="Undo last action"/>
@@ -527,8 +524,6 @@
                                         </tooltip>
                                     </Button>
 
-                                    <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
-                                            HBox.hgrow="NEVER"/>
                                     <Button fx:id="zoomInButton" mnemonicParsing="false" text="Zoom In">
                                         <tooltip>
                                             <Tooltip text="Zoom in"/>
@@ -544,11 +539,7 @@
                                             <Tooltip text="Zoom to fit"/>
                                         </tooltip>
                                     </Button>
-                                    <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
-                                            HBox.hgrow="NEVER"/>
 
-                                    <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
-                                            HBox.hgrow="NEVER"/>
                                     <MenuButton fx:id="exportMenuButton" mnemonicParsing="false" text="Export">
                                         <items>
                                             <MenuItem fx:id="copyExportMenuItem" mnemonicParsing="false" text="Copy"/>
@@ -563,8 +554,6 @@
                                                            text="Show QR Code"/>
                                         </items>
                                     </MenuButton>
-                                    <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
-                                            HBox.hgrow="NEVER"/>
                                     <ToggleButton fx:id="showSettingsButton" mnemonicParsing="false" text="Format"/>
                                     <Region maxWidth="1.0" minWidth="1.0" prefHeight="20.0" prefWidth="1.0"
                                             HBox.hgrow="NEVER"/>
