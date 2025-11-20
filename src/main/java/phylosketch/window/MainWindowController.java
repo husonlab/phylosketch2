@@ -22,10 +22,7 @@ package phylosketch.window;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -470,32 +467,18 @@ public class MainWindowController {
 
 	private final ToggleGroup scalingToggleGroup = new ToggleGroup();
 
-	private final ChangeListener<Number> widthChangeListener = (v, o, n) -> relayout();
-
-	private final BooleanProperty windowIsNarrow = new SimpleBooleanProperty(this, "windowIsNarrow", false);
 
 	@FXML
 	private void initialize() {
-		modeMenuButton.setText(sketchModeItem.getText());
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit);
+		modeMenuButton.setText("");
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, false);
 		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 		MaterialIcons.setIcon(findButton, MaterialIcons.search);
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all);
 		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
 
-		if (true) {
-			ChangeListener<Boolean> updateToolBarDetails = (v, o, n) -> {
-				MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, n || !PhyloSketch.isDesktop());
-				MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, n);
-				MaterialIcons.setIcon(findButton, MaterialIcons.search, n);
-				MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, n);
-				MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, n);
-			};
-			windowIsNarrow.addListener(updateToolBarDetails);
-			windowIsNarrow.bind(toolbarGrid.widthProperty().lessThan(600));
-		}
-
-		modeMenuButton.setPrefWidth(!PhyloSketch.isDesktop() ? 60 : 110);
+		toolbarGrid.widthProperty().addListener(e -> RunAfterAWhile.applyInFXThread(toolbarGrid, this::updateToolbarLayout));
+		updateToolbarLayout();
 
 		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
 		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
@@ -652,9 +635,25 @@ public class MainWindowController {
 		phylogramMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.ToScale);
 		cladogramEarlyMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.EarlyBranching);
 		cladogramLateMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.LateBranching);
+	}
 
-		toolbarGrid.widthProperty().addListener(widthChangeListener);
-		Platform.runLater(this::relayout);
+	public void updateToolbarLayout() {
+		var narrow = (toolbarGrid.getWidth() < 600);
+
+		//MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, n);
+		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, narrow);
+		MaterialIcons.setIcon(findButton, MaterialIcons.search, narrow);
+		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, narrow);
+		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, narrow);
+
+		GridPane.setColumnSpan(leftBar, narrow ? 2 : 1);
+		GridPane.setRowIndex(leftBar, 0);
+		GridPane.setColumnIndex(leftBar, 0);
+
+		GridPane.setColumnSpan(rightBar, narrow ? 2 : 1);
+		GridPane.setRowIndex(rightBar, narrow ? 1 : 0);
+		GridPane.setColumnIndex(rightBar, narrow ? 0 : 1);
+		GridPane.setHalignment(rightBar, HPos.RIGHT);
 	}
 
 	public static MaterialIcons getIcon(DrawView.Mode mode) {
@@ -677,25 +676,12 @@ public class MainWindowController {
 				case Capture -> captureModeItem.setSelected(true);
 			}
 		});
+		modeProperty.set(DrawView.Mode.View);
+		Platform.runLater(() -> modeProperty.set(DrawView.Mode.Sketch));
 
 	}
 
 	private void relayout() {
-		double requiredWidth = toolbarGrid.snappedLeftInset()
-							   + leftBar.prefWidth(-1)
-							   + toolbarGrid.getHgap()
-							   + rightBar.prefWidth(-1)
-							   + toolbarGrid.snappedRightInset();
-		var stack = toolbarGrid.getWidth() < requiredWidth;
-
-		GridPane.setColumnSpan(leftBar, stack ? 2 : 1);
-		GridPane.setRowIndex(leftBar, 0);
-		GridPane.setColumnIndex(leftBar, 0);
-
-		GridPane.setColumnSpan(rightBar, stack ? 2 : 1);
-		GridPane.setRowIndex(rightBar, stack ? 1 : 0);
-		GridPane.setColumnIndex(rightBar, stack ? 0 : 1);
-		GridPane.setHalignment(rightBar, HPos.RIGHT);
 	}
 
 	public MenuItem getAboutMenuItem() {
@@ -1189,9 +1175,5 @@ public class MainWindowController {
 
 	public GridPane getToolbarGrid() {
 		return toolbarGrid;
-	}
-
-	public ChangeListener<Number> getWidthChangeListener() {
-		return widthChangeListener;
 	}
 }

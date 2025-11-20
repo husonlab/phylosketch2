@@ -28,7 +28,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.*;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -171,7 +174,7 @@ public class MainWindowPresenter {
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
 		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, true, true, view.modeProperty(), controller.getModeMenuButton());
-		controller.getModeMenuButton().setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		//controller.getModeMenuButton().setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		controller.setupModeMenu(view.modeProperty());
 
 		capturePane = new CapturePane(view, controller);
@@ -478,7 +481,7 @@ public class MainWindowPresenter {
 					if (!lines.isEmpty()) {
 						if (lines.get(0).startsWith("graph [")) {
 							loadContent(name, s);
-						} else if (lines.get(0).startsWith("(nodes [)")) {
+						} else if (lines.get(0).startsWith("(")) {
 							var pasteCommand = new PasteCommand(window, s);
 							if (pasteCommand.isRedoable()) {
 								view.getUndoManager().doAndAdd(pasteCommand);

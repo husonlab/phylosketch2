@@ -483,7 +483,7 @@
                             <ToolBar fx:id="leftBar" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <items>
                                     <MenuButton fx:id="modeMenuButton" maxWidth="-Infinity" minWidth="-Infinity"
-                                                mnemonicParsing="false" prefWidth="120.0" text="Mode"/>
+                                                mnemonicParsing="false" prefWidth="110.0" text="Mode"/>
                                     <MenuButton fx:id="selectMenuButton" maxHeight="-Infinity" maxWidth="-Infinity"
                                                 minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
                                                 text="Select">

@@ -26,7 +26,9 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -90,6 +92,15 @@ public class PaneInteraction {
 		inMultiTouchGesture.addListener((v, o, n) -> {
 			if (n) {
 				inDrawingEdge.set(false);
+				inRubberBandSelection.set(false);
+				view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
+				if (!PhyloSketch.isDesktop()) {
+					controller.getScrollPane().setPannable(true); // mobile allow pan using multi-touch gesture
+				}
+			} else {
+				if (!PhyloSketch.isDesktop()) {
+					controller.getScrollPane().setPannable(false); // mobile do not allow pan using single-touch gesture
+				}
 			}
 		});
 
@@ -117,6 +128,45 @@ public class PaneInteraction {
 		var vDragLine = dragLineBoxSupport.vDragLine();
 		var box = dragLineBoxSupport.box();
 
+		inRubberBandSelection.addListener((v, o, n) -> {
+			if (n) {
+				var selectionRectangle = controller.getSelectionRectangle();
+				if (!view.getOtherGroup().getChildren().contains(selectionRectangle)) {
+					view.getOtherGroup().getChildren().add(selectionRectangle);
+					selectionRectangle.applyCss();
+					selectionRectangle.setX(0);
+					selectionRectangle.setY(0);
+					selectionRectangle.setWidth(0);
+					selectionRectangle.setHeight(0);
+					selectionRectangle.setVisible(false);
+				}
+			} else {
+				view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
+			}
+		});
+
+		// setup context menu for creating a node
+		{
+			var contextMenu = new ContextMenu();
+			var pause = new PauseTransition(Duration.seconds(1));
+			pause.setOnFinished(e -> contextMenu.hide());
+			view.setOnContextMenuRequested(e -> {
+				if (contextMenu.isShowing()) {
+					contextMenu.hide();
+				} else {
+					inDrawingEdge.set(false);
+					inRubberBandSelection.set(false);
+					var newNodeMenuItem = new MenuItem("Create Node");
+					newNodeMenuItem.setOnAction(a -> {
+						var location = view.screenToLocal(mouseX, mouseY);
+						view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
+					});
+					contextMenu.getItems().setAll(newNodeMenuItem);
+					contextMenu.show(view, mouseX, mouseY);
+					pause.playFromStart();
+				}
+			});
+		}
 
 		// will create a node if mouse is pressed and then not moved or released within two seconds
 		var createNodePause = new PauseTransition(Duration.seconds(1.5));
@@ -209,10 +259,6 @@ public class PaneInteraction {
 				}
 			} else if (inRubberBandSelection.get()) {
 				var selectionRectangle = controller.getSelectionRectangle();
-				if (!view.getOtherGroup().getChildren().contains(selectionRectangle)) {
-					view.getOtherGroup().getChildren().add(selectionRectangle);
-					selectionRectangle.applyCss();
-				}
 				var down = selectionRectangle.screenToLocal(mouseDownX, mouseDownY);
 				var delta = location.subtract(down);
 
@@ -259,7 +305,6 @@ public class PaneInteraction {
 			}
 
 			inRubberBandSelection.set(false);
-			view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
 			view.getOtherGroup().getChildren().remove(hDragLine);
 			view.getOtherGroup().getChildren().remove(vDragLine);
 			me.consume();
