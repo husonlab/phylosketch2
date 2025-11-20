@@ -165,6 +165,7 @@ public class PaneInteraction {
 					contextMenu.show(view, mouseX, mouseY);
 					pause.playFromStart();
 				}
+				e.consume();
 			});
 		}
 

@@ -74,6 +74,7 @@ public class EdgeInteraction {
 									resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
 									var contextMenu = new ContextMenu(resizeItem);
 									contextMenu.show(path, a.getScreenX(), a.getScreenY());
+									a.consume();
 								}
 								a.consume();
 							});

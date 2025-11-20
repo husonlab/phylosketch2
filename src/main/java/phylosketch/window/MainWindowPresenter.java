@@ -208,6 +208,7 @@ public class MainWindowPresenter {
 							var setLabel = new MenuItem("Edit Label");
 							setLabel.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
 							new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
+							cm.consume();
 						});
 					}
 				}
@@ -226,6 +227,7 @@ public class MainWindowPresenter {
 								editLabelItem.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
 								var contextMenu = new ContextMenu(editLabelItem);
 								contextMenu.show(node, cm.getScreenX(), cm.getScreenY());
+								cm.consume();
 							}
 						});
 					}
