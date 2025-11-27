@@ -42,41 +42,13 @@ public class CaptureWords {
 	 * @param maxTextHeight the max word bounding box height
 	 * @return the list of filtered words
 	 */
-	public static List<OcrWord> filter(Collection<OcrWord> words, int minWordLength, double minTextHeight, double maxTextHeight,
-									boolean mustStartWithAlphaNumeric, boolean mustEndWithAlphaNumeric, boolean mustContainLetter) {
+	public static List<OcrWord> filter(Collection<OcrWord> words, int minWordLength, double minTextHeight, double maxTextHeight) {
 		var list = new ArrayList<OcrWord>();
 
 		for (var word : words) {
 			var box = word.boundingBox();
 			if (word.text().length() >= minWordLength && word.confidence() >= minTextHeight && box.getHeight() <= maxTextHeight && word.text().matches(".*[a-zA-Z0-9].*")) {
-				// trim leading non letter or digit characters
-				var text = word.text();
-
-				if (mustContainLetter && text.chars().noneMatch(Character::isLetter)) {
-					continue;
-				}
-
-				var a = 0;
-				if (mustStartWithAlphaNumeric) {
-					while (a < text.length() && !Character.isLetterOrDigit(text.charAt(a))) {
-						a++;
-					}
-				}
-				var b = text.length();
-				if (mustEndWithAlphaNumeric) {
-					while (b > 0) {
-						char c = text.charAt(b - 1);
-						if (Character.isLetterOrDigit(c) || c == ')' || c == ']' || c == '}')
-							break;
-						b--;
-					}
-				}
-
-				if (a < b) {
-					word = new OcrWord(text.substring(a, b).trim(), word.confidence(), box);
-					System.err.println("Extracted word:" + word);
-					list.add(new OcrWord(word.text(), word.confidence(), box));
-				}
+				list.add(word);
 			}
 		}
 		return list;
@@ -90,7 +62,7 @@ public class CaptureWords {
 	 * @return joined pairs
 	 * todo: join more than two words
 	 */
-	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words) {
+	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words, boolean mustStartWithAlphaNumeric, boolean mustEndWithAlphaNumeric, boolean mustContainLetter) {
 		var graph = new Graph();
 
 		for (var word : words) {
@@ -162,7 +134,22 @@ public class CaptureWords {
 		for (var w : graph.nodes()) {
 			list.add((OcrWord) w.getInfo());
 		}
-		return list;
+
+		return new ArrayList<>(list.stream().filter(w -> !(mustContainLetter && !containsLetter(w)
+														   || mustStartWithAlphaNumeric && !startsAlphaNumeric(w)
+														   || mustEndWithAlphaNumeric && !endsAlphaNumeric(w))).toList());
+	}
+
+	private static boolean containsLetter(OcrWord word) {
+		return word.text().chars().anyMatch(Character::isLetter);
+	}
+
+	private static boolean startsAlphaNumeric(OcrWord word) {
+		return !word.text().isEmpty() && Character.isLetterOrDigit(word.text().charAt(0));
+	}
+
+	private static boolean endsAlphaNumeric(OcrWord word) {
+		return !word.text().isEmpty() && Character.isLetterOrDigit(word.text().charAt(word.text().length() - 1));
 	}
 
 	private static boolean intersect(double minI, double maxI, double minJ, double maxJ) {

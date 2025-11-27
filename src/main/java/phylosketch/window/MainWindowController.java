@@ -24,7 +24,6 @@ import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
@@ -44,6 +43,7 @@ import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class MainWindowController {
 	@FXML
@@ -477,9 +477,6 @@ public class MainWindowController {
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all);
 		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
 
-		toolbarGrid.widthProperty().addListener(e -> RunAfterAWhile.applyInFXThread(toolbarGrid, this::updateToolbarLayout));
-		updateToolbarLayout();
-
 		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
 		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
 		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
@@ -487,10 +484,12 @@ public class MainWindowController {
 		MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
 
-		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, !PhyloSketch.isDesktop());
-		captureMenuButton.setGraphic(new Label(captureMenuButton.getText()));
+		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image);
 		captureMenuButton.setStyle("-fx-background-color: transparent;");
 		captureMenuButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+		toolbarGrid.widthProperty().addListener(e -> RunAfterAWhile.applyInFXThread(toolbarGrid, this::updateToolbarLayout));
+		updateToolbarLayout();
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("-", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -640,22 +639,12 @@ public class MainWindowController {
 	public void updateToolbarLayout() {
 		var narrow = (toolbarGrid.getWidth() < 600);
 
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, narrow);
-		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share, narrow);
-		MaterialIcons.setIcon(findButton, MaterialIcons.search, narrow);
-		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, narrow);
-		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, narrow);
-		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image, narrow);
-
-		if (false) {
-			GridPane.setColumnSpan(leftBar, narrow ? 2 : 1);
-			GridPane.setRowIndex(leftBar, 0);
-			GridPane.setColumnIndex(leftBar, 0);
-
-			GridPane.setColumnSpan(rightBar, narrow ? 2 : 1);
-			GridPane.setRowIndex(rightBar, narrow ? 1 : 0);
-			GridPane.setColumnIndex(rightBar, narrow ? 0 : 1);
-			GridPane.setHalignment(rightBar, HPos.RIGHT);
+		for (var button : List.of(modeMenuButton, exportMenuButton, findButton, selectMenuButton, showSettingsButton, captureMenuButton)) {
+			if (narrow) {
+				button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			} else {
+				button.setContentDisplay(ContentDisplay.LEFT);
+			}
 		}
 	}
 

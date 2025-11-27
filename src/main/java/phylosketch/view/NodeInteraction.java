@@ -29,6 +29,8 @@ import javafx.scene.shape.Shape;
 import phylosketch.commands.MoveNodesEdgesCommand;
 import phylosketch.main.PhyloSketch;
 
+import java.util.ArrayList;
+
 /**
  * node interaction
  * Daniel Huson, 9.2024
@@ -56,6 +58,8 @@ public class NodeInteraction {
 		var vDragLine = dragLineBoxSupport.vDragLine();
 		var box = dragLineBoxSupport.box();
 
+		var nodesToDrag = new ArrayList<jloda.graph.Node>();
+
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
@@ -77,20 +81,27 @@ public class NodeInteraction {
 							});
 
 							shape.setOnMousePressed(me -> {
+								nodesToDrag.clear();
+								if (!view.getNodeSelection().isSelected(v)) {
+									nodesToDrag.add(v);
+								} else {
+									nodesToDrag.addAll(view.getNodeSelection().getSelectedItems());
+								}
+
 								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 								if (inMove) {
 									mouseDownX = me.getSceneX();
 									mouseDownY = me.getSceneY();
 									mouseX = mouseDownX;
 									mouseY = mouseDownY;
-									moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, view.getNodeSelection().getSelectedItems(), null);
+									moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
 									me.consume();
 								}
 							});
 
 							shape.setOnMouseDragged(me -> {
 								if (inMove) {
-									if (!view.getNodeSelection().isSelected(v)) {
+									if (false && !view.getNodeSelection().isSelected(v)) {
 										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
 											view.getEdgeSelection().clearSelection();

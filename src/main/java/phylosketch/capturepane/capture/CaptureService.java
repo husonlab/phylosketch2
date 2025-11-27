@@ -119,7 +119,7 @@ public class CaptureService extends AService<Boolean> {
 				allWords.addAll(OCR.getWords(greyScaleImage));
 				words.clear();
 				words.addAll(CaptureWords.joinConsecutiveWords(CaptureWords.filter(allWords, parameters.getMinWordLength(), parameters.getMinTextHeight(),
-						parameters.getMaxTextHeight(), parameters.isMustStartAlphaNumeric(), parameters.isMustEndAlphaNumeric(), parameters.isMustContainLetter())));
+						parameters.getMaxTextHeight()), parameters.isMustStartAlphaNumeric(), parameters.isMustEndAlphaNumeric(), parameters.isMustContainLetter()));
 				theStatus = WORDS;
 				updatePhase(theStatus);
 			}

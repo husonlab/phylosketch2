@@ -590,9 +590,11 @@ public class MainWindowPresenter {
 	private Searcher<Node> setupSearcher(DrawView view) {
 		var graph = view.getGraph();
 
+		// todo: set things up so all replace all is undo in one step
+
 		Function<Integer, jloda.graph.Node> index2node = index -> (jloda.graph.Node) view.getNodesGroup().getChildren().get(index).getUserData();
 		var nodeSelection = view.getNodeSelection();
-		return new Searcher<>(view.getNodesGroup().getChildren(),
+		var searcher = new Searcher<>(view.getNodesGroup().getChildren(),
 				index -> nodeSelection.isSelected(index2node.apply(index)),
 				(index, s) -> {
 					if (s)
@@ -608,6 +610,8 @@ public class MainWindowPresenter {
 					view.getUndoManager().doAndAdd(new ChangeNodeLabelsCommand(view, List.of(data)));
 				}
 				, null, null);
+		searcher.setSelectionFindable(true);
+		return searcher;
 	}
 
 	public FormatPaneView getFormatPaneView() {

@@ -28,10 +28,12 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
+import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.phylogeny.dolayout.ComputeOrthogonalDisplacement;
 import jloda.util.*;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.*;
@@ -77,9 +79,12 @@ public class SampleNetworks {
 		var randomSeed = options.getOption("-s", "seed", "Random generator seed (0:use random seed)", 42);
 		var echoInputTree = options.getOption("-e", "echoInput", "Echo the input tree to output", false);
 
-		var timeLayout = options.getOption("-x", "xtraTimeLayout", "Time the optimized layout algorithm", false);
+		var missingTaxa = options.getOption("-m", "missing", "Number of missing taxa per replicate (value < 1: will use value*number-of-taxa)", 0.0);
+		var contractedInternalEdges = options.getOption("-c", "contracted", "Number of contracted internal edges per replicate (value < 1: will use value*number-of-taxa)", 0.0);
 
 		var replicates = options.getOption("-R", "replicates", "Number replicates per choice of taxon number", 1);
+
+		var timeLayout = options.getOption("-x", "xtraTimeLayout", "Time the optimized layout algorithm", false);
 
 		ProgramExecutorService.setNumberOfCoresToUse(options.getOption("-th", "threads", "Set number of threads to use", 8));
 		options.done();
@@ -92,10 +97,16 @@ public class SampleNetworks {
 		if (requestedReticulateEdges > 1)
 			requestedReticulateEdges = (int) Math.round(requestedReticulateEdges);
 
-		var random = new Random();
+		var randomAddEdge = new Random();
+		var randomForSelectTaxa = new Random();
+		var randomForMissingTaxa = new Random();
+		var randomForContractEdges = new Random();
 
 		if (randomSeed != 0) {
-			random.setSeed(randomSeed);
+			randomAddEdge.setSeed(randomSeed);
+			randomForSelectTaxa.setSeed(randomSeed);
+			randomForMissingTaxa.setSeed(randomSeed);
+			randomForContractEdges.setSeed(randomSeed);
 		}
 
 		try (var r = new BufferedReader(new InputStreamReader(FileUtils.getInputStreamPossiblyZIPorGZIP(inputFile)));
@@ -103,13 +114,11 @@ public class SampleNetworks {
 			var countInputTrees = 0;
 			var countOutputTrees = 0;
 
-			var taxIdMap = new HashMap<String, Integer>();
-
 			while (r.ready()) {
 				var line = r.readLine();
 				if (line.startsWith("(")) {
 					var inputTree0 = NewickIO.valueOf(line);
-					addAdhocTaxonIds(inputTree0, taxIdMap);
+					setAdhocTaxonIds(inputTree0);
 					var inputTaxa0 = BitSetUtils.asBitSet(inputTree0.getTaxa());
 
 					int[] numberOfTaxaRange;
@@ -122,19 +131,16 @@ public class SampleNetworks {
 						BitSet inputTaxa;
 						PhyloTree inputTree;
 						if (numberOfTaxa > 0 && numberOfTaxa < inputTaxa0.cardinality()) {
-							var array = new int[BitSetUtils.max(inputTaxa0) + 1];
-							var count = 0;
-							inputTaxa = new BitSet();
-							for (var t : BitSetUtils.members(inputTaxa0)) {
-								count++;
-								array[t] = count;
-								inputTaxa.set(count);
-								if (count == numberOfTaxa)
-									break;
-							}
-							inputTree = computeInducedTree(array, inputTree0);
+							var taxaList = BitSetUtils.asList(inputTaxa0);
+							Collections.shuffle(taxaList, randomForSelectTaxa);
+							taxaList = taxaList.subList(0, numberOfTaxa);
+							inputTree = computeInducedTree(taxaList, inputTree0);
 							assert inputTree != null;
 							assert BitSetUtils.asBitSet(inputTree.getTaxa()).equals(BitSetUtils.asBitSet(BitSetUtils.range(1, numberOfTaxa + 1)));
+							setAdhocTaxonIds(inputTree);
+							// label by taxa:
+							inputTree.nodeStream().filter(inputTree::hasTaxa).forEach(v -> inputTree.setLabel(v, "t" + inputTree.getTaxon(v)));
+							inputTaxa = BitSetUtils.asBitSet(inputTree.getTaxa());
 						} else {
 							inputTaxa = inputTaxa0;
 							inputTree = new PhyloTree(inputTree0);
@@ -145,22 +151,48 @@ public class SampleNetworks {
 								inputTree.delDivertex(v);
 						}
 						countInputTrees++;
+
 						if (echoInputTree)
 							w.write(inputTree.toBracketString(false) + "[&&NHX:GN=in%d];%n".formatted(countInputTrees));
+
 
 						var reticulateEdges = Math.round(requestedReticulateEdges >= 1 ? requestedReticulateEdges : requestedReticulateEdges * inputTaxa.cardinality());
 
 						for (var replicate = 0; replicate < replicates; replicate++) {
 							var network = new PhyloTree(inputTree);
+
+							if (missingTaxa > 0) {
+								var missing = (int) Math.round(missingTaxa >= 1 ? missingTaxa : missingTaxa * inputTaxa.cardinality());
+								if (missing > 0) {
+									var leaves = BitSetUtils.asList(inputTaxa);
+									Collections.shuffle(leaves);
+									var keep = leaves.subList(0, inputTaxa.cardinality() - missing);
+									network = computeInducedTree(keep, network);
+									if (network == null)
+										throw new RuntimeException("Tree is null");
+									check(network);
+								}
+							}
+
+							if (contractedInternalEdges > 0) {
+								List<Edge> edges = CollectionUtils.randomize(IteratorUtils.asStream(network.edges()).filter(e -> !e.getTarget().isLeaf()).toList(), randomForContractEdges);
+								var numContractEdges = (int) Math.round(contractedInternalEdges >= 1 ? contractedInternalEdges : contractedInternalEdges * edges.size());
+								if (numContractEdges > 0 && numContractEdges < edges.size()) {
+									edges = edges.subList(edges.size() - numContractEdges, edges.size());
+								}
+								RootedNetworkProperties.contractEdges(network, new HashSet<>(edges), null);
+								check(network);
+							}
+
 							var internalNodes = new ArrayList<>(network.nodeStream().filter(v -> v.getInDegree() > 0 && v.getOutDegree() > 0).toList());
 
 							for (var add = 0; add < reticulateEdges; add++) {
-								var a = internalNodes.get(random.nextInt(internalNodes.size()));
-								var b = internalNodes.get(random.nextInt(internalNodes.size()));
+								var a = internalNodes.get(randomAddEdge.nextInt(internalNodes.size()));
+								var b = internalNodes.get(randomAddEdge.nextInt(internalNodes.size()));
 								var count = 0;
 								while (ancestors(b).contains(a) || a.isChild(b)) {
-									a = internalNodes.get(random.nextInt(internalNodes.size()));
-									b = internalNodes.get(random.nextInt(internalNodes.size()));
+									a = internalNodes.get(randomAddEdge.nextInt(internalNodes.size()));
+									b = internalNodes.get(randomAddEdge.nextInt(internalNodes.size()));
 									if (++count == 1000)
 										throw new RuntimeException("Can't add edge");
 								}
@@ -177,29 +209,32 @@ public class SampleNetworks {
 								}
 							}
 
-							var label = "n%d.%d".formatted(countInputTrees, replicate + 1);
-							if (options.isVerbose() && !timeLayout) {
-								System.out.printf("%s: taxa=%d, h=%d%n", label, IteratorUtils.count(network.leaves()),
-										network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum());
-							}
-
-							if (timeLayout) {
-								var start = System.currentTimeMillis();
-
-								try (NodeArray<Point2D> nodePointMap = network.newNodeArray()) {
-									LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, random, new HashMap<>(), nodePointMap);
-									var time = (System.currentTimeMillis() - start) / 1000.0;
-									var od = ComputeOrthogonalDisplacement.apply(network.nodes(), network.edges(), Edge::getSource, Edge::getTarget,
-											e -> network.isReticulateEdge(e) && !network.isTransferAcceptorEdge(e), v -> nodePointMap.get(v).getY());
-
-									if (true)
-										System.out.printf("%s\ttaxa=%d\th=%d\tdo_time=%.1fs\tdo_od=%.1f%n", label, IteratorUtils.count(network.leaves()),
-												network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(), time, od);
-
-									w.write(network.toBracketString(false) + "[&&NHX:GN=%s];%n".formatted(label));
-									w.flush();
+							var label = "n=%d-e=%d-c=%s-m=%s".formatted(numberOfTaxa, reticulateEdges, StringUtils.removeTrailingZerosAfterDot(contractedInternalEdges),
+									StringUtils.removeTrailingZerosAfterDot(missingTaxa));
+							if (options.isVerbose()) {
+								if (!timeLayout) {
+									if (replicate == 0) {
+										System.out.printf("#%s\te=%d\tc=%s\tm=%s%n", label,
+												reticulateEdges,
+												StringUtils.removeTrailingZerosAfterDot(contractedInternalEdges), StringUtils.removeTrailingZerosAfterDot(missingTaxa));
+									}
+								} else {
+									var start = System.currentTimeMillis();
+									try (NodeArray<Point2D> nodePointMap = network.newNodeArray()) {
+										LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, randomAddEdge, new HashMap<>(), nodePointMap);
+										var time = (System.currentTimeMillis() - start) / 1000.0;
+										var fNetwork = network;
+										var od = ComputeOrthogonalDisplacement.apply(network.nodes(), network.edges(), Edge::getSource, Edge::getTarget,
+												e -> fNetwork.isReticulateEdge(e) && !fNetwork.isTransferAcceptorEdge(e), v -> nodePointMap.get(v).getY());
+										System.out.printf("#%s-%d\ttaxa=%d\th=%d\tc=%s\tm=%s\tdo_time=%.1fs\tdo_od=%.1f%n", label, (replicate + 1), IteratorUtils.count(network.leaves()),
+												network.nodeStream().filter(v -> v.getInDegree() > 1).mapToInt(v -> v.getInDegree() - 1).sum(),
+												StringUtils.removeTrailingZerosAfterDot(contractedInternalEdges), StringUtils.removeTrailingZerosAfterDot(missingTaxa),
+												time, od);
+									}
 								}
 							}
+							w.write(network.toBracketString(false) + ";\n");
+							w.flush();
 						}
 					}
 				}
@@ -209,6 +244,17 @@ public class SampleNetworks {
 				System.err.printf("Output networks:%,10d%n", countOutputTrees);
 			}
 		}
+	}
+
+	public static void check(PhyloTree tree) throws IOException {
+		var recLeaves = new Counter(0);
+		tree.postorderTraversal(v -> {
+			if (v.isLeaf())
+				recLeaves.increment();
+		});
+		var leaves = tree.nodeStream().filter(v -> v.getOutDegree() == 0).count();
+		if (recLeaves.get() != leaves)
+			throw new IOException("leaves != recLeaves");
 	}
 
 
@@ -231,27 +277,17 @@ public class SampleNetworks {
 	/**
 	 * computes the induced tree
 	 */
-	public static PhyloTree computeInducedTree(int[] oldTaxonId2NewTaxonId, PhyloTree originalTree) {
+	public static PhyloTree computeInducedTree(Collection<Integer> keep, PhyloTree originalTree) {
 		final var inducedTree = new PhyloTree(originalTree);
 		inducedTree.getLSAChildrenMap().clear();
 
 		final var toRemove = new LinkedList<Node>(); // initially, set to all leaves that have lost their taxa
 
-		// change taxa:
 		for (var v : inducedTree.nodes()) {
 			if (inducedTree.getNumberOfTaxa(v) > 0) {
-				var taxa = new BitSet();
-				for (var t : inducedTree.getTaxa(v)) {
-					if (oldTaxonId2NewTaxonId[t] > 0)
-						taxa.set(oldTaxonId2NewTaxonId[t]);
-				}
-				inducedTree.clearTaxa(v);
-				if (taxa.cardinality() == 0)
+				if (!keep.contains(inducedTree.getTaxon(v))) {
+					inducedTree.clearTaxa(v);
 					toRemove.add(v);
-				else {
-					for (var t : BitSetUtils.members(taxa)) {
-						inducedTree.addTaxon(v, t);
-					}
 				}
 			}
 		}
@@ -295,11 +331,9 @@ public class SampleNetworks {
 		return inducedTree;
 	}
 
-	public static void addAdhocTaxonIds(PhyloTree tree, Map<String, Integer> taxaIdMap) {
-		tree.nodeStream().filter(v -> tree.getLabel(v) != null).forEach(v -> {
-			var taxId = taxaIdMap.getOrDefault(tree.getLabel(v), taxaIdMap.size() + 1);
-			tree.addTaxon(v, taxId);
-			taxaIdMap.put(tree.getLabel(v), taxId);
-		});
+	public static void setAdhocTaxonIds(PhyloTree tree) {
+		tree.clearTaxa();
+		var numberOfTaxa = new Counter(0);
+		tree.nodeStream().filter(v -> tree.getLabel(v) != null).forEach(v -> tree.addTaxon(v, (int) numberOfTaxa.incrementAndGet()));
 	}
 }
