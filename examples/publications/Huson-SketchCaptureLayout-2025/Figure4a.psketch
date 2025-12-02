@@ -1,0 +1,718 @@
+graph [
+	comment "Created by PhyloSketch App on 2025-12-02 08:55:43"
+	directed 1
+	id 1
+	node [
+		id 1
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "50"
+		y "257.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 2
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "89.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 3
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "78.5"
+		label "Trithuria_inconspicua_NC_020372"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 4
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "100.9"
+		label "Trithuria_filamentosa_KF696682"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 5
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "81.1"
+		y "279.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 6
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "112.3"
+		y "257.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 7
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "143.4"
+		y "156.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 8
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "283.5"
+		y "156.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 9
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "314.6"
+		y "145.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 10
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "345.7"
+		y "134.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 11
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "134.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 12
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "123.3"
+		label "Nuphar_advena_NC_008788"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 13
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "145.6"
+		label "Nuphar_longifolia_MH050795"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 14
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "190.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 15
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "190.4"
+		label "Nuphar_pumila_MH050796"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 16
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "361.3"
+		y "168"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 17
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "168"
+		label "Nuphar_shimadae_MH050797"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 18
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "159"
+		y "279.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 19
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "190.1"
+		y "279.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 20
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "221.2"
+		y "279.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 21
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "252.3"
+		y "302.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 22
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "283.5"
+		y "291.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 23
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "314.6"
+		y "257.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 24
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "330.2"
+		y "235.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 25
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "361.3"
+		y "235.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 26
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "235.1"
+		label "Euryale_ferox_KY392765"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 27
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "212.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 28
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "212.8"
+		label "Victoria_cruziana_KY001813"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 29
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "257.5"
+		label "Nymphaea_jamesoniana_NC_031826"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 30
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "314.6"
+		y "302.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 31
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "345.7"
+		y "302.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 32
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "279.9"
+		label "Nymphaea_mexicana_NC_024542"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 33
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "313.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 34
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "302.3"
+		label "Nymphaea_alba_KU234277"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 35
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "324.6"
+		label "Nymphaea_alba_NC_006050"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 36
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "347"
+		label "Nymphaea_ampla_KU189255"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 37
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "345.7"
+		y "425.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 38
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "425.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 39
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "414.1"
+		label "Barclaya_kunstleri_KY392762"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 40
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "436.5"
+		label "Barclaya_longifolia_KY284156"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 41
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "143.4"
+		y "380.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 42
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "376.9"
+		y "380.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 43
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "369.4"
+		label "Cabomba_caroliniana_KT705317"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 44
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "408"
+		y "391.8"
+		label "Brasenia_schreberi_NC_031343"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	edge [
+		source 2
+		target 3
+		path "M 376.8695652173913 89.6875 L 376.8695652173913 78.5 L 408.0 78.5"
+	]
+	edge [
+		source 2
+		target 4
+		path "M 376.8695652173913 89.6875 L 376.8695652173913 100.875 L 408.0 100.875"
+	]
+	edge [
+		source 1
+		target 2
+		path "M 50.0 257.5 L 50.0 89.6875 L 376.8695652173913 89.6875"
+	]
+	edge [
+		source 11
+		target 12
+		path "M 376.8695652173913 134.4375 L 376.8695652173913 123.25 L 408.0 123.25"
+	]
+	edge [
+		source 11
+		target 13
+		path "M 376.8695652173913 134.4375 L 376.8695652173913 145.625 L 408.0 145.625"
+	]
+	edge [
+		source 10
+		target 11
+		path "M 345.7391304347826 134.4375 L 345.7391304347826 134.4375 L 376.8695652173913 134.4375"
+	]
+	edge [
+		source 14
+		target 15
+		path "M 376.8695652173913 190.375 L 376.8695652173913 190.375 L 408.0 190.375"
+	]
+	edge [
+		source 10
+		target 14
+		path "M 345.7391304347826 134.4375 Q 345.7391304347826 190.375 376.8695652173913 190.375"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 9
+		target 10
+		path "M 314.60869565217394 145.625 L 314.60869565217394 134.4375 L 345.7391304347826 134.4375"
+	]
+	edge [
+		source 16
+		target 17
+		path "M 361.30434782608694 168.0 L 361.30434782608694 168.0 L 408.0 168.0"
+	]
+	edge [
+		source 9
+		target 16
+		path "M 314.60869565217394 145.625 L 314.60869565217394 168.0 L 361.30434782608694 168.0"
+	]
+	edge [
+		source 8
+		target 9
+		path "M 283.47826086956525 156.8125 L 283.47826086956525 145.625 L 314.60869565217394 145.625"
+	]
+	edge [
+		source 7
+		target 8
+		path "M 143.3913043478261 156.8125 L 143.3913043478261 156.8125 L 283.47826086956525 156.8125"
+	]
+	edge [
+		source 25
+		target 26
+		path "M 361.30434782608694 235.125 L 361.30434782608694 235.125 L 408.0 235.125"
+	]
+	edge [
+		source 27
+		target 28
+		path "M 376.8695652173913 212.75 L 376.8695652173913 212.75 L 408.0 212.75"
+	]
+	edge [
+		source 25
+		target 27
+		path "M 361.30434782608694 235.125 Q 361.30434782608694 212.75 376.8695652173913 212.75"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 24
+		target 25
+		path "M 330.17391304347825 235.125 L 330.17391304347825 235.125 L 361.30434782608694 235.125"
+	]
+	edge [
+		source 23
+		target 24
+		path "M 314.60869565217394 257.5 Q 314.60869565217394 235.125 330.17391304347825 235.125"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 23
+		target 29
+		path "M 314.60869565217394 257.5 L 314.60869565217394 257.5 L 408.0 257.5"
+	]
+	edge [
+		source 22
+		target 23
+		path "M 283.47826086956525 291.0625 L 283.47826086956525 257.5 L 314.60869565217394 257.5"
+	]
+	edge [
+		source 31
+		target 32
+		path "M 345.7391304347826 302.25 L 345.7391304347826 279.875 L 408.0 279.875"
+	]
+	edge [
+		source 33
+		target 34
+		path "M 376.8695652173913 313.4375 L 376.8695652173913 302.25 L 408.0 302.25"
+	]
+	edge [
+		source 33
+		target 35
+		path "M 376.8695652173913 313.4375 L 376.8695652173913 324.625 L 408.0 324.625"
+	]
+	edge [
+		source 31
+		target 33
+		path "M 345.7391304347826 302.25 L 345.7391304347826 313.4375 L 376.8695652173913 313.4375"
+	]
+	edge [
+		source 30
+		target 31
+		path "M 314.60869565217394 302.25 L 314.60869565217394 302.25 L 345.7391304347826 302.25"
+	]
+	edge [
+		source 22
+		target 30
+		path "M 283.47826086956525 291.0625 L 283.47826086956525 302.25 L 314.60869565217394 302.25"
+	]
+	edge [
+		source 21
+		target 22
+		path "M 252.34782608695653 302.25 L 252.34782608695653 291.0625 L 283.47826086956525 291.0625"
+	]
+	edge [
+		source 21
+		target 36
+		path "M 252.34782608695653 302.25 L 252.34782608695653 347.0 L 408.0 347.0"
+	]
+	edge [
+		source 20
+		target 21
+		path "M 221.2173913043478 279.875 L 221.2173913043478 302.25 L 252.34782608695653 302.25"
+	]
+	edge [
+		source 19
+		target 20
+		path "M 190.08695652173913 279.875 L 190.08695652173913 279.875 L 221.2173913043478 279.875"
+	]
+	edge [
+		source 38
+		target 39
+		path "M 376.8695652173913 425.3125 L 376.8695652173913 414.125 L 408.0 414.125"
+	]
+	edge [
+		source 38
+		target 40
+		path "M 376.8695652173913 425.3125 L 376.8695652173913 436.5 L 408.0 436.5"
+	]
+	edge [
+		source 37
+		target 38
+		path "M 345.7391304347826 425.3125 L 345.7391304347826 425.3125 L 376.8695652173913 425.3125"
+	]
+	edge [
+		source 19
+		target 37
+		path "M 190.08695652173913 279.875 Q 190.08695652173913 425.3125 345.7391304347826 425.3125"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 18
+		target 19
+		path "M 158.95652173913044 279.875 L 158.95652173913044 279.875 L 190.08695652173913 279.875"
+	]
+	edge [
+		source 7
+		target 18
+		path "M 143.3913043478261 156.8125 Q 143.3913043478261 279.875 158.95652173913044 279.875"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 6
+		target 7
+		path "M 112.26086956521739 257.5 L 112.26086956521739 156.8125 L 143.3913043478261 156.8125"
+	]
+	edge [
+		source 42
+		target 43
+		path "M 376.8695652173913 380.5625 L 376.8695652173913 369.375 L 408.0 369.375"
+	]
+	edge [
+		source 42
+		target 44
+		path "M 376.8695652173913 380.5625 L 376.8695652173913 391.75 L 408.0 391.75"
+	]
+	edge [
+		source 41
+		target 42
+		path "M 143.3913043478261 380.5625 L 143.3913043478261 380.5625 L 376.8695652173913 380.5625"
+	]
+	edge [
+		source 6
+		target 41
+		path "M 112.26086956521739 257.5 L 112.26086956521739 380.5625 L 143.3913043478261 380.5625"
+	]
+	edge [
+		source 5
+		target 6
+		path "M 81.13043478260869 279.875 L 81.13043478260869 257.5 L 112.26086956521739 257.5"
+	]
+	edge [
+		source 1
+		target 5
+		path "M 50.0 257.5 L 50.0 279.875 L 81.13043478260869 279.875"
+	]
+	edge [
+		source 16
+		target 14
+		path "M 361.30434782608694 168.0 Q 361.30434782608694 190.375 376.8695652173913 190.375"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 8
+		target 14
+		path "M 283.47826086956525 156.8125 Q 283.47826086956525 190.375 376.8695652173913 190.375"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 41
+		target 18
+		path "M 143.3913043478261 380.5625 Q 143.3913043478261 279.875 158.95652173913044 279.875"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 20
+		target 24
+		path "M 221.2173913043478 279.875 Q 221.2173913043478 235.125 330.17391304347825 235.125"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 30
+		target 27
+		path "M 314.60869565217394 302.25 Q 314.60869565217394 212.75 376.8695652173913 212.75"
+		stroke "0xff8c00ff"
+	]
+	edge [
+		source 5
+		target 37
+		path "M 81.13043478260869 279.875 Q 81.13043478260869 425.3125 345.7391304347826 425.3125"
+		stroke "0xff8c00ff"
+	]
+]

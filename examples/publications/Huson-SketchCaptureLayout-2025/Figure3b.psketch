@@ -1,0 +1,668 @@
+graph [
+	comment "Created by PhyloSketch App on 2025-12-02 08:53:06"
+	directed 1
+	id 1
+	node [
+		id 1
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "295.9"
+		y "361.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 2
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "271.3"
+		y "361.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 3
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "268.6"
+		y "320.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 4
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "234.6"
+		y "320.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 5
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "295.9"
+		y "435.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 6
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "295.9"
+		y "558.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 7
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "390"
+		y "588.9"
+		label `<size "20.5">Ocelot Brazil`
+		label_dx "-32"
+		label_dy "51.5"
+		label_angle "67.5"
+	]
+	node [
+		id 8
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "252.7"
+		y "578.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 9
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "295.9"
+		y "607.6"
+		label `<size "20.5">Ocelot USA`
+		label_dx "-53.5"
+		label_dy "52.1"
+		label_angle "90"
+	]
+	node [
+		id 10
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "201.8"
+		y "588.9"
+		label `<size "20.5">Ocelot Zoo`
+		label_dx "-73.1"
+		label_dy "44.1"
+		label_angle "112.5"
+	]
+	node [
+		id 11
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "214.1"
+		y "307.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 12
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "230"
+		y "202.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 13
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "334.3"
+		y "168.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 14
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "295.9"
+		y "140.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 15
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "295.9"
+		y "115.8"
+		label `<size "20.5">Geoffroys cat`
+		label_dx "-61"
+		label_dy "-82.4"
+		label_angle "270"
+	]
+	node [
+		id 16
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "211.2"
+		y "157.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 17
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "201.8"
+		y "134.5"
+		label `<size "20.5">Southern tiger cat`
+		label_dx "-115.7"
+		label_dy "-95.4"
+		label_angle "247.5"
+	]
+	node [
+		id 18
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "390"
+		y "134.5"
+		label `<size "20.5">Guigna`
+		label_dx "-16.6"
+		label_dy "-51.2"
+		label_angle "292.5"
+	]
+	node [
+		id 19
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "156.8"
+		y "222.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 20
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "111.9"
+		y "238.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 21
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "68.7"
+		y "267.6"
+		label `<size "20.5">Eastern tiger cat Zoo`
+		label_dx "-192.3"
+		label_dy "-51.7"
+		label_angle "202.5"
+	]
+	node [
+		id 22
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "122"
+		y "187.8"
+		label `<size "20.5">Eastern tiger cat Brazil`
+		label_dx "-183.1"
+		label_dy "-91.4"
+		label_angle "225"
+	]
+	node [
+		id 23
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "182.3"
+		y "408.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 24
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "111.9"
+		y "484.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 25
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "122"
+		y "535.6"
+		label `<size "20.5">Andean tiger cat 32451`
+		label_dx "-188"
+		label_dy "70.6"
+		label_angle "135"
+	]
+	node [
+		id 26
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "68.7"
+		y "455.8"
+		label `<size "20.5">Andean tiger cat 32454`
+		label_dx "-213.2"
+		label_dy "32.9"
+		label_angle "157.5"
+	]
+	node [
+		id 27
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "50"
+		y "361.7"
+		label `<size "20.5">C Am tiger cat`
+		label_dx "-139.9"
+		label_dy "-11.5"
+		label_angle "180"
+	]
+	node [
+		id 28
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "479.9"
+		y "238.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 29
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "523.1"
+		y "267.6"
+		label `<size "20.5">Pampas cat Zoo`
+		label_dx "3.6"
+		label_dy "-43.8"
+		label_angle "337.5"
+	]
+	node [
+		id 30
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "469.8"
+		y "187.8"
+		label `<size "20.5">Pampas cat Chile`
+		label_dx "-16.5"
+		label_dy "-75.3"
+		label_angle "315"
+	]
+	node [
+		id 31
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "314.7"
+		y "407.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 32
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "479.9"
+		y "484.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 33
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "523.1"
+		y "455.8"
+		label `<size "20.5">Andean cat`
+		label_dx "5.3"
+		label_dy "12.2"
+		label_angle "22.5"
+	]
+	node [
+		id 34
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "469.8"
+		y "535.6"
+		label `<size "20.5">Margay`
+		label_dx "-2.9"
+		label_dy "19.8"
+		label_angle "45"
+	]
+	node [
+		id 35
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "541.8"
+		y "361.7"
+		label `<size "20.5">Puma`
+		label_dx "10"
+		label_dy "-11.5"
+		label_angle "360"
+	]
+	node [
+		id 36
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "239.4"
+		y "225.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 37
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "148.4"
+		y "361.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	edge [
+		source 6
+		target 7
+		path "M 295.9 558.4200000000001 A 196.72000000000003 196.72000000000003 0.0 0 0 371.1814848148604 543.4455816356203 L 390.00185601857555 588.8819770445255"
+		stroke_width "2.0"
+	]
+	edge [
+		source 8
+		target 9
+		path "M 252.72456083461066 578.7575904060391 A 221.3100000000001 221.3100000000001 0.0 0 0 295.9 583.0100000000001 L 295.9 607.6"
+		stroke_width "2.0"
+	]
+	edge [
+		source 8
+		target 10
+		path "M 252.72456083461066 578.7575904060391 A 221.3100000000001 221.3100000000001 0.0 0 1 211.20832958328197 566.163779340073 L 201.79814398142443 588.8819770445255"
+		stroke_width "2.0"
+	]
+	edge [
+		source 6
+		target 8
+		path "M 295.9 558.4200000000001 A 196.72000000000003 196.72000000000003 0.0 0 1 257.52183185298725 554.6400803609235 L 252.72456083461066 578.7575904060391"
+		stroke_width "2.0"
+	]
+	edge [
+		source 5
+		target 6
+		path "M 295.9 435.47 A 73.76999999999998 73.76999999999998 0.0 0 0 295.9 435.47 L 295.9 558.4200000000001"
+		stroke_width "2.0"
+	]
+	edge [
+		source 4
+		target 5
+		probability "0.32"
+		path "M 234.5624867004412 320.71558391014395 L 295.9 435.47"
+		stroke "0xcc3333ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "2.0"
+		arrow "1"
+		label "::0.32"
+	]
+	edge [
+		source 14
+		target 15
+		path "M 295.9 140.39000000000001 A 221.31000000000003 221.31000000000003 0.0 0 0 295.9 140.39000000000001 L 295.9 115.80000000000003"
+		stroke_width "2.0"
+	]
+	edge [
+		source 16
+		target 17
+		path "M 211.20832958328202 157.23622065992714 A 221.31 221.31 0.0 0 0 211.20832958328202 157.23622065992714 L 201.7981439814245 134.5180229554746"
+		stroke_width "2.0"
+	]
+	edge [
+		source 14
+		target 16
+		probability "0.33"
+		path "M 295.9 140.39000000000001 L 211.20832958328202 157.23622065992714"
+		stroke "0xcc3333ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "2.0"
+		arrow "1"
+		label "::0.33"
+	]
+	edge [
+		source 13
+		target 14
+		path "M 334.27816814701276 168.75991963907654 A 196.72000000000003 196.72000000000003 0.0 0 0 295.9 164.98000000000002 L 295.9 140.39000000000001"
+		stroke_width "2.0"
+	]
+	edge [
+		source 13
+		target 18
+		path "M 334.27816814701276 168.75991963907654 A 196.72000000000003 196.72000000000003 0.0 0 1 371.1814848148605 179.9544183643797 L 390.0018560185756 134.51802295547463"
+		stroke_width "2.0"
+	]
+	edge [
+		source 12
+		target 13
+		path "M 230.02870078699715 202.6726160688322 A 172.13000000000002 172.13000000000002 0.0 0 1 329.4808971286362 192.87742968419198 L 334.27816814701276 168.75991963907654"
+		stroke_width "2.0"
+	]
+	edge [
+		source 20
+		target 21
+		path "M 111.88746010132371 238.74675173043187 A 221.31 221.31 0.0 0 0 91.4362206599271 277.00832958328203 L 68.71802295547458 267.59814398142447"
+		stroke_width "2.0"
+	]
+	edge [
+		source 20
+		target 22
+		path "M 111.88746010132371 238.74675173043187 A 221.31 221.31 0.0 0 1 139.41019825560514 205.21019825560523 L 122.02244250622792 187.82244250622801"
+		stroke_width "2.0"
+	]
+	edge [
+		source 19
+		target 20
+		path "M 156.79795400498233 222.5979540049824 A 196.72000000000003 196.72000000000003 0.0 0 0 132.33329786784327 252.40822376038386 L 111.88746010132371 238.74675173043187"
+		stroke_width "2.0"
+	]
+	edge [
+		source 12
+		target 19
+		path "M 230.02870078699715 202.6726160688322 A 172.13000000000002 172.13000000000002 0.0 0 0 174.18570975435955 239.98570975435962 L 156.79795400498233 222.5979540049824"
+		stroke_width "2.0"
+	]
+	edge [
+		source 24
+		target 25
+		path "M 111.8874601013237 484.65324826956817 A 221.30999999999997 221.30999999999997 0.0 0 0 139.41019825560514 518.1898017443948 L 122.02244250622797 535.577557493772"
+		stroke_width "2.0"
+	]
+	edge [
+		source 24
+		target 26
+		path "M 111.8874601013237 484.65324826956817 A 221.30999999999997 221.30999999999997 0.0 0 1 91.43622065992716 446.3916704167181 L 68.71802295547458 455.8018560185757"
+		stroke_width "2.0"
+	]
+	edge [
+		source 23
+		target 24
+		path "M 182.30901147773727 408.75092800928786 A 122.95000000000002 122.95000000000002 0.0 0 0 193.670811167402 430.00736014976013 L 111.8874601013237 484.65324826956817"
+		stroke_width "2.0"
+	]
+	edge [
+		source 11
+		target 23
+		path "M 214.11664893392162 307.05411188019195 A 98.36000000000001 98.36000000000001 0.0 0 0 205.0272091821898 399.3407424074303 L 182.30901147773727 408.75092800928786"
+		stroke_width "2.0"
+	]
+	edge [
+		source 4
+		target 11
+		path "M 234.5624867004412 320.71558391014395 A 73.77000000000002 73.77000000000002 0.0 0 0 234.5624867004412 320.71558391014395 L 214.11664893392162 307.05411188019195"
+		stroke_width "2.0"
+	]
+	edge [
+		source 3
+		target 4
+		path "M 268.57705594009593 320.80832446696087 A 49.18000000000001 49.18000000000001 0.0 0 0 255.0083244669608 334.377055940096 L 234.5624867004412 320.71558391014395"
+		stroke_width "2.0"
+	]
+	edge [
+		source 28
+		target 30
+		path "M 479.9125398986763 238.74675173043187 A 221.31000000000006 221.31000000000006 0.0 0 0 452.38980174439484 205.21019825560515 L 469.777557493772 187.82244250622796"
+		stroke_width "2.0"
+	]
+	edge [
+		source 3
+		target 28
+		path "M 268.57705594009593 320.80832446696087 A 49.18000000000001 49.18000000000001 0.0 0 1 336.79167553303915 334.377055940096 L 479.9125398986763 238.74675173043187"
+		stroke_width "2.0"
+	]
+	edge [
+		source 2
+		target 3
+		path "M 271.31 361.70000000000005 A 24.589999999999975 24.589999999999975 0.0 0 1 282.238527970048 341.2541622334805 L 268.57705594009593 320.80832446696087"
+		stroke_width "2.0"
+	]
+	edge [
+		source 32
+		target 33
+		path "M 479.9125398986763 484.65324826956817 A 221.31 221.31 0.0 0 0 500.3637793400728 446.39167041671806 L 523.0819770445254 455.8018560185756"
+		stroke_width "2.0"
+	]
+	edge [
+		source 32
+		target 34
+		path "M 479.9125398986763 484.65324826956817 A 221.31 221.31 0.0 0 1 452.38980174439484 518.1898017443948 L 469.777557493772 535.577557493772"
+		stroke_width "2.0"
+	]
+	edge [
+		source 31
+		target 32
+		path "M 314.7203712037151 407.1363954089051 A 49.17999999999999 49.17999999999999 0.0 0 0 336.79167553303915 389.0229440599041 L 479.9125398986763 484.65324826956817"
+		stroke_width "2.0"
+	]
+	edge [
+		source 2
+		target 31
+		path "M 271.31 361.70000000000005 A 24.589999999999975 24.589999999999975 0.0 0 0 305.31018560185754 384.41819770445255 L 314.7203712037151 407.1363954089051"
+		stroke_width "2.0"
+	]
+	edge [
+		source 1
+		target 2
+		path "M 295.9 361.70000000000005 A 0.0 0.0 0.0 0 1 295.9 361.70000000000005 L 271.31 361.70000000000005"
+		stroke_width "2.0"
+	]
+	edge [
+		source 1
+		target 35
+		path "M 295.9 361.70000000000005 A 0.0 0.0 0.0 0 1 295.9 361.70000000000005 L 541.8 361.7"
+		stroke_width "2.0"
+	]
+	edge [
+		source 31
+		target 5
+		probability "0.68"
+		path "M 314.7203712037151 407.1363954089051 A 49.17999999999999 49.17999999999999 0.0 0 1 295.9 410.88000000000005 L 295.9 435.47"
+		stroke "0xcccc33ff"
+		stroke_width "3.0"
+		label "::0.68"
+		acceptor "1"
+	]
+	edge [
+		source 19
+		target 16
+		probability "0.67"
+		path "M 156.79795400498233 222.5979540049824 A 196.72000000000003 196.72000000000003 0.0 0 1 220.6185151851396 179.95441836437968 L 211.20832958328202 157.23622065992714"
+		stroke "0xcccc33ff"
+		stroke_width "3.0"
+		label "::0.67"
+		acceptor "1"
+	]
+	edge [
+		source 28
+		target 29
+		path "M 479.9125398986763 238.74675173043187 A 221.31000000000006 221.31000000000006 0.0 0 1 500.36377934007294 277.00832958328203 L 523.0819770445254 267.59814398142447"
+		stroke_width "2.0"
+	]
+	edge [
+		source 11
+		target 36
+		path "M 214.11664893392162 307.05411188019195 A 98.36000000000001 98.36000000000001 0.0 0 1 258.2592575925698 270.82720918218985 L 239.43888638885468 225.39081377328478"
+		stroke_width "2.0"
+	]
+	edge [
+		source 36
+		target 12
+		path "M 239.43888638885468 225.39081377328478 A 147.54 147.54 0.0 0 0 239.4388863888547 225.39081377328478 L 230.02870078699715 202.6726160688322"
+		stroke_width "2.0"
+	]
+	edge [
+		source 23
+		target 37
+		probability "0.998"
+		path "M 182.30901147773727 408.75092800928786 A 122.95000000000002 122.95000000000002 0.0 0 1 172.94999999999996 361.70000000000005 L 148.35999999999999 361.70000000000005"
+		stroke "0xcccc33ff"
+		stroke_width "3.0"
+		label "::0.998"
+		acceptor "1"
+	]
+	edge [
+		source 37
+		target 27
+		path "M 148.35999999999999 361.70000000000005 A 147.54 147.54 0.0 0 0 148.35999999999999 361.70000000000005 L 50.0 361.70000000000005"
+		stroke_width "2.0"
+	]
+	edge [
+		source 36
+		target 37
+		probability "0.002"
+		path "M 239.43888638885468 225.39081377328478 L 148.35999999999999 361.70000000000005"
+		stroke "0xcc3333ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "2.0"
+		arrow "1"
+		label "::0.002"
+	]
+]

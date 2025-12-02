@@ -1,0 +1,2203 @@
+graph [
+	comment "Created by PhyloSketch App on 2025-12-02 08:54:07"
+	directed 1
+	id 1
+	node [
+		id 1
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "445.9"
+		y "488.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 2
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "608.5"
+		y "319.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 3
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "549"
+		y "246"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 4
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "754.3"
+		y "395.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 5
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "425.6"
+		y "509.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 6
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "500.6"
+		y "509.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 7
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "394.9"
+		y "516.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 8
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "434.7"
+		y "181.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 9
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "774"
+		y "362.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 10
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "885"
+		y "488.3"
+		label `<size "22.6"><i>ceralbensis`
+		label_dx "10"
+		label_dy "-12.6"
+		label_angle "360"
+	]
+	node [
+		id 11
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "358.3"
+		y "494.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 12
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "593.1"
+		y "202.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 13
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "431.5"
+		y "93.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 14
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "790.5"
+		y "326.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 15
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "880.3"
+		y "424.4"
+		label `<size "22.6"><i>carmenensis`
+		label_dx "9.2"
+		label_dy "-23.4"
+		label_angle "351.6"
+	]
+	node [
+		id 16
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "525.4"
+		y "525.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 17
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "566.4"
+		y "722.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 18
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "392.4"
+		y "384.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 19
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "812.1"
+		y "246.2"
+		label `<size "22.6"><i>hyperythrus`
+		label_dx "-1.4"
+		label_dy "-50.7"
+		label_angle "326.5"
+	]
+	node [
+		id 20
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "843.5"
+		y "302.1"
+		label `<size "22.6"><i>danheimae`
+		label_dx "3.8"
+		label_dy "-40.6"
+		label_angle "334.9"
+	]
+	node [
+		id 21
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "775.5"
+		y "706.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 22
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "555.3"
+		y "530.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 23
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "388.7"
+		y "353.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 24
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "360.8"
+		y "369.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 25
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "353.2"
+		y "559.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 26
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "674.7"
+		y "113.7"
+		label `<size "22.6"><i>d.infernalis`
+		label_dx "-21"
+		label_dy "-67.8"
+		label_angle "301.4"
+	]
+	node [
+		id 27
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "828.7"
+		y "634.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 28
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "880.3"
+		y "552.2"
+		label `<size "22.6"><i>tigris`
+		label_dx "9.6"
+		label_dy "-7.7"
+		label_angle "8.4"
+	]
+	node [
+		id 29
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "330.1"
+		y "577.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 30
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "306.9"
+		y "595.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 31
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "617.6"
+		y "84.5"
+		label `<size "22.6"><i>lineattissimus`
+		label_dx "-37.4"
+		label_dy "-84.2"
+		label_angle "293"
+	]
+	node [
+		id 32
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "812.1"
+		y "730.4"
+		label `<size "22.6"><i>marmoratus`
+		label_dx "-1.7"
+		label_dy "26.1"
+		label_angle "33.5"
+	]
+	node [
+		id 33
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "245.1"
+		y "878.5"
+		label `<size "22.6"><i>laredeoensis`
+		label_dx "-98"
+		label_dy "53.2"
+		label_angle "117.2"
+	]
+	node [
+		id 34
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "429.9"
+		y "49.8"
+		label `<size "22.6"><i>deppii`
+		label_dx "-31.6"
+		label_dy "-52.8"
+		label_angle "267.9"
+	]
+	node [
+		id 35
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "636.5"
+		y "800.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 36
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "241.6"
+		y "503.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 37
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "866.4"
+		y "614.7"
+		label `<size "22.6"><i>t.aethiops`
+		label_dx "7.5"
+		label_dy "4.4"
+		label_angle "16.7"
+	]
+	node [
+		id 38
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "843.5"
+		y "674.5"
+		label `<size "22.6"><i>martyris`
+		label_dx "5.3"
+		label_dy "8.7"
+		label_angle "25.1"
+	]
+	node [
+		id 39
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "379.8"
+		y "682.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 40
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "190.4"
+		y "131.4"
+		label `<size "22.6"><i>sackii`
+		label_dx "-50.5"
+		label_dy "-43.7"
+		label_angle "234.4"
+	]
+	node [
+		id 41
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "304.1"
+		y "73"
+		label `<size "22.6"><i>angusticeps`
+		label_dx "-83"
+		label_dy "-79.2"
+		label_angle "251.2"
+	]
+	node [
+		id 42
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "245.1"
+		y "98.1"
+		label `<size "22.6"><i>motaguae`
+		label_dx "-77.8"
+		label_dy "-66.2"
+		label_angle "242.8"
+	]
+	node [
+		id 43
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "212.4"
+		y "505.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 44
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "183.2"
+		y "507.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 45
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "254.5"
+		y "380.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 46
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "98.4"
+		y "220.1"
+		label `<size "22.6"><i>costatus`
+		label_dx "-83.3"
+		label_dy "-44.4"
+		label_angle "217.7"
+	]
+	node [
+		id 47
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "35.8"
+		y "331.5"
+		label `<size "22.6"><i>c.zweifeli`
+		label_dx "-98"
+		label_dy "-32.6"
+		label_angle "200.9"
+	]
+	node [
+		id 48
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "360.9"
+		y "737.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 49
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "275.6"
+		y "726.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 50
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "154"
+		y "509.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 51
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "366.2"
+		y "919.8"
+		label `<size "22.6"><i>s.colossus`
+		label_dx "-64.2"
+		label_dy "49.1"
+		label_angle "100.5"
+	]
+	node [
+		id 52
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "493.9"
+		y "924.5"
+		label `<size "22.6"><i>neotesselatus`
+		label_dx "-61"
+		label_dy "66.6"
+		label_angle "83.7"
+	]
+	node [
+		id 53
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "726.8"
+		y "825.6"
+		label `<size "22.6"><i>labialis`
+		label_dx "-6"
+		label_dy "21.6"
+		label_angle "50.2"
+	]
+	node [
+		id 54
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "674.7"
+		y "862.9"
+		label `<size "22.6"><i>arizonae`
+		label_dx "-15.5"
+		label_dy "32.9"
+		label_angle "58.6"
+	]
+	node [
+		id 55
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "98.4"
+		y "756.5"
+		label `<size "22.6"><i>opatae`
+		label_dx "-69.8"
+		label_dy "14.6"
+		label_angle "142.3"
+	]
+	node [
+		id 56
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "617.6"
+		y "892.1"
+		label `<size "22.6"><i>inornatus`
+		label_dx "-24.4"
+		label_dy "39.4"
+		label_angle "67"
+	]
+	node [
+		id 57
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "557"
+		y "912.8"
+		label `<size "22.6"><i>sexlineatus`
+		label_dx "-39.7"
+		label_dy "51.7"
+		label_angle "75.3"
+	]
+	node [
+		id 58
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "8"
+		y "520.3"
+		label `<size "22.6"><i>burti`
+		label_dx "-53.9"
+		label_dy "-10.3"
+		label_angle "175.8"
+	]
+	node [
+		id 59
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "190.4"
+		y "845.2"
+		label `<size "22.6"><i>gularis`
+		label_dx "-58.5"
+		label_dy "22.6"
+		label_angle "125.6"
+	]
+	node [
+		id 60
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "866.4"
+		y "361.9"
+		label `<size "22.6"><i>pictus`
+		label_dx "8.3"
+		label_dy "-24"
+		label_angle "343.3"
+	]
+	node [
+		id 61
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "772.9"
+		y "195.5"
+		label `<size "22.6"><i>cf.d.infernalis`
+		label_dx "-9.5"
+		label_dy "-63.7"
+		label_angle "318.2"
+	]
+	node [
+		id 62
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "726.8"
+		y "151"
+		label `<size "22.6"><i>l. exoristus`
+		label_dx "-13"
+		label_dy "-61.8"
+		label_angle "309.8"
+	]
+	node [
+		id 63
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "557"
+		y "63.8"
+		label `<size "22.6"><i>guttatus`
+		label_dx "-27.5"
+		label_dy "-61.2"
+		label_angle "284.7"
+	]
+	node [
+		id 64
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "141.2"
+		y "172.4"
+		label `<size "22.6"><i>parvisocius`
+		label_dx "-102.7"
+		label_dy "-60.5"
+		label_angle "226"
+	]
+	node [
+		id 65
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "63"
+		y "273.5"
+		label `<size "22.6"><i>mexicanus`
+		label_dx "-109.8"
+		label_dy "-43.9"
+		label_angle "209.3"
+	]
+	node [
+		id 66
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "141.2"
+		y "804.2"
+		label `<size "22.6"><i>exsanguis`
+		label_dx "-93.2"
+		label_dy "31.2"
+		label_angle "134"
+	]
+	node [
+		id 67
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "17.3"
+		y "392.9"
+		label `<size "22.6"><i>communis`
+		label_dx "-111.5"
+		label_dy "-26"
+		label_angle "192.6"
+	]
+	node [
+		id 68
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "8"
+		y "456.3"
+		label `<size "22.6"><i>calidipes`
+		label_dx "-97.8"
+		label_dy "-16.6"
+		label_angle "184.2"
+	]
+	node [
+		id 69
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "772.9"
+		y "781.1"
+		label `<size "22.6"><i>neomexicanus`
+		label_dx "-11.1"
+		label_dy "42.7"
+		label_angle "41.8"
+	]
+	node [
+		id 70
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "738.9"
+		y "682"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 71
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "431.5"
+		y "882.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 72
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "429.9"
+		y "926.8"
+		label `<size "22.6"><i>tesselatus`
+		label_dx "-53.1"
+		label_dy "48.2"
+		label_angle "92.1"
+	]
+	node [
+		id 73
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "851.4"
+		y "547.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 74
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "538.5"
+		y "842.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 75
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "651.8"
+		y "825.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 76
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "560.4"
+		y "757.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 77
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "177.9"
+		y "638.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 78
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "45.9"
+		y "399.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 79
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "76.8"
+		y "347.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 80
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "370.3"
+		y "709.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 81
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "63.1"
+		y "634.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 82
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "35.8"
+		y "645.1"
+		label `<size "22.6"><i>C occidentalis`
+		label_dx "-145.4"
+		label_dy "16.1"
+		label_angle "159.1"
+	]
+	node [
+		id 83
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "341.9"
+		y "792.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 84
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "318.3"
+		y "862.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 85
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "304.1"
+		y "903.6"
+		label `<size "22.6"><i>scalaris<i>`
+		label_dx "-53.9"
+		label_dy "33.1"
+		label_angle "108.8"
+	]
+	node [
+		id 86
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "390.1"
+		y "790.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 87
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "332.5"
+		y "820.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 88
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "432.6"
+		y "853.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 89
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "51.8"
+		y "517.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 90
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "17.3"
+		y "583.7"
+		label `<size "22.6"><i>sonorae`
+		label_dx "-90.5"
+		label_dy "-1.6"
+		label_angle "167.4"
+	]
+	node [
+		id 91
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "63"
+		y "703.1"
+		label `<size "22.6"><i>preopatae`
+		label_dx "-104"
+		label_dy "17.2"
+		label_angle "150.7"
+	]
+	node [
+		id 92
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "258.5"
+		y "852.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 93
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "37.2"
+		y "458.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 94
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "214.2"
+		y "309.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 95
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "104.2"
+		y "357.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 96
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "161.5"
+		y "193.5"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 97
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "301.1"
+		y "286.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 98
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "237.4"
+		y "327.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 99
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "352.2"
+		y "306.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 100
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "228.9"
+		y "366.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 101
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "265.2"
+		y "137.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 102
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "490.7"
+		y "81.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 103
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "493.9"
+		y "52.1"
+		label `<size "22.6">sp.G<i>`
+		label_dx "-20.2"
+		label_dy "-46.3"
+		label_angle "276.3"
+	]
+	node [
+		id 104
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "366.2"
+		y "56.8"
+		label `<size "22.6"><i>comzumelus`
+		label_dx "-76.8"
+		label_dy "-84.8"
+		label_angle "259.5"
+	]
+	node [
+		id 105
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "389.2"
+		y "322.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 106
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "371.5"
+		y "85.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 107
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "527.4"
+		y "177"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 108
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "579.8"
+		y "228.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 109
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "545.9"
+		y "106.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 110
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "534.8"
+		y "148.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 111
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "680"
+		y "207.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 112
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "628.9"
+		y "188.7"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 113
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "698.7"
+		y "184.8"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 114
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "751.1"
+		y "215"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 115
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "651.8"
+		y "151.2"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 116
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "828.7"
+		y "342"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 117
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "101.3"
+		y "681.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 118
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "161.5"
+		y "783.1"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 119
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "126.8"
+		y "667.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 120
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "45.9"
+		y "577.3"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 121
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "152.4"
+		y "652.9"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 122
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "121.5"
+		y "738.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 123
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "545.9"
+		y "870.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 124
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "490.7"
+		y "895.4"
+		label_dx "0"
+		label_dy "0"
+	]
+	node [
+		id 125
+		shape "Circle"
+		size "1.5,1.5"
+		stroke "null"
+		x "751.1"
+		y "761.6"
+		label_dx "0"
+		label_dy "0"
+	]
+	edge [
+		source 2
+		target 3
+		path "M 608.4519425702898 319.8261766846667 A 234.0980718610169 234.0980718610169 0.0 0 0 537.5229485359444 272.8707383155348 L 548.9514108053424 245.99526510416968"
+	]
+	edge [
+		source 2
+		target 4
+		path "M 608.4519425702898 319.8261766846667 A 234.0980718610169 234.0980718610169 0.0 0 1 670.0991863186844 420.8978201293914 L 754.2580416815138 395.595084712131"
+	]
+	edge [
+		source 5
+		target 6
+		path "M 425.5971194082671 509.3592279144167 A 29.262258982627152 29.262258982627152 0.0 0 0 473.2480697081209 498.7472980239662 L 500.59606816618884 509.20004285469213"
+	]
+	edge [
+		source 5
+		target 7
+		path "M 425.5971194082671 509.3592279144167 A 29.262258982627152 29.262258982627152 0.0 0 1 420.3921088708747 502.6142040884421 L 394.8604012298023 516.9337332104657"
+	]
+	edge [
+		source 3
+		target 8
+		path "M 548.9514108053424 245.99526510416968 A 263.30253744725667 263.30253744725667 0.0 0 0 436.29156936895197 225.17335965677017 L 434.68891390201793 181.34999999999997"
+	]
+	edge [
+		source 4
+		target 9
+		path "M 754.2580416815138 395.595084712131 A 321.9783390179704 321.9783390179704 0.0 0 0 746.6728757651798 373.3463435861386 L 774.0047990880078 362.8997428718474"
+	]
+	edge [
+		source 4
+		target 10
+		path "M 754.2580416815138 395.595084712131 A 321.9783390179704 321.9783390179704 0.0 0 1 767.8926609997957 488.29999999999995 L 885.0 488.2999999999999"
+	]
+	edge [
+		source 7
+		target 11
+		path "M 394.8604012298023 516.9337332104657 A 58.53540383154421 58.53540383154421 0.0 0 1 387.5348665452229 492.5699747830312 L 358.33145758546016 494.7059628443134"
+	]
+	edge [
+		source 8
+		target 13
+		path "M 434.68891390201793 181.34999999999997 A 307.1551925111445 307.1551925111445 0.0 0 0 434.6889139020179 181.3499999999999 L 431.4816544506444 93.65"
+	]
+	edge [
+		source 9
+		target 14
+		path "M 774.0047990880078 362.8997428718474 A 351.2386448777658 351.2386448777658 0.0 0 0 763.9809539225814 339.2959621304417 L 790.4744281491929 326.8846173349478"
+	]
+	edge [
+		source 9
+		target 15
+		path "M 774.0047990880078 362.8997428718474 A 351.2386448777658 351.2386448777658 0.0 0 1 793.4148591427058 437.1926391948414 L 880.3208255458695 424.41126447417093"
+	]
+	edge [
+		source 6
+		target 16
+		path "M 500.59606816618884 509.20004285469213 A 58.5397741462942 58.5397741462942 0.0 0 1 498.9254273052845 513.134006311593 L 525.428192635833 525.5497036919351"
+	]
+	edge [
+		source 11
+		target 18
+		path "M 358.33145758546016 494.7059628443134 A 87.81682353532716 87.81682353532716 0.0 0 1 405.73955602871683 410.21169949059106 L 392.3760405026725 384.23683214530513"
+	]
+	edge [
+		source 14
+		target 19
+		path "M 790.4744281491929 326.8846173349478 A 380.49519382374984 380.49519382374984 0.0 0 0 763.3109356832848 278.45247884757043 L 812.1108193156804 246.1883204705772"
+	]
+	edge [
+		source 16
+		target 22
+		path "M 525.428192635833 525.5497036919351 A 87.80658319009602 87.80658319009602 0.0 0 0 527.9340660846642 519.6489653549213 L 555.2778143505527 530.1000857093843"
+	]
+	edge [
+		source 18
+		target 23
+		path "M 392.3760405026725 384.23683214530513 A 117.02773383986971 117.02773383986971 0.0 0 1 400.1183447634551 380.60497245318186 L 388.6714948576489 353.68625839120534"
+	]
+	edge [
+		source 18
+		target 24
+		path "M 392.3760405026725 384.23683214530513 A 117.02773383986971 117.02773383986971 0.0 0 0 377.7906333928539 393.14405672408975 L 360.752349832264 369.3447883991969"
+	]
+	edge [
+		source 22
+		target 27
+		path "M 555.2778143505527 530.1000857093843 A 117.07954829258864 117.07954829258864 0.0 0 0 555.2778143505527 530.1000857093843 L 828.6865452723714 634.600299982845"
+	]
+	edge [
+		source 29
+		target 30
+		path "M 330.069397891504 577.6928631383006 A 146.32542642191484 146.32542642191484 0.0 0 1 330.069397891504 577.6928631383006 L 306.9004130734398 595.5714357659607"
+	]
+	edge [
+		source 21
+		target 32
+		path "M 775.4911695822949 706.2005115764803 A 395.0968633380364 395.0968633380364 0.0 0 1 775.4911695822949 706.2005115764803 L 812.1108193156805 730.4116795294226"
+	]
+	edge [
+		source 30
+		target 36
+		path "M 306.9004130734398 595.5714357659607 A 175.5905117062978 175.5905117062978 0.0 0 1 270.79161363341353 501.1087790985974 L 241.55430505697345 503.2472466367312"
+	]
+	edge [
+		source 27
+		target 37
+		path "M 828.6865452723714 634.600299982845 A 409.7784190240601 409.7784190240601 0.0 0 0 838.3401055295943 606.2845629935443 L 866.3830306632185 614.7157935743672"
+	]
+	edge [
+		source 27
+		target 38
+		path "M 828.6865452723714 634.600299982845 A 409.7784190240601 409.7784190240601 0.0 0 1 816.9920592460408 662.1380441811515 L 843.4836752518647 674.5485184596757"
+	]
+	edge [
+		source 30
+		target 39
+		path "M 306.9004130734398 595.5714357659607 A 175.5905117062978 175.5905117062978 0.0 0 0 389.1856866408501 654.4742751861136 L 379.753979972827 682.1024211816282"
+	]
+	edge [
+		source 36
+		target 43
+		path "M 241.55430505697345 503.2472466367312 A 204.90592158243 204.90592158243 0.0 0 0 241.55430505697345 503.2472466367312 L 212.36001692485175 505.3825675848356"
+	]
+	edge [
+		source 43
+		target 44
+		path "M 212.36001692485175 505.3825675848356 A 234.17819609420576 234.17819609420576 0.0 0 0 212.36001692485178 505.38256758483567 L 183.16572879273008 507.5178885329401"
+	]
+	edge [
+		source 48
+		target 49
+		path "M 360.8510251131133 737.4745415192364 A 263.2939737546157 263.2939737546157 0.0 0 1 292.6467495279742 702.3858889548767 L 275.59037768270275 726.2104232016062"
+	]
+	edge [
+		source 1
+		target 5
+		path "M 445.9143219818252 488.3 A 0.0 0.0 0.0 0 1 445.9143219818252 488.3 L 425.5971194082671 509.3592279144167"
+	]
+	edge [
+		source 1
+		target 2
+		path "M 445.9143219818252 488.3 A 0.0 0.0 0.0 0 1 445.9143219818252 488.3 L 608.4519425702898 319.8261766846667"
+	]
+	edge [
+		source 7
+		target 17
+		path "M 394.8604012298023 516.9337332104657 A 58.53540383154421 58.53540383154421 0.0 0 0 472.6933155075583 540.3507349368931 L 566.3754553099188 722.4421276730634"
+	]
+	edge [
+		source 11
+		target 25
+		path "M 358.33145758546016 494.7059628443134 A 87.81682353532716 87.81682353532716 0.0 0 0 376.39029252866726 541.9488939721148 L 353.2383827095682 559.8142905106405"
+	]
+	edge [
+		source 17
+		target 53
+		path "M 566.3754553099188 722.4421276730634 A 263.3124011397068 263.3124011397068 0.0 0 0 614.4145691437933 690.6390404749255 L 726.7855843629454 825.5767855500463"
+	]
+	edge [
+		source 16
+		target 70
+		path "M 525.428192635833 525.5497036919351 A 87.80658319009602 87.80658319009602 0.0 0 1 519.1596943744697 536.726351035176 L 738.8715198489095 681.989343623538"
+	]
+	edge [
+		source 70
+		target 21
+		path "M 738.8715198489095 681.989343623538 A 351.19721185603254 351.19721185603254 0.0 0 1 738.8715198489094 681.9893436235382 L 775.4911695822949 706.2005115764803"
+	]
+	edge [
+		source 71
+		target 72
+		path "M 431.4816544506443 882.9499999999999 A 394.9138189428999 394.9138189428999 0.0 0 0 431.4816544506443 882.9499999999999 L 429.8780247249576 926.8"
+	]
+	edge [
+		source 6
+		target 73
+		path "M 500.59606816618884 509.20004285469213 Q 503.8310781753052 496.8178934675264 851.3603919749332 547.9294864907737"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 73
+		target 28
+		path "M 851.3603919749332 547.9294864907737 A 409.80750521679033 409.80750521679033 0.0 0 1 851.3603919749332 547.9294864907737 L 880.3208255458695 552.188735525829"
+	]
+	edge [
+		source 22
+		target 73
+		path "M 555.2778143505527 530.1000857093843 Q 561.7478343687854 505.33578693505285 851.3603919749332 547.9294864907737"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 35
+		target 75
+		path "M 636.5288574902933 800.4253762391779 A 365.7268812099507 365.7268812099507 0.0 0 0 636.5288574902933 800.4253762391779 L 651.7780203309707 825.3954063383121"
+	]
+	edge [
+		source 75
+		target 54
+		path "M 651.7780203309707 825.3954063383121 A 394.9850317067467 394.9850317067467 0.0 0 0 651.7780203309707 825.3954063383121 L 674.6517645919869 862.8504514870135"
+	]
+	edge [
+		source 17
+		target 76
+		path "M 566.3754553099188 722.4421276730634 A 263.3124011397068 263.3124011397068 0.0 0 1 548.9552707231578 730.6138119803408 L 560.3999762301778 757.5274832175893"
+	]
+	edge [
+		source 76
+		target 74
+		path "M 560.3999762301778 757.5274832175893 A 292.5583749413964 292.5583749413964 0.0 0 1 519.9583386125838 771.3333661417582 L 538.4638433992263 842.0706863230092"
+	]
+	edge [
+		source 76
+		target 77
+		path "M 560.3999762301778 757.5274832175893 Q 190.74819837254978 631.4106289224062 177.88123803370493 638.6270993549444"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 78
+		target 67
+		path "M 45.90544605425131 399.25366940240576 A 409.80037800584967 409.80037800584967 0.0 0 0 45.90544605425134 399.2536694024057 L 17.333383487995995 392.89321721686326"
+	]
+	edge [
+		source 79
+		target 47
+		path "M 76.81253523736993 347.224710730828 A 395.14347548748657 395.14347548748657 0.0 0 0 76.81253523736996 347.22471073082795 L 35.80122559909714 331.5496785898088"
+	]
+	edge [
+		source 79
+		target 78
+		path "M 76.81253523736993 347.224710730828 Q 60.21214613461757 402.4384965944594 45.90544605425131 399.25366940240576"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 39
+		target 80
+		path "M 379.753979972827 682.1024211816282 A 204.78420180914546 204.78420180914546 0.0 0 0 379.75397997282704 682.1024211816282 L 370.3025025429701 709.7884813504323"
+	]
+	edge [
+		source 80
+		target 48
+		path "M 370.3025025429701 709.7884813504323 A 234.03908778188065 234.03908778188065 0.0 0 0 370.30250254297016 709.7884813504323 L 360.8510251131133 737.4745415192364"
+	]
+	edge [
+		source 80
+		target 81
+		path "M 370.3025025429701 709.7884813504323 Q 227.29943694098594 571.8573255217965 63.14209869127891 634.6002999828448"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 44
+		target 81
+		path "M 183.16572879273008 507.5178885329401 Q 199.8263932886567 582.3578641795524 63.14209869127891 634.6002999828448"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 81
+		target 82
+		path "M 63.14209869127891 634.6002999828448 A 409.7784190240601 409.7784190240601 0.0 0 1 63.14209869127893 634.6002999828447 L 35.80122559909704 645.0503214101908"
+	]
+	edge [
+		source 48
+		target 83
+		path "M 360.8510251131133 737.4745415192364 Q 360.8510251131133 737.4745415192364 341.94807025339946 792.8466618568444"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 84
+		target 85
+		path "M 318.3193766787573 862.0618122788545 A 394.94096063192353 394.94096063192353 0.0 0 0 318.3193766787573 862.0618122788545 L 304.14216053397195 903.5909025320607"
+	]
+	edge [
+		source 48
+		target 86
+		path "M 360.8510251131133 737.4745415192364 A 263.2939737546157 263.2939737546157 0.0 0 0 398.05956097881904 747.2085523207788 L 390.0864240760507 790.3456047202557"
+	]
+	edge [
+		source 86
+		target 51
+		path "M 390.0864240760507 790.3456047202557 A 307.16168627516436 307.16168627516436 0.0 0 0 390.0864240760508 790.3456047202557 L 366.16018211643313 919.7937210289366"
+	]
+	edge [
+		source 86
+		target 83
+		path "M 390.0864240760507 790.3456047202557 Q 346.67853115180276 778.9897991566655 341.94807025339946 792.8466618568444"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 83
+		target 87
+		path "M 341.94807025339946 792.8466618568444 A 321.80374570008587 321.80374570008587 0.0 0 0 341.94807025339946 792.8466618568444 L 332.4965928235426 820.5327220256485"
+	]
+	edge [
+		source 87
+		target 84
+		path "M 332.4965928235426 820.5327220256485 A 351.0586316728209 351.0586316728209 0.0 0 0 332.49659282354264 820.5327220256485 L 318.3193766787573 862.0618122788545"
+	]
+	edge [
+		source 70
+		target 88
+		path "M 738.8715198489095 681.989343623538 Q 433.07933785753283 839.2625974345133 432.5507409344355 853.7166666666666"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 88
+		target 71
+		path "M 432.5507409344355 853.7166666666666 A 365.6609434656481 365.6609434656481 0.0 0 0 432.5507409344355 853.7166666666666 L 431.4816544506443 882.9499999999999"
+	]
+	edge [
+		source 87
+		target 88
+		path "M 332.4965928235426 820.5327220256485 Q 433.08440246052913 839.1241098286582 432.5507409344355 853.7166666666666"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 50
+		target 89
+		path "M 153.97144066060844 509.65320948104454 A 292.72274511775714 292.72274511775714 0.0 0 0 153.97144066060844 509.6532094810446 L 51.791432198182534 517.1268327994102"
+	]
+	edge [
+		source 43
+		target 78
+		path "M 212.36001692485175 505.3825675848356 Q 217.3314264700668 437.41495892310957 45.90544605425131 399.25366940240576"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 44
+		target 50
+		path "M 183.16572879273008 507.5178885329401 A 263.4504706059815 263.4504706059815 0.0 0 0 183.16572879273008 507.5178885329401 L 153.97144066060844 509.65320948104454"
+	]
+	edge [
+		source 50
+		target 77
+		path "M 153.97144066060844 509.65320948104454 Q 190.60483655374236 631.4910337965439 177.88123803370493 638.6270993549444"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 74
+		target 92
+		path "M 538.4638433992263 842.0706863230092 Q 278.62340025927733 813.4658960058132 258.53033680479075 852.521087491432"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 92
+		target 33
+		path "M 258.53033680479075 852.521087491432 A 409.59706843954393 409.59706843954393 0.0 0 0 258.5303368047907 852.521087491432 L 245.1457664350025 878.5368794551057"
+	]
+	edge [
+		source 49
+		target 92
+		path "M 275.59037768270275 726.2104232016062 Q 312.0570476415421 748.4804096694602 258.53033680479075 852.521087491432"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 25
+		target 93
+		path "M 353.2383827095682 559.8142905106405 Q 329.1658497495507 479.7608139342684 37.19428813212167 458.4055067265376"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 93
+		target 68
+		path "M 37.19428813212167 458.4055067265376 A 409.81184316486014 409.81184316486014 0.0 0 0 37.19428813212164 458.40550672653757 L 8.0 456.27018577843313"
+	]
+	edge [
+		source 36
+		target 93
+		path "M 241.55430505697345 503.2472466367312 Q 241.55430505697348 473.3527533632688 37.19428813212167 458.4055067265376"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 94
+		target 46
+		path "M 214.22447380118294 309.5142737233986 A 292.65085284382974 292.65085284382974 0.0 0 0 214.22447380118294 309.5142737233986 L 98.37954971086178 220.12141058509792"
+	]
+	edge [
+		source 43
+		target 95
+		path "M 212.36001692485175 505.3825675848356 Q 227.16949647678655 404.6930096181756 104.1534083295518 357.6747321581741"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 95
+		target 79
+		path "M 104.1534083295518 357.6747321581741 A 365.8735884143394 365.8735884143394 0.0 0 0 104.1534083295519 357.6747321581741 L 76.81253523736993 347.224710730828"
+	]
+	edge [
+		source 94
+		target 95
+		path "M 214.22447380118294 309.5142737233986 Q 172.55044435817217 383.81692921443516 104.1534083295518 357.6747321581741"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 25
+		target 29
+		path "M 353.2383827095682 559.8142905106405 A 117.06034113753192 117.06034113753192 0.0 0 0 353.2383827095682 559.8142905106405 L 330.069397891504 577.6928631383006"
+	]
+	edge [
+		source 29
+		target 96
+		path "M 330.069397891504 577.6928631383006 Q 344.318497406514 382.99369037698733 161.4734859520123 193.47080919816642"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 24
+		target 96
+		path "M 360.752349832264 369.3447883991969 Q 344.33801677393944 383.0139226312 161.4734859520123 193.47080919816642"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 96
+		target 64
+		path "M 161.4734859520123 193.47080919816642 A 409.67162575677963 409.67162575677963 0.0 0 0 161.4734859520123 193.47080919816648 L 141.1562833784542 172.41158128374974"
+	]
+	edge [
+		source 89
+		target 58
+		path "M 51.791432198182534 517.1268327994102 A 395.17570590897225 395.17570590897225 0.0 0 1 51.79143219818252 517.1268327994101 L 8.0 520.3298142215667"
+	]
+	edge [
+		source 24
+		target 97
+		path "M 360.752349832264 369.3447883991969 A 146.29731326102504 146.29731326102504 0.0 0 0 360.752349832264 369.3447883991969 L 301.1389693275711 286.0761402786347"
+	]
+	edge [
+		source 97
+		target 40
+		path "M 301.1389693275711 286.0761402786347 A 248.70543254374257 248.70543254374257 0.0 0 1 301.1389693275711 286.0761402786346 L 190.42840553314156 131.43436519759058"
+	]
+	edge [
+		source 97
+		target 98
+		path "M 301.1389693275711 286.0761402786347 Q 249.01578795120548 336.36132989471383 237.39345861924716 327.3928463510588"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 98
+		target 94
+		path "M 237.39345861924716 327.3928463510588 A 263.3857675594468 263.3857675594468 0.0 0 0 237.39345861924716 327.3928463510588 L 214.22447380118294 309.5142737233986"
+	]
+	edge [
+		source 23
+		target 99
+		path "M 388.6714948576489 353.68625839120534 A 146.2791874706982 146.2791874706982 0.0 0 0 378.99397706543164 358.2259129443586 L 352.22232939330803 306.189456254284"
+	]
+	edge [
+		source 39
+		target 45
+		path "M 379.753979972827 682.1024211816282 Q 267.3038447991896 388.1258179409483 254.46211916173928 380.9235004607539"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 99
+		target 45
+		path "M 352.22232939330803 306.189456254284 Q 267.2913442318677 388.1188069630566 254.46211916173928 380.9235004607539"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 45
+		target 100
+		path "M 254.46211916173928 380.9235004607539 A 219.50776436829068 219.50776436829068 0.0 0 1 254.4621191617393 380.92350046075387 L 228.93515878572785 366.60663385552107"
+	]
+	edge [
+		source 100
+		target 65
+		path "M 228.93515878572785 366.60663385552107 A 248.7754662840628 248.7754662840628 0.0 0 0 228.93515878572782 366.60663385552107 L 63.009916341653394 273.5470009215078"
+	]
+	edge [
+		source 100
+		target 98
+		path "M 228.93515878572785 366.60663385552107 Q 248.96034267741032 336.3185450095671 237.39345861924716 327.3928463510588"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 99
+		target 101
+		path "M 352.22232939330803 306.189456254284 A 204.79853421977197 204.79853421977197 0.0 0 0 352.2223293933081 306.189456254284 L 265.22262198968497 137.08680849040476"
+	]
+	edge [
+		source 101
+		target 42
+		path "M 265.22262198968497 137.08680849040476 A 394.9686017095603 394.9686017095603 0.0 0 0 265.22262198968497 137.08680849040468 L 245.14576643500277 98.0631205448942"
+	]
+	edge [
+		source 101
+		target 102
+		path "M 265.22262198968497 137.08680849040476 Q 489.14100889202 95.70396095328056 490.7360977556739 81.21694807859417"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 102
+		target 103
+		path "M 490.7360977556739 81.21694807859417 A 409.5431634701856 409.5431634701856 0.0 0 0 490.7360977556738 81.2169480785941 L 493.9376531680916 52.1395872270652"
+	]
+	edge [
+		source 23
+		target 105
+		path "M 388.6714948576489 353.68625839120534 A 146.2791874706982 146.2791874706982 0.0 0 1 398.6553977759467 349.86519668092603 L 389.205457402684 322.1836389871757"
+	]
+	edge [
+		source 105
+		target 41
+		path "M 389.205457402684 322.1836389871757 A 175.52931583641052 175.52931583641052 0.0 0 1 389.20545740268403 322.1836389871757 L 304.14216053397223 73.0090974679392"
+	]
+	edge [
+		source 13
+		target 106
+		path "M 431.4816544506444 93.65 Q 374.13711359075904 99.96386113619172 371.4771247741257 85.57252703965901"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 106
+		target 104
+		path "M 371.4771247741257 85.57252703965901 A 409.54891503355265 409.54891503355265 0.0 0 0 371.47712477412574 85.57252703965901 L 366.1601821164329 56.80627897106322"
+	]
+	edge [
+		source 105
+		target 106
+		path "M 389.205457402684 322.1836389871757 Q 414.01114797982103 315.6942984528141 371.4771247741257 85.57252703965901"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 13
+		target 34
+		path "M 431.4816544506444 93.65 A 394.9138189428999 394.9138189428999 0.0 0 1 431.4816544506444 93.65000000000009 L 429.87802472495764 49.8"
+	]
+	edge [
+		source 8
+		target 107
+		path "M 434.68891390201793 181.34999999999997 Q 523.6526680027685 191.14505414769496 527.3579008291384 176.9817960357518"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 3
+		target 108
+		path "M 548.9514108053424 245.99526510416968 A 263.30253744725667 263.30253744725667 0.0 0 1 566.3709428313337 254.16664329984556 L 579.7600256797069 228.14208036326283"
+	]
+	edge [
+		source 108
+		target 12
+		path "M 579.7600256797069 228.14208036326283 A 292.5693345996743 292.5693345996743 0.0 0 0 579.7600256797068 228.14208036326283 L 593.144596049495 202.12628839958916"
+	]
+	edge [
+		source 108
+		target 107
+		path "M 579.7600256797069 228.14208036326283 Q 519.9611124081383 205.25603102051826 527.3579008291384 176.9817960357518"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 109
+		target 63
+		path "M 545.8678051126187 106.22765877114989 A 394.9303390752257 394.9303390752257 0.0 0 0 545.8678051126187 106.22765877114983 L 556.9737476827069 63.77517641238879"
+	]
+	edge [
+		source 109
+		target 102
+		path "M 545.8678051126187 106.22765877114989 Q 489.13682130113915 95.74199374530059 490.7360977556739 81.21694807859417"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 12
+		target 31
+		path "M 593.144596049495 202.12628839958916 A 321.8262680596416 321.8262680596416 0.0 0 0 571.8532593323428 192.13867424625022 L 617.6428033543539 84.45877517361609"
+	]
+	edge [
+		source 107
+		target 110
+		path "M 527.3579008291384 176.9817960357518 A 321.79509109833197 321.79509109833197 0.0 0 0 527.3579008291383 176.9817960357518 L 534.7618625425305 148.68014112991105"
+	]
+	edge [
+		source 110
+		target 109
+		path "M 534.7618625425305 148.68014112991105 A 351.0491902890894 351.0491902890894 0.0 0 0 534.7618625425305 148.68014112991114 L 545.8678051126187 106.22765877114989"
+	]
+	edge [
+		source 110
+		target 111
+		path "M 534.7618625425305 148.68014112991105 Q 670.5595535534894 218.5407481943601 679.9737072994257 207.23601204162821"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 12
+		target 112
+		path "M 593.144596049495 202.12628839958916 A 321.8262680596416 321.8262680596416 0.0 0 1 613.6481357984708 213.64109423556062 L 628.9042760699546 188.65963881038925"
+	]
+	edge [
+		source 112
+		target 111
+		path "M 628.9042760699546 188.65963881038925 Q 670.5906639485584 218.5033901038346 679.9737072994257 207.23601204162821"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 111
+		target 113
+		path "M 679.9737072994257 207.23601204162821 A 365.76052436302734 365.76052436302734 0.0 0 0 679.9737072994257 207.23601204162821 L 698.6984581248337 184.7508930049584"
+	]
+	edge [
+		source 113
+		target 62
+		path "M 698.6984581248337 184.7508930049584 A 395.0213663120696 395.0213663120696 0.0 0 0 698.6984581248337 184.75089300495847 L 726.7855843629458 151.0232144499538"
+	]
+	edge [
+		source 113
+		target 114
+		path "M 698.6984581248337 184.7508930049584 Q 740.2026617960423 224.7924044881322 751.1318675556796 215.00632620723758"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 112
+		target 115
+		path "M 628.9042760699546 188.65963881038925 A 351.09780596155264 351.09780596155264 0.0 0 0 628.9042760699546 188.65963881038925 L 651.7780203309708 151.20459366168788"
+	]
+	edge [
+		source 115
+		target 26
+		path "M 651.7780203309708 151.20459366168788 A 394.9850317067468 394.9850317067468 0.0 0 0 651.7780203309708 151.2045936616879 L 674.651764591987 113.74954851298651"
+	]
+	edge [
+		source 115
+		target 114
+		path "M 651.7780203309708 151.20459366168788 Q 740.1755927522129 224.81664227701913 751.1318675556796 215.00632620723758"
+		stroke "0xff9999ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 114
+		target 61
+		path "M 751.1318675556796 215.00632620723758 A 409.6915696731783 409.6915696731783 0.0 0 0 751.1318675556795 215.00632620723758 L 772.9331208109548 195.48534950775456"
+	]
+	edge [
+		source 14
+		target 116
+		path "M 790.4744281491929 326.8846173349478 A 380.49519382374984 380.49519382374984 0.0 0 1 801.3332130941282 352.45448346200783 L 828.6865452723715 341.9997000171553"
+	]
+	edge [
+		source 116
+		target 20
+		path "M 828.6865452723715 341.9997000171553 A 409.7784190240601 409.7784190240601 0.0 0 0 816.9920592460409 314.46195581884865 L 843.4836752518648 302.0514815403244"
+	]
+	edge [
+		source 116
+		target 60
+		path "M 828.6865452723715 341.9997000171553 A 409.7784190240601 409.7784190240601 0.0 0 1 838.3401055295944 370.31543700645597 L 866.3830306632186 361.8842064256331"
+	]
+	edge [
+		source 49
+		target 59
+		path "M 275.59037768270275 726.2104232016062 A 292.59462652205 292.59462652205 0.0 0 0 275.59037768270275 726.2104232016062 L 190.4284055331415 845.1656348024093"
+	]
+	edge [
+		source 117
+		target 91
+		path "M 101.30035690567054 681.577699170643 A 395.11397586292327 395.11397586292327 0.0 0 0 101.30035690567053 681.577699170643 L 63.009916341653344 703.0529990784921"
+	]
+	edge [
+		source 84
+		target 118
+		path "M 318.3193766787573 862.0618122788545 Q 171.70119624473546 772.5279438379723 161.4734859520122 783.1291908018335"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 118
+		target 66
+		path "M 161.4734859520122 783.1291908018335 A 409.67162575677963 409.67162575677963 0.0 0 0 161.4734859520122 783.1291908018335 L 141.1562833784541 804.1884187162502"
+	]
+	edge [
+		source 117
+		target 118
+		path "M 101.30035690567054 681.577699170643 Q 171.58106930926476 772.6524580521502 161.4734859520122 783.1291908018335"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 119
+		target 117
+		path "M 126.82731728168197 667.26083256541 A 365.84627394715113 365.84627394715113 0.0 0 0 126.82731728168204 667.2608325654102 L 101.30035690567054 681.577699170643"
+	]
+	edge [
+		source 89
+		target 120
+		path "M 51.791432198182534 517.1268327994102 Q 60.18068580573288 574.1685068172527 45.90544605425126 577.3463305975941"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 120
+		target 90
+		path "M 45.90544605425126 577.3463305975941 A 409.80037800584967 409.80037800584967 0.0 0 0 45.905446054251286 577.3463305975941 L 17.333383487995945 583.7067827831366"
+	]
+	edge [
+		source 119
+		target 120
+		path "M 126.82731728168197 667.26083256541 Q 88.80933951203781 567.7954568278388 45.90544605425126 577.3463305975941"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 77
+		target 121
+		path "M 177.88123803370493 638.6270993549444 A 307.3108701156069 307.3108701156069 0.0 0 0 177.88123803370496 638.6270993549446 L 152.35427765769347 652.9439659601774"
+	]
+	edge [
+		source 121
+		target 119
+		path "M 152.35427765769347 652.9439659601774 A 336.578572031379 336.578572031379 0.0 0 1 152.35427765769344 652.9439659601773 L 126.82731728168197 667.26083256541"
+	]
+	edge [
+		source 75
+		target 122
+		path "M 651.7780203309707 825.3954063383121 Q 133.2071450148817 729.6035365379969 121.54853452892588 738.6000167872417"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 122
+		target 55
+		path "M 121.54853452892588 738.6000167872417 A 409.7111939813616 409.7111939813616 0.0 0 0 121.54853452892593 738.6000167872417 L 98.3795497108617 756.4785894149019"
+	]
+	edge [
+		source 121
+		target 122
+		path "M 152.35427765769347 652.9439659601774 Q 179.44717351114605 693.9219685164677 121.54853452892588 738.6000167872417"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 76
+		target 35
+		path "M 560.3999762301778 757.5274832175893 A 292.5583749413964 292.5583749413964 0.0 0 0 598.3938951651628 737.9805609377266 L 636.5288574902933 800.4253762391779"
+	]
+	edge [
+		source 74
+		target 123
+		path "M 538.4638433992263 842.0706863230092 A 365.676239884468 365.676239884468 0.0 0 0 538.4638433992263 842.0706863230092 L 545.8678051126184 870.37234122885"
+	]
+	edge [
+		source 123
+		target 57
+		path "M 545.8678051126184 870.37234122885 A 394.93033907522545 394.93033907522545 0.0 0 0 545.8678051126185 870.37234122885 L 556.9737476827066 912.8248235876113"
+	]
+	edge [
+		source 71
+		target 124
+		path "M 431.4816544506443 882.9499999999999 Q 489.1350132825148 880.8415853582344 490.7360977556734 895.3830519214058"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 124
+		target 52
+		path "M 490.7360977556734 895.3830519214058 A 409.5431634701855 409.5431634701855 0.0 0 0 490.7360977556735 895.3830519214058 L 493.93765316809123 924.4604127729348"
+	]
+	edge [
+		source 123
+		target 124
+		path "M 545.8678051126184 870.37234122885 Q 489.1368213011387 880.8580062546991 490.7360977556734 895.3830519214058"
+		stroke "0xb36680ff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 21
+		target 125
+		path "M 775.4911695822949 706.2005115764803 Q 740.2589065876597 751.8579574453669 751.1318675556793 761.5936737927626"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 125
+		target 69
+		path "M 751.1318675556793 761.5936737927626 A 409.6915696731782 409.6915696731782 0.0 0 1 751.1318675556793 761.5936737927626 L 772.9331208109546 781.1146504922457"
+	]
+	edge [
+		source 35
+		target 125
+		path "M 636.5288574902933 800.4253762391779 Q 718.3784615840359 732.2660719657233 751.1318675556793 761.5936737927626"
+		stroke "0x99b3ffff"
+		stroke_dash_array "10.0,10.0"
+		stroke_width "5.0"
+	]
+	edge [
+		source 76
+		target 56
+		path "M 560.3999762301778 757.5274832175893 A 292.5583749413964 292.5583749413964 0.0 0 1 560.3999762301778 757.5274832175893 L 617.642803354354 892.1412248263838"
+	]
+]
