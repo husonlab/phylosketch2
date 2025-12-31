@@ -205,6 +205,9 @@ public class FormatPaneController {
 	private Button crossEdgesButton;
 
 	@FXML
+	private Button deleteButton;
+
+	@FXML
 	private Button transferAcceptorButton;
 
 	@FXML
@@ -257,7 +260,10 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
 		MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
 
-		MaterialIcons.setIcon(closeButton, MaterialIcons.close);
+		MaterialIcons.setIcon(closeButton, MaterialIcons.close, "-fx-font-size: 11;", true);
+		MaterialIcons.setIcon(dragButton, MaterialIcons.import_export, "-fx-rotate: 90;-fx-font-size: 11;", true);
+
+		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace, "", false);
 
 		MaterialIcons.setIcon(measureEdgeWeightsButton, MaterialIcons.square_foot);
 		MaterialIcons.setIcon(showWeightToggleButton, MaterialIcons.visibility);
@@ -267,6 +273,7 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
 
 		MaterialIcons.setIcon(clearNodeFillButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+		MaterialIcons.setIcon(clearNodeStrokeButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearNodeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearNodeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearNodeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
@@ -290,7 +297,6 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
 		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 
-		MaterialIcons.setIcon(dragButton, MaterialIcons.import_export, "-fx-rotate: 90;", true);
 
 		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
 		ComboBoxUtils.ensureDoubleInput(nodeLabelSizeCBox);
@@ -600,5 +606,9 @@ public class FormatPaneController {
 
 	public Button getDragButton() {
 		return dragButton;
+	}
+
+	public Button getDeleteButton() {
+		return deleteButton;
 	}
 }

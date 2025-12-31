@@ -21,7 +21,6 @@
 package phylosketch.window;
 
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -37,13 +36,7 @@ import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RunAfterAWhile;
-import jloda.fx.window.MainWindowManager;
-import phylosketch.main.PhyloSketch;
 import phylosketch.view.DrawView;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 public class MainWindowController {
 	@FXML
@@ -315,10 +308,10 @@ public class MainWindowController {
 	private MenuButton selectMenuButton;
 
 	@FXML
-	private Button deleteButton;
+	private MenuButton captureMenuButton;
 
 	@FXML
-	private MenuButton captureMenuButton;
+	private Button pasteButton;
 
 	@FXML
 	CheckMenuItem showCaptureParametersItem;
@@ -453,10 +446,10 @@ public class MainWindowController {
 	private GridPane toolbarGrid;
 
 	@FXML
-	private ToolBar leftBar;
+	private HBox leftBox;
 
 	@FXML
-	private ToolBar rightBar;
+	private HBox rightBox;
 
 
 	private final ZoomableScrollPane scrollPane = new ZoomableScrollPane(null);
@@ -471,18 +464,19 @@ public class MainWindowController {
 	@FXML
 	private void initialize() {
 		modeMenuButton.setText("");
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit);
-		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
-		MaterialIcons.setIcon(findButton, MaterialIcons.search);
-		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all);
-		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes);
+		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, "", false);
+		MaterialIcons.setIcon(findButton, MaterialIcons.search, "", false);
+		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, "", false);
+		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, "", false);
 
 		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
 		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
 		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
 		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
 		MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
-		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace);
+		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
+
+		MaterialIcons.setIcon(pasteButton, MaterialIcons.file_download);
 
 		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image);
 		captureMenuButton.setStyle("-fx-background-color: transparent;");
@@ -502,58 +496,7 @@ public class MainWindowController {
 			//editMenu.getItems().remove(getPreferencesMenuItem());
 		}
 
-		if (!PhyloSketch.isDesktop()) {
-			captureMenu.getItems().remove(loadCaptureImageItem);
-		}
-
-		captureMenuButton.getItems().addAll(BasicFX.copyMenu(captureMenu.getItems()));
-
-		final var originalWindowMenuItems = new ArrayList<>(windowMenu.getItems());
-
-		final InvalidationListener invalidationListener = observable -> {
-			windowMenu.getItems().setAll(originalWindowMenuItems);
-			var count = 1;
-			var seen = new HashSet<String>();
-			for (var mainWindow : MainWindowManager.getInstance().getMainWindows()) {
-				if (mainWindow.getStage() != null && mainWindow.getStage().getTitle() != null) {
-					var title = mainWindow.getStage().getTitle().replaceAll("- " + ProgramProperties.getProgramName(), "");
-					while (seen.contains(title)) {
-						title = title + "+";
-					}
-					seen.add(title);
-
-						try {
-							var menuItem = new MenuItem(title);
-							menuItem.setOnAction(e -> Platform.runLater(() -> mainWindow.getStage().toFront()));
-							if (count <= 9)
-								menuItem.setAccelerator(new KeyCharacterCombination("" + (count++), KeyCombination.SHORTCUT_DOWN));
-							windowMenu.getItems().add(menuItem);
-						} catch (Exception ignored) {
-						}
-				}
-				if (MainWindowManager.getInstance().getAuxiliaryWindows(mainWindow) != null) {
-					for (var auxStage : MainWindowManager.getInstance().getAuxiliaryWindows(mainWindow)) {
-						if (auxStage.getTitle() != null) {
-							var title = auxStage.getTitle().replaceAll("- " + ProgramProperties.getProgramName(), "");
-							while (seen.contains(title)) {
-								title = title + "+";
-							}
-							seen.add(title);
-							try {
-								var menuItem = new MenuItem(title);
-								menuItem.setOnAction(e -> Platform.runLater(auxStage::toFront));
-								Platform.runLater(() -> windowMenu.getItems().add(menuItem));
-							} catch (Exception ignored) {
-							}
-						}
-					}
-				}
-			}
-		};
-		MainWindowManager.getInstance().changedProperty()
-				.addListener(e -> RunAfterAWhile.applyInFXThread(invalidationListener, () -> invalidationListener.invalidated(null)));
-		RunAfterAWhile.applyInFXThread(invalidationListener, () -> invalidationListener.invalidated(null));
-		// todo: if the file is bigger, this update comes too late and the title is missing
+		captureMenu.getItems().addAll(BasicFX.copyMenu(captureMenuButton.getItems()));
 
 		{
 			zoomInButton.setOnAction(e -> zoomInMenuItem.getOnAction().handle(e));
@@ -567,9 +510,6 @@ public class MainWindowController {
 			undoButton.disableProperty().bindBidirectional(undoMenuItem.disableProperty());
 			redoButton.setOnAction(e->redoMenuItem.getOnAction().handle(e));
 			redoButton.disableProperty().bindBidirectional(redoMenuItem.disableProperty());
-
-			deleteButton.setOnAction(e -> deleteMenuItem.getOnAction().handle(e));
-			deleteButton.disableProperty().bind(deleteMenuItem.disableProperty());
 		}
 
 		scrollPane.setPadding(new Insets(10));
@@ -637,14 +577,21 @@ public class MainWindowController {
 	}
 
 	public void updateToolbarLayout() {
-		var narrow = (toolbarGrid.getWidth() < 600);
+		var wrap = (toolbarGrid.getWidth() < 600);
+		if (!wrap) {
+			// Wide: right group in row 0, col 1
+			GridPane.setRowIndex(rightBox, 0);
+			GridPane.setColumnIndex(rightBox, 1);
+			GridPane.setColumnSpan(rightBox, 1);
 
-		for (var button : List.of(modeMenuButton, exportMenuButton, findButton, selectMenuButton, showSettingsButton, captureMenuButton)) {
-			if (narrow) {
-				button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			rightBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
 			} else {
-				button.setContentDisplay(ContentDisplay.LEFT);
-			}
+			// Narrow: move right group to row 1 spanning both columns
+			GridPane.setRowIndex(rightBox, 1);
+			GridPane.setColumnIndex(rightBox, 0);
+			GridPane.setColumnSpan(rightBox, 2);
+
+			rightBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
 		}
 	}
 
@@ -1157,15 +1104,19 @@ public class MainWindowController {
 		return centerPane;
 	}
 
-	public ToolBar getLeftBar() {
-		return leftBar;
-	}
-
-	public ToolBar getRightBar() {
-		return rightBar;
-	}
-
 	public GridPane getToolbarGrid() {
 		return toolbarGrid;
+	}
+
+	public HBox getLeftBox() {
+		return leftBox;
+	}
+
+	public HBox getRightBox() {
+		return rightBox;
+	}
+
+	public Button getPasteButton() {
+		return pasteButton;
 	}
 }

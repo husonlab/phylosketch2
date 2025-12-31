@@ -30,6 +30,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.input.TouchEvent;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -56,7 +57,7 @@ public class PaneInteraction {
 
 	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(PaneInteraction.class, "inDrawingEdge", false);
 	public static final BooleanProperty inRubberBandSelection = new SimpleBooleanProperty(PaneInteraction.class, "inRubberBandSelection", false);
-	public static final BooleanProperty inMultiTouchGesture = new SimpleBooleanProperty(PaneInteraction.class, "inMultiTouchGesture", false);
+	public static final BooleanProperty multiTouchGestureInProgress = new SimpleBooleanProperty(PaneInteraction.class, "inMultiTouchGesture", false);
 
 	private final static Path path = new Path();
 
@@ -72,7 +73,7 @@ public class PaneInteraction {
 			var inMultiTouchLabel = new Label("multi-touch");
 			var inDrawingEdgeLabel = new Label("drawing edge");
 
-			inMultiTouchGesture.addListener((v, o, n) -> {
+			multiTouchGestureInProgress.addListener((v, o, n) -> {
 				if (n)
 					view.getChildren().add(inMultiTouchLabel);
 				else
@@ -88,8 +89,7 @@ public class PaneInteraction {
 			});
 		}
 
-
-		inMultiTouchGesture.addListener((v, o, n) -> {
+		multiTouchGestureInProgress.addListener((v, o, n) -> {
 			if (n) {
 				inDrawingEdge.set(false);
 				inRubberBandSelection.set(false);
@@ -148,29 +148,31 @@ public class PaneInteraction {
 		// setup context menu for creating a node
 		{
 			var contextMenu = new ContextMenu();
-			var pause = new PauseTransition(Duration.seconds(1));
+			var pause = new PauseTransition(Duration.seconds(1.5));
 			pause.setOnFinished(e -> contextMenu.hide());
 			view.setOnContextMenuRequested(e -> {
-				if (contextMenu.isShowing()) {
-					contextMenu.hide();
-				} else {
-					inDrawingEdge.set(false);
-					inRubberBandSelection.set(false);
-					var newNodeMenuItem = new MenuItem("Create Node");
-					newNodeMenuItem.setOnAction(a -> {
-						var location = view.screenToLocal(mouseX, mouseY);
-						view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
-					});
-					contextMenu.getItems().setAll(newNodeMenuItem);
-					contextMenu.show(view, mouseX, mouseY);
-					pause.playFromStart();
+				if (!multiTouchGestureInProgress.get() && e.getTarget() == view && view.getMode() == DrawView.Mode.Sketch) {
+					e.consume();
+					if (contextMenu.isShowing()) {
+						contextMenu.hide();
+					} else {
+						inDrawingEdge.set(false);
+						inRubberBandSelection.set(false);
+						var newNodeMenuItem = new MenuItem("Create Node");
+						newNodeMenuItem.setOnAction(a -> {
+							var location = view.screenToLocal(mouseX, mouseY);
+							view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
+						});
+						contextMenu.getItems().setAll(newNodeMenuItem);
+						contextMenu.show(view, mouseX, mouseY);
+						pause.playFromStart();
+					}
 				}
-				e.consume();
 			});
 		}
 
 		// will create a node if mouse is pressed and then not moved or released within two seconds
-		var createNodePause = new PauseTransition(Duration.seconds(1.5));
+		var createNodePause = new PauseTransition(Duration.seconds(2));
 
 		view.setOnMouseClicked(me -> {
 			createNodePause.stop();
@@ -187,7 +189,7 @@ public class PaneInteraction {
 				view.getEdgeSelection().clearSelection();
 			}
 
-			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !inMultiTouchGesture.get()) {
+			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !multiTouchGestureInProgress.get()) {
 				if (me.getClickCount() == 2) {
 					createNodePause.stop();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -212,7 +214,7 @@ public class PaneInteraction {
 			mouseX = mouseDownX = me.getScreenX();
 			mouseY = mouseDownY = me.getScreenY();
 
-			if (!inMultiTouchGesture.get()) {
+			if (!multiTouchGestureInProgress.get()) {
 				if (view.getMode() == DrawView.Mode.Sketch) {
 					path.getElements().clear();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -311,9 +313,41 @@ public class PaneInteraction {
 			me.consume();
 		});
 
-		view.setOnTouchPressed(e -> inMultiTouchGesture.set(e.getTouchCount() > 1));
+		// this code ensures that panning requires at least two touch points on a mobile device:
+		var activeTouches = new HashSet<Integer>();
 
-		view.setOnTouchReleased(e -> inMultiTouchGesture.set(e.getTouchCount() < 1));
+		view.addEventFilter(TouchEvent.TOUCH_PRESSED, e -> {
+			activeTouches.add(e.getTouchPoint().getId());
+			if (activeTouches.size() >= 2) {
+				multiTouchGestureInProgress.set(true);
+			}
+			if (multiTouchGestureInProgress.get()) {
+				e.consume();
+			}
+		});
+
+		view.addEventFilter(TouchEvent.TOUCH_MOVED, e -> {
+			// TouchPoint ids are stable, but adding again is harmless
+			activeTouches.add(e.getTouchPoint().getId());
+			if (activeTouches.size() >= 2) {
+				multiTouchGestureInProgress.set(true);
+			}
+			if (multiTouchGestureInProgress.get()) {
+				e.consume();
+			}
+		});
+
+		view.addEventFilter(TouchEvent.TOUCH_RELEASED, e -> {
+			activeTouches.remove(e.getTouchPoint().getId());
+			// Keep consuming until all touches are gone
+			boolean stillAnyTouchDown = !activeTouches.isEmpty();
+			if (multiTouchGestureInProgress.get()) {
+				e.consume();
+				if (!stillAnyTouchDown) {
+					multiTouchGestureInProgress.set(false);
+				}
+			}
+		});
 	}
 
 	public static boolean isGoodPath(Path path) {

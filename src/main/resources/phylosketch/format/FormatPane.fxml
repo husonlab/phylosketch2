@@ -24,7 +24,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/22.0.2" xmlns:fx="http://javafx.com/fxml/1"
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
         <AnchorPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
@@ -120,12 +120,13 @@
                         </TitledPane>
                     </panes>
                 </Accordion>
-                <HBox alignment="CENTER" layoutX="222.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <HBox alignment="CENTER" layoutX="222.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                      spacing="15">
                     <children>
-                        <Button fx:id="dragButton" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity"
-                                minHeight="-Infinity" mnemonicParsing="false" prefHeight="24.0" text="D"/>
-                        <Button fx:id="closeButton" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity"
-                                minHeight="-Infinity" mnemonicParsing="false" prefHeight="24.0" text="x"/>
+                        <Button fx:id="dragButton" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false"
+                                text="D"/>
+                        <Button fx:id="closeButton" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false"
+                                text="x"/>
                     </children>
                 </HBox>
             </children>
@@ -678,8 +679,8 @@
                                                 <Tooltip text="Flip vertically"/>
                                             </tooltip>
                                         </Button>
-                                        <Button fx:id="rotateRightButton" mnemonicParsing="false"
-                                                      text="Rotate Right" GridPane.columnIndex="1">
+                                        <Button fx:id="rotateRightButton" mnemonicParsing="false" text="Rotate Right"
+                                                GridPane.columnIndex="1">
                                             <tooltip>
                                                 <Tooltip text="Rotate right"/>
                                             </tooltip>
@@ -715,7 +716,7 @@
             <panes>
                 <TitledPane animated="false" text="Modify Phylogeny">
                     <content>
-                        <VBox alignment="CENTER">
+                        <VBox alignment="CENTER" spacing="5.0">
                         <GridPane>
                             <columnConstraints>
                                 <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
@@ -784,6 +785,15 @@
 
                             </children>
                         </GridPane>
+                            <HBox alignment="CENTER" VBox.vgrow="NEVER">
+                                <children>
+                                    <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete">
+                                        <tooltip>
+                                            <Tooltip text="Delete (selected) nodes and edges"/>
+                                        </tooltip>
+                                    </Button>
+                                </children>
+                            </HBox>
                         </VBox>
                     </content>
                 </TitledPane>

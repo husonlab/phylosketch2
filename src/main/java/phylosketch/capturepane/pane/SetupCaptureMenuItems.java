@@ -52,20 +52,21 @@ public class SetupCaptureMenuItems {
 		var canCapture = new SimpleBooleanProperty(capturePane, "canCapture", false);
 		canCapture.bind(canSetup.and(capturePane.hasRootLocationProperty()));
 
-		var menuButton = controller.getCaptureMenuButton();
+		var captureMenuButton = controller.getCaptureMenuButton();
 
-		menuButton.visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture));
+		captureMenuButton.visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture));
+		captureMenuButton.managedProperty().bind(captureMenuButton.visibleProperty());
 
-		menuButton.getGraphic().setOnMouseClicked(e -> {
+		captureMenuButton.getGraphic().setOnMouseClicked(e -> {
 			if (!capturePane.getRootGroup().isVisible())
 				controller.getShowCaptureRootLocationItem().fire();
 			else
 				controller.getCapturePhylogenyItem().fire();
 			e.consume();
 		});
-		menuButton.getGraphic().setOnMousePressed(Event::consume);
-		menuButton.getGraphic().setOnMouseReleased(Event::consume);
-		menuButton.getGraphic().disableProperty().bind(canSetup.not());
+		captureMenuButton.getGraphic().setOnMousePressed(Event::consume);
+		captureMenuButton.getGraphic().setOnMouseReleased(Event::consume);
+		captureMenuButton.getGraphic().disableProperty().bind(canSetup.not());
 
 		controller.getClearCaptureImageItem().setOnAction(e -> {
 			var image = capturePane.getImageView().getImage();

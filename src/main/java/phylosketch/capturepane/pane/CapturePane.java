@@ -34,13 +34,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.ClipboardUtils;
+import jloda.fx.windownotifications.WindowNotifications;
 import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.capturepane.capture.PhyloImageAnalyzer;
 import phylosketch.utils.ScrollPaneUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 import phylosketch.window.MainWindowController;
-import phylosketch.window.WindowNotifications;
 
 /**
  * maintain an image in the background for image capturepane

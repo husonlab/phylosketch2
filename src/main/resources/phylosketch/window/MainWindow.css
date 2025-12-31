@@ -89,4 +89,12 @@ viewer-background {
     -fx-opacity: 0;
 }
 
+.titled-pane > .title {
+    -fx-padding: 2 6 2 6;
+}
+
+.titled-pane > .title > .text {
+    -fx-font-size: 11px;
+}
+
 

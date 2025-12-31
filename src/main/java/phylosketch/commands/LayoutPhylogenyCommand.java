@@ -23,6 +23,7 @@ package phylosketch.commands;
 import javafx.geometry.Point2D;
 import jloda.fx.phylo.embed.Averaging;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
+import jloda.fx.phylo.embed.ScaleUtils;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.AService;
@@ -37,7 +38,6 @@ import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.paths.EdgePath;
-import phylosketch.utils.ScaleUtils;
 import phylosketch.view.DrawView;
 
 import java.util.*;

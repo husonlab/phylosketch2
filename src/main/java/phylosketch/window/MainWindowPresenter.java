@@ -27,16 +27,13 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -54,6 +51,7 @@ import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
+import jloda.fx.windownotifications.WindowNotifications;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.util.FileUtils;
 import jloda.util.NumberUtils;
@@ -66,7 +64,6 @@ import phylosketch.format.FormatPaneView;
 import phylosketch.io.*;
 import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
-import phylosketch.main.PhyloSketch;
 import phylosketch.utils.Clusters;
 import phylosketch.utils.GraphUtils;
 import phylosketch.view.*;
@@ -85,6 +82,8 @@ import java.util.function.Function;
  * Daniel Huson, 9.2024
  */
 public class MainWindowPresenter {
+	public static boolean SUPPORTS_CAPTURE = true;
+
 	private final MainWindow window;
 	private final FindToolBar findToolBar;
 	private final FormatPaneView formatPaneView;
@@ -205,10 +204,12 @@ public class MainWindowPresenter {
 				for (var node : e.getAddedSubList()) {
 					if (node instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
 						shape.setOnContextMenuRequested(cm -> {
-							var setLabel = new MenuItem("Edit Label");
-							setLabel.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
-							new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
-							cm.consume();
+							if (view.getMode() == DrawView.Mode.Sketch) {
+								var setLabel = new MenuItem("Edit Label");
+								setLabel.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
+								new ContextMenu(setLabel).show(node, cm.getScreenX(), cm.getScreenY());
+								cm.consume();
+							}
 						});
 					}
 				}
@@ -221,7 +222,7 @@ public class MainWindowPresenter {
 					if (node instanceof RichTextLabel richTextLabel && richTextLabel.getUserData() instanceof Integer nodeId) {
 
 						richTextLabel.setOnContextMenuRequested(cm -> {
-							if (view.getMode() == DrawView.Mode.Sketch || view.getMode() == DrawView.Mode.Move) {
+							if (view.getMode() == DrawView.Mode.Sketch) {
 								var v = view.getGraph().findNodeById(nodeId);
 								var editLabelItem = new MenuItem("Edit Label");
 								editLabelItem.setOnAction(x -> NodeLabelEditBox.show(view, cm.getScreenX(), cm.getScreenY(), v, null, null));
@@ -265,8 +266,10 @@ public class MainWindowPresenter {
 		//controller.getSaveButton().setOnAction(controller.getSaveAsMenuItem().getOnAction());
 		//controller.getSaveButton().disableProperty().bind(controller.getSaveAsMenuItem().disableProperty());
 
-		controller.getPageSetupMenuItem().setOnAction(e -> Print.showPageLayout(window.getStage()));
-		controller.getPrintMenuItem().setOnAction((e) -> Print.print(window.getStage(), window.getDrawView()));
+		controller.getPageSetupMenuItem().setOnAction(e -> jloda.fx.print.Print.showPageLayout(window.getStage()));
+		controller.getPrintMenuItem().setOnAction((e) -> {
+			jloda.fx.print.Print.print(window.getStage(), window.getDrawView());
+		});
 		controller.getPrintMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getUndoMenuItem().setOnAction(e -> view.getUndoManager().undo());
@@ -314,14 +317,7 @@ public class MainWindowPresenter {
 		controller.getExportNewickMenuItem().setOnAction(e -> ExportNewick.apply(window));
 		controller.getExportNewickMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
-		controller.getCopyImageMenuItem().setOnAction(e -> {
-			var params = new SnapshotParameters();
-			params.setFill(MainWindowManager.isUseDarkTheme() ? Color.BLACK : Color.WHITE);
-			params.setTransform(javafx.scene.transform.Transform.scale(2.0, 2.0));
-			var writableImage = new WritableImage((int) (view.getWidth() * 2), (int) (view.getHeight() * 2));
-			var snapshot = view.snapshot(params, writableImage);
-			ClipboardUtils.putImage(snapshot);
-		});
+		controller.getCopyImageMenuItem().setOnAction(e -> ClipboardUtils.putImage(view));
 		controller.getCopyImageMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty().and(capturePane.hasImageProperty().not()));
 
 		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "ABC", "leaves", true)));
@@ -494,29 +490,38 @@ public class MainWindowPresenter {
 					}
 				},
 				image -> {
-					var pasteCommand = UndoableRedoableCommand.create("image", () -> {
-						capturePane.setImage(null);
-						view.setMode(DrawView.Mode.Sketch);
-					}, () -> {
-						view.setMode(DrawView.Mode.Capture);
-						capturePane.setImage(image);
-					});
-					view.getUndoManager().doAndAdd(pasteCommand);
+					if (SUPPORTS_CAPTURE) {
+						var pasteCommand = UndoableRedoableCommand.create("image", () -> {
+							capturePane.setImage(null);
+							view.setMode(DrawView.Mode.Sketch);
+						}, () -> {
+							view.setMode(DrawView.Mode.Capture);
+							capturePane.setImage(image);
+						});
+						view.getUndoManager().doAndAdd(pasteCommand);
+					}
 				});
 
+		controller.getPasteButton().setOnAction(e -> controller.getPasteMenuItem().fire());
+		controller.getPasteButton().disableProperty().bind(controller.getPasteMenuItem().disableProperty());
 
-		if (PhyloSketch.isDesktop())
+		controller.getPasteButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Sketch));
+		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
+
+		if (SUPPORTS_CAPTURE)
 			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
 
 		controller.getLoadCaptureImageItem().setOnAction(e -> {
-					if (window.isEmpty() || !PhyloSketch.isDesktop()) {
-						loadImageDialog(window.getStage(), image -> {
-							window.getDrawView().setMode(DrawView.Mode.Capture);
-							window.getPresenter().getCapturePane().setImage(image);
-						});
-					} else {
-						var newWindow = NewWindow.apply();
-						Platform.runLater(() -> newWindow.getController().getLoadCaptureImageItem().fire());
+			if (SUPPORTS_CAPTURE) {
+				if (window.isEmpty()) {
+					loadImageDialog(window.getStage(), image -> {
+						window.getDrawView().setMode(DrawView.Mode.Capture);
+						window.getPresenter().getCapturePane().setImage(image);
+					});
+				} else {
+					var newWindow = NewWindow.apply();
+					Platform.runLater(() -> newWindow.getController().getLoadCaptureImageItem().fire());
+				}
 					}
 				}
 		);
@@ -549,6 +554,9 @@ public class MainWindowPresenter {
 		formatPaneView.getController().getReverseEdgesButton().setOnAction(controller.getReverseEdgesMenuItem().getOnAction());
 		formatPaneView.getController().getReverseEdgesButton().disableProperty().bind(controller.getReverseEdgesMenuItem().disableProperty());
 
+		formatPaneView.getController().getDeleteButton().setOnAction(e -> controller.getDeleteMenuItem().fire());
+		formatPaneView.getController().getDeleteButton().disableProperty().bind(controller.getDeleteMenuItem().disableProperty());
+
 		formatPaneView.getController().getDeleteThruNodesButton().setOnAction(controller.getDeleteThruNodesMenuItem().getOnAction());
 		formatPaneView.getController().getDeleteThruNodesButton().disableProperty().bind(controller.getDeleteThruNodesMenuItem().disableProperty());
 
@@ -568,8 +576,9 @@ public class MainWindowPresenter {
 		setupLayout(controller, formatPaneView.getController());
 		setupLayoutScalingPhylogeny(view, controller, formatPaneView.getController());
 
-		if (PhyloSketch.isDesktop()) {
+		if (SUPPORTS_CAPTURE) {
 			setupModeHints(view, getCapturePane());
+			WindowMenuSetup.setup(controller.getWindowMenu(), window.fileNameProperty());
 		}
 	}
 
