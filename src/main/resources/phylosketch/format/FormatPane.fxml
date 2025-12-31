@@ -32,7 +32,8 @@
             <children>
                 <Accordion AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <panes>
-                        <TitledPane animated="false" maxHeight="-Infinity" minHeight="-Infinity" text="Node Style">
+                        <TitledPane fx:id="nodeStylePane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
+                                    text="Node Style">
                             <content>
                                 <GridPane hgap="5.0" vgap="3.0">
                                     <columnConstraints>
@@ -133,7 +134,8 @@
         </AnchorPane>
         <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" maxHeight="-Infinity" minHeight="-Infinity" text="Node Labels">
+                <TitledPane fx:id="nodeLabelsPane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
+                            text="Node Labels">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -176,7 +178,8 @@
         </Accordion>
         <Accordion VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" maxHeight="-Infinity" minHeight="-Infinity" text="Node Labels Style">
+                <TitledPane fx:id="nodeLabelsStylePane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
+                            text="Node Labels Style">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -186,6 +189,7 @@
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints/>
+                                <RowConstraints vgrow="SOMETIMES"/>
                                 <RowConstraints vgrow="SOMETIMES"/>
                                 <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
                                 <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
@@ -311,7 +315,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Edge Style">
+                <TitledPane fx:id="edgeStylePane" animated="false" text="Edge Style">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -407,7 +411,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Edge Labels">
+                <TitledPane fx:id="edgeLabelsPane" animated="false" text="Edge Labels">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -484,7 +488,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Edge Label Style">
+                <TitledPane fx:id="edgeLabelStylePane" animated="false" text="Edge Label Style">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -619,7 +623,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Draw Phylogeny">
+                <TitledPane fx:id="drawPhylogenyPane" animated="false" text="Draw Phylogeny">
                     <content>
                         <VBox alignment="CENTER">
                             <GridPane hgap="5.0" vgap="5.0">
@@ -649,7 +653,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="541.0">
             <panes>
-                <TitledPane animated="false" text="Layout Phylogeny">
+                <TitledPane fx:id="layoutPhylogenyPane" animated="false" text="Layout Phylogeny">
                     <content>
                         <VBox alignment="CENTER">
                             <children>
@@ -714,7 +718,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane animated="false" text="Modify Phylogeny">
+                <TitledPane fx:id="modifyPhylogenyPane" animated="false" text="Modify Phylogeny">
                     <content>
                         <VBox alignment="CENTER" spacing="5.0">
                         <GridPane>

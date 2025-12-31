@@ -698,17 +698,11 @@ public class MainWindowPresenter {
 
 	private static void setupLayout(MainWindowController controller, FormatPaneController formatController) {
 		formatController.getRotateLeftButton().setOnAction(controller.getRotateLeftMenuItem().getOnAction());
-		formatController.getRotateLeftButton().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 		formatController.getRotateRightButton().setOnAction(controller.getRotateRightMenuItem().getOnAction());
-		formatController.getRotateRightButton().disableProperty().bind(controller.getRotateRightMenuItem().disableProperty());
 		formatController.getHorizontalFlipButton().setOnAction(controller.getFlipHorizontalMenuItem().getOnAction());
-		formatController.getHorizontalFlipButton().disableProperty().bind(controller.getFlipHorizontalMenuItem().disableProperty());
 		formatController.getVerticalFlipButton().setOnAction(controller.getFlipVerticalMenuItem().getOnAction());
-		formatController.getVerticalFlipButton().disableProperty().bind(controller.getFlipVerticalMenuItem().disableProperty());
 		formatController.getResizeModeButton().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
-		formatController.getResizeModeButton().disableProperty().bind(controller.getResizeModeCheckMenuItem().disableProperty());
 		formatController.getLayoutLabelsButton().setOnAction(controller.getLayoutLabelMenuItem().getOnAction());
-		formatController.getLayoutLabelsButton().disableProperty().bind(controller.getLayoutLabelMenuItem().disableProperty());
 	}
 
 	private void setupModeHints(DrawView view, CapturePane capturePane) {

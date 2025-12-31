@@ -247,6 +247,25 @@ public class FormatPaneController {
 	private Button dragButton;
 
 	@FXML
+	private TitledPane nodeStylePane;
+	@FXML
+	private TitledPane nodeLabelsPane;
+	@FXML
+	private TitledPane nodeLabelsStylePane;
+	@FXML
+	private TitledPane edgeStylePane;
+	@FXML
+	private TitledPane edgeLabelsPane;
+	@FXML
+	private TitledPane edgeLabelStylePane;
+	@FXML
+	private TitledPane drawPhylogenyPane;
+	@FXML
+	private TitledPane layoutPhylogenyPane;
+	@FXML
+	private TitledPane modifyPhylogenyPane;
+
+	@FXML
 	private void initialize() {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
@@ -326,7 +345,6 @@ public class FormatPaneController {
 
 		layoutCBox.getItems().addAll(LayoutRootedPhylogeny.Layout.values());
 		scalingCBox.getItems().addAll(LayoutRootedPhylogeny.Scaling.values());
-
 
 		nodeShapeChoiceBox.getItems().addAll(NodeShape.Type.values());
 		nodeShapeChoiceBox.setValue(NodeShape.Type.Circle);
@@ -610,5 +628,41 @@ public class FormatPaneController {
 
 	public Button getDeleteButton() {
 		return deleteButton;
+	}
+
+	public TitledPane getNodeStylePane() {
+		return nodeStylePane;
+	}
+
+	public TitledPane getNodeLabelsPane() {
+		return nodeLabelsPane;
+	}
+
+	public TitledPane getNodeLabelsStylePane() {
+		return nodeLabelsStylePane;
+	}
+
+	public TitledPane getEdgeStylePane() {
+		return edgeStylePane;
+	}
+
+	public TitledPane getEdgeLabelsPane() {
+		return edgeLabelsPane;
+	}
+
+	public TitledPane getEdgeLabelStylePane() {
+		return edgeLabelStylePane;
+	}
+
+	public TitledPane getDrawPhylogenyPane() {
+		return drawPhylogenyPane;
+	}
+
+	public TitledPane getLayoutPhylogenyPane() {
+		return layoutPhylogenyPane;
+	}
+
+	public TitledPane getModifyPhylogenyPane() {
+		return modifyPhylogenyPane;
 	}
 }

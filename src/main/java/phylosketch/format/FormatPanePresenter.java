@@ -22,10 +22,9 @@ package phylosketch.format;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -44,6 +43,7 @@ import phylosketch.view.LineType;
 import phylosketch.view.NodeShape;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -381,26 +381,22 @@ public class FormatPanePresenter {
 				view.getUndoManager().doAndAdd(new SmoothCommand(view, view.getSelectedOrAllEdges()));
 			}
 		});
-		controller.getSmoothButton().disableProperty().bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
 
 		controller.getEdgeStraightButton().setOnAction(e -> {
 			if (canUpdate)
 				view.getUndoManager().doAndAdd(new StraightenCommand(view.getGraph(), view.getSelectedOrAllEdges()));
 		});
-		controller.getEdgeStraightButton().disableProperty().bind(controller.getSmoothButton().disableProperty());
 
 		controller.getEdgeCurvedButton().setOnAction(e ->
 		{
 			if (canUpdate)
 				view.getUndoManager().doAndAdd(new QuadraticCurveCommand(view, view.getSelectedOrAllEdges()));
 		});
-		controller.getEdgeCurvedButton().disableProperty().bind(controller.getSmoothButton().disableProperty());
 
 		controller.getEdgeRectangularButton().setOnAction(e -> {
 			if (canUpdate)
 				view.getUndoManager().doAndAdd(new RectangularCommand(view, view.getSelectedOrAllEdges()));
 		});
-		controller.getEdgeRectangularButton().disableProperty().bind(controller.getSmoothButton().disableProperty());
 
 		controller.getShowArrowsButton().setOnAction(a -> {
 			if (canUpdate) {
@@ -415,9 +411,6 @@ public class FormatPanePresenter {
 			}
 		});
 
-		var disableSetEdges = new SimpleBooleanProperty();
-		disableSetEdges.bind(Bindings.isEmpty(view.getGraphFX().getEdgeList()));
-
 		controller.getMeasureEdgeWeightsButton().setOnAction(e -> {
 			if (canUpdate) {
 				if (!controller.getShowWeightToggleButton().isSelected())
@@ -426,7 +419,6 @@ public class FormatPanePresenter {
 						new ShowEdgeValueCommand(view, true, null, null)));
 			}
 		});
-		controller.getMeasureEdgeWeightsButton().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeWeightTextField().setOnAction(a -> {
 			if (canUpdate) {
@@ -442,7 +434,6 @@ public class FormatPanePresenter {
 		});
 
 		setupTriggerOnEnter(controller.getEdgeWeightTextField());
-		controller.getEdgeWeightTextField().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeSupportTextField().setOnAction(a -> {
 			if (canUpdate) {
@@ -457,7 +448,6 @@ public class FormatPanePresenter {
 			}
 		});
 		setupTriggerOnEnter(controller.getEdgeSupportTextField());
-		controller.getEdgeSupportTextField().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeProbabilityTextField().setOnAction(a -> {
 			if (canUpdate) {
@@ -472,7 +462,6 @@ public class FormatPanePresenter {
 			}
 		});
 		setupTriggerOnEnter(controller.getEdgeProbabilityTextField());
-		controller.getEdgeProbabilityTextField().disableProperty().bind(disableSetEdges);
 
 		controller.getEdgeLabelColorPicker().valueProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
@@ -517,6 +506,25 @@ public class FormatPanePresenter {
 		});
 
 		AccordionManager.apply(controller.getRootPane(), BasicFX.getAllRecursively(controller.getRootPane(), Accordion.class), 3);
+
+		InvalidationListener listener = (e -> {
+			var sketch = (view.getMode() == DrawView.Mode.Sketch);
+			for (var titledPane : List.of(controller.getNodeStylePane(),
+					controller.getNodeLabelsPane(),
+					controller.getNodeLabelsStylePane(),
+					controller.getEdgeStylePane(),
+					controller.getEdgeLabelsPane(),
+					controller.getEdgeLabelStylePane(),
+					controller.getModifyPhylogenyPane())) {
+				for (var control : BasicFX.getAllRecursively(titledPane, Control.class)) {
+					if (!control.disableProperty().isBound()) {
+						control.setDisable(!sketch || view.getGraphFX().isEmpty());
+					}
+				}
+			}
+		});
+		view.getGraphFX().getNodeList().addListener(listener);
+		view.modeProperty().addListener(listener);
 	}
 
 	private static <S, T> T notNullOrElse(S key, Function<? super S, ? extends T> function, Supplier<? extends T> alternative) {
