@@ -168,7 +168,7 @@ public class EdgePath extends Path {
 		} else if (getType() == Type.Circular && getElements().size() == 3 && getElements().get(0) instanceof MoveTo
 				   && getElements().get(1) instanceof ArcTo && getElements().get(2) instanceof LineTo) {
 			getElements().setAll(CirclePathDiscretizer.discretize(this, 5).getElements());
-		} else if (getType() == Type.Freeform) { // converts into proper freeform
+		} else { // converts into proper freeform
 			var elements = new ArrayList<PathElement>();
 			for (var e : getElements()) {
 				if (e instanceof MoveTo || e instanceof LineTo) {
@@ -184,8 +184,6 @@ public class EdgePath extends Path {
 					getElements().setAll(CirclePathDiscretizer.discretize(path, 5).getElements());
 				}
 			}
-		} else {
-			throw new IllegalStateException("Broken path");
 		}
 		setType(Type.Freeform);
 	}

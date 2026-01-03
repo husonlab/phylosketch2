@@ -20,7 +20,6 @@
 
 package phylosketch.commands;
 
-import javafx.scene.shape.Path;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -117,10 +116,9 @@ public class RerootCommand extends UndoableRedoableCommand {
 
 					for (var id : edgesToChange) {
 						var f = graph.findEdgeById(id);
-						if (f.getData() instanceof Path path) {
-							PathUtils.reverse(path);
-						}
 						f.reverse();
+						var path = DrawView.getPath(f);
+						path.set(path.reverse().getElements(), path.getType());
 					}
 					if (newNodeId != -1)
 						view.deleteNode(graph.findNodeById(newNodeId));
@@ -141,13 +139,12 @@ public class RerootCommand extends UndoableRedoableCommand {
 
 					for (var id : edgesToChange) {
 						var f = graph.findEdgeById(id);
-						if (f.getData() instanceof Path path) {
-							PathUtils.reverse(path);
-							view.getEdgeSelection().select(f);
-							view.getNodeSelection().select(f.getSource());
-							view.getNodeSelection().select(f.getTarget());
-						}
 						f.reverse();
+						var path = DrawView.getPath(f);
+						path.set(path.reverse().getElements(), path.getType());
+						view.getEdgeSelection().select(f);
+						view.getNodeSelection().select(f.getSource());
+						view.getNodeSelection().select(f.getTarget());
 					}
 					if (oldEdgeId != -1) {
 						var index = oldEdgePath.getElements().size() / 2;

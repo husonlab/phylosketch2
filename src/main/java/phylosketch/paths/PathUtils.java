@@ -45,28 +45,91 @@ public class PathUtils {
 		return result;
 	}
 
-	public static Path copy(Path path) {
-		return createPath(extractPoints(path), false);
+	public static Path copy(Path original) {
+		Path copy = new Path();
+
+		for (var e : original.getElements()) {
+			copy.getElements().add(copyElement(e));
+		}
+
+		copy.setFill(original.getFill());
+		copy.setStroke(original.getStroke());
+		copy.setStrokeWidth(original.getStrokeWidth());
+		copy.getStrokeDashArray().setAll(original.getStrokeDashArray());
+		copy.setStrokeLineCap(original.getStrokeLineCap());
+		copy.setStrokeLineJoin(original.getStrokeLineJoin());
+		copy.setStrokeMiterLimit(original.getStrokeMiterLimit());
+
+		copy.setEffect(original.getEffect());
+
+		return copy;
+	}
+
+	public static PathElement copyElement(PathElement element) {
+		if (element instanceof MoveTo m) {
+			return new MoveTo(m.getX(), m.getY());
+		}
+		if (element instanceof LineTo l) {
+			return new LineTo(l.getX(), l.getY());
+		}
+		if (element instanceof QuadCurveTo q) {
+			return new QuadCurveTo(q.getControlX(), q.getControlY(), q.getX(), q.getY());
+		}
+		if (element instanceof CubicCurveTo c) {
+			return new CubicCurveTo(
+					c.getControlX1(), c.getControlY1(),
+					c.getControlX2(), c.getControlY2(),
+					c.getX(), c.getY());
+		}
+		if (element instanceof ArcTo a) {
+			ArcTo arc = new ArcTo();
+			arc.setX(a.getX());
+			arc.setY(a.getY());
+			arc.setRadiusX(a.getRadiusX());
+			arc.setRadiusY(a.getRadiusY());
+			arc.setXAxisRotation(a.getXAxisRotation());
+			arc.setLargeArcFlag(a.isLargeArcFlag());
+			arc.setSweepFlag(a.isSweepFlag());
+			return arc;
+		}
+		if (element instanceof ClosePath) {
+			return new ClosePath();
+		}
+
+		throw new IllegalArgumentException("Unknown PathElement: " + element);
 	}
 
 	public static List<Point2D> extractPoints(Path path) {
 		var points = new ArrayList<Point2D>();
 		for (var element : path.getElements()) {
-			points.add(getCoordinates(element));
+			if (element instanceof MoveTo moveTo) {
+				points.add(new Point2D(moveTo.getX(), moveTo.getY()));
+			} else if (element instanceof LineTo lineTo) {
+				points.add(new Point2D(lineTo.getX(), lineTo.getY()));
+			} else if (element instanceof QuadCurveTo quadCurveTo) {
+				points.add(new Point2D(quadCurveTo.getControlX(), quadCurveTo.getControlY()));
+				points.add(new Point2D(quadCurveTo.getX(), quadCurveTo.getY()));
+			} else if (element instanceof CubicCurveTo cubicCurveTo) {
+				points.add(new Point2D(cubicCurveTo.getControlX1(), cubicCurveTo.getControlY1()));
+				points.add(new Point2D(cubicCurveTo.getControlX2(), cubicCurveTo.getControlY2()));
+				points.add(new Point2D(cubicCurveTo.getX(), cubicCurveTo.getY()));
+			} else if (element instanceof ArcTo arcTo) {
+				points.add(new Point2D(arcTo.getX(), arcTo.getY()));
+			}
 		}
 		return points;
 	}
 
-	public static Point2D getCoordinates(PathElement pathElement) {
-		if (pathElement instanceof MoveTo moveTo) {
+	public static Point2D getCoordinates(PathElement element) {
+		if (element instanceof MoveTo moveTo) {
 			return new Point2D(moveTo.getX(), moveTo.getY());
-		} else if (pathElement instanceof LineTo lineTo) {
+		} else if (element instanceof LineTo lineTo) {
 			return new Point2D(lineTo.getX(), lineTo.getY());
-		} else if (pathElement instanceof QuadCurveTo quadCurveTo) {
+		} else if (element instanceof QuadCurveTo quadCurveTo) {
 			return new Point2D(quadCurveTo.getX(), quadCurveTo.getY());
-		} else if (pathElement instanceof CubicCurveTo cubicCurveTo) {
+		} else if (element instanceof CubicCurveTo cubicCurveTo) {
 			return new Point2D(cubicCurveTo.getX(), cubicCurveTo.getY());
-		} else if (pathElement instanceof ArcTo arcTo) {
+		} else if (element instanceof ArcTo arcTo) {
 			return new Point2D(arcTo.getX(), arcTo.getY());
 		} else {
 			return new Point2D(0, 0);
@@ -116,13 +179,6 @@ public class PathUtils {
 			}
 			return points.get(best);
 		}
-	}
-
-
-	public static void reverse(Path path) {
-		var points = extractPoints(path);
-		points = CollectionUtils.reverse(points);
-		path.getElements().setAll(createPath(points, false).getElements());
 	}
 
 	/**

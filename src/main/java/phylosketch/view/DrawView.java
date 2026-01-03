@@ -573,7 +573,7 @@ public class DrawView extends Pane {
 			for (var e : edges) {
 				if (!edgeOutlineMap.containsKey(e)) {
 					if (e.getData() instanceof EdgePath path) {
-						var outline = PathUtils.createPath(PathUtils.extractPoints(path), false);
+						var outline = PathUtils.copy(path);
 						outline.getStyleClass().remove("graph-edge");
 						if (e.getSource().getInDegree() == 0 || e.getTarget().getOutDegree() == 0)
 							outline.setStrokeLineCap(StrokeLineCap.SQUARE);
