@@ -211,9 +211,6 @@ public class FormatPaneController {
 	private Button transferAcceptorButton;
 
 	@FXML
-	private Button applyModificationButton;
-
-	@FXML
 	private Button induceButton;
 
 	@FXML
@@ -259,11 +256,11 @@ public class FormatPaneController {
 	@FXML
 	private TitledPane edgeLabelStylePane;
 	@FXML
-	private TitledPane drawPhylogenyPane;
+	private TitledPane layoutPane;
 	@FXML
-	private TitledPane layoutPhylogenyPane;
+	private TitledPane transformPane;
 	@FXML
-	private TitledPane modifyPhylogenyPane;
+	private TitledPane structurePane;
 
 	@FXML
 	private void initialize() {
@@ -302,8 +299,6 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(clearEdgeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearEdgeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 		MaterialIcons.setIcon(clearEdgeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-
-		MaterialIcons.setIcon(applyModificationButton, MaterialIcons.auto_fix_high);
 
 		MaterialIcons.setIcon(applyLayoutPhylogenyButton, MaterialIcons.play_circle);
 
@@ -578,10 +573,6 @@ public class FormatPaneController {
 		return crossEdgesButton;
 	}
 
-	public Button getApplyModificationButton() {
-		return applyModificationButton;
-	}
-
 	public Button getInduceButton() {
 		return induceButton;
 	}
@@ -654,15 +645,15 @@ public class FormatPaneController {
 		return edgeLabelStylePane;
 	}
 
-	public TitledPane getDrawPhylogenyPane() {
-		return drawPhylogenyPane;
+	public TitledPane getLayoutPane() {
+		return layoutPane;
 	}
 
-	public TitledPane getLayoutPhylogenyPane() {
-		return layoutPhylogenyPane;
+	public TitledPane getTransformPane() {
+		return transformPane;
 	}
 
-	public TitledPane getModifyPhylogenyPane() {
-		return modifyPhylogenyPane;
+	public TitledPane getStructurePane() {
+		return structurePane;
 	}
 }

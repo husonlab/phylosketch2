@@ -97,4 +97,8 @@ viewer-background {
     -fx-font-size: 11px;
 }
 
+.titled-pane > .content {
+    -fx-padding: -5 -5 -5 -5; /* top right bottom left */
+}
+
 

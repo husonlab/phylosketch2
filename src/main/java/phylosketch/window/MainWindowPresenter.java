@@ -127,12 +127,12 @@ public class MainWindowPresenter {
 			}
 		});
 
-		formatPaneView = new FormatPaneView(view, controller.getShowSettingsButton().selectedProperty());
+		formatPaneView = new FormatPaneView(view, controller.getShowToolsButton().selectedProperty());
 		AnchorPane.setTopAnchor(formatPaneView.getPane(), 10.0);
 		AnchorPane.setRightAnchor(formatPaneView.getPane(), 20.0);
 		controller.getCenterAnchorPane().getChildren().add(formatPaneView.getPane());
 		formatPaneView.getPane().setVisible(false);
-		controller.getShowSettingsButton().selectedProperty().bindBidirectional(formatPaneView.getPane().visibleProperty());
+		controller.getShowToolsButton().selectedProperty().bindBidirectional(formatPaneView.getPane().visibleProperty());
 
 
 		{
@@ -249,7 +249,6 @@ public class MainWindowPresenter {
 					throw new RuntimeException(ex);
 				}
 			}
-
 			controller.getCloseMenuItem().getOnAction().handle(null);
 			e.consume();
 		});
@@ -490,16 +489,15 @@ public class MainWindowPresenter {
 					}
 				},
 				image -> {
-					if (SUPPORTS_CAPTURE) {
-						var pasteCommand = UndoableRedoableCommand.create("image", () -> {
-							capturePane.setImage(null);
-							view.setMode(DrawView.Mode.Sketch);
-						}, () -> {
+					var pasteCommand = UndoableRedoableCommand.create("image", () -> {
+						capturePane.setImage(null);
+						view.setMode(DrawView.Mode.Sketch);
+					}, () -> {
+						if (SUPPORTS_CAPTURE)
 							view.setMode(DrawView.Mode.Capture);
-							capturePane.setImage(image);
-						});
-						view.getUndoManager().doAndAdd(pasteCommand);
-					}
+						capturePane.setImage(image);
+					});
+					view.getUndoManager().doAndAdd(pasteCommand);
 				});
 
 		controller.getPasteButton().setOnAction(e -> controller.getPasteMenuItem().fire());
@@ -565,10 +563,6 @@ public class MainWindowPresenter {
 
 		formatPaneView.getController().getTransferAcceptorButton().setOnAction(controller.getDeclareTransferAcceptorMenuItem().getOnAction());
 		formatPaneView.getController().getTransferAcceptorButton().disableProperty().bind(controller.getDeclareTransferAcceptorMenuItem().disableProperty());
-
-		formatPaneView.getController().getApplyModificationButton().setOnAction(controller.getApplyModificationMenuItem().getOnAction());
-		formatPaneView.getController().getApplyModificationButton().disableProperty().bind(controller.getApplyModificationMenuItem().disableProperty());
-		controller.getApplyModificationMenuItem().textProperty().addListener((v, o, n) -> formatPaneView.getController().getApplyModificationButton().setTooltip(new Tooltip(n)));
 
 		formatPaneView.getController().getInduceButton().setOnAction(controller.getInduceMenuItem().getOnAction());
 		formatPaneView.getController().getInduceButton().disableProperty().bind(controller.getInduceMenuItem().disableProperty());

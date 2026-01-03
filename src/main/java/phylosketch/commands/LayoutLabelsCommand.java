@@ -28,6 +28,7 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ConnectedComponents;
+import jloda.util.Basic;
 import jloda.util.CollectionUtils;
 import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
@@ -50,7 +51,6 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 		var nodeOldLayoutMap = new HashMap<Integer, Point2D>();
 		var nodeNewLayoutMap = new HashMap<Integer, Point2D>();
 
-
 		for (var v : nodes) {
 			if (v.getInfo() instanceof RichTextLabel label) {
 				nodeOldLayoutMap.put(v.getId(), new Point2D(label.getLayoutX(), label.getLayoutY()));
@@ -69,33 +69,37 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 				}
 			};
 			redo = () -> {
-				if (nodeNewLayoutMap.isEmpty()) {
-					var nodeRootLocationMap = new HashMap<Node, RootPosition>();
-					if (rootPosition == null) {
-						var components = ConnectedComponents.components(view.getGraph());
-						for (var component : components) {
-							var intersection = CollectionUtils.intersection(component, nodes);
-							if (!intersection.isEmpty()) {
-								var rootLocation = RootPosition.compute(component);
-								for (var v : intersection) {
-									nodeRootLocationMap.put(v, rootLocation);
+				try {
+					if (nodeNewLayoutMap.isEmpty()) {
+						var nodeRootLocationMap = new HashMap<Node, RootPosition>();
+						if (rootPosition == null) {
+							var components = ConnectedComponents.components(view.getGraph());
+							for (var component : components) {
+								var intersection = CollectionUtils.intersection(component, nodes);
+								if (!intersection.isEmpty()) {
+									var rootLocation = RootPosition.compute(component);
+									for (var v : intersection) {
+										nodeRootLocationMap.put(v, rootLocation);
+									}
 								}
 							}
 						}
+						for (var v : nodes) {
+							var label = DrawView.getLabel(v);
+							var layout = computeLabelLayout(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
+							nodeNewLayoutMap.put(v.getId(), layout);
+						}
 					}
-					for (var v : nodes) {
-						var label = DrawView.getLabel(v);
-						var layout = computeLabelLayout(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
-						nodeNewLayoutMap.put(v.getId(), layout);
+					for (var entry : nodeNewLayoutMap.entrySet()) {
+						var v = view.getGraph().findNodeById(entry.getKey());
+						if (v != null) {
+							var label = DrawView.getLabel(v);
+							label.setLayoutX(entry.getValue().getX());
+							label.setLayoutY(entry.getValue().getY());
+						}
 					}
-				}
-				for (var entry : nodeNewLayoutMap.entrySet()) {
-					var v = view.getGraph().findNodeById(entry.getKey());
-					if (v != null) {
-						var label = DrawView.getLabel(v);
-						label.setLayoutX(entry.getValue().getX());
-						label.setLayoutY(entry.getValue().getY());
-					}
+				} catch (Exception e) {
+					Basic.caught(e);
 				}
 			};
 		} else {

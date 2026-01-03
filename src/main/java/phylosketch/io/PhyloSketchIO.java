@@ -121,7 +121,8 @@ public class PhyloSketchIO {
 					}));
 					return (value.isBlank() ? null : value);
 				});
-		BackgroundImageIO.save(backgroundImageView, w);
+		if (backgroundImageView.isVisible())
+			BackgroundImageIO.save(backgroundImageView, w);
 	}
 
 	/**

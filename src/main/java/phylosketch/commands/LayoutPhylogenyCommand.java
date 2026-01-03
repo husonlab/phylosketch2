@@ -21,6 +21,7 @@
 package phylosketch.commands;
 
 import javafx.geometry.Point2D;
+import javafx.scene.layout.Pane;
 import jloda.fx.phylo.embed.Averaging;
 import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.phylo.embed.ScaleUtils;
@@ -28,6 +29,7 @@ import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.AService;
 import jloda.fx.window.NotificationManager;
+import jloda.fx.windownotifications.WindowNotifications;
 import jloda.graph.Edge;
 import jloda.graph.EdgeArray;
 import jloda.graph.Node;
@@ -193,6 +195,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 				}
 			};
 		} else {
+			WindowNotifications.showWarning((Pane) view.getScene().getRoot(), "Can't redraw, wrong number of roots or similar problem");
 			undo = null;
 			redo = null;
 		}

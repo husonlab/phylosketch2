@@ -121,8 +121,8 @@
                         </TitledPane>
                     </panes>
                 </Accordion>
-                <HBox alignment="CENTER" layoutX="222.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                      spacing="15">
+                <HBox alignment="CENTER" layoutX="222.0" spacing="15" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0">
                     <children>
                         <Button fx:id="dragButton" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false"
                                 text="D"/>
@@ -179,7 +179,7 @@
         <Accordion VBox.vgrow="ALWAYS">
             <panes>
                 <TitledPane fx:id="nodeLabelsStylePane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
-                            text="Node Labels Style">
+                            text="Node Label Style">
                     <content>
                         <GridPane hgap="5.0" vgap="3.0">
                             <columnConstraints>
@@ -623,7 +623,86 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane fx:id="drawPhylogenyPane" animated="false" text="Draw Phylogeny">
+                <TitledPane fx:id="structurePane" animated="false" text="Structure">
+                    <content>
+                        <VBox alignment="CENTER" spacing="5.0">
+                            <GridPane>
+                                <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                       prefWidth="100.0"/>
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                       prefWidth="100.0"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                </rowConstraints>
+                                <children>
+                                    <Button fx:id="deleteThruNodesButton" layoutX="21.0" layoutY="23.0"
+                                            mnemonicParsing="false" text="Del. Thru Nodes" GridPane.columnIndex="1">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="Remove selected thru nodes (with both  indegree and outdegree 1)"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="reverseEdgesButton" layoutX="21.0" layoutY="23.0"
+                                            mnemonicParsing="false" text="Reverse Edges" GridPane.rowIndex="1">
+                                        <tooltip>
+                                            <Tooltip text="Reverse the direction of selected edges"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="crossEdgesButton" layoutX="21.0" layoutY="53.0"
+                                            mnemonicParsing="false" text="Cross Edges" GridPane.columnIndex="1"
+                                            GridPane.rowIndex="1">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="For a node of in- and outdegree 2, separate into two crossing edges"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="mergeNodesButton" layoutX="24.0" layoutY="53.0"
+                                            mnemonicParsing="false" text="Merge Nodes">
+                                        <tooltip>
+                                            <Tooltip text="Merge all selected nodes into one"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="transferAcceptorButton" mnemonicParsing="false" text="Acceptor Edge"
+                                            GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="Declare a reticulate in-edge to be the transfer acceptor edge"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="declareRootButton" mnemonicParsing="false" text="Declare Root"
+                                            GridPane.rowIndex="2">
+                                        <tooltip>
+                                            <Tooltip text="Declare the selected node as root, and direct edges away"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="induceButton" layoutX="24.0" layoutY="53.0" mnemonicParsing="false"
+                                            text="Induce" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                        <tooltip>
+                                            <Tooltip text="Restrict to phylogeny induced by current selection"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete"
+                                            GridPane.rowIndex="3">
+                                        <tooltip>
+                                            <Tooltip text="Delete (selected) nodes and edges"/>
+                                        </tooltip>
+                                    </Button>
+
+                                </children>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="layoutPane" animated="false" text="Layout">
                     <content>
                         <VBox alignment="CENTER">
                             <GridPane hgap="5.0" vgap="5.0">
@@ -653,7 +732,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="541.0">
             <panes>
-                <TitledPane fx:id="layoutPhylogenyPane" animated="false" text="Layout Phylogeny">
+                <TitledPane fx:id="transformPane" animated="false" text="Transform">
                     <content>
                         <VBox alignment="CENTER">
                             <children>
@@ -711,93 +790,6 @@
                                     </children>
                                 </GridPane>
                             </children>
-                        </VBox>
-                    </content>
-                </TitledPane>
-            </panes>
-        </Accordion>
-        <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
-            <panes>
-                <TitledPane fx:id="modifyPhylogenyPane" animated="false" text="Modify Phylogeny">
-                    <content>
-                        <VBox alignment="CENTER" spacing="5.0">
-                        <GridPane>
-                            <columnConstraints>
-                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
-                                                   prefWidth="100.0"/>
-                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
-                                                   prefWidth="100.0"/>
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                            </rowConstraints>
-                            <children>
-                                <Button fx:id="deleteThruNodesButton" layoutX="21.0" layoutY="23.0"
-                                        mnemonicParsing="false" text="Del. Thru Nodes" GridPane.columnIndex="1"
-                                        GridPane.rowIndex="1">
-                                    <tooltip>
-                                        <Tooltip
-                                                text="Remove selected thru nodes (with both  indegree and outdegree 1)"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="reverseEdgesButton" layoutX="21.0" layoutY="23.0" mnemonicParsing="false"
-                                        text="Reverse Edges" GridPane.rowIndex="2">
-                                    <tooltip>
-                                        <Tooltip text="Reverse the diredtion of selected edges"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="crossEdgesButton" layoutX="21.0" layoutY="53.0" mnemonicParsing="false"
-                                        text="Cross Edges" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                    <tooltip>
-                                        <Tooltip
-                                                text="For a node of in- and outdegree 2, separate into two crossing edges"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="mergeNodesButton" layoutX="24.0" layoutY="53.0" mnemonicParsing="false"
-                                        text="Merge Nodes" GridPane.rowIndex="1">
-                                    <tooltip>
-                                        <Tooltip text="Merge all selected nodes into one"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="transferAcceptorButton" mnemonicParsing="false" text="Acceptor Edge"
-                                        GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                    <tooltip>
-                                        <Tooltip text="Declare a reticulate in-edge to be the transfer acceptor edge"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="declareRootButton" mnemonicParsing="false" text="Declare Root"
-                                        GridPane.rowIndex="3">
-                                    <tooltip>
-                                        <Tooltip text="Declare the selected node as root, and direct edges away"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="applyModificationButton" layoutX="22.0" layoutY="102.0"
-                                        mnemonicParsing="false" text="Mend">
-                                    <tooltip>
-                                        <Tooltip text="Apply the currently most suitable modification"/>
-                                    </tooltip>
-                                </Button>
-                                <Button fx:id="induceButton" layoutX="24.0" layoutY="53.0" mnemonicParsing="false"
-                                        text="Induce" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <tooltip>
-                                        <Tooltip text="Restrict to phylogeny induced by current selection"/>
-                                    </tooltip>
-                                </Button>
-
-                            </children>
-                        </GridPane>
-                            <HBox alignment="CENTER" VBox.vgrow="NEVER">
-                                <children>
-                                    <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete">
-                                        <tooltip>
-                                            <Tooltip text="Delete (selected) nodes and edges"/>
-                                        </tooltip>
-                                    </Button>
-                                </children>
-                            </HBox>
                         </VBox>
                     </content>
                 </TitledPane>

@@ -42,6 +42,8 @@ import phylosketch.view.DrawView;
 import phylosketch.view.RootPosition;
 import phylosketch.window.MainWindowController;
 
+import static phylosketch.window.MainWindowPresenter.SUPPORTS_CAPTURE;
+
 /**
  * maintain an image in the background for image capturepane
  * Daniel Huson, 1.2025
@@ -110,10 +112,7 @@ public class CapturePane extends HBox {
 
 		var closeButton = new Button("Close");
 		MaterialIcons.setIcon(closeButton, MaterialIcons.close);
-		closeButton.setOnAction(a -> {
-			imageView.setImage(null);
-			view.setMode(DrawView.Mode.Sketch);
-		});
+		closeButton.setOnAction(a -> controller.getClearCaptureImageItem().fire());
 
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
 
@@ -277,10 +276,11 @@ public class CapturePane extends HBox {
 	}
 
 	public void setImage(Image image) {
-
-		PhyloImageAnalyzer.analyze(image, s -> {
-			WindowNotifications.showWarning(windowPane, s);
-		});
+		if (SUPPORTS_CAPTURE) {
+			PhyloImageAnalyzer.analyze(image, s -> {
+				WindowNotifications.showWarning(windowPane, s);
+			});
+		}
 		getImageView().setImage(image);
 	}
 }

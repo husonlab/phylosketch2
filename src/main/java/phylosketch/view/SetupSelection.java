@@ -21,6 +21,7 @@
 package phylosketch.view;
 
 import javafx.beans.binding.Bindings;
+import javafx.event.Event;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.algorithms.ArticulationPoints;
@@ -49,6 +50,20 @@ public class SetupSelection {
 		var graph = view.getGraph();
 		var nodeSelection = view.getNodeSelection();
 		var edgeSelection = view.getEdgeSelection();
+
+		controller.getSelectMenuButton().getGraphic().setOnMouseClicked(e -> {
+			if (!view.getGraphFX().isEmpty()) {
+				if (view.getNodeSelection().size() == 0 && view.getEdgeSelection().size() == 0) {
+					controller.getSelectRootsMenuItem().fire();
+				} else {
+					controller.getExtendSelectionMenuItem().fire();
+				}
+				e.consume();
+			}
+		});
+		controller.getSelectMenuButton().getGraphic().setOnMousePressed(Event::consume);
+		controller.getSelectMenuButton().getGraphic().setOnMouseReleased(Event::consume);
+
 
 		controller.getExtendSelectionMenuItem().setOnAction(a -> {
 			if (nodeSelection.size() == 0 && edgeSelection.size() > 0) {
@@ -133,7 +148,7 @@ public class SetupSelection {
 				nodes.forEach(nodeSelection::select);
 			}
 		});
-		controller.getSelectArticulationNodesMenuItem().disableProperty().bind(Bindings.isEmpty(nodeSelection.getSelectedItems()));
+		controller.getSelectArticulationNodesMenuItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		controller.getSelectVisibleNodesMenuItem().setOnAction(e -> {
 			try (var nodes = RootedNetworkProperties.computeAllVisibleNodes(graph, null)) {

@@ -1,0 +1,814 @@
+graph [
+	comment "Created by PhyloSketch App on 2026-01-03 07:44:22"
+	directed 1
+	id 1
+	node [
+		id 1
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "94.6"
+		y "362.5"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 2
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "144.1"
+		y "390.9"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 3
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "674.9"
+		label "ichang papeda"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 4
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "193.6"
+		y "362.5"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 5
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "243.1"
+		y "424"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 6
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "292.6"
+		y "324.6"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 7
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "441.1"
+		y "315.1"
+		label "common mandarin"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 8
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "334"
+		label "Ryukyu mandarin"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 9
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "366.8"
+		y "461.9"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 10
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "490.6"
+		y "447.7"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 11
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "390.9"
+		label "desert lime"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 12
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "540.1"
+		y "476.1"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 13
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "447.7"
+		label "finger lime"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 14
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "504.5"
+		label "round lime"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 15
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "416.3"
+		y "532.9"
+		label "kumquat"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 16
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "243.1"
+		y "192"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 17
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "106.8"
+		label "micrantha"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 18
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "292.6"
+		y "192"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 19
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "515.3"
+		y "182.6"
+		label "citron"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 20
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "441.1"
+		y "201.5"
+		label "pomelo"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 21
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "50"
+		label "mangshanyegan"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 22
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "515.3"
+		y "674.9"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 23
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "540.1"
+		y "618.1"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 25
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "618.1"
+		label "yuzu"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 26
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "441.1"
+		y "106.8"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 27
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "465.8"
+		y "135.2"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 28
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "342.1"
+		y "182.6"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 29
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "515.3"
+		y "135.2"
+		label "key lime"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 30
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "515.3"
+		y "248.8"
+		label "sweet orange"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 33
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "515.3"
+		y "296.2"
+		label "sour orange"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 34
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "465.8"
+		y "296.2"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 36
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "540.1"
+		y "220.4"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 37
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "465.8"
+		y "248.8"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 38
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "220.4"
+		label "grapefruit"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 39
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "540.1"
+		y "163.6"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 40
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "163.6"
+		label "Rangpur lime"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 42
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "540.1"
+		y "561.3"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 44
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "561.3"
+		label "limequat"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 46
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "589.6"
+		y "277.2"
+		label "lemon"
+		label_dx "10"
+		label_dy "-7.8"
+	]
+	node [
+		id 48
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "540.1"
+		y "277.2"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 51
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "391.6"
+		y "315.1"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 52
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "342.1"
+		y "315.1"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	node [
+		id 56
+		shape "Circle"
+		size "2,2"
+		stroke "null"
+		x "465.8"
+		y "182.6"
+		label_dx "10"
+		label_dy "-7.7"
+	]
+	edge [
+		source 6
+		target 8
+		weight "1"
+		path "M 292.5885936809017 324.5772727272727 L 292.5885936809017 334.04545454545456 L 589.5714842022542 334.04545454545456"
+		arrow "1"
+	]
+	edge [
+		source 5
+		target 6
+		weight "1"
+		path "M 243.09144526067624 423.99318181818177 L 243.09144526067624 324.5772727272727 L 292.5885936809017 324.5772727272727"
+		arrow "1"
+	]
+	edge [
+		source 10
+		target 11
+		weight "1"
+		path "M 490.57718736180334 447.6636363636364 L 490.57718736180334 390.8545454545454 L 589.5714842022542 390.8545454545454"
+		arrow "1"
+	]
+	edge [
+		source 12
+		target 13
+		weight "1"
+		path "M 540.0743357820287 476.0681818181818 L 540.0743357820287 447.6636363636364 L 589.5714842022542 447.6636363636364"
+		arrow "1"
+	]
+	edge [
+		source 12
+		target 14
+		weight "1"
+		path "M 540.0743357820287 476.0681818181818 L 540.0743357820287 504.47272727272724 L 589.5714842022542 504.47272727272724"
+		arrow "1"
+	]
+	edge [
+		source 10
+		target 12
+		weight "1"
+		path "M 490.57718736180334 447.6636363636364 L 490.57718736180334 476.0681818181818 L 540.0743357820287 476.0681818181818"
+		arrow "1"
+	]
+	edge [
+		source 9
+		target 10
+		weight "1"
+		path "M 366.8343163112397 461.86590909090904 L 366.8343163112397 447.6636363636364 L 490.57718736180334 447.6636363636364"
+		arrow "1"
+	]
+	edge [
+		source 4
+		target 5
+		weight "1"
+		path "M 193.59429684045082 362.45 L 193.59429684045082 423.99318181818177 L 243.09144526067624 423.99318181818177"
+		arrow "1"
+	]
+	edge [
+		source 16
+		target 18
+		weight "1"
+		path "M 243.09144526067624 192.02272727272728 L 243.09144526067624 192.02272727272728 L 292.5885936809017 192.02272727272728"
+		arrow "1"
+	]
+	edge [
+		source 4
+		target 16
+		weight "1"
+		path "M 193.59429684045082 362.45 L 193.59429684045082 192.02272727272728 L 243.09144526067624 192.02272727272728"
+		arrow "1"
+	]
+	edge [
+		source 2
+		target 4
+		weight "1"
+		path "M 144.0971484202254 390.8545454545454 L 144.0971484202254 362.45 L 193.59429684045082 362.45"
+		arrow "1"
+	]
+	edge [
+		source 1
+		target 21
+		weight "1"
+		path "M 94.6 362.45 L 94.6 50.0 L 589.5714842022542 50.0"
+		arrow "1"
+	]
+	edge [
+		source 2
+		target 22
+		weight "1"
+		path "M 144.0971484202254 390.8545454545454 L 144.0971484202254 674.9 L 515.325761571916 674.9"
+		arrow "1"
+	]
+	edge [
+		source 22
+		target 3
+		weight "1"
+		path "M 515.325761571916 674.9 L 515.325761571916 674.9 L 589.5714842022542 674.9"
+		arrow "1"
+	]
+	edge [
+		source 22
+		target 23
+		probability "0.5"
+		path "M 515.325761571916 674.9 Q 515.325761571916 618.0909090909091 540.0743357820287 618.0909090909091"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 23
+		target 25
+		weight "1"
+		path "M 540.0743357820287 618.0909090909091 L 540.0743357820287 618.0909090909091 L 589.5714842022542 618.0909090909091"
+		arrow "1"
+	]
+	edge [
+		source 16
+		target 26
+		weight "1"
+		path "M 243.09144526067624 192.02272727272728 L 243.09144526067624 106.80909090909091 L 441.08003894157787 106.80909090909091"
+		arrow "1"
+	]
+	edge [
+		source 26
+		target 17
+		weight "1"
+		path "M 441.08003894157787 106.80909090909091 L 441.08003894157787 106.80909090909091 L 589.5714842022542 106.80909090909091"
+		arrow "1"
+	]
+	edge [
+		source 26
+		target 27
+		probability "1"
+		path "M 441.08003894157787 106.80909090909091 Q 441.08003894157787 135.21363636363634 465.82861315169066 135.21363636363634"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 18
+		target 28
+		weight "1"
+		path "M 292.5885936809017 192.02272727272728 L 292.5885936809017 182.55454545454546 L 342.08574210112704 182.55454545454546"
+		arrow "1"
+	]
+	edge [
+		source 28
+		target 27
+		probability "1"
+		path "M 342.08574210112704 182.55454545454546 Q 342.08574210112704 135.21363636363634 465.82861315169066 135.21363636363634"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 37
+		target 30
+		weight "1"
+		path "M 465.82861315169066 248.8318181818182 L 465.82861315169066 248.8318181818182 L 515.325761571916 248.8318181818182"
+		arrow "1"
+	]
+	edge [
+		source 36
+		target 38
+		weight "1"
+		path "M 540.0743357820287 220.4272727272727 L 540.0743357820287 220.4272727272727 L 589.5714842022542 220.4272727272727"
+		arrow "1"
+	]
+	edge [
+		source 39
+		target 40
+		weight "1"
+		path "M 540.0743357820287 163.61818181818182 L 540.0743357820287 163.61818181818182 L 589.5714842022542 163.61818181818182"
+		arrow "1"
+	]
+	edge [
+		source 42
+		target 44
+		weight "1"
+		path "M 540.0743357820287 561.2818181818182 L 540.0743357820287 561.2818181818182 L 589.5714842022542 561.2818181818182"
+		arrow "1"
+	]
+	edge [
+		source 48
+		target 46
+		weight "1"
+		path "M 540.0743357820287 277.23636363636365 L 540.0743357820287 277.23636363636365 L 589.5714842022542 277.23636363636365"
+		arrow "1"
+	]
+	edge [
+		source 1
+		target 2
+		weight "1"
+		path "M 94.6 362.45 L 94.6 390.8545454545454 L 144.0971484202254 390.8545454545454"
+		arrow "1"
+	]
+	edge [
+		source 51
+		target 7
+		weight "1"
+		path "M 391.5828905213525 315.10909090909087 L 391.5828905213525 315.10909090909087 L 441.08003894157787 315.10909090909087"
+		arrow "1"
+	]
+	edge [
+		source 51
+		target 39
+		probability "1"
+		path "M 391.5828905213525 315.10909090909087 Q 391.5828905213525 163.61818181818182 540.0743357820287 163.61818181818182"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 52
+		target 51
+		weight "1"
+		path "M 342.08574210112704 315.10909090909087 L 342.08574210112704 315.10909090909087 L 391.5828905213525 315.10909090909087"
+		arrow "1"
+	]
+	edge [
+		source 52
+		target 23
+		probability "0.5"
+		path "M 342.08574210112704 315.10909090909087 Q 342.08574210112704 618.0909090909091 540.0743357820287 618.0909090909091"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 5
+		target 9
+		weight "1"
+		path "M 243.09144526067624 423.99318181818177 L 243.09144526067624 461.86590909090904 L 366.8343163112397 461.86590909090904"
+		arrow "1"
+	]
+	edge [
+		source 28
+		target 56
+		weight "1"
+		path "M 342.08574210112704 182.55454545454546 L 342.08574210112704 182.55454545454546 L 465.82861315169066 182.55454545454546"
+		arrow "1"
+	]
+	edge [
+		source 56
+		target 39
+		probability "1"
+		path "M 465.82861315169066 182.55454545454546 Q 465.82861315169066 163.61818181818182 540.0743357820287 163.61818181818182"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 33
+		target 48
+		probability "0.465"
+		path "M 515.325761571916 296.17272727272723 Q 515.325761571916 277.23636363636365 540.0743357820287 277.23636363636365"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 19
+		target 48
+		probability "0.535"
+		path "M 515.325761571916 182.55454545454546 Q 515.325761571916 277.23636363636365 540.0743357820287 277.23636363636365"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 27
+		target 29
+		weight "1"
+		path "M 465.82861315169066 135.21363636363634 L 465.82861315169066 135.21363636363634 L 515.325761571916 135.21363636363634"
+	]
+	edge [
+		source 56
+		target 19
+		weight "1"
+		path "M 465.82861315169066 182.55454545454546 L 465.82861315169066 182.55454545454546 L 515.325761571916 182.55454545454546"
+	]
+	edge [
+		source 34
+		target 33
+		weight "1"
+		path "M 465.82861315169066 296.17272727272723 L 465.82861315169066 296.17272727272723 L 515.325761571916 296.17272727272723"
+	]
+	edge [
+		source 9
+		target 15
+		weight "1"
+		path "M 366.8343163112397 461.86590909090904 L 366.8343163112397 532.8772727272726 L 416.3314647314652 532.8772727272726"
+	]
+	edge [
+		source 29
+		target 42
+		probability "1"
+		path "M 515.325761571916 135.21363636363634 Q 515.325761571916 561.2818181818182 540.0743357820287 561.2818181818182"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 20
+		target 36
+		probability "0.5"
+		path "M 441.08003894157787 201.4909090909091 Q 441.08003894157787 220.4272727272727 540.0743357820287 220.4272727272727"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 30
+		target 36
+		probability "0.5"
+		path "M 515.325761571916 248.8318181818182 Q 515.325761571916 220.4272727272727 540.0743357820287 220.4272727272727"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 7
+		target 37
+		probability "0.75"
+		path "M 441.08003894157787 315.10909090909087 Q 441.08003894157787 248.8318181818182 465.82861315169066 248.8318181818182"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 20
+		target 37
+		probability "0.25"
+		path "M 441.08003894157787 201.4909090909091 Q 441.08003894157787 248.8318181818182 465.82861315169066 248.8318181818182"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 20
+		target 34
+		probability "0.5"
+		path "M 441.08003894157787 201.4909090909091 Q 441.08003894157787 296.17272727272723 465.82861315169066 296.17272727272723"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 7
+		target 34
+		probability "0.5"
+		path "M 441.08003894157787 315.10909090909087 Q 441.08003894157787 296.17272727272723 465.82861315169066 296.17272727272723"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+	edge [
+		source 6
+		target 52
+		weight "1"
+		path "M 292.5885936809017 324.5772727272727 L 292.5885936809017 315.10909090909087 L 342.08574210112704 315.10909090909087"
+	]
+	edge [
+		source 18
+		target 20
+		weight "1"
+		path "M 292.5885936809017 192.02272727272728 L 292.5885936809017 201.4909090909091 L 441.08003894157787 201.4909090909091"
+	]
+	edge [
+		source 15
+		target 42
+		probability "1"
+		path "M 416.3314647314652 532.8772727272726 Q 416.3314647314652 561.2818181818182 540.0743357820287 561.2818181818182"
+		stroke "0xff8c00ff"
+		arrow "1"
+	]
+]

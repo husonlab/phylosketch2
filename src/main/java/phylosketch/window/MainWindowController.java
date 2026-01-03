@@ -115,7 +115,7 @@ public class MainWindowController {
 	private Menu exportMenu;
 
 	@FXML
-	private ToggleButton showSettingsButton;
+	private ToggleButton showToolsButton;
 
 	@FXML
 	private MenuButton exportMenuButton;
@@ -467,7 +467,7 @@ public class MainWindowController {
 		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, "", false);
 		MaterialIcons.setIcon(findButton, MaterialIcons.search, "", false);
 		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, "", false);
-		MaterialIcons.setIcon(showSettingsButton, MaterialIcons.format_shapes, "", false);
+		MaterialIcons.setIcon(showToolsButton, MaterialIcons.tune, "", false);
 
 		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
 		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
@@ -497,6 +497,9 @@ public class MainWindowController {
 		}
 
 		captureMenu.getItems().addAll(BasicFX.copyMenu(captureMenuButton.getItems()));
+		for (var item : captureMenu.getItems()) {
+			item.setAccelerator(null);
+		}
 
 		{
 			zoomInButton.setOnAction(e -> zoomInMenuItem.getOnAction().handle(e));
@@ -521,7 +524,10 @@ public class MainWindowController {
 		scrollPane.setLockAspectRatio(true);
 		scrollPane.setRequireShiftOrControlToZoom(true);
 
-		selectMenuButton.getItems().addAll(BasicFX.copyMenu(selectMenu.getItems()));
+		selectMenu.getItems().addAll(BasicFX.copyMenu(selectMenuButton.getItems()));
+		for (var item : selectMenuButton.getItems()) {
+			item.setAccelerator(null);
+		}
 
 		var layoutItem = new MenuItem("Layout Phylogeny");
 		layoutItem.setOnAction(e -> layoutPhylogenyMenuItem.fire());
@@ -1008,8 +1014,8 @@ public class MainWindowController {
 		return showNewick;
 	}
 
-	public ToggleButton getShowSettingsButton() {
-		return showSettingsButton;
+	public ToggleButton getShowToolsButton() {
+		return showToolsButton;
 	}
 
 	public CheckMenuItem getOutlineEdgesMenuItem() {
@@ -1118,5 +1124,9 @@ public class MainWindowController {
 
 	public Button getPasteButton() {
 		return pasteButton;
+	}
+
+	public MenuButton getSelectMenuButton() {
+		return selectMenuButton;
 	}
 }
