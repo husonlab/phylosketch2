@@ -283,7 +283,7 @@ public class PaneInteraction {
 				if (!path.getElements().isEmpty()) {
 					if (isGoodPath(path)) {
 						path.getElements().setAll(PathUtils.createPath(PathSmoother.apply(PathUtils.extractPoints(path), 10), true).getElements());
-						view.getUndoManager().doAndAdd(new DrawEdgeCommand(view, path));
+						view.getUndoManager().doAndAdd(new DrawEdgeCommand(view, path, null));
 					}
 					path.getElements().clear();
 				}

@@ -35,6 +35,7 @@ import phylosketch.view.DrawView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static phylosketch.paths.PathUtils.getCoordinates;
 
@@ -65,7 +66,7 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 	 * @param view  the window
 	 * @param path0 the drawn path
 	 */
-	public DrawEdgeCommand(DrawView view, Path path0) {
+	public DrawEdgeCommand(DrawView view, Path path0, Consumer<Edge> newEdgeConsumer) {
 		super("draw edge");
 
 		var points = PathUtils.extractPoints(path0);
@@ -183,7 +184,7 @@ public class DrawEdgeCommand extends UndoableRedoableCommand {
 			if (newEdgeCommand == null) {
 				var v = view.getGraph().findNodeById(sourceId);
 				var w = view.getGraph().findNodeById(targetId);
-				newEdgeCommand = new NewEdgeCommand(view, v, w, path);
+				newEdgeCommand = new NewEdgeCommand(view, v, w, path, newEdgeConsumer);
 			}
 			newEdgeCommand.redo();
 		};

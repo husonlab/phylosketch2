@@ -108,7 +108,7 @@ public class PhylogenyCapture {
 
 			for (var segment : sorted) {
 				var path = createPath(segment);
-				doThenAdd(new DrawEdgeCommand(view, path), commands);
+				doThenAdd(new DrawEdgeCommand(view, path, null), commands);
 			}
 
 			if (removeThruNodes.get()) {

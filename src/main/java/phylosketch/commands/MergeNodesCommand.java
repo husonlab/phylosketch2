@@ -132,7 +132,7 @@ public class MergeNodesCommand extends UndoableRedoableCommand {
 					var commands = new ArrayList<UndoableRedoableCommand>();
 					commands.add(new DeleteCommand(view, blobNodes, List.of()));
 					for (var path : paths) {
-						commands.add(new DrawEdgeCommand(view, path));
+						commands.add(new DrawEdgeCommand(view, path, null));
 					}
 					compositeCommand = new CompositeCommand(this.getName(), commands.toArray(new UndoableRedoableCommand[0]));
 					if (compositeCommand.isRedoable())

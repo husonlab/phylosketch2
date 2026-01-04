@@ -53,6 +53,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 	private Integer newRootId = -1;
 
 	private final Set<Integer> edgesToChange = new HashSet<>();
+	private final Set<Integer> hasArrow = new HashSet<>();
 
 	private ReverseEdgesCommand reverseEdgesCommand;
 
@@ -96,6 +97,9 @@ public class RerootCommand extends UndoableRedoableCommand {
 					var f = v.getFirstInEdge();
 					while (f != null) {
 						edgesToChange.add(f.getId());
+						if (view.isShowArrow(f)) {
+							hasArrow.add(f.getId());
+						}
 						if (f.getSource().getInDegree() == 1)
 							f = f.getSource().getFirstInEdge();
 						else {
@@ -119,6 +123,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 						f.reverse();
 						var path = DrawView.getPath(f);
 						path.set(path.reverse().getElements(), path.getType());
+						view.setShowArrow(f, hasArrow.contains(id));
 					}
 					if (newNodeId != -1)
 						view.deleteNode(graph.findNodeById(newNodeId));
@@ -142,6 +147,7 @@ public class RerootCommand extends UndoableRedoableCommand {
 						f.reverse();
 						var path = DrawView.getPath(f);
 						path.set(path.reverse().getElements(), path.getType());
+						view.setShowArrow(f, hasArrow.contains(id));
 						view.getEdgeSelection().select(f);
 						view.getNodeSelection().select(f.getSource());
 						view.getNodeSelection().select(f.getTarget());

@@ -194,7 +194,7 @@ public class EdgePath extends Path {
 				var a = PathUtils.getCoordinates(getElements().get(0));
 				var b = PathUtils.getCoordinates(getElements().get(1));
 				var path = new EdgePath();
-				path.setStraight(a, b);
+				path.setStraight(b, a);
 				return path;
 			}
 			case Rectangular -> {
@@ -202,7 +202,16 @@ public class EdgePath extends Path {
 				var b = PathUtils.getCoordinates(getElements().get(1));
 				var c = PathUtils.getCoordinates(getElements().get(2));
 				var path = new EdgePath();
-				path.setRectangular(a, b, c);
+				path.setRectangular(c, b, a);
+				return path;
+			}
+			case QuadCurve -> {
+				var a = PathUtils.getCoordinates(getElements().get(0));
+				var quadCurveTo = (QuadCurveTo) getElements().get(1);
+				var b = new Point2D(quadCurveTo.getControlX(), quadCurveTo.getControlY());
+				var c = new Point2D(quadCurveTo.getX(), quadCurveTo.getY());
+				var path = new EdgePath();
+				path.setQuadCurve(c, b, a);
 				return path;
 			}
 			default -> {

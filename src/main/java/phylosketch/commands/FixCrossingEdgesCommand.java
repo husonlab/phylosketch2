@@ -21,8 +21,11 @@
 package phylosketch.commands;
 
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.BasicFX;
 import jloda.graph.Node;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
@@ -44,6 +47,10 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 	private CompositeCommand compositeCommand = new CompositeCommand("fix crossing edges");
 
 	private int vId;
+	private int inEdge1Id;
+	private int inEdge2Id;
+	private int outEdge1Id;
+	private int outEdge2Id;
 
 	/**
 	 * constructor
@@ -55,6 +62,10 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 
 		if (v0.getInDegree() == 2 && v0.getOutDegree() == 2 && DrawView.getLabel(v0).getRawText().isBlank()) {
 			vId = v0.getId();
+			inEdge1Id = v0.getFirstInEdge().getId();
+			inEdge2Id = v0.getLastInEdge().getId();
+			outEdge1Id = v0.getFirstOutEdge().getId();
+			outEdge2Id = v0.getLastOutEdge().getId();
 
 
 			undo = compositeCommand::undo;
@@ -63,33 +74,63 @@ public class FixCrossingEdgesCommand extends UndoableRedoableCommand {
 				compositeCommand.clear();
 
 				var v = view.getGraph().findNodeById(vId);
-				var vPoint = DrawView.getPoint(v);
-				var inEdge1 = v.getFirstInEdge();
-				var inPoint1 = PathUtils.getPointAwayFromEnd(DrawView.getPath(inEdge1), 5);
-				var inEdge2 = v.getLastInEdge();
-				var inPoint2 = PathUtils.getPointAwayFromEnd(DrawView.getPath(inEdge2), 5);
-				var outEdge1 = v.getFirstOutEdge();
-				var outPoint1 = PathUtils.getPointAwayFromStart(DrawView.getPath(outEdge1), 5);
-				var outEdge2 = v.getLastOutEdge();
-				var outPoint2 = PathUtils.getPointAwayFromStart(DrawView.getPath(outEdge2), 5);
+				var inEdge1 = view.getGraph().findEdgeById(inEdge1Id);
+				var inPoint1 = PathUtils.getPointAwayFromEnd(DrawView.getPath(inEdge1), 7);
+				var inEdge2 = view.getGraph().findEdgeById(inEdge2Id);
+				var inPoint2 = PathUtils.getPointAwayFromEnd(DrawView.getPath(inEdge2), 7);
+				var outEdge1 = view.getGraph().findEdgeById(outEdge1Id);
+				var outPoint1 = PathUtils.getPointAwayFromStart(DrawView.getPath(outEdge1), 7);
+				var outEdge2 = view.getGraph().findEdgeById(outEdge2Id);
+				var outPoint2 = PathUtils.getPointAwayFromStart(DrawView.getPath(outEdge2), 7);
+
+				if (false) {
+					view.getOtherGroup().getChildren().removeAll(BasicFX.getAllRecursively(view.getOtherGroup(), Circle.class));
+					var in1 = new Circle(inPoint1.getX(), inPoint1.getY(), 4);
+					in1.setFill(Color.RED.deriveColor(1, 1, 1, 0.5));
+					in1.setStroke(Color.GRAY);
+					var out1 = new Circle(outPoint1.getX(), outPoint1.getY(), 4);
+					out1.setFill(Color.GREEN.deriveColor(1, 1, 1, 0.5));
+					out1.setStroke(Color.GRAY);
+					var in2 = new Circle(inPoint2.getX(), inPoint2.getY(), 4);
+					in2.setFill(Color.ORANGE.deriveColor(1, 1, 1, 0.5));
+					in2.setStroke(Color.GRAY);
+					var out2 = new Circle(outPoint2.getX(), outPoint2.getY(), 4);
+					out2.setFill(Color.PURPLE.deriveColor(1, 1, 1, 0.5));
+					out2.setStroke(Color.GRAY);
+					view.getOtherGroup().getChildren().addAll(in1, out1, in2, out2);
+				}
 
 				var commands = new ArrayList<UndoableRedoableCommand>();
 
+				var inPath1 = DrawView.getPath(inEdge1);
+				var outPath1 = DrawView.getPath(outEdge1);
+				var inPath2 = DrawView.getPath(inEdge2);
+				var outPath2 = DrawView.getPath(outEdge2);
+
+
 				if (isConvex(inPoint1, inPoint2, outPoint1, outPoint2)) {
-					var path1 = PathUtils.concatenate(DrawView.getPath(inEdge1), DrawView.getPath(outEdge1), true);
+					var path1 = PathUtils.concatenate(inPath1, outPath1, true);
 					PathSmoother.apply(path1, 10);
-					commands.add(new DrawEdgeCommand(view, path1));
-					var path2 = PathUtils.concatenate(DrawView.getPath(inEdge2), DrawView.getPath(outEdge2), true);
+					commands.add(new DrawEdgeCommand(view, path1,
+							e -> DrawView.getPath(e).setStrokeWidth(0.5 * (inPath1.getStrokeWidth() + outPath1.getStrokeWidth()))));
+
+					var path2 = PathUtils.concatenate(inPath2, outPath2, true);
 					PathSmoother.apply(path2, 10);
-					commands.add(new DrawEdgeCommand(view, path2));
+					commands.add(new DrawEdgeCommand(view, path2,
+							e -> DrawView.getPath(e).setStrokeWidth(0.5 * (inPath2.getStrokeWidth() + outPath2.getStrokeWidth()))));
 					commands.add(new DeleteCommand(view, List.of(v), Collections.emptyList()));
 				} else {
-					var path1 = PathUtils.concatenate(DrawView.getPath(inEdge1), DrawView.getPath(outEdge2), true);
+					var path1 = PathUtils.concatenate(inPath1, outPath2, true);
 					PathSmoother.apply(path1, 10);
-					commands.add(new DrawEdgeCommand(view, path1));
-					var path2 = PathUtils.concatenate(DrawView.getPath(inEdge2), DrawView.getPath(outEdge1), true);
+					commands.add(new DrawEdgeCommand(view, path1,
+							e -> DrawView.getPath(e).setStrokeWidth(0.5 * (inPath1.getStrokeWidth() + outPath2.getStrokeWidth()))));
+
+					var path2 = PathUtils.concatenate(inPath2, outPath1, true);
 					PathSmoother.apply(path2, 10);
-					commands.add(new DrawEdgeCommand(view, path2));
+					commands.add(new DrawEdgeCommand(view, path2,
+							e -> DrawView.getPath(e).setStrokeWidth(0.5 * (inPath2.getStrokeWidth() + outPath1.getStrokeWidth()))));
+					;
+
 					commands.add(new DeleteCommand(view, List.of(v), Collections.emptyList()));
 				}
 				compositeCommand.add(commands.toArray(new UndoableRedoableCommand[0]));

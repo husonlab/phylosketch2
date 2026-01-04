@@ -87,9 +87,9 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 			var source = view.getGraph().findNodeById(sourceId);
 			var target = view.getGraph().findNodeById(targetId);
 
-			var startPath = PathUtils.createPath(split.get(0), true);
-			var startEdge = view.createEdge(source, v, startPath, startEdgeId);
+			var startEdge = view.createEdge(source, v, PathUtils.createPath(split.get(0), true), startEdgeId);
 			startEdgeId = startEdge.getId();
+			var startPath = DrawView.getPath(startEdge);
 
 			startPath.applyCss();
 			startPath.setStrokeWidth(strokeWidth);
@@ -98,9 +98,9 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 				startPath.setStroke(stroke);
 			view.setShowArrow(startEdge, arrow);
 
-			var endPath = PathUtils.createPath(split.get(1), true);
-			var endEdge = view.createEdge(v, target, endPath, endEdgeId);
+			var endEdge = view.createEdge(v, target, PathUtils.createPath(split.get(1), true), endEdgeId);
 			endEdgeId = endEdge.getId();
+			var endPath = DrawView.getPath(endEdge);
 
 			endPath.applyCss();
 			endPath.setStrokeWidth(strokeWidth);

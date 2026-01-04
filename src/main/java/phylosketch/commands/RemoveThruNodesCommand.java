@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathUtils;
@@ -29,6 +30,7 @@ import phylosketch.view.DrawView;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * remove all or selected "true nodes" (di-vertices) from graph
@@ -64,10 +66,18 @@ public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 
 				var e = u.getFirstInEdge();
 				var f = u.getFirstOutEdge();
+
+				var strokeWidth = Math.abs(0.5 * (DrawView.getPath(e).getStrokeWidth() + DrawView.getPath(f).getStrokeWidth()));
+				Consumer<Edge> styleEdges = h -> {
+					DrawView.getPath(h).setStrokeWidth(strokeWidth);
+				};
+
+
+
 				var points = CollectionUtils.concatenate(PathUtils.extractPoints(DrawView.getPath(e)), PathUtils.extractPoints(DrawView.getPath(f)));
-				var createEdges = new DrawEdgeCommand(view, PathUtils.createPath(points, true));
+				var createEdge = new DrawEdgeCommand(view, PathUtils.createPath(points, true), styleEdges);
 				var deleteNode = new DeleteCommand(view, List.of(v), List.of());
-				compositeCommand = new CompositeCommand("remove thru node", createEdges, deleteNode);
+				compositeCommand = new CompositeCommand("remove thru node", createEdge, deleteNode);
 				if (compositeCommand.isRedoable())
 					compositeCommand.redo();
 			};

@@ -160,26 +160,6 @@ public class PathUtils {
 		return list;
 	}
 
-	public static Point2D getMiddle(Path path) {
-		if (path.getElements().isEmpty())
-			return null;
-		else {
-			var points = extractPoints(path);
-			var first = points.get(0);
-			var last = points.get(points.size() - 1);
-			var best = 0;
-			var bestDistance = 0.0;
-			for (int i = 1; i < points.size() - 1; i++) {
-				var point = points.get(i);
-				var d = Math.min(point.distance(first), point.distance(last));
-				if (d > bestDistance) {
-					bestDistance = d;
-					best = i;
-				}
-			}
-			return points.get(best);
-		}
-	}
 
 	/**
 	 * split path into two parts
@@ -263,25 +243,59 @@ public class PathUtils {
 		return createPath(CollectionUtils.concatenate(extractPoints(path1), extractPoints(path2)), normalize);
 	}
 
-	public static Point2D getPointAwayFromEnd(Path path, double minDistance) {
-		var points = CollectionUtils.reverse(extractPoints(path));
-		var start = points.get(0);
-		for (var point : points) {
-			if (point.distance(start) > minDistance) {
-				return point;
+	public static Point2D getPointAwayFromEnd(EdgePath path, double minDistance) {
+		if (path.getType() == EdgePath.Type.Straight) {
+			var points = extractPoints(path);
+			return pointAtDistanceFromB(points.get(0), points.get(1), minDistance);
+		} else if (path.getType() == EdgePath.Type.Rectangular) {
+			var points = extractPoints(path);
+			return pointAtDistanceFromB(points.get(1), points.get(2), minDistance);
+		} else {
+			var workingPath = (path.getType() != EdgePath.Type.Freeform ? path.copyToFreeform() : path);
+			var points = extractPoints(workingPath);
+			if (points.size() == 1)
+				return points.get(0);
+			var lastId = points.size() - 1;
+			var last = points.get(lastId);
+			var firstId = lastId - 1;
+			var first = points.get(firstId);
+			while (firstId > 0 && first.distance(last) < minDistance) {
+				first = points.get(--firstId);
 			}
+			return first;
 		}
-		return points.get(points.size() - 1);
 	}
 
-	public static Point2D getPointAwayFromStart(Path path, double minDistance) {
-		var points = extractPoints(path);
-		var start = points.get(0);
-		for (var point : points) {
-			if (point.distance(start) > minDistance) {
-				return point;
+	public static Point2D getPointAwayFromStart(EdgePath path, double minDistance) {
+		if (path.getType() == EdgePath.Type.Straight) {
+			var points = extractPoints(path);
+			return pointAtDistanceFromB(points.get(1), points.get(0), minDistance);
+		} else if (path.getType() == EdgePath.Type.Rectangular) {
+			var points = extractPoints(path);
+			return pointAtDistanceFromB(points.get(2), points.get(1), minDistance);
+		} else {
+			var workingPath = (path.getType() != EdgePath.Type.Freeform ? path.copyToFreeform() : path);
+			var points = extractPoints(workingPath);
+			if (points.size() == 1)
+				return points.get(0);
+			var first = points.get(0);
+			var lastId = 1;
+			var last = points.get(lastId);
+			while (lastId < points.size() - 1 && first.distance(last) < minDistance) {
+				last = points.get(++lastId);
 			}
+			return last;
 		}
-		return points.get(points.size() - 1);
+	}
+
+	private static Point2D pointAtDistanceFromB(Point2D a, Point2D b, double d) {
+		Point2D v = a.subtract(b);
+
+		double len = v.magnitude();
+		if (len == 0) {
+			throw new IllegalArgumentException("Points a and b must be distinct");
+		}
+
+		return b.add(v.multiply(d / len));
 	}
 }
