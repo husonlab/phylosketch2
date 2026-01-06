@@ -747,45 +747,49 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                     </rowConstraints>
                                     <children>
                                         <Button fx:id="verticalFlipButton" layoutX="21.0" layoutY="23.0"
                                                 mnemonicParsing="false" text="Vert. Flip" GridPane.columnIndex="1"
-                                                GridPane.rowIndex="1">
+                                                GridPane.rowIndex="2">
                                             <tooltip>
                                                 <Tooltip text="Flip vertically"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="horizontalFlipButton" layoutX="24.0" layoutY="53.0"
-                                                mnemonicParsing="false" text="Horiz. Flip" GridPane.rowIndex="1">
+                                                mnemonicParsing="false" text="Horiz. Flip" GridPane.rowIndex="2">
                                             <tooltip>
                                                 <Tooltip text="Flip vertically"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="rotateRightButton" mnemonicParsing="false" text="Rotate Right"
-                                                GridPane.columnIndex="1">
+                                                GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <tooltip>
                                                 <Tooltip text="Rotate right"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="rotateLeftButton" layoutX="22.0" layoutY="102.0"
-                                                mnemonicParsing="false" text="Rotate Left">
+                                                mnemonicParsing="false" text="Rotate Left" GridPane.rowIndex="1">
                                             <tooltip>
                                                 <Tooltip text="Rotate left"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="layoutLabelsButton" mnemonicParsing="false" text="Layout Labels"
-                                                GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                GridPane.columnIndex="1" GridPane.rowIndex="3">
                                             <tooltip>
                                                 <Tooltip text="Layout labels"/>
                                             </tooltip>
                                         </Button>
                                         <ToggleButton fx:id="resizeModeButton" mnemonicParsing="false"
-                                                      text="Resize Mode" GridPane.rowIndex="2">
+                                                      text="Resize Mode" GridPane.rowIndex="3">
                                             <tooltip>
                                                 <Tooltip text="Turn resize mode or off"/>
                                             </tooltip>
                                         </ToggleButton>
+                                        <Button fx:id="zoomInButton" mnemonicParsing="false" text="Zoom In"/>
+                                        <Button fx:id="zoomOutButton" mnemonicParsing="false" text="Zoom Out"
+                                                GridPane.columnIndex="1"/>
 
                                     </children>
                                 </GridPane>

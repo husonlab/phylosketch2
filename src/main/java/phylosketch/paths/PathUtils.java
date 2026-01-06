@@ -36,33 +36,31 @@ public class PathUtils {
 	public static List<PathElement> copy(List<PathElement> elements) {
 		var result = new ArrayList<PathElement>();
 		for (var element : elements) {
-			if (element instanceof MoveTo to) {
-				result.add(new MoveTo(to.getX(), to.getY()));
-			} else if (element instanceof LineTo to) {
-				result.add(new LineTo(to.getX(), to.getY()));
-			}
+			result.add(copyElement(element));
 		}
 		return result;
 	}
 
-	public static Path copy(Path original) {
-		Path copy = new Path();
+	public static void copy(Path source, Path target) {
+		target.getElements().setAll(copy(source.getElements()));
+		copyProperties(source, target);
+	}
 
-		for (var e : original.getElements()) {
-			copy.getElements().add(copyElement(e));
-		}
+	public static void copyProperties(Path source, Path target) {
+		target.setFill(source.getFill());
+		target.setStroke(source.getStroke());
+		target.setStrokeWidth(source.getStrokeWidth());
+		target.getStrokeDashArray().setAll(source.getStrokeDashArray());
+		target.setStrokeLineCap(source.getStrokeLineCap());
+		target.setStrokeLineJoin(source.getStrokeLineJoin());
+		target.setStrokeMiterLimit(source.getStrokeMiterLimit());
+		target.setEffect(source.getEffect());
+	}
 
-		copy.setFill(original.getFill());
-		copy.setStroke(original.getStroke());
-		copy.setStrokeWidth(original.getStrokeWidth());
-		copy.getStrokeDashArray().setAll(original.getStrokeDashArray());
-		copy.setStrokeLineCap(original.getStrokeLineCap());
-		copy.setStrokeLineJoin(original.getStrokeLineJoin());
-		copy.setStrokeMiterLimit(original.getStrokeMiterLimit());
-
-		copy.setEffect(original.getEffect());
-
-		return copy;
+	public static Path copy(Path source) {
+		var target = new Path();
+		copy(source, target);
+		return target;
 	}
 
 	public static PathElement copyElement(PathElement element) {
@@ -289,13 +287,8 @@ public class PathUtils {
 	}
 
 	private static Point2D pointAtDistanceFromB(Point2D a, Point2D b, double d) {
-		Point2D v = a.subtract(b);
-
-		double len = v.magnitude();
-		if (len == 0) {
-			throw new IllegalArgumentException("Points a and b must be distinct");
-		}
-
-		return b.add(v.multiply(d / len));
+		var v = a.subtract(b);
+		var len = a.distance(b);
+		return len == 0 ? a : b.add(v.multiply(d / len));
 	}
 }

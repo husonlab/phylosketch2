@@ -496,7 +496,7 @@ public class MainWindowController {
 			//editMenu.getItems().remove(getPreferencesMenuItem());
 		}
 
-		captureMenu.getItems().addAll(BasicFX.copyMenu(captureMenuButton.getItems()));
+		captureMenu.getItems().addAll(BasicFX.copyMenu(captureMenuButton.getItems(), true));
 		for (var item : captureMenu.getItems()) {
 			item.setAccelerator(null);
 		}
@@ -524,7 +524,7 @@ public class MainWindowController {
 		scrollPane.setLockAspectRatio(true);
 		scrollPane.setRequireShiftOrControlToZoom(true);
 
-		selectMenu.getItems().addAll(BasicFX.copyMenu(selectMenuButton.getItems()));
+		selectMenu.getItems().addAll(BasicFX.copyMenu(selectMenuButton.getItems(), true));
 		for (var item : selectMenuButton.getItems()) {
 			item.setAccelerator(null);
 		}
@@ -1128,5 +1128,17 @@ public class MainWindowController {
 
 	public MenuButton getSelectMenuButton() {
 		return selectMenuButton;
+	}
+
+	public RadioMenuItem getSketchModeItem() {
+		return sketchModeItem;
+	}
+
+	public RadioMenuItem getViewModeItem() {
+		return viewModeItem;
+	}
+
+	public RadioMenuItem getMoveModeItem() {
+		return moveModeItem;
 	}
 }

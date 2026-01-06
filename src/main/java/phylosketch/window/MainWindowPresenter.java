@@ -134,7 +134,6 @@ public class MainWindowPresenter {
 		formatPaneView.getPane().setVisible(false);
 		controller.getShowToolsButton().selectedProperty().bindBidirectional(formatPaneView.getPane().visibleProperty());
 
-
 		{
 			var object = new Object();
 			view.getGraphFX().lastUpdateProperty().addListener(e -> {
@@ -175,6 +174,15 @@ public class MainWindowPresenter {
 		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, true, true, view.modeProperty(), controller.getModeMenuButton());
 		//controller.getModeMenuButton().setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		controller.setupModeMenu(view.modeProperty());
+		for (var item : controller.getModeMenuButton().getItems()) {
+			var state = (DrawView.Mode) item.getUserData();
+			switch (state) {
+				case Sketch -> item.disableProperty().bind(controller.getSketchModeItem().disableProperty());
+				case View -> item.disableProperty().bind(controller.getViewModeItem().disableProperty());
+				case Move -> item.disableProperty().bind(controller.getMoveModeItem().disableProperty());
+				case Capture -> item.disableProperty().bind(controller.getCaptureModeItem().disableProperty());
+			}
+		}
 
 		capturePane = new CapturePane(view, controller);
 		SetupCaptureMenuItems.apply(window, controller, capturePane);
@@ -574,6 +582,9 @@ public class MainWindowPresenter {
 			setupModeHints(view, getCapturePane());
 			WindowMenuSetup.setup(controller.getWindowMenu(), window.fileNameProperty());
 		}
+
+		controller.getMoveModeItem().disableProperty().bind(view.getGraphFX().emptyProperty());
+		controller.getViewModeItem().disableProperty().bind(view.getGraphFX().emptyProperty());
 	}
 
 	public void loadContent(String fileName, String content) {
@@ -697,6 +708,8 @@ public class MainWindowPresenter {
 		formatController.getVerticalFlipButton().setOnAction(controller.getFlipVerticalMenuItem().getOnAction());
 		formatController.getResizeModeButton().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
 		formatController.getLayoutLabelsButton().setOnAction(controller.getLayoutLabelMenuItem().getOnAction());
+		formatController.getZoomInButton().setOnAction(controller.getZoomInMenuItem().getOnAction());
+		formatController.getZoomOutButton().setOnAction(controller.getZoomOutMenuItem().getOnAction());
 	}
 
 	private void setupModeHints(DrawView view, CapturePane capturePane) {

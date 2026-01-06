@@ -263,6 +263,12 @@ public class FormatPaneController {
 	private TitledPane structurePane;
 
 	@FXML
+	private Button zoomInButton;
+
+	@FXML
+	private Button zoomOutButton;
+
+	@FXML
 	private void initialize() {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
@@ -302,12 +308,12 @@ public class FormatPaneController {
 
 		MaterialIcons.setIcon(applyLayoutPhylogenyButton, MaterialIcons.play_circle);
 
+		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in, "", false);
+		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out, "", false);
 		MaterialIcons.setIcon(verticalFlipButton, MaterialIcons.swap_vert, "", false);
 		MaterialIcons.setIcon(horizontalFlipButton, MaterialIcons.swap_horiz, "", false);
-
 		MaterialIcons.setIcon(rotateLeftButton, MaterialIcons.rotate_left, "", false);
 		MaterialIcons.setIcon(rotateRightButton, MaterialIcons.rotate_right, "", false);
-
 		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
 		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 
@@ -655,5 +661,13 @@ public class FormatPaneController {
 
 	public TitledPane getStructurePane() {
 		return structurePane;
+	}
+
+	public Button getZoomInButton() {
+		return zoomInButton;
+	}
+
+	public Button getZoomOutButton() {
+		return zoomOutButton;
 	}
 }

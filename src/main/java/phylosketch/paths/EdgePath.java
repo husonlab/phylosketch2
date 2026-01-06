@@ -70,7 +70,7 @@ public class EdgePath extends Path {
 
 	public EdgePath copy() {
 		var result = new EdgePath();
-		result.getElements().addAll(getElements());
+		PathUtils.copy(this, result);
 		result.setType(getType());
 		return result;
 	}
@@ -193,33 +193,37 @@ public class EdgePath extends Path {
 			case Straight -> {
 				var a = PathUtils.getCoordinates(getElements().get(0));
 				var b = PathUtils.getCoordinates(getElements().get(1));
-				var path = new EdgePath();
-				path.setStraight(b, a);
-				return path;
+				var result = new EdgePath();
+				PathUtils.copyProperties(this, result);
+				result.setStraight(b, a);
+				return result;
 			}
 			case Rectangular -> {
 				var a = PathUtils.getCoordinates(getElements().get(0));
 				var b = PathUtils.getCoordinates(getElements().get(1));
 				var c = PathUtils.getCoordinates(getElements().get(2));
-				var path = new EdgePath();
-				path.setRectangular(c, b, a);
-				return path;
+				var result = new EdgePath();
+				PathUtils.copyProperties(this, result);
+				result.setRectangular(c, b, a);
+				return result;
 			}
 			case QuadCurve -> {
 				var a = PathUtils.getCoordinates(getElements().get(0));
 				var quadCurveTo = (QuadCurveTo) getElements().get(1);
 				var b = new Point2D(quadCurveTo.getControlX(), quadCurveTo.getControlY());
 				var c = new Point2D(quadCurveTo.getX(), quadCurveTo.getY());
-				var path = new EdgePath();
-				path.setQuadCurve(c, b, a);
-				return path;
+				var result = new EdgePath();
+				PathUtils.copyProperties(this, result);
+				result.setQuadCurve(c, b, a);
+				return result;
 			}
 			default -> {
 				var points = PathUtils.getPoints(copyToFreeform());
 				points = CollectionUtils.reverse(points);
-				var path = new EdgePath();
-				path.setFreeform(points);
-				return path;
+				var result = new EdgePath();
+				PathUtils.copyProperties(this, result);
+				result.setFreeform(points);
+				return result;
 			}
 		}
 	}
@@ -284,6 +288,7 @@ public class EdgePath extends Path {
 	public EdgePath rotate(Point2D center, double angle) {
 		var path = PathTransforms.rotate(this, center.getX(), center.getY(), angle);
 		var result = new EdgePath(path);
+		PathUtils.copyProperties(this, result);
 		result.setType(getType());
 		return result;
 	}
@@ -291,6 +296,7 @@ public class EdgePath extends Path {
 	public EdgePath flip(Point2D center, boolean horizontally) {
 		var path = (horizontally ? PathTransforms.flipHorizontal(this, center.getX()) : PathTransforms.flipVertical(this, center.getY()));
 		var result = new EdgePath(path);
+		PathUtils.copyProperties(this, result);
 		result.setType(getType());
 		return result;
 	}
@@ -330,8 +336,6 @@ public class EdgePath extends Path {
 		this.type.set(type);
 	}
 
-
 	public record Data(List<PathElement> elements, EdgePath.Type type) {
 	}
-
 }

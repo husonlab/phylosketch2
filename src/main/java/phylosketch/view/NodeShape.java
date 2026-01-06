@@ -39,7 +39,7 @@ public class NodeShape extends Polygon {
 		Hexagon
 	}
 
-	private static final double DEFAULT_SIZE = 2;
+	private static final double DEFAULT_SIZE = 8;
 
 	private double size;   // width = height = size
 	private Type type;

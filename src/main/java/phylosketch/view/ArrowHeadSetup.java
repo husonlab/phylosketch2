@@ -21,7 +21,7 @@ public class ArrowHeadSetup {
 
 		InvalidationListener listener = a -> {
 			if (true) {
-				if (path.getElements().size() > 0) {
+				if (!path.getElements().isEmpty()) {
 					Point2D first = PathUtils.getPointAwayFromEnd(path, 8);
 					Point2D last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
 					var f = Math.max(0.01, Math.min(2, path.getStrokeWidth() / 2));

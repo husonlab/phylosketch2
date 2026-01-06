@@ -44,7 +44,7 @@ public class PathReshape {
 	 * @param dx    change in x coordinate
 	 * @param dy    change in y coordinate
 	 */
-	public static void apply(Path path, int index, double dx, double dy) {
+	public static void apply(EdgePath path, int index, double dx, double dy) {
 		var n = path.getElements().size();
 
 		if (index < 0 || index >= n)

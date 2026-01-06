@@ -148,10 +148,13 @@ public class PaneInteraction {
 		// setup context menu for creating a node
 		{
 			var contextMenu = new ContextMenu();
-			var pause = new PauseTransition(Duration.seconds(1.5));
-			pause.setOnFinished(e -> contextMenu.hide());
+			var autoCloseContextMenu = new PauseTransition(Duration.seconds(4));
+			autoCloseContextMenu.setOnFinished(e -> contextMenu.hide());
 			view.setOnContextMenuRequested(e -> {
-				if (!multiTouchGestureInProgress.get() && e.getTarget() == view && view.getMode() == DrawView.Mode.Sketch) {
+				if (!multiTouchGestureInProgress.get() && e.getTarget() == view && view.getMode() == DrawView.Mode.Sketch
+					&& (PhyloSketch.isDesktop() || !view.getGraphFX().isEmpty())) {
+					autoCloseContextMenu.setDuration(Duration.seconds(view.getGraphFX().isEmpty() ? 4 : 1.5));
+
 					e.consume();
 					if (contextMenu.isShowing()) {
 						contextMenu.hide();
@@ -165,17 +168,18 @@ public class PaneInteraction {
 						});
 						contextMenu.getItems().setAll(newNodeMenuItem);
 						contextMenu.show(view, mouseX, mouseY);
-						pause.playFromStart();
+						autoCloseContextMenu.playFromStart();
 					}
 				}
 			});
 		}
 
-		// will create a node if mouse is pressed and then not moved or released within two seconds
-		var createNodePause = new PauseTransition(Duration.seconds(2));
+		// will create a node if mouse is pressed and then not moved or released within the given time
+		var createNodePause = new PauseTransition(Duration.seconds(1.5));
 
 		view.setOnMouseClicked(me -> {
 			createNodePause.stop();
+			createNodePause.setDuration(Duration.seconds(view.getGraphFX().isEmpty() ? 0.1 : 1.0));
 
 			if (me.isStillSincePress() && me.getClickCount() == 1) {
 				allowResize.set(false);

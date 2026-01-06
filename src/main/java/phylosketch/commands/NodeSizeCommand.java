@@ -46,7 +46,7 @@ public class NodeSizeCommand extends UndoableRedoableCommand {
 			var oldSize = shape.getSize();
 				var id = v.getId();
 			oldSizeMap.put(id, oldSize);
-			newSizeMap.put(id, 2 * size);
+			newSizeMap.put(id, size);
 		}
 		if (newSizeMap.isEmpty()) {
 			undo = null;
