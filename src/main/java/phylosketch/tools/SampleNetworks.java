@@ -20,8 +20,6 @@
 package phylosketch.tools;
 
 import javafx.geometry.Point2D;
-import jloda.fx.phylo.embed.Averaging;
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.ArgsOptions;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -30,7 +28,9 @@ import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.phylogeny.dolayout.ComputeOrthogonalDisplacement;
+import jloda.phylogeny.layout.Averaging;
 import jloda.util.*;
+import phylosketch.utils.LayoutRootedPhylogeny;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -221,7 +221,7 @@ public class SampleNetworks {
 								} else {
 									var start = System.currentTimeMillis();
 									try (NodeArray<Point2D> nodePointMap = network.newNodeArray()) {
-										LayoutRootedPhylogeny.apply(network, LayoutRootedPhylogeny.Layout.Rectangular, LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, randomAddEdge, new HashMap<>(), nodePointMap);
+										LayoutRootedPhylogeny.apply(network, jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Rectangular, jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.EarlyBranching, Averaging.LeafAverage, true, randomAddEdge, new HashMap<>(), nodePointMap);
 										var time = (System.currentTimeMillis() - start) / 1000.0;
 										var fNetwork = network;
 										var od = ComputeOrthogonalDisplacement.apply(network.nodes(), network.edges(), Edge::getSource, Edge::getTarget,

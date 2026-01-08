@@ -22,9 +22,6 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
-import jloda.fx.phylo.embed.Averaging;
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
-import jloda.fx.phylo.embed.ScaleUtils;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.AService;
@@ -36,13 +33,16 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
+import jloda.phylogeny.layout.Averaging;
 import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.paths.EdgePath;
+import phylosketch.utils.LayoutRootedPhylogeny;
 import phylosketch.view.DrawView;
 
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 
 /**
  * layout network
@@ -63,7 +63,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 *
 	 * @param view the view
 	 */
-	public LayoutPhylogenyCommand(DrawView view, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
+	public LayoutPhylogenyCommand(DrawView view, jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout layout, jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling scaling) {
 		super("layout");
 		var command = new CompositeCommand("layout");
 		var nodes = view.getSelectedOrAllNodes();
@@ -96,7 +96,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 	 * @param view      the view
 	 * @param component the nodes of the component
 	 */
-	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, LayoutRootedPhylogeny.Layout layout, LayoutRootedPhylogeny.Scaling scaling) {
+	private LayoutPhylogenyCommand(DrawView view, Collection<Node> component, jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout layout, jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling scaling) {
 		super("layout");
 
 		if (isRootedComponent(component)) {
@@ -139,7 +139,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 				var yMin = component.stream().mapToDouble(DrawView::getY).min().orElse(0);
 				var yMax = component.stream().mapToDouble(DrawView::getY).max().orElse(0);
 
-				if (layout != LayoutRootedPhylogeny.Layout.Rectangular) {
+				if (layout != jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Rectangular) {
 					var dx = xMax - xMin;
 					var dy = yMax - yMin;
 					var d = Math.min(dx, dy);
@@ -182,7 +182,9 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 									var nodeAngleMap = tree.newNodeDoubleArray();
 									NodeArray<Point2D> nodePointMap = tree.newNodeArray();
 									LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-									ScaleUtils.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+									ToDoubleFunction<Node> getX = u -> nodePointMap.get(u).getX();
+									ToDoubleFunction<Node> getY = u -> nodePointMap.get(u).getY();
+									LayoutRootedPhylogeny.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
 									return new Pair<>(nodeAngleMap, nodePointMap);
 								},
 								p -> {
@@ -190,7 +192,7 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 									p.getFirst().close();
 									p.getSecond().close();
 								},
-								e -> NotificationManager.showError("Layout failed: " + e.getClass().getSimpleName() + ": " + e.getMessage()));
+								e -> NotificationManager.showError("LayoutRootedPhylogeny failed: " + e.getClass().getSimpleName() + ": " + e.getMessage()));
 					}
 				}
 			};

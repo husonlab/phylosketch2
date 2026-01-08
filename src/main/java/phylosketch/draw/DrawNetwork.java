@@ -21,13 +21,13 @@
 package phylosketch.draw;
 
 import javafx.geometry.Point2D;
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Edge;
 import jloda.graph.EdgeArray;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.PhyloTree;
+import jloda.phylogeny.layout.LayoutRootedPhylogeny;
 import phylosketch.paths.EdgePath;
 import phylosketch.utils.CircleSegment;
 import phylosketch.view.DrawView;

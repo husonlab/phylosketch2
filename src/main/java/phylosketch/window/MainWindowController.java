@@ -32,7 +32,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import jloda.fx.control.ZoomableScrollPane;
 import jloda.fx.icons.MaterialIcons;
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RunAfterAWhile;
@@ -529,7 +528,7 @@ public class MainWindowController {
 			item.setAccelerator(null);
 		}
 
-		var layoutItem = new MenuItem("Layout Phylogeny");
+		var layoutItem = new MenuItem("LayoutRootedPhylogeny Phylogeny");
 		layoutItem.setOnAction(e -> layoutPhylogenyMenuItem.fire());
 		layoutItem.disableProperty().bind(layoutPhylogenyMenuItem.disableProperty());
 
@@ -572,14 +571,14 @@ public class MainWindowController {
 		(new ToggleGroup()).getToggles().addAll(leftRootSideMenuItem, rightRootSideMenuItem, topRootSideMenuItem, bottomRootSideMenuItem, centerRootSideMenuItem);
 
 		layoutToggleGroup.getToggles().addAll(radialLayoutMenuItem, circularLayoutMenuItem, rectangularLayoutMenuItem);
-		radialLayoutMenuItem.setUserData(LayoutRootedPhylogeny.Layout.Radial);
-		circularLayoutMenuItem.setUserData(LayoutRootedPhylogeny.Layout.Circular);
-		rectangularLayoutMenuItem.setUserData(LayoutRootedPhylogeny.Layout.Rectangular);
+		radialLayoutMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Radial);
+		circularLayoutMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Circular);
+		rectangularLayoutMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Rectangular);
 
 		scalingToggleGroup.getToggles().addAll(phylogramMenuItem, cladogramEarlyMenuItem, cladogramLateMenuItem);
-		phylogramMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.ToScale);
-		cladogramEarlyMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.EarlyBranching);
-		cladogramLateMenuItem.setUserData(LayoutRootedPhylogeny.Scaling.LateBranching);
+		phylogramMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.ToScale);
+		cladogramEarlyMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.EarlyBranching);
+		cladogramLateMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.LateBranching);
 	}
 
 	public void updateToolbarLayout() {

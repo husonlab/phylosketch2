@@ -19,8 +19,8 @@
 
 package phylosketch.view;
 
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.GeometryUtilsFX;
+import jloda.phylogeny.layout.LayoutRootedPhylogeny;
 
 import java.util.Collection;
 

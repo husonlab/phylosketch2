@@ -22,19 +22,18 @@ package phylosketch.io;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import jloda.fx.phylo.embed.Averaging;
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
-import jloda.fx.phylo.embed.ScaleUtils;
 import jloda.fx.windownotifications.WindowNotifications;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.NewickIO;
 import jloda.phylo.PhyloTree;
+import jloda.phylogeny.layout.Averaging;
 import jloda.util.FileUtils;
 import jloda.util.IteratorUtils;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.utils.Dialogs;
+import phylosketch.utils.LayoutRootedPhylogeny;
 import phylosketch.view.DrawView;
 import phylosketch.window.MainWindow;
 
@@ -76,7 +75,7 @@ public class ImportNewick {
 
 		var clean = (view.getGraph().getNumberOfNodes() == 0);
 		if (clean)
-			view.setLayout(LayoutRootedPhylogeny.Layout.Rectangular);
+			view.setLayout(jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Rectangular);
 
 		var originalNodes = IteratorUtils.asSet(view.getGraph().nodes());
 
@@ -126,7 +125,7 @@ public class ImportNewick {
 				var phylogenyHeight = numberOfLeaves * taxonGap;
 				var phylogenyWidth = Math.min(numberOfLeaves * taxonGap, Math.max(minWidth, view.getWidth() - xMin));
 
-				ScaleUtils.scaleToBox(points, xMin, xMin + phylogenyWidth, yMin, yMin + phylogenyHeight);
+				LayoutRootedPhylogeny.scaleToBox(points, xMin, xMin + phylogenyWidth, yMin, yMin + phylogenyHeight);
 				yMin += phylogenyHeight + vGap;
 					DrawNetwork.apply(view, tree, points, view.getLayout());
 				}
@@ -167,7 +166,7 @@ public class ImportNewick {
 
 		try (var nodeAngleMap = tree.newNodeDoubleArray(); NodeArray<Point2D> nodePointMap = tree.newNodeArray()) {
 			LayoutRootedPhylogeny.apply(tree, view.getLayout(), view.getScaling(), Averaging.LeafAverage, tree.getNumberOfTaxa() <= 100, new Random(666), nodeAngleMap, nodePointMap);
-			ScaleUtils.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
+			LayoutRootedPhylogeny.scaleToBox(nodePointMap, xMin, xMax, yMin, yMax);
 			DrawNetwork.apply(view, tree, nodePointMap, view.getLayout());
 			var newNodes = IteratorUtils.asSet(view.getGraph().nodes());
 			newNodes.removeAll(originalNodes);

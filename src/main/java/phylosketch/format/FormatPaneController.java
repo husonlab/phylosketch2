@@ -25,8 +25,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.icons.MaterialIcons;
-import jloda.fx.phylo.embed.LayoutRootedPhylogeny;
 import jloda.fx.util.ComboBoxUtils;
+import jloda.phylogeny.layout.LayoutRootedPhylogeny;
 import phylosketch.view.LineType;
 import phylosketch.view.NodeShape;
 
