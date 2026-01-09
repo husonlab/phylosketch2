@@ -38,11 +38,9 @@ import jloda.util.CollectionUtils;
 import jloda.util.Pair;
 import phylosketch.draw.DrawNetwork;
 import phylosketch.paths.EdgePath;
-import phylosketch.utils.LayoutRootedPhylogeny;
 import phylosketch.view.DrawView;
 
 import java.util.*;
-import java.util.function.ToDoubleFunction;
 
 /**
  * layout network
@@ -181,10 +179,16 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 						AService.run(() -> {
 									var nodeAngleMap = tree.newNodeDoubleArray();
 									NodeArray<Point2D> nodePointMap = tree.newNodeArray();
-									LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-									ToDoubleFunction<Node> getX = u -> nodePointMap.get(u).getX();
-									ToDoubleFunction<Node> getY = u -> nodePointMap.get(u).getY();
-									LayoutRootedPhylogeny.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+
+									if (true) {
+										phylosketch.utils.LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+										phylosketch.utils.LayoutRootedPhylogeny.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+									} else {
+										var OL = jloda.fx.phylo.embed.LayoutRootedPhylogeny.Layout.valueOf(layout.name());
+										var OS = jloda.fx.phylo.embed.LayoutRootedPhylogeny.Scaling.valueOf(scaling.name());
+										jloda.fx.phylo.embed.LayoutRootedPhylogeny.apply(tree, OL, OS, jloda.fx.phylo.embed.Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+										jloda.fx.phylo.embed.ScaleUtils.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+									}
 									return new Pair<>(nodeAngleMap, nodePointMap);
 								},
 								p -> {

@@ -299,6 +299,9 @@ public class PhyloSketchIO {
 		}
 		if (BackgroundImageIO.load(backgroundImageView, r))
 			view.setMode(DrawView.Mode.Capture);
+
+		// todo: set to true if radial layout
+		view.setHorizontalLabels(false);
 	}
 }
 

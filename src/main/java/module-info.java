@@ -40,9 +40,6 @@ module phylosketch {
 
 	exports phylosketch.paths;
 
-	exports xtra.networktrees;
-
-	exports xtra.daniel;
 	opens phylosketch.io;
 
 }
