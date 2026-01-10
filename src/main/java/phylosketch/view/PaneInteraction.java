@@ -27,14 +27,13 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.TouchEvent;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
+import jloda.fx.control.MultiTouchGestureMonitor;
 import jloda.fx.util.BasicFX;
 import jloda.graph.Edge;
 import phylosketch.commands.CreateNodeCommand;
@@ -57,7 +56,6 @@ public class PaneInteraction {
 
 	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(PaneInteraction.class, "inDrawingEdge", false);
 	public static final BooleanProperty inRubberBandSelection = new SimpleBooleanProperty(PaneInteraction.class, "inRubberBandSelection", false);
-	public static final BooleanProperty multiTouchGestureInProgress = new SimpleBooleanProperty(PaneInteraction.class, "inMultiTouchGesture", false);
 
 	private final static Path path = new Path();
 
@@ -69,25 +67,7 @@ public class PaneInteraction {
 	 * setup the interaction
 	 */
 	public static void setup(DrawView view, MainWindowController controller, DragLineBoxSupport dragLineBoxSupport, BooleanProperty allowResize) {
-		if (false) { // for debugging zoom and pan interference
-			var inMultiTouchLabel = new Label("multi-touch");
-			var inDrawingEdgeLabel = new Label("drawing edge");
-
-			multiTouchGestureInProgress.addListener((v, o, n) -> {
-				if (n)
-					view.getChildren().add(inMultiTouchLabel);
-				else
-					view.getChildren().remove(inMultiTouchLabel);
-			});
-
-			inDrawingEdge.addListener((v, o, n) -> {
-				if (n) {
-					view.getChildren().add(inDrawingEdgeLabel);
-				} else {
-					view.getChildren().remove(inDrawingEdgeLabel);
-				}
-			});
-		}
+		var multiTouchGestureInProgress = MultiTouchGestureMonitor.setup(view);
 
 		multiTouchGestureInProgress.addListener((v, o, n) -> {
 			if (n) {
@@ -315,42 +295,6 @@ public class PaneInteraction {
 			view.getOtherGroup().getChildren().remove(hDragLine);
 			view.getOtherGroup().getChildren().remove(vDragLine);
 			me.consume();
-		});
-
-		// this code ensures that panning requires at least two touch points on a mobile device:
-		var activeTouches = new HashSet<Integer>();
-
-		view.addEventFilter(TouchEvent.TOUCH_PRESSED, e -> {
-			activeTouches.add(e.getTouchPoint().getId());
-			if (activeTouches.size() >= 2) {
-				multiTouchGestureInProgress.set(true);
-			}
-			if (multiTouchGestureInProgress.get()) {
-				e.consume();
-			}
-		});
-
-		view.addEventFilter(TouchEvent.TOUCH_MOVED, e -> {
-			// TouchPoint ids are stable, but adding again is harmless
-			activeTouches.add(e.getTouchPoint().getId());
-			if (activeTouches.size() >= 2) {
-				multiTouchGestureInProgress.set(true);
-			}
-			if (multiTouchGestureInProgress.get()) {
-				e.consume();
-			}
-		});
-
-		view.addEventFilter(TouchEvent.TOUCH_RELEASED, e -> {
-			activeTouches.remove(e.getTouchPoint().getId());
-			// Keep consuming until all touches are gone
-			boolean stillAnyTouchDown = !activeTouches.isEmpty();
-			if (multiTouchGestureInProgress.get()) {
-				e.consume();
-				if (!stillAnyTouchDown) {
-					multiTouchGestureInProgress.set(false);
-				}
-			}
 		});
 	}
 

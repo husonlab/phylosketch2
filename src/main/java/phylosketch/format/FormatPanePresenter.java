@@ -56,9 +56,6 @@ public class FormatPanePresenter {
 	private boolean canUpdate = true;
 
 	public FormatPanePresenter(DrawView view, FormatPaneController controller, BooleanProperty show) {
-		controller.getCloseButton().setOnAction(e -> show.set(false));
-
-
 		controller.getHowToLabelNodesCBox().valueProperty().addListener((v, o, n) -> {
 			if (canUpdate) {
 				if (controller.getHowToLabelNodesCBox().getValue() != null && controller.getUseNodesToLabelCBox().getValue() != null) {

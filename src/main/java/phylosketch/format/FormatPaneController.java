@@ -36,9 +36,6 @@ import phylosketch.view.NodeShape;
  */
 public class FormatPaneController {
 	@FXML
-	private Button closeButton;
-
-	@FXML
 	private ColorPicker edgeColorPicker;
 
 	@FXML
@@ -67,7 +64,6 @@ public class FormatPaneController {
 
 	@FXML
 	private Button clearEdgeLabelColorButton;
-
 
 	@FXML
 	private ChoiceBox<String> edgeLabelFontChoiceBox;
@@ -282,7 +278,6 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
 		MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
 
-		MaterialIcons.setIcon(closeButton, MaterialIcons.close, "-fx-font-size: 11;", true);
 		MaterialIcons.setIcon(dragButton, MaterialIcons.import_export, "-fx-rotate: 90;-fx-font-size: 11;", true);
 
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace, "", false);
@@ -349,6 +344,7 @@ public class FormatPaneController {
 
 		nodeShapeChoiceBox.getItems().addAll(NodeShape.Type.values());
 		nodeShapeChoiceBox.setValue(NodeShape.Type.Circle);
+
 	}
 
 	public ColorPicker getEdgeColorPicker() {
@@ -485,10 +481,6 @@ public class FormatPaneController {
 
 	public Button getSmoothButton() {
 		return smoothButton;
-	}
-
-	public Button getCloseButton() {
-		return closeButton;
 	}
 
 	public ToggleButton getShowWeightToggleButton() {

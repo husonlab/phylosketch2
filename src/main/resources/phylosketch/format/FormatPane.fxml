@@ -121,15 +121,9 @@
                         </TitledPane>
                     </panes>
                 </Accordion>
-                <HBox alignment="CENTER" layoutX="222.0" spacing="15" AnchorPane.rightAnchor="0.0"
-                      AnchorPane.topAnchor="0.0">
-                    <children>
-                        <Button fx:id="dragButton" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false"
-                                text="D"/>
-                        <Button fx:id="closeButton" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false"
-                                text="x"/>
-                    </children>
-                </HBox>
+                <Button fx:id="dragButton" layoutX="219.5" maxHeight="-Infinity" minHeight="-Infinity"
+                        mnemonicParsing="false" text="Swap sides" AnchorPane.rightAnchor="0.0"
+                        AnchorPane.topAnchor="0.0"/>
             </children>
         </AnchorPane>
         <Accordion layoutX="10.0" layoutY="36.0" VBox.vgrow="ALWAYS">

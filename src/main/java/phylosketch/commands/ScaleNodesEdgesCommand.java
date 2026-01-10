@@ -120,6 +120,7 @@ public class ScaleNodesEdgesCommand extends UndoableRedoableCommand {
 		if (dx != 0 || dy != 0) {
 			var oldBBox = BBox.compute(nodes);
 			var newBBox = new BBox(oldBBox.xMin(), oldBBox.yMin(), oldBBox.xMax() + dx, oldBBox.yMax() + dy);
+
 			var xFactor = (oldBBox.width() > 0 ? newBBox.width() / oldBBox.width() : 1.0);
 			var yFactor = (oldBBox.height() > 0 ? newBBox.height() / oldBBox.height() : 1.0);
 
@@ -140,29 +141,34 @@ public class ScaleNodesEdgesCommand extends UndoableRedoableCommand {
 		newEdgeMap.clear();
 		var nodeIds = oldNodeMap.keySet();
 		for (var e : view.getGraph().edges()) {
-			if (nodeIds.contains(e.getSource().getId()) || nodeIds.contains(e.getTarget().getId())) {
+			var eId = e.getId();
+			var source = e.getSource();
+			var sourceId = source.getId();
+			var target = e.getTarget();
+			var targetId = target.getId();
+
+			if (nodeIds.contains(sourceId) || nodeIds.contains(targetId)) {
 				var path = DrawView.getPath(e);
-				if (nodeIds.contains(e.getSource().getId()) && nodeIds.contains(e.getTarget().getId())) {
+
+				if (nodeIds.contains(sourceId) && nodeIds.contains(targetId)) {
 					var elements = PathTransforms.fitToBounds(path, oldBBox, newBBox).getElements();
 					path.getElements().setAll(elements);
-					newEdgeMap.put(e.getId(), path);
-				} else if (nodeIds.contains(e.getSource().getId())) {
-					var diff = newNodeMap.get(e.getSource().getId()).subtract(oldNodeMap.get(e.getSource().getId()));
-					var tmp = path.copyToFreeform();
+				} else if (nodeIds.contains(sourceId)) {
+					var diff = newNodeMap.get(sourceId).subtract(oldNodeMap.get(sourceId));
+					var tmp = oldEdgeMap.get(eId).copyToFreeform();
 					var index = 0;
 					PathReshape.apply(tmp, index, diff.getX(), diff.getY());
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
-					newEdgeMap.put(e.getId(), path);
-				} else if (nodeIds.contains(e.getTarget().getId())) {
-					var diff = newNodeMap.get(e.getTarget().getId()).subtract(oldNodeMap.get(e.getTarget().getId()));
-					var tmp = path.copyToFreeform();
+				} else if (nodeIds.contains(targetId)) {
+					var diff = newNodeMap.get(targetId).subtract(oldNodeMap.get(targetId));
+					var tmp = oldEdgeMap.get(eId).copyToFreeform();
 					var index = tmp.getElements().size() - 1;
 					PathReshape.apply(tmp, index, diff.getX(), diff.getY());
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
 				}
-				newEdgeMap.put(e.getId(), path);
+				newEdgeMap.put(eId, path);
 			}
 		}
 	}

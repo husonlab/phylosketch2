@@ -82,7 +82,7 @@ import java.util.function.Function;
  * Daniel Huson, 9.2024
  */
 public class MainWindowPresenter {
-	public static boolean SUPPORTS_CAPTURE = true;
+	public static boolean SUPPORTS_CAPTURE = false;
 
 	private final MainWindow window;
 	private final FindToolBar findToolBar;
@@ -141,7 +141,7 @@ public class MainWindowPresenter {
 			});
 		}
 
-		var dragLineBoxSupport = DragLineBoxSupport.setup(view);
+		var dragLineBoxSupport = DragLineBoxSupport.setup(view, getCapturePane());
 
 		PaneInteraction.setup(view, controller, dragLineBoxSupport, allowResize);
 		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), dragLineBoxSupport, () -> controller.getExtendSelectionMenuItem().fire());
@@ -501,8 +501,7 @@ public class MainWindowPresenter {
 						capturePane.setImage(null);
 						view.setMode(DrawView.Mode.Sketch);
 					}, () -> {
-						if (SUPPORTS_CAPTURE)
-							view.setMode(DrawView.Mode.Capture);
+						view.setMode(DrawView.Mode.Capture);
 						capturePane.setImage(image);
 					});
 					view.getUndoManager().doAndAdd(pasteCommand);

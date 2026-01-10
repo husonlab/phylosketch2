@@ -179,7 +179,6 @@ public final class PathTransforms {
 				arc2.setX(a.getX() + dx);
 				arc2.setY(a.getY() + dy);
 				dst.getElements().add(arc2);
-
 			} else if (e instanceof ClosePath) {
 				dst.getElements().add(new ClosePath());
 			} else {

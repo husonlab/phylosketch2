@@ -28,6 +28,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import jloda.fx.util.RunAfterAWhile;
+import phylosketch.capturepane.pane.CapturePane;
 import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathUtils;
 
@@ -50,7 +51,7 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 	 * @param view the view
 	 * @return the drag lines and boc
 	 */
-	public static DragLineBoxSupport setup(DrawView view) {
+	public static DragLineBoxSupport setup(DrawView view, CapturePane capturePane) {
 		var box = new Rectangle(-MARGIN, -MARGIN, 2 * MARGIN, 2 * MARGIN);
 		box.setMouseTransparent(true);
 		box.setFill(Color.TRANSPARENT);
@@ -69,6 +70,15 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 				maxX = Math.max(maxX, local.getX());
 				minY = Math.min(minY, local.getY());
 				maxY = Math.max(maxY, local.getY());
+			}
+
+			if (capturePane.isShowCapture()) {
+				var sceneBox = capturePane.getMainPane().localToScene(capturePane.getMainPane().getBoundsInLocal());
+				var local = view.sceneToLocal(sceneBox);
+				minX = Math.min(minX, local.getMinX());
+				maxX = Math.max(maxX, local.getMaxX());
+				minY = Math.min(minY, local.getMinY());
+				maxY = Math.max(maxY, local.getMaxX());
 			}
 
 			for (var f : view.getGraph().edges()) {
