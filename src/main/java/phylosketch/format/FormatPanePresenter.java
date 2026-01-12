@@ -132,18 +132,18 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getNodeLabelSizeCBox().valueProperty().addListener((var, o, n) -> {
+		controller.nodeLabelSizeProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null) {
-					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, n, null));
+					view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, n.doubleValue(), null));
 				}
 			}
 		});
 
-		controller.getNodeSizeCBox().valueProperty().addListener((var, o, n) -> {
+		controller.nodeSizeProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null) {
-					view.getUndoManager().doAndAdd(new NodeSizeCommand(view, n));
+					view.getUndoManager().doAndAdd(new NodeSizeCommand(view, n.doubleValue()));
 				}
 			}
 		});
@@ -233,12 +233,12 @@ public class FormatPanePresenter {
 						controller.getNodeShapeChoiceBox().setValue(null);
 
 						controller.getNodeShapeChoiceBox().setValue(nodeShape != null ? nodeShape.getType() : null);
-						controller.getNodeSizeCBox().setValue(nodeSize);
+						controller.nodeSizeProperty().setValue(nodeSize);
 						controller.getNodeFillPicker().setValue(fillColor);
 						controller.getNodeStrokePicker().setValue(strokeColor);
 						controller.getNodeLabelTextField().setText(label);
 						controller.getNodeLabelFontChoiceBox().setValue(labelFont);
-						controller.getNodeLabelSizeCBox().setValue(labelSize);
+						controller.nodeLabelSizeProperty().setValue(labelSize);
 						controller.getNodeLabelColorPicker().setValue(labelColor);
 						controller.getNodeLabelBackgroundColorPicker().setValue(labelBackground);
 					} finally {
@@ -266,9 +266,9 @@ public class FormatPanePresenter {
 					canUpdate = false;
 					try {
 						controller.getEdgeLineChoiceBox().setValue(lineType);
-						controller.getEdgeWidthCBox().setValue(edgeWidth);
+						controller.edgeWidthProperty().setValue(edgeWidth);
 						controller.getEdgeLabelFontChoiceBox().setValue(labelFont);
-						controller.getEdgeLabelSizeCBox().setValue(labelSize);
+						controller.edgeLabelSizeProperty().setValue(labelSize);
 						controller.getEdgeColorPicker().setValue(color);
 						if (weight != null)
 							controller.getEdgeWeightTextField().setText(StringUtils.removeTrailingZerosAfterDot(weight));
@@ -334,10 +334,10 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getEdgeLabelSizeCBox().valueProperty().addListener((var, o, n) -> {
+		controller.edgeLabelSizeProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null)
-					view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.size, null, n, null));
+					view.getUndoManager().doAndAdd(new EdgeLabelFormatCommand(view, EdgeLabelFormatCommand.Which.size, null, n.doubleValue(), null));
 			}
 		});
 
@@ -347,10 +347,10 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getEdgeWidthCBox().valueProperty().addListener((var, o, n) -> {
+		controller.edgeWidthProperty().addListener((var, o, n) -> {
 			if (canUpdate) {
 				if (n != null)
-					view.getUndoManager().doAndAdd(new EdgeWidthCommand(view, n));
+					view.getUndoManager().doAndAdd(new EdgeWidthCommand(view, n.doubleValue()));
 			}
 		});
 

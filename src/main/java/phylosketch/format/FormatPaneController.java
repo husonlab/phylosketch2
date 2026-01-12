@@ -20,15 +20,19 @@
 
 package phylosketch.format;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
+import jloda.fx.control.EditableMenuButton;
 import jloda.fx.icons.MaterialIcons;
-import jloda.fx.util.ComboBoxUtils;
 import jloda.phylogeny.layout.LayoutRootedPhylogeny;
 import phylosketch.view.LineType;
 import phylosketch.view.NodeShape;
+
+import java.util.List;
 
 /**
  * format pane controller
@@ -75,7 +79,7 @@ public class FormatPaneController {
 	private Button edgeLabelItalicButton;
 
 	@FXML
-	private ComboBox<Double> edgeLabelSizeCBox;
+	private MenuButton edgeLabelSizeMenuButton;
 
 	@FXML
 	private Button edgeLabelUnderlineButton;
@@ -93,7 +97,7 @@ public class FormatPaneController {
 	private Button edgeStraightButton;
 
 	@FXML
-	private ComboBox<Double> edgeWidthCBox;
+	private MenuButton edgeWidthMenuButton;
 
 	@FXML
 	private ToggleButton showWeightToggleButton;
@@ -138,7 +142,7 @@ public class FormatPaneController {
 	private Button clearNodeLabelFontButton;
 
 	@FXML
-	private ComboBox<Double> nodeLabelSizeCBox;
+	private MenuButton nodeLabelSizeMenuButton;
 
 	@FXML
 	private Button nodeLabelItalicButton;
@@ -153,7 +157,7 @@ public class FormatPaneController {
 	private ChoiceBox<NodeShape.Type> nodeShapeChoiceBox;
 
 	@FXML
-	private ComboBox<Double> nodeSizeCBox;
+	private MenuButton nodeSizeMenuButton;
 
 	@FXML
 	private VBox rootPane;
@@ -264,6 +268,12 @@ public class FormatPaneController {
 	@FXML
 	private Button zoomOutButton;
 
+	private final DoubleProperty nodeSize = new SimpleDoubleProperty(this, "nodeSize", 1.0);
+	private final DoubleProperty nodeLabelSize = new SimpleDoubleProperty(this, "nodeLabelSize", 1.0);
+
+	private final DoubleProperty edgeWidth = new SimpleDoubleProperty(this, "edgeWidth", 1.0);
+	private final DoubleProperty edgeLabelSize = new SimpleDoubleProperty(this, "edgeLabelSize", 1.0);
+
 	@FXML
 	private void initialize() {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
@@ -312,18 +322,13 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
 		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 
+		EditableMenuButton.setup(nodeSizeMenuButton, List.of("1", "2", "3", "4", "5", "8", "10", "16", "24"), true, nodeSize);
+		EditableMenuButton.setup(nodeLabelSizeMenuButton, List.of("6", "8", "10", "12", "14", "18", "24", "48"), true, nodeLabelSize);
+		EditableMenuButton.setup(edgeLabelSizeMenuButton, List.of("6", "8", "10", "12", "14", "18", "24", "48"), true, edgeLabelSize);
+		EditableMenuButton.setup(edgeWidthMenuButton, List.of("1", "2", "3", "4", "5", "8", "10", "16", "24"), true, edgeWidth);
 
-		nodeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
-		ComboBoxUtils.ensureDoubleInput(nodeLabelSizeCBox);
-		edgeLabelSizeCBox.getItems().addAll(6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 48.0);
-		ComboBoxUtils.ensureDoubleInput(edgeLabelSizeCBox);
-		nodeSizeCBox.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 8.0, 10.0, 16.0, 24.0);
-		ComboBoxUtils.ensureDoubleInput(nodeSizeCBox);
-		edgeWidthCBox.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 8.0, 10.0, 16.0, 24.0);
-		ComboBoxUtils.ensureDoubleInput(edgeWidthCBox);
-
-		getEdgeLineChoiceBox().getItems().addAll(LineType.values());
-		getEdgeLineChoiceBox().setValue(LineType.Solid);
+		edgeLineChoiceBox.getItems().addAll(LineType.values());
+		edgeLineChoiceBox.setValue(LineType.Solid);
 
 		nodeLabelFontChoiceBox.getItems().addAll("", "SansSerif", "Serif", "Monospaced");
 		edgeLabelFontChoiceBox.getItems().addAll("", "SansSerif", "Serif", "Monospaced");
@@ -379,8 +384,8 @@ public class FormatPaneController {
 		return edgeLabelItalicButton;
 	}
 
-	public ComboBox<Double> getEdgeLabelSizeCBox() {
-		return edgeLabelSizeCBox;
+	public MenuButton getEdgeLabelSizeMenuButton() {
+		return edgeLabelSizeMenuButton;
 	}
 
 	public Button getEdgeLabelUnderlineButton() {
@@ -391,9 +396,6 @@ public class FormatPaneController {
 		return clearEdgeLabelStyleButton;
 	}
 
-	public ChoiceBox<LineType> getEdgeLineChoiceBox() {
-		return edgeLineChoiceBox;
-	}
 
 	public Button getEdgeRectangularButton() {
 		return edgeRectangularButton;
@@ -403,9 +405,6 @@ public class FormatPaneController {
 		return edgeStraightButton;
 	}
 
-	public ComboBox<Double> getEdgeWidthCBox() {
-		return edgeWidthCBox;
-	}
 
 	public ColorPicker getNodeFillPicker() {
 		return nodeFillPicker;
@@ -451,10 +450,6 @@ public class FormatPaneController {
 		return clearNodeLabelFontButton;
 	}
 
-	public ComboBox<Double> getNodeLabelSizeCBox() {
-		return nodeLabelSizeCBox;
-	}
-
 	public Button getNodeLabelItalicButton() {
 		return nodeLabelItalicButton;
 	}
@@ -471,8 +466,8 @@ public class FormatPaneController {
 		return nodeShapeChoiceBox;
 	}
 
-	public ComboBox<Double> getNodeSizeCBox() {
-		return nodeSizeCBox;
+	public MenuButton getNodeSizeMenuButton() {
+		return nodeSizeMenuButton;
 	}
 
 	public VBox getRootPane() {
@@ -661,5 +656,41 @@ public class FormatPaneController {
 
 	public Button getZoomOutButton() {
 		return zoomOutButton;
+	}
+
+	public ChoiceBox<LineType> getEdgeLineChoiceBox() {
+		return edgeLineChoiceBox;
+	}
+
+	public double getNodeLabelSize() {
+		return nodeLabelSize.get();
+	}
+
+	public DoubleProperty nodeLabelSizeProperty() {
+		return nodeLabelSize;
+	}
+
+	public double getEdgeWidth() {
+		return edgeWidth.get();
+	}
+
+	public DoubleProperty edgeWidthProperty() {
+		return edgeWidth;
+	}
+
+	public double getEdgeLabelSize() {
+		return edgeLabelSize.get();
+	}
+
+	public DoubleProperty edgeLabelSizeProperty() {
+		return edgeLabelSize;
+	}
+
+	public double getNodeSize() {
+		return nodeSize.get();
+	}
+
+	public DoubleProperty nodeSizeProperty() {
+		return nodeSize;
 	}
 }

@@ -57,12 +57,12 @@
                                                     </tooltip>
                                                 </ChoiceBox>
                                                 <Label layoutX="10.0" layoutY="15.0" text="Size"/>
-                                                <ComboBox fx:id="nodeSizeCBox" editable="true" layoutX="51.0"
-                                                          layoutY="10.0" prefWidth="60.0">
+                                                <MenuButton fx:id="nodeSizeMenuButton" layoutX="51.0"
+                                                            layoutY="10.0" prefWidth="60.0">
                                                     <tooltip>
                                                         <Tooltip text="Node size"/>
                                                     </tooltip>
-                                                </ComboBox>
+                                                </MenuButton>
                                             </children>
                                         </HBox>
                                         <Label text="Fill" GridPane.rowIndex="1"/>
@@ -232,11 +232,11 @@
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="2">
                                     <children>
-                                        <ComboBox fx:id="nodeLabelSizeCBox" editable="true" prefWidth="60.0">
+                                        <MenuButton fx:id="nodeLabelSizeMenuButton" prefWidth="60.0">
                                             <tooltip>
                                                 <Tooltip text="Node label font size"/>
                                             </tooltip>
-                                        </ComboBox>
+                                        </MenuButton>
                                         <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false" text="B">
                                             <tooltip>
                                                 <Tooltip text="Node labels bold"/>
@@ -376,8 +376,8 @@
                                     <children>
                                         <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="50.0"/>
                                         <Label layoutX="10.0" layoutY="15.0" text="Width"/>
-                                        <ComboBox fx:id="edgeWidthCBox" editable="true" layoutX="51.0" layoutY="10.0"
-                                                  prefWidth="60.0"/>
+                                        <MenuButton fx:id="edgeWidthMenuButton" layoutX="51.0" layoutY="10.0"
+                                                    prefWidth="60.0"/>
                                     </children>
                                 </HBox>
                                 <Label text="Show " GridPane.rowIndex="3"/>
@@ -540,11 +540,11 @@
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="2">
                                     <children>
-                                        <ComboBox fx:id="edgeLabelSizeCBox" editable="true" prefWidth="60.0">
+                                        <MenuButton fx:id="edgeLabelSizeMenuButton" prefWidth="60.0">
                                             <tooltip>
                                                 <Tooltip text="Edge labels size"/>
                                             </tooltip>
-                                        </ComboBox>
+                                        </MenuButton>
                                         <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false" text="B">
                                             <tooltip>
                                                 <Tooltip text="Edge labels bold"/>

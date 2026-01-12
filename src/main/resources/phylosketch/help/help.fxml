@@ -38,7 +38,7 @@
                             <items>
                                 <Button fx:id="homeButton" mnemonicParsing="false" text="Home">
                                     <tooltip>
-                                        <Tooltip text="Got back to beginning"/>
+                                        <Tooltip text="Go back to beginning"/>
                                     </tooltip>
                                 </Button>
                                 <ComboBox fx:id="findCBox" editable="true" prefWidth="150.0" promptText="Search">
