@@ -35,10 +35,10 @@ import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import jloda.fx.control.MultiTouchGestureMonitor;
 import jloda.fx.util.BasicFX;
+import jloda.fx.util.ProgramProperties;
 import jloda.graph.Edge;
 import phylosketch.commands.CreateNodeCommand;
 import phylosketch.commands.DrawEdgeCommand;
-import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathSmoother;
 import phylosketch.paths.PathUtils;
 import phylosketch.window.MainWindowController;
@@ -74,11 +74,11 @@ public class PaneInteraction {
 				inDrawingEdge.set(false);
 				inRubberBandSelection.set(false);
 				view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
-				if (!PhyloSketch.isDesktop()) {
+				if (!ProgramProperties.isDesktop()) {
 					controller.getScrollPane().setPannable(true); // mobile allow pan using multi-touch gesture
 				}
 			} else {
-				if (!PhyloSketch.isDesktop()) {
+				if (!ProgramProperties.isDesktop()) {
 					controller.getScrollPane().setPannable(false); // mobile do not allow pan using single-touch gesture
 				}
 			}
@@ -86,7 +86,7 @@ public class PaneInteraction {
 
 		/*
 		var rubberBandSelection=new RubberBandSelection(view,(rectangle,extendSelection,executorService)->{
-			if (PhyloSketch.isDesktop() && !extendSelection) {
+			if (ProgramProperties.isDesktop() && !extendSelection) {
 				view.getNodeSelection().clearSelection();
 				view.getEdgeSelection().clearSelection();
 			}
@@ -132,7 +132,7 @@ public class PaneInteraction {
 			autoCloseContextMenu.setOnFinished(e -> contextMenu.hide());
 			view.setOnContextMenuRequested(e -> {
 				if (!multiTouchGestureInProgress.get() && e.getTarget() == view && view.getMode() == DrawView.Mode.Sketch
-					&& (PhyloSketch.isDesktop() || !view.getGraphFX().isEmpty())) {
+					&& (ProgramProperties.isDesktop() || !view.getGraphFX().isEmpty())) {
 					autoCloseContextMenu.setDuration(Duration.seconds(view.getGraphFX().isEmpty() ? 4 : 1.5));
 
 					e.consume();
@@ -273,7 +273,7 @@ public class PaneInteraction {
 				}
 			} else if (inRubberBandSelection.get()) {
 				if (!me.isStillSincePress()) {
-					if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+					if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 						view.getNodeSelection().clearSelection();
 						view.getEdgeSelection().clearSelection();
 					}

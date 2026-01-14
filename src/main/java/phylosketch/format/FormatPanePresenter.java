@@ -512,7 +512,7 @@ public class FormatPanePresenter {
 					controller.getEdgeStylePane(),
 					controller.getEdgeLabelsPane(),
 					controller.getEdgeLabelStylePane(),
-					controller.getStructurePane())) {
+					controller.getEditPane())) {
 				for (var control : BasicFX.getAllRecursively(titledPane, Control.class)) {
 					if (!control.disableProperty().isBound()) {
 						control.setDisable(!sketch || view.getGraphFX().isEmpty());

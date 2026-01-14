@@ -27,9 +27,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RunAfterAWhile;
 import phylosketch.capturepane.pane.CapturePane;
-import phylosketch.main.PhyloSketch;
 import phylosketch.paths.PathUtils;
 
 /**
@@ -42,7 +42,7 @@ import phylosketch.paths.PathUtils;
  */
 public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) {
 	private final static double DRAG_LINE_SIZE = 50;
-	private final static double MARGIN = PhyloSketch.isDesktop() ? 200 : 100;
+	private final static double MARGIN = ProgramProperties.isDesktop() ? 200 : 100;
 
 	/**
 	 * sets up drag lines (for showing when there is alignment with other nodes) and the bounding box that is required

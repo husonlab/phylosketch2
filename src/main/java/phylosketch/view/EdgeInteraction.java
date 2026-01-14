@@ -27,7 +27,7 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.shape.PathElement;
-import phylosketch.main.PhyloSketch;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathNormalize;
 import phylosketch.paths.PathReshape;
@@ -83,10 +83,10 @@ public class EdgeInteraction {
 								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
 								if (path.isPointOnStroke(local.getX(), local.getY())) {
 									if (me.isStillSincePress() && !me.isControlDown()) {
-										if (PhyloSketch.isDesktop() && me.isShiftDown()) {
+										if (ProgramProperties.isDesktop() && me.isShiftDown()) {
 											view.getEdgeSelection().toggleSelection(e);
 										} else if (!view.getEdgeSelection().isSelected(e)) {
-											if (PhyloSketch.isDesktop()) {
+											if (ProgramProperties.isDesktop()) {
 												view.getEdgeSelection().clearSelection();
 												view.getNodeSelection().clearSelection();
 											}
@@ -116,7 +116,7 @@ public class EdgeInteraction {
 							path.setOnMouseDragged(me -> {
 								if (inMove) {
 									if (!view.getEdgeSelection().isSelected(e)) {
-										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
 											view.getEdgeSelection().clearSelection();
 										}

@@ -25,10 +25,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Shape;
 import jloda.fx.selection.SelectionModel;
+import jloda.fx.util.ProgramProperties;
 import jloda.graph.Edge;
 import jloda.graph.GraphTraversals;
 import jloda.graph.Node;
-import phylosketch.main.PhyloSketch;
 
 public class MouseSelection {
 
@@ -37,7 +37,7 @@ public class MouseSelection {
 		shape.setOnMouseClicked(me -> {
 			if(me.isStillSincePress()) {
 				if (me.getClickCount() == 1) {
-					if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+					if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 						nodeSelectionModel.clearSelection();
 						edgeSelectionModel.clearSelection();
 					}
@@ -58,7 +58,7 @@ public class MouseSelection {
 		if(path!=null) {
 			path.setOnMouseClicked(me -> {
 				if (me.getClickCount() == 1 && me.isStillSincePress()) {
-					if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+					if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 						nodeSelectionModel.clearSelection();
 						edgeSelectionModel.clearSelection();
 					}
@@ -71,7 +71,7 @@ public class MouseSelection {
 
 	public static void setupPaneSelection(Pane pane, SelectionModel<Node> nodeSelectionModel, SelectionModel<Edge> edgeSelectionModel) {
 		pane.setOnMouseClicked(me -> {
-			if ((me.getClickCount() == 2 || !PhyloSketch.isDesktop() && me.getClickCount() == 1) && me.isStillSincePress()) {
+			if ((me.getClickCount() == 2 || !ProgramProperties.isDesktop() && me.getClickCount() == 1) && me.isStillSincePress()) {
 				nodeSelectionModel.clearSelection();
 				edgeSelectionModel.clearSelection();
 				me.consume();

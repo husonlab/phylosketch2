@@ -70,11 +70,11 @@ viewer-background {
 }
 
 .tool-bar {
-    -fx-background-color: transparent;
+    -fx-background-color: derive(-fx-background, 0%);
 }
 
 .scroll-bar .track {
-    -fx-background-color: transparent;
+    -fx-background-color: derive(-fx-background, 0%);
 }
 
 .scroll-bar .thumb {

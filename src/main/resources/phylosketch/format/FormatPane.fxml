@@ -617,7 +617,7 @@
         </Accordion>
         <Accordion layoutX="10.0" layoutY="62.0" VBox.vgrow="ALWAYS">
             <panes>
-                <TitledPane fx:id="structurePane" animated="false" text="Structure">
+                <TitledPane fx:id="editPane" animated="false" text="Edit">
                     <content>
                         <VBox alignment="CENTER" spacing="5.0">
                             <GridPane>

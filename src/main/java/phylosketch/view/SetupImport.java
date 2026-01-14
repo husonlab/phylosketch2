@@ -26,9 +26,9 @@ import javafx.scene.image.Image;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import jloda.fx.util.ClipboardUtils;
+import jloda.fx.util.ProgramProperties;
 import jloda.util.FileUtils;
 import jloda.util.StringUtils;
-import phylosketch.main.PhyloSketch;
 
 import java.io.IOException;
 import java.util.function.BiConsumer;
@@ -44,7 +44,7 @@ import static jloda.fx.util.ClipboardUtils.isTextFile;
 public class SetupImport {
 	public static void apply(Pane pane, MenuItem pasteMenuItem, BiConsumer<String, String> fileNameContentConsumer, Consumer<Image> imageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
-		var isDesktop = new SimpleBooleanProperty(PhyloSketch.isDesktop());
+		var isDesktop = new SimpleBooleanProperty(ProgramProperties.isDesktop());
 
 		pane.setOnDragOver(e -> {
 			var db = e.getDragboard();

@@ -22,8 +22,8 @@ package phylosketch.help;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.Pane;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.StatementFilter;
-import phylosketch.main.PhyloSketch;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class HelpView {
 
 	public HelpView() {
 		var fxmlLoader = new FXMLLoader();
-		try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(HelpController.class.getResource("help.fxml")).openStream(), PhyloSketch.isDesktop())) {
+		try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(HelpController.class.getResource("help.fxml")).openStream(), ProgramProperties.isDesktop())) {
 			fxmlLoader.load(ins);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

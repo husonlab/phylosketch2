@@ -27,9 +27,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebView;
 import jloda.fx.icons.MaterialIcons;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RunAfterAWhile;
-import jloda.util.ProgramProperties;
-import phylosketch.main.PhyloSketch;
 
 import java.util.Arrays;
 
@@ -121,7 +120,7 @@ public class HelpController {
 			} else System.err.println("File not found: help.html");
 		}
 
-		if (!PhyloSketch.isDesktop()) {
+		if (!jloda.fx.util.ProgramProperties.isDesktop()) {
 			if (hideButton.getParent() instanceof Pane pane) {
 				pane.getChildren().remove(hideButton);
 			}

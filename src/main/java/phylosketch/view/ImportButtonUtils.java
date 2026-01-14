@@ -27,9 +27,9 @@ import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.TransferMode;
 import jloda.fx.util.ClipboardUtils;
+import jloda.fx.util.ProgramProperties;
 import jloda.util.FileUtils;
 import jloda.util.StringUtils;
-import phylosketch.main.PhyloSketch;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -47,7 +47,7 @@ public class ImportButtonUtils {
 	public static void setup(MenuItem pasteMenuItem, Button importButton, Consumer<String> importStringConsumer,
 							 Consumer<Image> importImageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
-		var isDesktop = new SimpleBooleanProperty(PhyloSketch.isDesktop());
+		var isDesktop = new SimpleBooleanProperty(ProgramProperties.isDesktop());
 
 		if (importStringConsumer != null)
 			importButton.disableProperty().bind(isDesktop.and(dragOver.not()).and(ClipboardUtils.hasStringProperty().not()).and(ClipboardUtils.hasFilesProperty().not()));
@@ -62,7 +62,7 @@ public class ImportButtonUtils {
 				}
 			}
 			if (importImageConsumer != null) {
-				var image = (PhyloSketch.isDesktop() ? ClipboardUtils.getImageFileContentOrImage() : Clipboard.getSystemClipboard().getImage());
+				var image = (ProgramProperties.isDesktop() ? ClipboardUtils.getImageFileContentOrImage() : Clipboard.getSystemClipboard().getImage());
 				if (image != null) {
 					importImageConsumer.accept(image);
 				}

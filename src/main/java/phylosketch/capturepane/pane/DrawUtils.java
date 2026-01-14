@@ -31,9 +31,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.util.ClipboardUtils;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.capturepane.capture.Point;
 import phylosketch.capturepane.capture.Segment;
-import phylosketch.main.PhyloSketch;
 import phylosketch.ocr.OcrWord;
 
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class DrawUtils {
 
 			path.setOnMouseClicked(e -> {
 				if (canSelect.get()) {
-					if (!e.isShiftDown() && PhyloSketch.isDesktop()) {
+					if (!e.isShiftDown() && ProgramProperties.isDesktop()) {
 						selection.clearSelection();
 					}
 					selection.toggleSelection(segment);
@@ -127,7 +127,7 @@ public class DrawUtils {
 
 			rectangle.setOnMouseClicked(e -> {
 				if (canSelect.get()) {
-					if (!e.isShiftDown() && PhyloSketch.isDesktop()) {
+					if (!e.isShiftDown() && ProgramProperties.isDesktop()) {
 						selection.clearSelection();
 					}
 					selection.toggleSelection(word);

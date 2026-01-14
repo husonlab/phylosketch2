@@ -26,8 +26,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.commands.MoveNodesEdgesCommand;
-import phylosketch.main.PhyloSketch;
 
 import java.util.ArrayList;
 
@@ -67,10 +67,10 @@ public class NodeInteraction {
 						if (n instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
 							shape.setOnMouseClicked(me -> {
 								if (me.isStillSincePress() && !me.isControlDown()) {
-									if (PhyloSketch.isDesktop() && me.isShiftDown()) {
+									if (ProgramProperties.isDesktop() && me.isShiftDown()) {
 										view.getNodeSelection().toggleSelection(v);
 									} else if (!view.getNodeSelection().isSelected(v)) {
-										if (PhyloSketch.isDesktop()) {
+										if (ProgramProperties.isDesktop()) {
 											view.getEdgeSelection().clearSelection();
 											view.getNodeSelection().clearSelection();
 										}
@@ -102,7 +102,7 @@ public class NodeInteraction {
 							shape.setOnMouseDragged(me -> {
 								if (inMove) {
 									if (false && !view.getNodeSelection().isSelected(v)) {
-										if (PhyloSketch.isDesktop() && !me.isShiftDown()) {
+										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
 											view.getEdgeSelection().clearSelection();
 										}

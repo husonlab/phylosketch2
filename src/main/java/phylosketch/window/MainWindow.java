@@ -41,7 +41,6 @@ import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
 import phylosketch.io.ExtensionFilters;
 import phylosketch.io.FileOpener;
-import phylosketch.main.PhyloSketch;
 import phylosketch.view.DrawView;
 
 import java.io.IOException;
@@ -84,7 +83,7 @@ public class MainWindow implements IMainWindow {
         Parent root;
         {
             var fxmlLoader = new FXMLLoader();
-            try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(MainWindowController.class.getResource("MainWindow.fxml")).openStream(), PhyloSketch.isDesktop())) {
+			try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(MainWindowController.class.getResource("MainWindow.fxml")).openStream(), ProgramProperties.isDesktop())) {
                 fxmlLoader.load(ins);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);

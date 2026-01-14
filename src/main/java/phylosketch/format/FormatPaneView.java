@@ -23,8 +23,8 @@ package phylosketch.format;
 import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.Pane;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.StatementFilter;
-import phylosketch.main.PhyloSketch;
 import phylosketch.view.DrawView;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class FormatPaneView {
 
 	public FormatPaneView(DrawView drawView, BooleanProperty show) {
 		var fxmlLoader = new FXMLLoader();
-		try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(FormatPaneController.class.getResource("FormatPane.fxml")).openStream(), PhyloSketch.isDesktop())) {
+		try (var ins = StatementFilter.applyMobileFXML(Objects.requireNonNull(FormatPaneController.class.getResource("FormatPane.fxml")).openStream(), ProgramProperties.isDesktop())) {
 			fxmlLoader.load(ins);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

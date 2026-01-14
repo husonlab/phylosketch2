@@ -22,6 +22,7 @@ package phylosketch.io;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.windownotifications.WindowNotifications;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
@@ -108,7 +109,7 @@ public class ImportNewick {
 			}
 		}
 
-		if (totalLeaves > 1000) {
+		if (totalLeaves > 1000 && ProgramProperties.isDesktop()) { // todo: convert to internal dialog
 			var message = "You are attempting to import %d %s with %d leaves"
 					.formatted(trees.size(), trees.size() > 1 ? "phylogenies" : "phylogeny", totalLeaves);
 			if (!Dialogs.askForConfirmation(window.getStage(), "Phylogeny import", message, "Proceed?")) {

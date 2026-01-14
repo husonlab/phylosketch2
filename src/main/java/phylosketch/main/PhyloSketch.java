@@ -53,8 +53,6 @@ import java.time.Duration;
 public class PhyloSketch extends Application {
     private static String[] inputFilesAtStartup;
 
-    private static boolean desktop = true;
-
     private static boolean showSplash = true;
 
     @Override
@@ -196,11 +194,4 @@ public class PhyloSketch extends Application {
             return System.getProperty("user.home") + File.separator + ".PhyloSketch2.def";
     }
 
-    public static boolean isDesktop() {
-        return desktop;
-    }
-
-    public static void setDesktop(boolean desktop) {
-        PhyloSketch.desktop = desktop;
-    }
 }

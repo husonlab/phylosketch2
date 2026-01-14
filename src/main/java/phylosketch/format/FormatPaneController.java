@@ -260,7 +260,7 @@ public class FormatPaneController {
 	@FXML
 	private TitledPane transformPane;
 	@FXML
-	private TitledPane structurePane;
+	private TitledPane editPane;
 
 	@FXML
 	private Button zoomInButton;
@@ -646,8 +646,8 @@ public class FormatPaneController {
 		return transformPane;
 	}
 
-	public TitledPane getStructurePane() {
-		return structurePane;
+	public TitledPane getEditPane() {
+		return editPane;
 	}
 
 	public Button getZoomInButton() {

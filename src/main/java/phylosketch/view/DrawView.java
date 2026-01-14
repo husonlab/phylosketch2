@@ -41,10 +41,7 @@ import jloda.fx.graph.GraphFX;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
-import jloda.fx.util.BasicFX;
-import jloda.fx.util.Icebergs;
-import jloda.fx.util.RunAfterAWhile;
-import jloda.fx.util.SelectionEffect;
+import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
@@ -53,7 +50,6 @@ import jloda.phylo.PhyloTree;
 import jloda.phylogeny.layout.LayoutRootedPhylogeny;
 import jloda.util.IteratorUtils;
 import phylosketch.commands.LayoutLabelsCommand;
-import phylosketch.main.PhyloSketch;
 import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathUtils;
 
@@ -438,7 +434,7 @@ public class DrawView extends Pane {
 		label.applyCss();
 
 		label.setOnMouseClicked(a -> {
-			if (!a.isShiftDown() && PhyloSketch.isDesktop()) {
+			if (!a.isShiftDown() && ProgramProperties.isDesktop()) {
 				getNodeSelection().clearSelection();
 				getEdgeSelection().clearSelection();
 			}
