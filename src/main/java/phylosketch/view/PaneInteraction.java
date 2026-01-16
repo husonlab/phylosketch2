@@ -67,7 +67,7 @@ public class PaneInteraction {
 	 * setup the interaction
 	 */
 	public static void setup(DrawView view, MainWindowController controller, DragLineBoxSupport dragLineBoxSupport, BooleanProperty allowResize) {
-		var multiTouchGestureInProgress = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view, !ProgramProperties.isDesktop());
+		var multiTouchGestureInProgress = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view);
 
 		controller.getScrollPane().setMouseScrollZoomFactor(1.05);
 
