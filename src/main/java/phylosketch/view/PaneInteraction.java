@@ -67,22 +67,19 @@ public class PaneInteraction {
 	 * setup the interaction
 	 */
 	public static void setup(DrawView view, MainWindowController controller, DragLineBoxSupport dragLineBoxSupport, BooleanProperty allowResize) {
-		var multiTouchGestureInProgress = MultiTouchGestureMonitor.setup(view);
+		var multiTouchGestureInProgress = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view, !ProgramProperties.isDesktop());
 
-		multiTouchGestureInProgress.addListener((v, o, n) -> {
-			if (n) {
-				inDrawingEdge.set(false);
-				inRubberBandSelection.set(false);
-				view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
-				if (!ProgramProperties.isDesktop()) {
-					controller.getScrollPane().setPannable(true); // mobile allow pan using multi-touch gesture
+		controller.getScrollPane().setMouseScrollZoomFactor(1.05);
+
+		if (!ProgramProperties.isDesktop()) {
+			multiTouchGestureInProgress.addListener((v, o, n) -> {
+				if (n) {
+					inDrawingEdge.set(false);
+					inRubberBandSelection.set(false);
+					view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
 				}
-			} else {
-				if (!ProgramProperties.isDesktop()) {
-					controller.getScrollPane().setPannable(false); // mobile do not allow pan using single-touch gesture
-				}
-			}
-		});
+			});
+		}
 
 		/*
 		var rubberBandSelection=new RubberBandSelection(view,(rectangle,extendSelection,executorService)->{

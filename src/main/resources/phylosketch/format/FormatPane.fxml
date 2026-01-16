@@ -51,14 +51,14 @@
                                         <Label text="Shape"/>
                                         <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
                                             <children>
-                                                <ChoiceBox fx:id="nodeShapeChoiceBox" prefWidth="50.0">
+                                                <ChoiceBox fx:id="nodeShapeChoiceBox" prefWidth="70.0">
                                                     <tooltip>
                                                         <Tooltip text="Node shape"/>
                                                     </tooltip>
                                                 </ChoiceBox>
                                                 <Label layoutX="10.0" layoutY="15.0" text="Size"/>
-                                                <MenuButton fx:id="nodeSizeMenuButton" layoutX="51.0"
-                                                            layoutY="10.0" prefWidth="60.0">
+                                                <MenuButton fx:id="nodeSizeMenuButton" layoutX="51.0" layoutY="10.0"
+                                                            prefWidth="70.0">
                                                     <tooltip>
                                                         <Tooltip text="Node size"/>
                                                     </tooltip>
@@ -94,7 +94,7 @@
                                             </font>
                                         </Label>
                                         <ColorPicker fx:id="nodeStrokePicker" layoutX="61.0" layoutY="56.0"
-                                                     prefWidth="144.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                     prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                             <tooltip>
                                                 <Tooltip text="Node color"/>
                                             </tooltip>
@@ -144,13 +144,13 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
                                     <children>
-                                        <ChoiceBox fx:id="useNodesToLabelCBox" prefWidth="70.0">
+                                        <ChoiceBox fx:id="useNodesToLabelCBox" prefWidth="80.0">
                                             <tooltip>
                                                 <Tooltip text="Which nodes to label"/>
                                             </tooltip>
                                         </ChoiceBox>
                                         <Label text="by"/>
-                                        <ChoiceBox fx:id="howToLabelNodesCBox" prefWidth="60.0">
+                                        <ChoiceBox fx:id="howToLabelNodesCBox" prefWidth="80.0">
                                             <tooltip>
                                                 <Tooltip text="How to label nodes"/>
                                             </tooltip>
@@ -192,7 +192,7 @@
                             </rowConstraints>
                             <children>
                                 <Label text="Font " GridPane.rowIndex="1"/>
-                                <ChoiceBox fx:id="nodeLabelFontChoiceBox" prefWidth="134.0" GridPane.columnIndex="1"
+                                <ChoiceBox fx:id="nodeLabelFontChoiceBox" prefWidth="140.0" GridPane.columnIndex="1"
                                            GridPane.rowIndex="1">
                                     <tooltip>
                                         <Tooltip text="Node label font"/>
@@ -232,7 +232,7 @@
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="2">
                                     <children>
-                                        <MenuButton fx:id="nodeLabelSizeMenuButton" prefWidth="60.0">
+                                        <MenuButton fx:id="nodeLabelSizeMenuButton" prefWidth="70.0">
                                             <tooltip>
                                                 <Tooltip text="Node label font size"/>
                                             </tooltip>
@@ -257,7 +257,7 @@
                                     </children>
                                 </HBox>
                                 <Label text="Stroke" GridPane.rowIndex="3"/>
-                                <ColorPicker fx:id="nodeLabelColorPicker" prefWidth="134.0" GridPane.columnIndex="1"
+                                <ColorPicker fx:id="nodeLabelColorPicker" prefWidth="140.0" GridPane.columnIndex="1"
                                              GridPane.rowIndex="3">
                                     <tooltip>
                                         <Tooltip text="Node label stroke color"/>
@@ -279,7 +279,7 @@
                                     </tooltip>
                                 </Button>
                                 <Label text="Fill     " GridPane.rowIndex="5"/>
-                                <ColorPicker fx:id="nodeLabelBackgroundColorPicker" prefWidth="134.0"
+                                <ColorPicker fx:id="nodeLabelBackgroundColorPicker" prefWidth="140.0"
                                              GridPane.columnIndex="1" GridPane.rowIndex="5">
                                     <tooltip>
                                         <Tooltip text="Node label fill color"/>
@@ -327,7 +327,7 @@
                                 <Label text="Shape"/>
                                 <Label text="Line    " GridPane.rowIndex="1"/>
                                 <Label text="Color " GridPane.rowIndex="2"/>
-                                <ColorPicker fx:id="edgeColorPicker" prefWidth="144.0" GridPane.columnIndex="1"
+                                <ColorPicker fx:id="edgeColorPicker" prefWidth="140.0" GridPane.columnIndex="1"
                                              GridPane.rowIndex="2"/>
                                 <Button fx:id="clearEdgeColorButton" ellipsisString="" graphicTextGap="0.0"
                                         maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
@@ -374,10 +374,9 @@
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="1">
                                     <children>
-                                        <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="50.0"/>
-                                        <Label layoutX="10.0" layoutY="15.0" text="Width"/>
+                                        <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="70.0"/>
                                         <MenuButton fx:id="edgeWidthMenuButton" layoutX="51.0" layoutY="10.0"
-                                                    prefWidth="60.0"/>
+                                                    prefWidth="70.0"/>
                                     </children>
                                 </HBox>
                                 <Label text="Show " GridPane.rowIndex="3"/>
@@ -501,7 +500,7 @@
                             </rowConstraints>
                             <children>
                                 <Label text="Font "/>
-                                <ChoiceBox fx:id="edgeLabelFontChoiceBox" prefWidth="134.0" GridPane.columnIndex="1">
+                                <ChoiceBox fx:id="edgeLabelFontChoiceBox" prefWidth="140.0" GridPane.columnIndex="1">
                                     <tooltip>
                                         <Tooltip text="Edge labels font"/>
                                     </tooltip>
@@ -540,7 +539,7 @@
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
                                       GridPane.rowIndex="2">
                                     <children>
-                                        <MenuButton fx:id="edgeLabelSizeMenuButton" prefWidth="60.0">
+                                        <MenuButton fx:id="edgeLabelSizeMenuButton" prefWidth="70.0">
                                             <tooltip>
                                                 <Tooltip text="Edge labels size"/>
                                             </tooltip>
@@ -565,7 +564,7 @@
                                     </children>
                                 </HBox>
                                 <Label text="Stroke" GridPane.rowIndex="3"/>
-                                <ColorPicker fx:id="edgeLabelColorPicker" prefWidth="134.0" GridPane.columnIndex="1"
+                                <ColorPicker fx:id="edgeLabelColorPicker" prefWidth="140.0" GridPane.columnIndex="1"
                                              GridPane.rowIndex="3">
                                     <tooltip>
                                         <Tooltip text="Edge labels stroke color"/>
@@ -587,7 +586,7 @@
                                     </tooltip>
                                 </Button>
                                 <Label text="Fill     " GridPane.rowIndex="5"/>
-                                <ColorPicker fx:id="edgeLabelBackgroundColorPicker" prefWidth="134.0"
+                                <ColorPicker fx:id="edgeLabelBackgroundColorPicker" prefWidth="140.0"
                                              GridPane.columnIndex="1" GridPane.rowIndex="5">
                                     <tooltip>
                                         <Tooltip text="Edge labels fill color"/>
@@ -712,8 +711,8 @@
                                 <children>
                                     <Label minWidth="10.0" text="Layout"/>
                                     <Label layoutX="10.0" layoutY="17.0" text="Scaling" GridPane.rowIndex="1"/>
-                                    <ChoiceBox fx:id="layoutCBox" prefWidth="134.0" GridPane.columnIndex="1"/>
-                                    <ChoiceBox fx:id="scalingCBox" layoutX="110.0" layoutY="12.0" prefWidth="134.0"
+                                    <ChoiceBox fx:id="layoutCBox" prefWidth="140.0" GridPane.columnIndex="1"/>
+                                    <ChoiceBox fx:id="scalingCBox" layoutX="110.0" layoutY="12.0" prefWidth="140.0"
                                                GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                                     <Button fx:id="applyLayoutPhylogenyButton" mnemonicParsing="false" text="Apply"
                                             GridPane.columnIndex="2" GridPane.rowIndex="1"/>
