@@ -20,6 +20,7 @@
 
 package phylosketch.view;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.Event;
 import jloda.graph.Edge;
@@ -51,18 +52,20 @@ public class SetupSelection {
 		var nodeSelection = view.getNodeSelection();
 		var edgeSelection = view.getEdgeSelection();
 
-		controller.getSelectMenuButton().getGraphic().setOnMouseClicked(e -> {
-			if (!view.getGraphFX().isEmpty()) {
-				if (view.getNodeSelection().size() == 0 && view.getEdgeSelection().size() == 0) {
-					controller.getSelectRootsMenuItem().fire();
-				} else {
-					controller.getExtendSelectionMenuItem().fire();
+		Platform.runLater(() -> {
+			controller.getSelectMenuButton().getGraphic().setOnMouseClicked(e -> {
+				if (!view.getGraphFX().isEmpty()) {
+					if (view.getNodeSelection().size() == 0 && view.getEdgeSelection().size() == 0) {
+						controller.getSelectRootsMenuItem().fire();
+					} else {
+						controller.getExtendSelectionMenuItem().fire();
+					}
+					e.consume();
 				}
-				e.consume();
-			}
+			});
+			controller.getSelectMenuButton().getGraphic().setOnMousePressed(Event::consume);
+			controller.getSelectMenuButton().getGraphic().setOnMouseReleased(Event::consume);
 		});
-		controller.getSelectMenuButton().getGraphic().setOnMousePressed(Event::consume);
-		controller.getSelectMenuButton().getGraphic().setOnMouseReleased(Event::consume);
 
 
 		controller.getExtendSelectionMenuItem().setOnAction(a -> {

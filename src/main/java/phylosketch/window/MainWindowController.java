@@ -462,24 +462,27 @@ public class MainWindowController {
 
 	@FXML
 	private void initialize() {
-		modeMenuButton.setText("");
-		MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, "", false);
-		MaterialIcons.setIcon(findButton, MaterialIcons.search, "", false);
-		MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, "", false);
-		MaterialIcons.setIcon(showToolsButton, MaterialIcons.tune, "", false);
+		Platform.runLater(() -> {
+			MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, "", false);
+			MaterialIcons.setIcon(findButton, MaterialIcons.search, "", false);
+			MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, "", false);
+			MaterialIcons.setIcon(showToolsButton, MaterialIcons.tune, "", false);
 
-		MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
-		MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
-		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
-		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
-		MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
-		MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
+			MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
+			MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
+			MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
+			MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
+			MaterialIcons.setIcon(zoomToFitButton, MaterialIcons.fit_screen);
+			MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
 
-		MaterialIcons.setIcon(pasteButton, MaterialIcons.file_download);
+			MaterialIcons.setIcon(pasteButton, MaterialIcons.file_download);
 
-		MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image);
+			MaterialIcons.setIcon(captureMenuButton, MaterialIcons.image);
+		});
 		captureMenuButton.setStyle("-fx-background-color: transparent;");
 		captureMenuButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+		modeMenuButton.setText("");
 
 		toolbarGrid.widthProperty().addListener(e -> RunAfterAWhile.applyInFXThread(toolbarGrid, this::updateToolbarLayout));
 		updateToolbarLayout();

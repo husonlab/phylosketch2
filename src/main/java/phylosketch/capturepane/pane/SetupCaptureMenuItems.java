@@ -20,6 +20,7 @@
 
 package phylosketch.capturepane.pane;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
@@ -57,16 +58,18 @@ public class SetupCaptureMenuItems {
 		captureMenuButton.visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture));
 		captureMenuButton.managedProperty().bind(captureMenuButton.visibleProperty());
 
-		captureMenuButton.getGraphic().setOnMouseClicked(e -> {
-			if (!capturePane.getRootGroup().isVisible())
-				controller.getShowCaptureRootLocationItem().fire();
-			else
-				controller.getCapturePhylogenyItem().fire();
-			e.consume();
+		Platform.runLater(() -> {
+			captureMenuButton.getGraphic().setOnMouseClicked(e -> {
+				if (!capturePane.getRootGroup().isVisible())
+					controller.getShowCaptureRootLocationItem().fire();
+				else
+					controller.getCapturePhylogenyItem().fire();
+				e.consume();
+			});
+			captureMenuButton.getGraphic().setOnMousePressed(Event::consume);
+			captureMenuButton.getGraphic().setOnMouseReleased(Event::consume);
+			captureMenuButton.getGraphic().disableProperty().bind(canSetup.not());
 		});
-		captureMenuButton.getGraphic().setOnMousePressed(Event::consume);
-		captureMenuButton.getGraphic().setOnMouseReleased(Event::consume);
-		captureMenuButton.getGraphic().disableProperty().bind(canSetup.not());
 
 		controller.getClearCaptureImageItem().setOnAction(e -> {
 			var image = capturePane.getImageView().getImage();

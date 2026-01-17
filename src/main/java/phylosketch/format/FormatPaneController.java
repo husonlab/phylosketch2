@@ -20,6 +20,7 @@
 
 package phylosketch.format;
 
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
@@ -276,6 +277,7 @@ public class FormatPaneController {
 
 	@FXML
 	private void initialize() {
+		Platform.runLater(() -> {
 		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
 		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
 		MaterialIcons.setIcon(nodeLabelUnderlineButton, MaterialIcons.format_underline);
@@ -321,6 +323,7 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(rotateRightButton, MaterialIcons.rotate_right, "", false);
 		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
 		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
+		});
 
 		EditableMenuButton.setup(nodeSizeMenuButton, List.of("1", "2", "3", "4", "5", "8", "10", "16", "24"), true, nodeSize);
 		EditableMenuButton.setup(nodeLabelSizeMenuButton, List.of("6", "8", "10", "12", "14", "18", "24", "48"), true, nodeLabelSize);

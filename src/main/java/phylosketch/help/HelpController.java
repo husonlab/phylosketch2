@@ -20,6 +20,7 @@
 
 package phylosketch.help;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -101,13 +102,15 @@ public class HelpController {
 
 	@FXML
 	private void initialize() {
-		MaterialIcons.setIcon(homeButton, MaterialIcons.home);
-		MaterialIcons.setIcon(clearButton, MaterialIcons.backspace);
-		MaterialIcons.setIcon(nextButton, MaterialIcons.arrow_forward_ios);
-		MaterialIcons.setIcon(previousButton, MaterialIcons.arrow_back_ios_new);
-		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
-		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
-		MaterialIcons.setIcon(hideButton, MaterialIcons.close);
+		Platform.runLater(() -> {
+			MaterialIcons.setIcon(homeButton, MaterialIcons.home);
+			MaterialIcons.setIcon(clearButton, MaterialIcons.backspace);
+			MaterialIcons.setIcon(nextButton, MaterialIcons.arrow_forward_ios);
+			MaterialIcons.setIcon(previousButton, MaterialIcons.arrow_back_ios_new);
+			MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
+			MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
+			MaterialIcons.setIcon(hideButton, MaterialIcons.close);
+		});
 
 		findCBox.getItems().addAll(Arrays.asList(ProgramProperties.get("HelpSearchTerms", new String[0])));
 		findCBox.getItems().addListener((InvalidationListener) e -> RunAfterAWhile.applyInFXThread(findCBox, () -> ProgramProperties.put("HelpSearchTerms",
