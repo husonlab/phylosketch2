@@ -25,6 +25,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.control.EditableMenuButton;
 import jloda.fx.icons.MaterialIcons;
@@ -265,6 +266,12 @@ public class FormatPaneController {
 	@FXML
 	private Button zoomOutButton;
 
+	@FXML
+	private VBox vBox;
+
+	@FXML
+	private ScrollPane scrollPane;
+
 	private final DoubleProperty nodeSize = new SimpleDoubleProperty(this, "nodeSize", 1.0);
 	private final DoubleProperty nodeLabelSize = new SimpleDoubleProperty(this, "nodeLabelSize", 1.0);
 
@@ -349,6 +356,8 @@ public class FormatPaneController {
 
 		nodeShapeChoiceBox.getItems().addAll(NodeShape.Type.values());
 		nodeShapeChoiceBox.setValue(NodeShape.Type.Circle);
+
+		TouchScrollGuard.install(scrollPane, vBox, 8);
 	}
 
 	public ColorPicker getEdgeColorPicker() {

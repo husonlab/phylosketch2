@@ -20,7 +20,6 @@
   ~
   -->
 
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -28,10 +27,10 @@
 <StackPane pickOnBounds="false" styleClass="empty" xmlns="http://javafx.com/javafx/23.0.1"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="phylosketch.format.FormatPaneController">
     <children>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="false"
-                    styleClass="transparent-scroll">
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" hbarPolicy="NEVER" nodeOrientation="RIGHT_TO_LEFT"
+                    pannable="true" styleClass="transparent-scroll">
             <content>
-                <VBox nodeOrientation="LEFT_TO_RIGHT">
+                <VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT">
                     <children>
                         <AnchorPane nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0"
                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
