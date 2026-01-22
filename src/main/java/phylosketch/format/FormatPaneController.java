@@ -25,7 +25,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 import jloda.fx.control.EditableMenuButton;
 import jloda.fx.icons.MaterialIcons;
@@ -161,9 +160,6 @@ public class FormatPaneController {
 	private MenuButton nodeSizeMenuButton;
 
 	@FXML
-	private VBox rootPane;
-
-	@FXML
 	private Button smoothButton;
 
 	@FXML
@@ -242,7 +238,7 @@ public class FormatPaneController {
 	private ToggleButton resizeModeButton;
 
 	@FXML
-	private Button dragButton;
+	private Button swapSidesButton;
 
 	@FXML
 	private TitledPane nodeStylePane;
@@ -290,7 +286,8 @@ public class FormatPaneController {
 		MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
 		MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
 
-		MaterialIcons.setIcon(dragButton, MaterialIcons.import_export, "-fx-rotate: 90;-fx-font-size: 11;", true);
+			MaterialIcons.setIcon(swapSidesButton, MaterialIcons.import_export, "-fx-rotate: 90;", true);
+			swapSidesButton.setPrefHeight(18);
 
 		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace, "", false);
 
@@ -352,7 +349,6 @@ public class FormatPaneController {
 
 		nodeShapeChoiceBox.getItems().addAll(NodeShape.Type.values());
 		nodeShapeChoiceBox.setValue(NodeShape.Type.Circle);
-
 	}
 
 	public ColorPicker getEdgeColorPicker() {
@@ -471,10 +467,6 @@ public class FormatPaneController {
 
 	public MenuButton getNodeSizeMenuButton() {
 		return nodeSizeMenuButton;
-	}
-
-	public VBox getRootPane() {
-		return rootPane;
 	}
 
 	public Button getSmoothButton() {
@@ -609,8 +601,8 @@ public class FormatPaneController {
 		return resizeModeButton;
 	}
 
-	public Button getDragButton() {
-		return dragButton;
+	public Button getSwapSidesButton() {
+		return swapSidesButton;
 	}
 
 	public Button getDeleteButton() {

@@ -41,15 +41,16 @@ import jloda.fx.graph.GraphFX;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.undo.UndoManager;
-import jloda.fx.util.*;
+import jloda.fx.util.BasicFX;
+import jloda.fx.util.Icebergs;
+import jloda.fx.util.RunAfterAWhile;
+import jloda.fx.util.SelectionEffect;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import jloda.graph.Node;
-import jloda.graph.algorithms.ConnectedComponents;
 import jloda.phylo.PhyloTree;
 import jloda.phylogeny.layout.LayoutRootedPhylogeny;
 import jloda.util.IteratorUtils;
-import phylosketch.commands.LayoutLabelsCommand;
 import phylosketch.paths.EdgePath;
 import phylosketch.paths.PathUtils;
 
@@ -395,14 +396,6 @@ public class DrawView extends Pane {
 		label.translateYProperty().bind(shape.translateYProperty());
 		nodeLabelsGroup.getChildren().add(label);
 		label.applyCss();
-
-		label.setOnMouseClicked(e -> shape.getOnMouseClicked().handle(e));
-
-		// todo: do label layout in bulk, not just for one node...
-		var labelLayout = LayoutLabelsCommand.computeLabelLayout(RootPosition.compute(ConnectedComponents.component(v)), v, label);
-		label.setLayoutX(labelLayout.getX());
-		label.setLayoutY(labelLayout.getY());
-		LabelUtils.makeDraggable(label, movable, this, this.getUndoManager());
 	}
 
 	public void createLabel(Edge e, String text) {
@@ -432,15 +425,6 @@ public class DrawView extends Pane {
 		listener.invalidated(null);
 		edgeLabelsGroup.getChildren().add(label);
 		label.applyCss();
-
-		label.setOnMouseClicked(a -> {
-			if (!a.isShiftDown() && ProgramProperties.isDesktop()) {
-				getNodeSelection().clearSelection();
-				getEdgeSelection().clearSelection();
-			}
-			getEdgeSelection().toggleSelection(e);
-		});
-		LabelUtils.makeDraggable(label, movable, this, this.getUndoManager());
 	}
 
 	private ListChangeListener<javafx.scene.Node> createIcebergListener(Map<Shape, Shape> shapeIcebergMap, Group icebergsGroup) {
@@ -651,5 +635,9 @@ public class DrawView extends Pane {
 
 	public void setHorizontalLabels(boolean horizontalLabels) {
 		this.horizontalLabels.set(horizontalLabels);
+	}
+
+	public BooleanProperty movableProperty() {
+		return movable;
 	}
 }

@@ -55,7 +55,9 @@ import java.util.function.Supplier;
 public class FormatPanePresenter {
 	private boolean canUpdate = true;
 
-	public FormatPanePresenter(DrawView view, FormatPaneController controller, BooleanProperty show) {
+	public FormatPanePresenter(DrawView view, FormatPaneView formatPaneView, BooleanProperty show) {
+		var controller = formatPaneView.getController();
+
 		controller.getHowToLabelNodesCBox().valueProperty().addListener((v, o, n) -> {
 			if (canUpdate) {
 				if (controller.getHowToLabelNodesCBox().getValue() != null && controller.getUseNodesToLabelCBox().getValue() != null) {
@@ -489,23 +491,24 @@ public class FormatPanePresenter {
 			}
 		});
 
-		controller.getDragButton().setOnAction(e -> {
-			var rootPane = controller.getRootPane();
-			var left = AnchorPane.getLeftAnchor(rootPane);
-			var right = AnchorPane.getRightAnchor(rootPane);
+		controller.getSwapSidesButton().setOnAction(e -> {
+			var root = formatPaneView.getRoot();
+			var left = AnchorPane.getLeftAnchor(root);
+			var right = AnchorPane.getRightAnchor(root);
 			if (left != null) {
-				AnchorPane.setLeftAnchor(rootPane, null);
-				AnchorPane.setRightAnchor(rootPane, left);
+				AnchorPane.setLeftAnchor(root, null);
+				AnchorPane.setRightAnchor(root, left);
 			} else if (right != null) {
-				AnchorPane.setLeftAnchor(rootPane, right);
-				AnchorPane.setRightAnchor(rootPane, null);
+				AnchorPane.setLeftAnchor(root, right);
+				AnchorPane.setRightAnchor(root, null);
 			}
 		});
 
-		AccordionManager.apply(controller.getRootPane(), BasicFX.getAllRecursively(controller.getRootPane(), Accordion.class), 3);
+		AccordionManager.apply(formatPaneView.getRoot(), BasicFX.getAllRecursively(formatPaneView.getRoot(), Accordion.class), 3);
 
 		InvalidationListener listener = (e -> {
 			var sketch = (view.getMode() == DrawView.Mode.Sketch);
+			var disableSketchItems = (!sketch || view.getGraphFX().isEmpty());
 			for (var titledPane : List.of(controller.getNodeStylePane(),
 					controller.getNodeLabelsPane(),
 					controller.getNodeLabelsStylePane(),
@@ -515,9 +518,11 @@ public class FormatPanePresenter {
 					controller.getEditPane())) {
 				for (var control : BasicFX.getAllRecursively(titledPane, Control.class)) {
 					if (!control.disableProperty().isBound()) {
-						control.setDisable(!sketch || view.getGraphFX().isEmpty());
+						control.setDisable(disableSketchItems);
 					}
 				}
+				if (disableSketchItems)
+					titledPane.setExpanded(false);
 			}
 		});
 		view.getGraphFX().getNodeList().addListener(listener);

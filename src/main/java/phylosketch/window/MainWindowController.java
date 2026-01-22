@@ -464,7 +464,7 @@ public class MainWindowController {
 	private void initialize() {
 		Platform.runLater(() -> {
 			MaterialIcons.setIcon(modeMenuButton, MaterialIcons.edit, "", false);
-			MaterialIcons.setIcon(findButton, MaterialIcons.search, "", false);
+			MaterialIcons.setIcon(findButton, MaterialIcons.search);
 			MaterialIcons.setIcon(selectMenuButton, MaterialIcons.select_all, "", false);
 			MaterialIcons.setIcon(showToolsButton, MaterialIcons.tune, "", false);
 
@@ -485,7 +485,6 @@ public class MainWindowController {
 		modeMenuButton.setText("");
 
 		toolbarGrid.widthProperty().addListener(e -> RunAfterAWhile.applyInFXThread(toolbarGrid, this::updateToolbarLayout));
-		updateToolbarLayout();
 
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("-", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
@@ -582,10 +581,12 @@ public class MainWindowController {
 		phylogramMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.ToScale);
 		cladogramEarlyMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.EarlyBranching);
 		cladogramLateMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.LateBranching);
+
+		Platform.runLater(this::updateToolbarLayout);
 	}
 
 	public void updateToolbarLayout() {
-		var wrap = (toolbarGrid.getWidth() < 600);
+		var wrap = (toolbarGrid.getWidth() <= Math.max(leftBox.prefWidth(-1) + rightBox.prefWidth(-1), 350));
 		if (!wrap) {
 			// Wide: right group in row 0, col 1
 			GridPane.setRowIndex(rightBox, 0);
@@ -594,7 +595,7 @@ public class MainWindowController {
 
 			rightBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
 			} else {
-			// Narrow: move right group to row 1 spanning both columns
+			// Narrow: move right group to row 1, col 0 spanning both columns
 			GridPane.setRowIndex(rightBox, 1);
 			GridPane.setColumnIndex(rightBox, 0);
 			GridPane.setColumnSpan(rightBox, 2);

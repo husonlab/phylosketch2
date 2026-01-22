@@ -38,6 +38,7 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import jloda.fx.control.MultiTouchGestureMonitor;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.control.StateToggleButton;
 import jloda.fx.dialog.ExportImageDialog;
@@ -46,6 +47,7 @@ import jloda.fx.find.FindToolBar;
 import jloda.fx.find.Searcher;
 import jloda.fx.qr.QRViewUtils;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.*;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
@@ -53,9 +55,7 @@ import jloda.fx.window.WindowGeometry;
 import jloda.fx.windownotifications.WindowNotifications;
 import jloda.phylo.algorithms.RootedNetworkProperties;
 import jloda.phylogeny.layout.LayoutRootedPhylogeny;
-import jloda.util.FileUtils;
-import jloda.util.NumberUtils;
-import jloda.util.StringUtils;
+import jloda.util.*;
 import phylosketch.capturepane.pane.CapturePane;
 import phylosketch.capturepane.pane.SetupCaptureMenuItems;
 import phylosketch.commands.*;
@@ -128,11 +128,13 @@ public class MainWindowPresenter {
 		});
 
 		formatPaneView = new FormatPaneView(view, controller.getShowToolsButton().selectedProperty());
-		AnchorPane.setTopAnchor(formatPaneView.getPane(), 10.0);
-		AnchorPane.setRightAnchor(formatPaneView.getPane(), 20.0);
-		controller.getCenterAnchorPane().getChildren().add(formatPaneView.getPane());
-		formatPaneView.getPane().setVisible(false);
-		controller.getShowToolsButton().selectedProperty().bindBidirectional(formatPaneView.getPane().visibleProperty());
+		AnchorPane.setTopAnchor(formatPaneView.getRoot(), 10.0);
+		AnchorPane.setRightAnchor(formatPaneView.getRoot(), 20.0);
+		AnchorPane.setBottomAnchor(formatPaneView.getRoot(), 10.0);
+
+		controller.getCenterAnchorPane().getChildren().add(formatPaneView.getRoot());
+		formatPaneView.getRoot().setVisible(false);
+		controller.getShowToolsButton().selectedProperty().bindBidirectional(formatPaneView.getRoot().visibleProperty());
 
 		{
 			var object = new Object();
@@ -143,9 +145,12 @@ public class MainWindowPresenter {
 
 		var dragLineBoxSupport = DragLineBoxSupport.setup(view, getCapturePane());
 
-		PaneInteraction.setup(view, controller, dragLineBoxSupport, allowResize);
-		NodeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), dragLineBoxSupport, () -> controller.getExtendSelectionMenuItem().fire());
-		EdgeInteraction.setup(view, controller.getResizeModeCheckMenuItem().selectedProperty(), () -> controller.getExtendSelectionMenuItem().fire());
+		var multiTouch = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view);
+		SetupPaneInteraction.apply(view, controller, dragLineBoxSupport, allowResize, multiTouch);
+		SetupNodeInteraction.apply(view, controller.getResizeModeCheckMenuItem().selectedProperty(), dragLineBoxSupport, multiTouch);
+		SetupNodeLabelInteraction.apply(view, multiTouch);
+		SetupEdgeInteraction.apply(view, controller.getResizeModeCheckMenuItem().selectedProperty(), multiTouch);
+		SetupEdgeLabelInteraction.apply(view, multiTouch);
 
 		ModificationSupport.setup(view, controller);
 
@@ -450,7 +455,7 @@ public class MainWindowPresenter {
 		SwipeUtils.setConsumeSwipes(controller.getRootPane());
 
 		SetupSelection.apply(view, controller);
-		SetupResize.apply(view, allowResize);
+		SetupResize.apply(view, allowResize, multiTouch);
 
 		var qrImageView = new SimpleObjectProperty<ImageView>();
 
@@ -662,8 +667,17 @@ public class MainWindowPresenter {
 		var scaling = view.scalingProperty();
 
 		formatController.getApplyLayoutPhylogenyButton().setOnAction(v -> {
-			if (layout.get() != null && scaling.get() != null)
+			if (layout.get() != null && scaling.get() != null) {
+				if (layout.get() == LayoutRootedPhylogeny.Layout.Triangular) {
+					var nodes = view.getSelectedOrAllNodes();
+
+					if (nodes.stream().anyMatch(u -> CollectionUtils.intersection(nodes, IteratorUtils.asSet(u.parents())).size() > 1)) {
+						Platform.runLater(() -> layout.set(LayoutRootedPhylogeny.Layout.Rectangular));
+						return;
+					}
+				}
 				view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, layout.get(), scaling.get()));
+			}
 		});
 		formatController.getApplyLayoutPhylogenyButton().disableProperty().bind(view.getGraphFX().emptyProperty().or(scaling.isNull()).or(layout.isNull()));
 		controller.getLayoutPhylogenyMenuItem().setOnAction(formatController.getApplyLayoutPhylogenyButton().getOnAction());
@@ -679,7 +693,8 @@ public class MainWindowPresenter {
 				controller.getLayoutToggleGroup().selectToggle(null);
 			else {
 				controller.getLayoutToggleGroup().getToggles().stream().filter(t -> t.getUserData() == n).forEach(t -> t.setSelected(true));
-				formatController.getApplyLayoutPhylogenyButton().fire();
+				if (false)
+					formatController.getApplyLayoutPhylogenyButton().fire();
 			}
 		});
 		ProgramProperties.track(layout, LayoutRootedPhylogeny.Layout::valueOf, LayoutRootedPhylogeny.Layout.Rectangular);
@@ -694,7 +709,8 @@ public class MainWindowPresenter {
 				controller.getScalingToggleGroup().selectToggle(null);
 			else {
 				controller.getScalingToggleGroup().getToggles().stream().filter(t -> t.getUserData() == n).forEach(t -> t.setSelected(true));
-				formatController.getApplyLayoutPhylogenyButton().fire();
+				if (false)
+					formatController.getApplyLayoutPhylogenyButton().fire();
 			}
 		});
 		ProgramProperties.track(scaling, LayoutRootedPhylogeny.Scaling::valueOf, LayoutRootedPhylogeny.Scaling.LateBranching);

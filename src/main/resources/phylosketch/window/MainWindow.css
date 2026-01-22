@@ -93,10 +93,25 @@ viewer-background {
     -fx-padding: 1 6 1 6;
 }
 
+/*
 .titled-pane > .title > .text {
     -fx-font-size: 13px;
 }
+*/
 
 .titled-pane > .content {
     -fx-padding: -5 -5 -5 -5; /* top right bottom left */
+}
+
+.transparent-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.transparent-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.transparent-scroll .corner {
+    -fx-background-color: transparent;
 }

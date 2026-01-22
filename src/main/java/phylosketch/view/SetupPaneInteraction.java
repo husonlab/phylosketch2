@@ -1,5 +1,5 @@
 /*
- * PaneInteraction.java Copyright (C) 2025 Daniel H. Huson
+ * SetupPaneInteraction.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -23,6 +23,7 @@ package phylosketch.view;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -33,7 +34,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
-import jloda.fx.control.MultiTouchGestureMonitor;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.graph.Edge;
@@ -48,14 +48,14 @@ import java.util.stream.Collectors;
 
 import static phylosketch.paths.PathUtils.getCoordinates;
 
-public class PaneInteraction {
+public class SetupPaneInteraction {
 	private static double mouseX;
 	private static double mouseY;
 	private static double mouseDownX;
 	private static double mouseDownY;
 
-	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(PaneInteraction.class, "inDrawingEdge", false);
-	public static final BooleanProperty inRubberBandSelection = new SimpleBooleanProperty(PaneInteraction.class, "inRubberBandSelection", false);
+	public static final BooleanProperty inDrawingEdge = new SimpleBooleanProperty(SetupPaneInteraction.class, "inDrawingEdge", false);
+	public static final BooleanProperty inRubberBandSelection = new SimpleBooleanProperty(SetupPaneInteraction.class, "inRubberBandSelection", false);
 
 	private final static Path path = new Path();
 
@@ -64,22 +64,20 @@ public class PaneInteraction {
 	}
 
 	/**
-	 * setup the interaction
+	 * set up the interaction
 	 */
-	public static void setup(DrawView view, MainWindowController controller, DragLineBoxSupport dragLineBoxSupport, BooleanProperty allowResize) {
-		var multiTouchGestureInProgress = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view);
-
+	public static void apply(DrawView view, MainWindowController controller, DragLineBoxSupport dragLineBoxSupport, BooleanProperty allowResize, ReadOnlyBooleanProperty multiTouch) {
 		controller.getScrollPane().setMouseScrollZoomFactor(1.05);
 
 		if (!ProgramProperties.isDesktop()) {
-			multiTouchGestureInProgress.addListener((v, o, n) -> {
+			multiTouch.addListener((v, o, n) -> {
 				if (n) {
-					inDrawingEdge.set(false);
 					inRubberBandSelection.set(false);
 					view.getOtherGroup().getChildren().remove(controller.getSelectionRectangle());
 				}
 			});
 		}
+
 
 		/*
 		var rubberBandSelection=new RubberBandSelection(view,(rectangle,extendSelection,executorService)->{
@@ -128,7 +126,7 @@ public class PaneInteraction {
 			var autoCloseContextMenu = new PauseTransition(Duration.seconds(4));
 			autoCloseContextMenu.setOnFinished(e -> contextMenu.hide());
 			view.setOnContextMenuRequested(e -> {
-				if (!multiTouchGestureInProgress.get() && e.getTarget() == view && view.getMode() == DrawView.Mode.Sketch
+				if (!multiTouch.get() && e.getTarget() == view && view.getMode() == DrawView.Mode.Sketch
 					&& (ProgramProperties.isDesktop() || !view.getGraphFX().isEmpty())) {
 					autoCloseContextMenu.setDuration(Duration.seconds(view.getGraphFX().isEmpty() ? 4 : 1.5));
 
@@ -170,7 +168,7 @@ public class PaneInteraction {
 				view.getEdgeSelection().clearSelection();
 			}
 
-			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !multiTouchGestureInProgress.get()) {
+			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !multiTouch.get()) {
 				if (me.getClickCount() == 2) {
 					createNodePause.stop();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -195,7 +193,7 @@ public class PaneInteraction {
 			mouseX = mouseDownX = me.getScreenX();
 			mouseY = mouseDownY = me.getScreenY();
 
-			if (!multiTouchGestureInProgress.get()) {
+			if (!multiTouch.get()) {
 				if (view.getMode() == DrawView.Mode.Sketch) {
 					path.getElements().clear();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
@@ -207,7 +205,7 @@ public class PaneInteraction {
 					if (!inDrawingEdge.get())
 						createNodePause.playFromStart();
 				}
-				if (!inDrawingEdge.get() && !NodeInteraction.inMove) {
+				if (!inDrawingEdge.get() && !SetupNodeInteraction.inMove) {
 					inRubberBandSelection.set(true);
 				}
 			}
@@ -218,39 +216,48 @@ public class PaneInteraction {
 			createNodePause.stop();
 			var location = view.sceneToLocal(me.getSceneX(), me.getSceneY());
 			if (inDrawingEdge.get()) {
-				if (!path.getElements().isEmpty()) {
-					if (!view.getEdgesGroup().getChildren().contains(path))
-						view.getEdgesGroup().getChildren().add(path);
+				if (!multiTouch.get()) {
+					if (!path.getElements().isEmpty()) {
+						if (!view.getEdgesGroup().getChildren().contains(path))
+							view.getEdgesGroup().getChildren().add(path);
 
-					if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
-						path.getElements().add(new LineTo(location.getX(), location.getY()));
-					}
-					{
-						var hasX = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(location.getX() - x) <= 1);
-						var hasY = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(location.getY() - y) <= 1);
-						if (hasX) {
-							if (!view.getOtherGroup().getChildren().contains(hDragLine))
-								view.getOtherGroup().getChildren().add(hDragLine);
-						} else
-							view.getOtherGroup().getChildren().remove(hDragLine);
+						if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
+							path.getElements().add(new LineTo(location.getX(), location.getY()));
+						}
+						{
+							var hasX = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(location.getX() - x) <= 1);
+							var hasY = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(location.getY() - y) <= 1);
+							if (hasX) {
+								if (!view.getOtherGroup().getChildren().contains(hDragLine))
+									view.getOtherGroup().getChildren().add(hDragLine);
+							} else
+								view.getOtherGroup().getChildren().remove(hDragLine);
 
-						if (hasY) {
-							if (!view.getOtherGroup().getChildren().contains(vDragLine))
-								view.getOtherGroup().getChildren().add(vDragLine);
-						} else
-							view.getOtherGroup().getChildren().remove(vDragLine);
+							if (hasY) {
+								if (!view.getOtherGroup().getChildren().contains(vDragLine))
+									view.getOtherGroup().getChildren().add(vDragLine);
+							} else
+								view.getOtherGroup().getChildren().remove(vDragLine);
+						}
 					}
+				} else {
+					path.getElements().clear();
+					inDrawingEdge.set(false);
 				}
 			} else if (inRubberBandSelection.get()) {
-				var selectionRectangle = controller.getSelectionRectangle();
-				var down = selectionRectangle.screenToLocal(mouseDownX, mouseDownY);
-				var delta = location.subtract(down);
+				if (!multiTouch.get()) {
+					var selectionRectangle = controller.getSelectionRectangle();
+					var down = selectionRectangle.screenToLocal(mouseDownX, mouseDownY);
+					var delta = location.subtract(down);
 
-				selectionRectangle.setVisible(Math.abs(delta.getX()) > 5 || Math.abs(delta.getY()) > 5);
-				selectionRectangle.setX(delta.getX() > 0 ? down.getX() : location.getX());
-				selectionRectangle.setWidth(Math.abs(delta.getX()));
-				selectionRectangle.setY(delta.getY() > 0 ? down.getY() : location.getY());
-				selectionRectangle.setHeight(Math.abs(delta.getY()));
+					selectionRectangle.setVisible(Math.abs(delta.getX()) > 5 || Math.abs(delta.getY()) > 5);
+					selectionRectangle.setX(delta.getX() > 0 ? down.getX() : location.getX());
+					selectionRectangle.setWidth(Math.abs(delta.getX()));
+					selectionRectangle.setY(delta.getY() > 0 ? down.getY() : location.getY());
+					selectionRectangle.setHeight(Math.abs(delta.getY()));
+				} else {
+					inRubberBandSelection.set(false);
+				}
 			}
 			me.consume();
 		});

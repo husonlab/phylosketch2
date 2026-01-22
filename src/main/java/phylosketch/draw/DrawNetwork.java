@@ -74,7 +74,7 @@ public class DrawNetwork {
 	 */
 	public static void apply(DrawView view, PhyloTree tree, Function<Node, Node> srcTarNode, Function<Edge, Edge> srcTarEdge, Map<Node, Point2D> nodePointMap, LayoutRootedPhylogeny.Layout layout) {
 		var rootNode = (tree.getRoot() != null) ? tree.getRoot() : tree.nodeStream().filter(v -> v.getInDegree() == 0).findAny().orElse(tree.getFirstNode());
-		var rootPoint = (layout == LayoutRootedPhylogeny.Layout.Rectangular ? null : nodePointMap.get(rootNode));
+		var rootPoint = (layout == LayoutRootedPhylogeny.Layout.Rectangular || layout == LayoutRootedPhylogeny.Layout.Triangular ? null : nodePointMap.get(rootNode));
 
 		for (var v : tree.nodes()) {
 			var w = srcTarNode.apply(v);
@@ -108,42 +108,45 @@ public class DrawNetwork {
 				view.getGraph().setProbability(e, tree.getProbability(oe));
 			}
 
-
 			var edgePath = DrawView.getPath(e);
 
-			if (tree.isTreeEdge(oe) || tree.isTransferAcceptorEdge(oe)) {
-				switch (layout) {
-					case Rectangular -> {
-						var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
-						edgePath.setRectangular(sourcePoint, controlPoint, targetPoint);
-					}
-					case Circular -> {
-						edgePath.setCircular(sourcePoint, rootPoint, targetPoint);
-					}
-					case Radial -> {
-						edgePath.setStraight(sourcePoint, targetPoint);
-					}
-				}
-			} else if (tree.isTransferEdge(oe)) {
+			if (layout == LayoutRootedPhylogeny.Layout.Triangular) {
 				edgePath.setStraight(sourcePoint, targetPoint);
-			} else { // reticulate edge
-				switch (layout) {
-					case Rectangular -> {
-						var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
-						edgePath.setQuadCurve(sourcePoint, controlPoint, targetPoint);
+			} else {
+				if (tree.isTreeEdge(oe) || tree.isTransferAcceptorEdge(oe)) {
+					switch (layout) {
+						case Rectangular -> {
+							var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
+							edgePath.setRectangular(sourcePoint, controlPoint, targetPoint);
+						}
+						case Circular -> {
+							edgePath.setCircular(sourcePoint, rootPoint, targetPoint);
+						}
+						case Radial -> {
+							edgePath.setStraight(sourcePoint, targetPoint);
+						}
+					}
+				} else if (tree.isTransferEdge(oe)) {
+					edgePath.setStraight(sourcePoint, targetPoint);
+				} else { // reticulate edge
+					switch (layout) {
+						case Rectangular -> {
+							var controlPoint = new Point2D(sourcePoint.getX(), targetPoint.getY());
+							edgePath.setQuadCurve(sourcePoint, controlPoint, targetPoint);
 
-					}
-					case Circular -> {
-						var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
-						var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
-						var controlPoint = CircleSegment.getEndPoint(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
-						edgePath.setQuadCurve(sourcePoint, controlPoint, targetPoint);
-					}
-					case Radial -> {
-						var diff = targetPoint.distance(rootPoint) - sourcePoint.distance(rootPoint);
-						var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
-						var controlPoint = GeometryUtilsFX.translateByAngle(targetPoint, targetAngle, -diff);
-						edgePath.setQuadCurve(sourcePoint, controlPoint, targetPoint);
+						}
+						case Circular -> {
+							var sourceAngle = GeometryUtilsFX.computeAngle(sourcePoint.subtract(rootPoint));
+							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+							var controlPoint = CircleSegment.getEndPoint(rootPoint, rootPoint.distance(sourcePoint), sourceAngle, targetAngle);
+							edgePath.setQuadCurve(sourcePoint, controlPoint, targetPoint);
+						}
+						case Radial -> {
+							var diff = targetPoint.distance(rootPoint) - sourcePoint.distance(rootPoint);
+							var targetAngle = GeometryUtilsFX.computeAngle(targetPoint.subtract(rootPoint));
+							var controlPoint = GeometryUtilsFX.translateByAngle(targetPoint, targetAngle, -diff);
+							edgePath.setQuadCurve(sourcePoint, controlPoint, targetPoint);
+						}
 					}
 				}
 			}

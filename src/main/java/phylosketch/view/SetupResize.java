@@ -22,6 +22,7 @@ package phylosketch.view;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -49,7 +50,7 @@ public class SetupResize {
 	private static MoveNodesEdgesCommand moveNodesEdgesCommand;
 	private static ScaleNodesEdgesCommand scaleNodesEdgesCommand;
 
-	public static void apply(DrawView view, BooleanProperty resizeMode) {
+	public static void apply(DrawView view, BooleanProperty resizeMode, ReadOnlyBooleanProperty multiTouch) {
 		final var rectangle = new Rectangle();
 		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
 
@@ -75,71 +76,85 @@ public class SetupResize {
 		rectangle.setOnMouseClicked(Event::consume);
 
 		rectangle.setOnContextMenuRequested(a -> {
-			var resizeItem = new CheckMenuItem("Resize Mode");
-			resizeItem.setSelected(resizeMode.get());
-			resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
-			var contextMenu = new ContextMenu(resizeItem);
-			contextMenu.show(rectangle, a.getScreenX(), a.getScreenY());
-			a.consume();
+			if (!multiTouch.get()) {
+				var resizeItem = new CheckMenuItem("Resize Mode");
+				resizeItem.setSelected(resizeMode.get());
+				resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
+				var contextMenu = new ContextMenu(resizeItem);
+				contextMenu.show(rectangle, a.getScreenX(), a.getScreenY());
+				a.consume();
+			}
 		});
 
 		rectangle.setOnMousePressed(me -> {
-			mouseX = mouseDownX = me.getScreenX();
-			mouseY = mouseDownY = me.getScreenY();
-			moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, view.getNodeSelection().getSelectedItems(), () -> updateRectangle.invalidated(null));
-			me.consume();
-		});
-
-
-		rectangle.setOnMouseDragged(me -> {
-			// todo: show nodes moving
-			var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
-			moveNodesEdgesCommand.moveNodesAndEdges(diff.getX(), diff.getY());
-			mouseX = me.getScreenX();
-			mouseY = me.getScreenY();
-			updateSizeAndLocation(view, rectangle, resizeHandle);
-			me.consume();
-		});
-
-		rectangle.setOnMouseReleased(me -> {
-			if (moveNodesEdgesCommand.isUndoable())
-				view.getUndoManager().add(moveNodesEdgesCommand);
-			moveNodesEdgesCommand = null;
-			me.consume();
-		});
-
-		resizeHandle.setOnMousePressed(me -> {
-			mouseX = mouseDownX = me.getScreenX();
-			mouseY = mouseDownY = me.getScreenY();
-			scaleNodesEdgesCommand = new ScaleNodesEdgesCommand(view, view.getNodeSelection().getSelectedItems(), () -> updateRectangle.invalidated(null));
-			me.consume();
-		});
-
-		resizeHandle.setOnMouseDragged(me -> {
-			var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
-			if (me.isShiftDown()) {
-				var min = Math.min(diff.getX(), diff.getY());
-				diff = new Point2D(min, min);
-			}
-
-			if (rectangle.getWidth() + diff.getX() >= 20 && rectangle.getHeight() + diff.getY() >= 20) {
-				scaleNodesEdgesCommand.scaleNodesAndEdges(diff.getX(), diff.getY());
-				rectangle.setWidth(rectangle.getWidth() + diff.getX());
-				rectangle.setHeight(rectangle.getHeight() + diff.getY());
-				resizeHandle.setTranslateX(resizeHandle.getTranslateX() + diff.getX());
-				resizeHandle.setTranslateY(resizeHandle.getTranslateY() + diff.getY());
-				mouseX = me.getScreenX();
-				mouseY = me.getScreenY();
+			if (!multiTouch.get()) {
+				mouseX = mouseDownX = me.getScreenX();
+				mouseY = mouseDownY = me.getScreenY();
+				moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, view.getNodeSelection().getSelectedItems(), () -> updateRectangle.invalidated(null));
 				me.consume();
 			}
 		});
 
-		resizeHandle.setOnMouseReleased(me -> {
-			if (scaleNodesEdgesCommand.isUndoable()) {
-				view.getUndoManager().add(scaleNodesEdgesCommand);
+
+		rectangle.setOnMouseDragged(me -> {
+			if (!multiTouch.get()) {
+				// todo: show nodes moving
+				var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
+				moveNodesEdgesCommand.moveNodesAndEdges(diff.getX(), diff.getY());
+				mouseX = me.getScreenX();
+				mouseY = me.getScreenY();
+				updateSizeAndLocation(view, rectangle, resizeHandle);
+				me.consume();
 			}
-			scaleNodesEdgesCommand = null;
-			me.consume();
+		});
+
+		rectangle.setOnMouseReleased(me -> {
+			if (!multiTouch.get()) {
+				if (moveNodesEdgesCommand.isUndoable())
+					view.getUndoManager().add(moveNodesEdgesCommand);
+				moveNodesEdgesCommand = null;
+				me.consume();
+			}
+		});
+
+		resizeHandle.setOnMousePressed(me -> {
+			if (!multiTouch.get()) {
+				mouseX = mouseDownX = me.getScreenX();
+				mouseY = mouseDownY = me.getScreenY();
+				scaleNodesEdgesCommand = new ScaleNodesEdgesCommand(view, view.getNodeSelection().getSelectedItems(), () -> updateRectangle.invalidated(null));
+				me.consume();
+			}
+		});
+
+		resizeHandle.setOnMouseDragged(me -> {
+			if (!multiTouch.get()) {
+				var diff = view.screenToLocal(me.getScreenX(), me.getScreenY()).subtract(view.screenToLocal(mouseX, mouseY));
+				if (me.isShiftDown()) {
+					var min = Math.min(diff.getX(), diff.getY());
+					diff = new Point2D(min, min);
+				}
+
+				if (rectangle.getWidth() + diff.getX() >= 20 && rectangle.getHeight() + diff.getY() >= 20) {
+					scaleNodesEdgesCommand.scaleNodesAndEdges(diff.getX(), diff.getY());
+					rectangle.setWidth(rectangle.getWidth() + diff.getX());
+					rectangle.setHeight(rectangle.getHeight() + diff.getY());
+					resizeHandle.setTranslateX(resizeHandle.getTranslateX() + diff.getX());
+					resizeHandle.setTranslateY(resizeHandle.getTranslateY() + diff.getY());
+					mouseX = me.getScreenX();
+					mouseY = me.getScreenY();
+					me.consume();
+				}
+			}
+		});
+
+		resizeHandle.setOnMouseReleased(me -> {
+			if (!multiTouch.get()) {
+				if (scaleNodesEdgesCommand.isUndoable()) {
+					view.getUndoManager().add(scaleNodesEdgesCommand);
+				}
+				scaleNodesEdgesCommand = null;
+				me.consume();
+			}
 		});
 	}
 

@@ -1,5 +1,5 @@
 /*
- * NodeInteraction.java Copyright (C) 2025 Daniel H. Huson
+ * SetupNodeInteraction.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -21,6 +21,7 @@
 package phylosketch.view;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -35,7 +36,7 @@ import java.util.ArrayList;
  * node interaction
  * Daniel Huson, 9.2024
  */
-public class NodeInteraction {
+public class SetupNodeInteraction {
 	private static double mouseDownX;
 	private static double mouseDownY;
 
@@ -48,12 +49,11 @@ public class NodeInteraction {
 
 	/**
 	 * setup node interactions
-	 * Note that creation of new nodes is setup in PaneInteraction
+	 * Note that creation of new nodes is setup in SetupPaneInteraction
 	 *
 	 * @param view
-	 * @param runSelectionButton
 	 */
-	public static void setup(DrawView view, BooleanProperty resizeMode, DragLineBoxSupport dragLineBoxSupport, Runnable runSelectionButton) {
+	public static void apply(DrawView view, BooleanProperty resizeMode, DragLineBoxSupport dragLineBoxSupport, ReadOnlyBooleanProperty multiTouch) {
 		var hDragLine = dragLineBoxSupport.hDragLine();
 		var vDragLine = dragLineBoxSupport.vDragLine();
 		var box = dragLineBoxSupport.box();
@@ -66,7 +66,7 @@ public class NodeInteraction {
 					for (javafx.scene.Node n : c.getAddedSubList()) {
 						if (n instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
 							shape.setOnMouseClicked(me -> {
-								if (me.isStillSincePress() && !me.isControlDown()) {
+								if (!multiTouch.get() && me.isStillSincePress() && !me.isControlDown()) {
 									if (ProgramProperties.isDesktop() && me.isShiftDown()) {
 										view.getNodeSelection().toggleSelection(v);
 									} else if (!view.getNodeSelection().isSelected(v)) {
@@ -82,25 +82,27 @@ public class NodeInteraction {
 
 							shape.setOnMousePressed(me -> {
 								nodesToDrag.clear();
-								if (!view.getNodeSelection().isSelected(v)) {
-									nodesToDrag.add(v);
-								} else {
-									nodesToDrag.addAll(view.getNodeSelection().getSelectedItems());
-								}
+								if (!multiTouch.get()) {
+									if (!view.getNodeSelection().isSelected(v)) {
+										nodesToDrag.add(v);
+									} else {
+										nodesToDrag.addAll(view.getNodeSelection().getSelectedItems());
+									}
 
-								inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
-								if (inMove) {
-									mouseDownX = me.getSceneX();
-									mouseDownY = me.getSceneY();
-									mouseX = mouseDownX;
-									mouseY = mouseDownY;
-									moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
-									me.consume();
+									inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
+									if (inMove) {
+										mouseDownX = me.getSceneX();
+										mouseDownY = me.getSceneY();
+										mouseX = mouseDownX;
+										mouseY = mouseDownY;
+										moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
+										me.consume();
+									}
 								}
 							});
 
 							shape.setOnMouseDragged(me -> {
-								if (inMove) {
+								if (!multiTouch.get() && inMove) {
 									if (false && !view.getNodeSelection().isSelected(v)) {
 										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -139,8 +141,10 @@ public class NodeInteraction {
 
 							shape.setOnMouseReleased(me -> {
 								if (inMove) {
-									if (moveNodesEdgesCommand.isUndoable())
-										view.getUndoManager().add(moveNodesEdgesCommand);
+									if (!multiTouch.get()) {
+										if (moveNodesEdgesCommand.isUndoable())
+											view.getUndoManager().add(moveNodesEdgesCommand);
+									}
 									me.consume();
 									inMove = false;
 									moveNodesEdgesCommand = null;

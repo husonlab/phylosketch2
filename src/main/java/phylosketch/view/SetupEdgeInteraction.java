@@ -1,5 +1,5 @@
 /*
- * EdgeInteraction.java Copyright (C) 2025 Daniel H. Huson
+ * SetupEdgeInteraction.java Copyright (C) 2025 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -41,7 +41,7 @@ import static phylosketch.paths.PathUtils.getCoordinates;
  * edge interaction
  * Daniel Huson, 9.2024
  */
-public class EdgeInteraction {
+public class SetupEdgeInteraction {
 	private static boolean inMove;
 
 	private static int pathIndex;
@@ -55,12 +55,11 @@ public class EdgeInteraction {
 
 	/**
 	 * setup edge interactions
-	 * Note that interactive creation of new edges ist setup in PaneInteraction
+	 * Note that interactive creation of new edges ist setup in SetupPaneInteraction
 	 *
 	 * @param view
-	 * @param runSelectionButton
 	 */
-	public static void setup(DrawView view, BooleanProperty resizeMode, Runnable runSelectionButton) {
+	public static void apply(DrawView view, BooleanProperty resizeMode, BooleanProperty multiTouch) {
 		view.getEdgesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
 				if (c.wasAdded()) {
@@ -68,29 +67,30 @@ public class EdgeInteraction {
 						if (n instanceof EdgePath path && path.getUserData() instanceof jloda.graph.Edge e) {
 
 							path.setOnContextMenuRequested(a -> {
-								if (view.getEdgeSelection().isSelected(e) && view.getMode() == DrawView.Mode.Move) {
+								if (!multiTouch.get() && view.getEdgeSelection().isSelected(e) && view.getMode() == DrawView.Mode.Move) {
 									var resizeItem = new CheckMenuItem("Resize Mode");
 									resizeItem.setSelected(resizeMode.get());
 									resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
 									var contextMenu = new ContextMenu(resizeItem);
 									contextMenu.show(path, a.getScreenX(), a.getScreenY());
-									a.consume();
 								}
 								a.consume();
 							});
 
 							path.setOnMouseClicked(me -> {
-								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
-								if (path.isPointOnStroke(local.getX(), local.getY())) {
-									if (me.isStillSincePress() && !me.isControlDown()) {
-										if (ProgramProperties.isDesktop() && me.isShiftDown()) {
-											view.getEdgeSelection().toggleSelection(e);
-										} else if (!view.getEdgeSelection().isSelected(e)) {
-											if (ProgramProperties.isDesktop()) {
-												view.getEdgeSelection().clearSelection();
-												view.getNodeSelection().clearSelection();
+								if (!multiTouch.get()) {
+									var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
+									if (path.isPointOnStroke(local.getX(), local.getY())) {
+										if (me.isStillSincePress() && !me.isControlDown()) {
+											if (ProgramProperties.isDesktop() && me.isShiftDown()) {
+												view.getEdgeSelection().toggleSelection(e);
+											} else if (!view.getEdgeSelection().isSelected(e)) {
+												if (ProgramProperties.isDesktop()) {
+													view.getEdgeSelection().clearSelection();
+													view.getNodeSelection().clearSelection();
+												}
+												view.getEdgeSelection().select(e);
 											}
-											view.getEdgeSelection().select(e);
 										}
 									}
 									me.consume();
@@ -98,23 +98,25 @@ public class EdgeInteraction {
 							});
 
 							path.setOnMousePressed(me -> {
-								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
-								if (path.isPointOnStroke(local.getX(), local.getY())) {
-									inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
+								if (!multiTouch.get()) {
+									var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
+									if (path.isPointOnStroke(local.getX(), local.getY())) {
+										inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 
-									if (inMove) {
-										pathIndex = findIndex(path, local);
-										originalElements = new ArrayList<>(path.getElements());
-										originalType = path.getType();
-										mouseX = me.getSceneX();
-										mouseY = me.getSceneY();
-										me.consume();
-									} else
-										pathIndex = -1;
+										if (inMove) {
+											pathIndex = findIndex(path, local);
+											originalElements = new ArrayList<>(path.getElements());
+											originalType = path.getType();
+											mouseX = me.getSceneX();
+											mouseY = me.getSceneY();
+											me.consume();
+										} else
+											pathIndex = -1;
+									} else inMove = false;
 								} else inMove = false;
 							});
 							path.setOnMouseDragged(me -> {
-								if (inMove) {
+								if (!multiTouch.get() && inMove) {
 									if (!view.getEdgeSelection().isSelected(e)) {
 										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -137,7 +139,7 @@ public class EdgeInteraction {
 								}
 							});
 							path.setOnMouseReleased(me -> {
-								if (inMove) {
+								if (!multiTouch.get() && inMove) {
 									if (pathIndex != -1 && !me.isStillSincePress()) {
 										var theOriginalElements = originalElements;
 										var refinedElements = PathNormalize.apply(path, 2, 5);

@@ -180,15 +180,9 @@ public class LayoutPhylogenyCommand extends UndoableRedoableCommand {
 									var nodeAngleMap = tree.newNodeDoubleArray();
 									NodeArray<Point2D> nodePointMap = tree.newNodeArray();
 
-									if (true) {
-										phylosketch.utils.LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-										phylosketch.utils.LayoutRootedPhylogeny.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
-									} else {
-										var OL = jloda.fx.phylo.embed.LayoutRootedPhylogeny.Layout.valueOf(layout.name());
-										var OS = jloda.fx.phylo.embed.LayoutRootedPhylogeny.Scaling.valueOf(scaling.name());
-										jloda.fx.phylo.embed.LayoutRootedPhylogeny.apply(tree, OL, OS, jloda.fx.phylo.embed.Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
-										jloda.fx.phylo.embed.ScaleUtils.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
-									}
+									phylosketch.utils.LayoutRootedPhylogeny.apply(tree, layout, scaling, Averaging.LeafAverage, true, new Random(666), nodeAngleMap, nodePointMap);
+									phylosketch.utils.LayoutRootedPhylogeny.scaleToBox(nodePointMap, xMinF, xMaxF, yMinF, yMaxF);
+
 									return new Pair<>(nodeAngleMap, nodePointMap);
 								},
 								p -> {

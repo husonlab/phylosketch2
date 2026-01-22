@@ -23,6 +23,8 @@ package phylosketch.format;
 import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.StatementFilter;
 import phylosketch.view.DrawView;
@@ -35,7 +37,7 @@ import java.util.Objects;
  * Daniel Huson, 11.2024
  */
 public class FormatPaneView {
-	private final Pane pane;
+	private final Pane root;
 	private final FormatPaneController controller;
 	private final FormatPanePresenter presenter;
 
@@ -47,14 +49,18 @@ public class FormatPaneView {
 			throw new RuntimeException(ex);
 		}
 		controller = fxmlLoader.getController();
-		pane = controller.getRootPane();
+		root = fxmlLoader.getRoot();
 
-		presenter = new FormatPanePresenter(drawView, controller, show);
+		presenter = new FormatPanePresenter(drawView, this, show);
 
+
+		for (var region : BasicFX.getAllRecursively(root, Region.class)) {
+			region.setMinHeight(0);
+		}
 	}
 
-	public Pane getPane() {
-		return pane;
+	public Pane getRoot() {
+		return root;
 	}
 
 	public FormatPaneController getController() {

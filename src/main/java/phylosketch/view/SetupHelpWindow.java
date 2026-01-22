@@ -28,7 +28,7 @@ import phylosketch.main.Version;
 import phylosketch.window.MainWindow;
 
 /**
- * setup the help window
+ * set up the help window
  * Daniel Huson, 12.2024
  */
 public class SetupHelpWindow {
