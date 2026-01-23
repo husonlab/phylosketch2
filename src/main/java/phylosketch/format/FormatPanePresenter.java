@@ -504,7 +504,7 @@ public class FormatPanePresenter {
 			}
 		});
 
-		AccordionManager.apply(formatPaneView.getRoot(), BasicFX.getAllRecursively(formatPaneView.getRoot(), Accordion.class), 3);
+		AccordionManager.apply(formatPaneView.getRoot(), BasicFX.getAllRecursively(formatPaneView.getRoot(), Accordion.class));
 
 		InvalidationListener listener = (e -> {
 			var sketch = (view.getMode() == DrawView.Mode.Sketch);

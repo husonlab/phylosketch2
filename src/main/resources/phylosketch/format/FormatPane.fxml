@@ -20,839 +20,780 @@
   ~
   -->
 
+
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<StackPane pickOnBounds="false" styleClass="empty" xmlns="http://javafx.com/javafx/23.0.1"
-           xmlns:fx="http://javafx.com/fxml/1" fx:controller="phylosketch.format.FormatPaneController">
+<VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT" styleClass="context-menu" prefWidth="250.0"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="phylosketch.format.FormatPaneController">
     <children>
-        <ScrollPane fx:id="scrollPane" fitToWidth="true" hbarPolicy="NEVER" nodeOrientation="RIGHT_TO_LEFT"
-                    pannable="true" styleClass="transparent-scroll">
-            <content>
-                <VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT">
-                    <children>
-                        <AnchorPane nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0"
-                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+        <AnchorPane nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+            <children>
+                <Accordion nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                           AnchorPane.topAnchor="0.0">
+                    <panes>
+                        <TitledPane fx:id="nodeStylePane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
+                                    text="Node Style">
+                            <content>
+                                <GridPane hgap="5.0" vgap="3.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
+                                        <ColumnConstraints/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Label text="Shape"/>
+                                        <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <ChoiceBox fx:id="nodeShapeChoiceBox" prefWidth="70.0">
+                                                    <tooltip>
+                                                        <Tooltip text="Node shape"/>
+                                                    </tooltip>
+                                                </ChoiceBox>
+                                                <Label layoutX="10.0" layoutY="15.0" text="Size"/>
+                                                <MenuButton fx:id="nodeSizeMenuButton" layoutX="51.0" layoutY="10.0"
+                                                            prefWidth="70.0">
+                                                    <tooltip>
+                                                        <Tooltip text="Node size"/>
+                                                    </tooltip>
+                                                </MenuButton>
+                                            </children>
+                                        </HBox>
+                                        <Label text="Fill" GridPane.rowIndex="1"/>
+                                        <ColorPicker fx:id="nodeFillPicker" prefWidth="144.0" GridPane.columnIndex="1"
+                                                     GridPane.rowIndex="1">
+                                            <tooltip>
+                                                <Tooltip text="Node color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                        <Button fx:id="clearNodeFillButton" ellipsisString="" graphicTextGap="0.0"
+                                                maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                                minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0"
+                                                prefWidth="24.0"
+                                                style="-fx-background-color: transparent; -fx-border-style: null;"
+                                                text="↻" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                            <font>
+                                                <Font size="10.0"/>
+                                            </font>
+                                            <opaqueInsets>
+                                                <Insets/>
+                                            </opaqueInsets>
+                                            <tooltip>
+                                                <Tooltip text="Revert to default settings"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Label text="Stroke" GridPane.rowIndex="2">
+                                            <font>
+                                                <Font size="12.0"/>
+                                            </font>
+                                        </Label>
+                                        <ColorPicker fx:id="nodeStrokePicker" layoutX="61.0" layoutY="56.0"
+                                                     prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                            <tooltip>
+                                                <Tooltip text="Node color"/>
+                                            </tooltip>
+                                        </ColorPicker>
+                                        <Button fx:id="clearNodeStrokeButton" ellipsisString="" graphicTextGap="0.0"
+                                                layoutX="219.0" layoutY="57.0" maxHeight="-Infinity"
+                                                maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                                mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                                style="-fx-background-color: transparent; -fx-border-style: null;"
+                                                text="↻" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                                            <font>
+                                                <Font size="10.0"/>
+                                            </font>
+                                            <opaqueInsets>
+                                                <Insets/>
+                                            </opaqueInsets>
+                                            <tooltip>
+                                                <Tooltip text="Revert to default settings"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </GridPane>
+                            </content>
+                        </TitledPane>
+                    </panes>
+                </Accordion>
+                <Button fx:id="swapSidesButton" layoutX="219.5" maxHeight="-Infinity" minHeight="-Infinity"
+                        mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Swap sides"
+                        AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+            </children>
+        </AnchorPane>
+        <Accordion layoutX="10.0" layoutY="36.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="nodeLabelsPane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
+                            text="Node Labels">
+                    <content>
+                        <GridPane hgap="5.0" vgap="3.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="NEVER"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <ColumnConstraints hgrow="NEVER"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
                             <children>
-                                <Accordion nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0"
-                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <panes>
-                                        <TitledPane fx:id="nodeStylePane" animated="false" maxHeight="-Infinity"
-                                                    minHeight="-Infinity" text="Node Style">
-                                            <content>
-                                                <GridPane hgap="5.0" vgap="3.0">
-                                                    <columnConstraints>
-                                                        <ColumnConstraints hgrow="NEVER"/>
-                                                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                                                           prefWidth="100.0"/>
-                                                        <ColumnConstraints/>
-                                                    </columnConstraints>
-                                                    <rowConstraints>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                        <RowConstraints/>
-                                                    </rowConstraints>
-                                                    <children>
-                                                        <Label text="Shape"/>
-                                                        <HBox alignment="CENTER_LEFT" spacing="5.0"
-                                                              GridPane.columnIndex="1">
-                                                            <children>
-                                                                <ChoiceBox fx:id="nodeShapeChoiceBox" prefWidth="70.0">
-                                                                    <tooltip>
-                                                                        <Tooltip text="Node shape"/>
-                                                                    </tooltip>
-                                                                </ChoiceBox>
-                                                                <Label layoutX="10.0" layoutY="15.0" text="Size"/>
-                                                                <MenuButton fx:id="nodeSizeMenuButton" layoutX="51.0"
-                                                                            layoutY="10.0" prefWidth="70.0">
-                                                                    <tooltip>
-                                                                        <Tooltip text="Node size"/>
-                                                                    </tooltip>
-                                                                </MenuButton>
-                                                            </children>
-                                                        </HBox>
-                                                        <Label text="Fill" GridPane.rowIndex="1"/>
-                                                        <ColorPicker fx:id="nodeFillPicker" prefWidth="144.0"
-                                                                     GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                            <tooltip>
-                                                                <Tooltip text="Node color"/>
-                                                            </tooltip>
-                                                        </ColorPicker>
-                                                        <Button fx:id="clearNodeFillButton" ellipsisString=""
-                                                                graphicTextGap="0.0" maxHeight="-Infinity"
-                                                                maxWidth="-Infinity" minHeight="-Infinity"
-                                                                minWidth="-Infinity" mnemonicParsing="false"
-                                                                prefHeight="24.0" prefWidth="24.0"
-                                                                style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                                text="↻" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                                            <font>
-                                                                <Font size="10.0"/>
-                                                            </font>
-                                                            <opaqueInsets>
-                                                                <Insets/>
-                                                            </opaqueInsets>
-                                                            <tooltip>
-                                                                <Tooltip text="Revert to default settings"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Label text="Stroke" GridPane.rowIndex="2">
-                                                            <font>
-                                                                <Font size="12.0"/>
-                                                            </font>
-                                                        </Label>
-                                                        <ColorPicker fx:id="nodeStrokePicker" layoutX="61.0"
-                                                                     layoutY="56.0" prefWidth="140.0"
-                                                                     GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                                            <tooltip>
-                                                                <Tooltip text="Node color"/>
-                                                            </tooltip>
-                                                        </ColorPicker>
-                                                        <Button fx:id="clearNodeStrokeButton" ellipsisString=""
-                                                                graphicTextGap="0.0" layoutX="219.0" layoutY="57.0"
-                                                                maxHeight="-Infinity" maxWidth="-Infinity"
-                                                                minHeight="-Infinity" minWidth="-Infinity"
-                                                                mnemonicParsing="false" prefHeight="24.0"
-                                                                prefWidth="24.0"
-                                                                style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                                text="↻" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                                                            <font>
-                                                                <Font size="10.0"/>
-                                                            </font>
-                                                            <opaqueInsets>
-                                                                <Insets/>
-                                                            </opaqueInsets>
-                                                            <tooltip>
-                                                                <Tooltip text="Revert to default settings"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                    </children>
-                                                </GridPane>
-                                            </content>
-                                        </TitledPane>
-                                    </panes>
-                                </Accordion>
-                                <Button fx:id="swapSidesButton" layoutX="219.5" maxHeight="-Infinity"
-                                        minHeight="-Infinity" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT"
-                                        text="Swap sides" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
+                                    <children>
+                                        <ChoiceBox fx:id="useNodesToLabelCBox" prefWidth="80.0">
+                                            <tooltip>
+                                                <Tooltip text="Which nodes to label"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                        <Label text="by"/>
+                                        <ChoiceBox fx:id="howToLabelNodesCBox" prefWidth="80.0">
+                                            <tooltip>
+                                                <Tooltip text="How to label nodes"/>
+                                            </tooltip>
+                                        </ChoiceBox>
+                                        <ToggleButton fx:id="uniqueLabelsToggleButton" mnemonicParsing="false" text="1">
+                                            <tooltip>
+                                                <Tooltip text="Unique mode: don't use existing labels"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                    </children>
+                                </HBox>
+                                <TextField fx:id="nodeLabelTextField" prefColumnCount="10" promptText="Enter label"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                             </children>
-                        </AnchorPane>
-                        <Accordion layoutX="10.0" layoutY="36.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="nodeLabelsPane" animated="false" maxHeight="-Infinity"
-                                            minHeight="-Infinity" text="Node Labels">
-                                    <content>
-                                        <GridPane hgap="5.0" vgap="3.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="NEVER"/>
-                                                <ColumnConstraints hgrow="ALWAYS"/>
-                                                <ColumnConstraints hgrow="NEVER"/>
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                            </rowConstraints>
-                                            <children>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <ChoiceBox fx:id="useNodesToLabelCBox" prefWidth="80.0">
-                                                            <tooltip>
-                                                                <Tooltip text="Which nodes to label"/>
-                                                            </tooltip>
-                                                        </ChoiceBox>
-                                                        <Label text="by"/>
-                                                        <ChoiceBox fx:id="howToLabelNodesCBox" prefWidth="80.0">
-                                                            <tooltip>
-                                                                <Tooltip text="How to label nodes"/>
-                                                            </tooltip>
-                                                        </ChoiceBox>
-                                                        <ToggleButton fx:id="uniqueLabelsToggleButton"
-                                                                      mnemonicParsing="false" text="1">
-                                                            <tooltip>
-                                                                <Tooltip text="Unique mode: don't use existing labels"/>
-                                                            </tooltip>
-                                                        </ToggleButton>
-                                                    </children>
-                                                </HBox>
-                                                <TextField fx:id="nodeLabelTextField" prefColumnCount="10"
-                                                           promptText="Enter label" GridPane.columnIndex="1"
-                                                           GridPane.rowIndex="1"/>
-                                            </children>
-                                        </GridPane>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="nodeLabelsStylePane" animated="false" maxHeight="-Infinity"
-                                            minHeight="-Infinity" text="Node Label Style">
-                                    <content>
-                                        <GridPane hgap="5.0" vgap="3.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="NEVER"/>
-                                                <ColumnConstraints halignment="LEFT" hgrow="ALWAYS"/>
-                                                <ColumnConstraints hgrow="NEVER"/>
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints/>
-                                                <RowConstraints vgrow="SOMETIMES"/>
-                                                <RowConstraints vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
-                                                <RowConstraints vgrow="SOMETIMES"/>
-                                            </rowConstraints>
-                                            <children>
-                                                <Label text="Font " GridPane.rowIndex="1"/>
-                                                <ChoiceBox fx:id="nodeLabelFontChoiceBox" prefWidth="140.0"
-                                                           GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                    <tooltip>
-                                                        <Tooltip text="Node label font"/>
-                                                    </tooltip>
-                                                </ChoiceBox>
-                                                <Button fx:id="clearNodeLabelFontButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <Label text="Size " GridPane.rowIndex="2"/>
-                                                <Button fx:id="clearNodeLabelStyleButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                                      GridPane.rowIndex="2">
-                                                    <children>
-                                                        <MenuButton fx:id="nodeLabelSizeMenuButton" prefWidth="70.0">
-                                                            <tooltip>
-                                                                <Tooltip text="Node label font size"/>
-                                                            </tooltip>
-                                                        </MenuButton>
-                                                        <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false"
-                                                                text="B">
-                                                            <tooltip>
-                                                                <Tooltip text="Node labels bold"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="nodeLabelItalicButton" layoutX="84.0"
-                                                                layoutY="10.0" mnemonicParsing="false" text="I">
-                                                            <tooltip>
-                                                                <Tooltip text="Node labels italic"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="nodeLabelUnderlineButton" layoutX="132.0"
-                                                                layoutY="10.0" mnemonicParsing="false" text="U">
-                                                            <tooltip>
-                                                                <Tooltip text="Node labels underlined"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                    </children>
-                                                </HBox>
-                                                <Label text="Stroke" GridPane.rowIndex="3"/>
-                                                <ColorPicker fx:id="nodeLabelColorPicker" prefWidth="140.0"
-                                                             GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                                    <tooltip>
-                                                        <Tooltip text="Node label stroke color"/>
-                                                    </tooltip>
-                                                </ColorPicker>
-                                                <Button fx:id="clearNodeLabelColorButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <Label text="Fill     " GridPane.rowIndex="5"/>
-                                                <ColorPicker fx:id="nodeLabelBackgroundColorPicker" prefWidth="140.0"
-                                                             GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                                    <tooltip>
-                                                        <Tooltip text="Node label fill color"/>
-                                                    </tooltip>
-                                                </ColorPicker>
-                                                <Button fx:id="clearNodeLabelBackgroundColorButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="5">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                            </children>
-                                        </GridPane>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion layoutX="10.0" layoutY="36.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="edgeStylePane" animated="false" text="Edge Style">
-                                    <content>
-                                        <GridPane hgap="5.0" vgap="3.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints fillWidth="false" hgrow="NEVER"/>
-                                                <ColumnConstraints hgrow="ALWAYS"/>
-                                                <ColumnConstraints fillWidth="false" hgrow="NEVER"/>
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                            </rowConstraints>
-                                            <children>
-                                                <Label text="Shape"/>
-                                                <Label text="Line    " GridPane.rowIndex="1"/>
-                                                <Label text="Color " GridPane.rowIndex="2"/>
-                                                <ColorPicker fx:id="edgeColorPicker" prefWidth="140.0"
-                                                             GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                                                <Button fx:id="clearEdgeColorButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <Button fx:id="edgeStraightButton" mnemonicParsing="false"
-                                                                text="S">
-                                                            <tooltip>
-                                                                <Tooltip text="Straight edges"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="edgeRectangularButton" layoutX="10.0"
-                                                                layoutY="10.0" mnemonicParsing="false" text="R">
-                                                            <tooltip>
-                                                                <Tooltip text="Rectangular edges"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="edgeCurvedButton" layoutX="40.0" layoutY="10.0"
-                                                                mnemonicParsing="false" text="C">
-                                                            <tooltip>
-                                                                <Tooltip text="Curved edges"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="smoothButton" layoutX="111.0" layoutY="10.0"
-                                                                mnemonicParsing="false" text="Smooth">
-                                                            <tooltip>
-                                                                <Tooltip text="Smooth edges"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                    </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                                      GridPane.rowIndex="1">
-                                                    <children>
-                                                        <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="70.0"/>
-                                                        <MenuButton fx:id="edgeWidthMenuButton" layoutX="51.0"
-                                                                    layoutY="10.0" prefWidth="70.0"/>
-                                                    </children>
-                                                </HBox>
-                                                <Label text="Show " GridPane.rowIndex="3"/>
-                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1"
-                                                      GridPane.rowIndex="3">
-                                                    <children>
-                                                        <Button fx:id="showArrowsButton" mnemonicParsing="false"
-                                                                text="Arrows">
-                                                            <tooltip>
-                                                                <Tooltip text="Draw edges as arrows"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="showReticulateButton" mnemonicParsing="false"
-                                                                text="Reticulate">
-                                                            <tooltip>
-                                                                <Tooltip text="Highlight reticulate edges"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                    </children>
-                                                </HBox>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="nodeLabelsStylePane" animated="false" maxHeight="-Infinity" minHeight="-Infinity"
+                            text="Node Label Style">
+                    <content>
+                        <GridPane hgap="5.0" vgap="3.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="NEVER"/>
+                                <ColumnConstraints halignment="LEFT" hgrow="ALWAYS"/>
+                                <ColumnConstraints hgrow="NEVER"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints/>
+                                <RowConstraints vgrow="SOMETIMES"/>
+                                <RowConstraints vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
+                                <RowConstraints vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                                <Label text="Font " GridPane.rowIndex="1"/>
+                                <ChoiceBox fx:id="nodeLabelFontChoiceBox" prefWidth="140.0" GridPane.columnIndex="1"
+                                           GridPane.rowIndex="1">
+                                    <tooltip>
+                                        <Tooltip text="Node label font"/>
+                                    </tooltip>
+                                </ChoiceBox>
+                                <Button fx:id="clearNodeLabelFontButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <Label text="Size " GridPane.rowIndex="2"/>
+                                <Button fx:id="clearNodeLabelStyleButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="2">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
+                                      GridPane.rowIndex="2">
+                                    <children>
+                                        <MenuButton fx:id="nodeLabelSizeMenuButton" prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip text="Node label font size"/>
+                                            </tooltip>
+                                        </MenuButton>
+                                        <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false" text="B">
+                                            <tooltip>
+                                                <Tooltip text="Node labels bold"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="nodeLabelItalicButton" layoutX="84.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="I">
+                                            <tooltip>
+                                                <Tooltip text="Node labels italic"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="nodeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="U">
+                                            <tooltip>
+                                                <Tooltip text="Node labels underlined"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <Label text="Stroke" GridPane.rowIndex="3"/>
+                                <ColorPicker fx:id="nodeLabelColorPicker" prefWidth="140.0" GridPane.columnIndex="1"
+                                             GridPane.rowIndex="3">
+                                    <tooltip>
+                                        <Tooltip text="Node label stroke color"/>
+                                    </tooltip>
+                                </ColorPicker>
+                                <Button fx:id="clearNodeLabelColorButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="3">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <Label text="Fill     " GridPane.rowIndex="5"/>
+                                <ColorPicker fx:id="nodeLabelBackgroundColorPicker" prefWidth="140.0"
+                                             GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <tooltip>
+                                        <Tooltip text="Node label fill color"/>
+                                    </tooltip>
+                                </ColorPicker>
+                                <Button fx:id="clearNodeLabelBackgroundColorButton" ellipsisString=""
+                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
+                                        minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
+                                        prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="5">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="36.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="edgeStylePane" animated="false" text="Edge Style">
+                    <content>
+                        <GridPane hgap="5.0" vgap="3.0">
+                            <columnConstraints>
+                                <ColumnConstraints fillWidth="false" hgrow="NEVER"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <ColumnConstraints fillWidth="false" hgrow="NEVER"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                                <Label text="Shape"/>
+                                <Label text="Line    " GridPane.rowIndex="1"/>
+                                <Label text="Color " GridPane.rowIndex="2"/>
+                                <ColorPicker fx:id="edgeColorPicker" prefWidth="140.0" GridPane.columnIndex="1"
+                                             GridPane.rowIndex="2"/>
+                                <Button fx:id="clearEdgeColorButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="2">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
+                                    <children>
+                                        <Button fx:id="edgeStraightButton" mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Straight edges"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeRectangularButton" layoutX="10.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="R">
+                                            <tooltip>
+                                                <Tooltip text="Rectangular edges"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeCurvedButton" layoutX="40.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="C">
+                                            <tooltip>
+                                                <Tooltip text="Curved edges"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="smoothButton" layoutX="111.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="Smooth">
+                                            <tooltip>
+                                                <Tooltip text="Smooth edges"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
+                                      GridPane.rowIndex="1">
+                                    <children>
+                                        <ChoiceBox fx:id="edgeLineChoiceBox" prefWidth="70.0"/>
+                                        <MenuButton fx:id="edgeWidthMenuButton" layoutX="51.0" layoutY="10.0"
+                                                    prefWidth="70.0"/>
+                                    </children>
+                                </HBox>
+                                <Label text="Show " GridPane.rowIndex="3"/>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1"
+                                      GridPane.rowIndex="3">
+                                    <children>
+                                        <Button fx:id="showArrowsButton" mnemonicParsing="false" text="Arrows">
+                                            <tooltip>
+                                                <Tooltip text="Draw edges as arrows"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="showReticulateButton" mnemonicParsing="false" text="Reticulate">
+                                            <tooltip>
+                                                <Tooltip text="Highlight reticulate edges"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
 
-                                            </children>
-                                        </GridPane>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion layoutX="10.0" layoutY="36.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="edgeLabelsPane" animated="false" text="Edge Labels">
-                                    <content>
-                                        <GridPane hgap="5.0" vgap="3.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints fillWidth="false" hgrow="NEVER"/>
-                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
-                                                <ColumnConstraints fillWidth="false" hgrow="NEVER"
-                                                                   minWidth="-Infinity"/>
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                            </rowConstraints>
-                                            <children>
-                                                <Label text="Weight       "/>
-                                                <Label text="Support     " GridPane.rowIndex="1"/>
-                                                <Label text="Probability" GridPane.rowIndex="2"/>
-                                                <Button fx:id="measureEdgeWeightsButton" mnemonicParsing="false"
-                                                        text="M" GridPane.columnIndex="2">
-                                                    <tooltip>
-                                                        <Tooltip text="Set edge weights from coordinates"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <ToggleButton fx:id="showWeightToggleButton"
-                                                                      mnemonicParsing="false" text="S">
-                                                            <tooltip>
-                                                                <Tooltip text="Show edge weights / branch lengths"/>
-                                                            </tooltip>
-                                                        </ToggleButton>
-                                                        <TextField fx:id="edgeWeightTextField" prefColumnCount="6">
-                                                            <tooltip>
-                                                                <Tooltip text="Set edge weight / branch length"/>
-                                                            </tooltip>
-                                                        </TextField>
-                                                    </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                                      GridPane.rowIndex="1">
-                                                    <children>
-                                                        <ToggleButton fx:id="showSupportToggleButton" layoutX="84.0"
-                                                                      layoutY="10.0" mnemonicParsing="false" text="S">
-                                                            <tooltip>
-                                                                <Tooltip text="Show confidence or support values"/>
-                                                            </tooltip>
-                                                        </ToggleButton>
-                                                        <TextField fx:id="edgeSupportTextField" prefColumnCount="6">
-                                                            <tooltip>
-                                                                <Tooltip text="Set edge support, e.g. bootstrap value"/>
-                                                            </tooltip>
-                                                        </TextField>
-                                                    </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                                      GridPane.rowIndex="2">
-                                                    <children>
-                                                        <ToggleButton fx:id="showProbabilityToggleButton"
-                                                                      layoutX="132.0" layoutY="10.0"
-                                                                      mnemonicParsing="false" text="S">
-                                                            <tooltip>
-                                                                <Tooltip text="Show probabilities on reticulate edges"/>
-                                                            </tooltip>
-                                                        </ToggleButton>
-                                                        <TextField fx:id="edgeProbabilityTextField" prefColumnCount="6">
-                                                            <tooltip>
-                                                                <Tooltip
-                                                                        text="Set reticulate edge inheretence probability"/>
-                                                            </tooltip>
-                                                        </TextField>
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion layoutX="10.0" layoutY="62.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="edgeLabelStylePane" animated="false" text="Edge Label Style">
-                                    <content>
-                                        <GridPane hgap="5.0" vgap="3.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="NEVER"/>
-                                                <ColumnConstraints hgrow="ALWAYS"/>
-                                                <ColumnConstraints hgrow="NEVER"/>
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints/>
-                                                <RowConstraints/>
-                                                <RowConstraints/>
-                                                <RowConstraints/>
-                                                <RowConstraints/>
-                                                <RowConstraints/>
-                                                <RowConstraints/>
-                                            </rowConstraints>
-                                            <children>
-                                                <Label text="Font "/>
-                                                <ChoiceBox fx:id="edgeLabelFontChoiceBox" prefWidth="140.0"
-                                                           GridPane.columnIndex="1">
-                                                    <tooltip>
-                                                        <Tooltip text="Edge labels font"/>
-                                                    </tooltip>
-                                                </ChoiceBox>
-                                                <Button fx:id="clearEdgeLabelFontButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <Label text="Size " GridPane.rowIndex="2"/>
-                                                <Button fx:id="clearEdgeLabelStyleButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                                      GridPane.rowIndex="2">
-                                                    <children>
-                                                        <MenuButton fx:id="edgeLabelSizeMenuButton" prefWidth="70.0">
-                                                            <tooltip>
-                                                                <Tooltip text="Edge labels size"/>
-                                                            </tooltip>
-                                                        </MenuButton>
-                                                        <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false"
-                                                                text="B">
-                                                            <tooltip>
-                                                                <Tooltip text="Edge labels bold"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="edgeLabelItalicButton" layoutX="84.0"
-                                                                layoutY="10.0" mnemonicParsing="false" text="I">
-                                                            <tooltip>
-                                                                <Tooltip text="Edge labels italic"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="edgeLabelUnderlineButton" layoutX="132.0"
-                                                                layoutY="10.0" mnemonicParsing="false" text="U">
-                                                            <tooltip>
-                                                                <Tooltip text="Edge labels underlined"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                    </children>
-                                                </HBox>
-                                                <Label text="Stroke" GridPane.rowIndex="3"/>
-                                                <ColorPicker fx:id="edgeLabelColorPicker" prefWidth="140.0"
-                                                             GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                                    <tooltip>
-                                                        <Tooltip text="Edge labels stroke color"/>
-                                                    </tooltip>
-                                                </ColorPicker>
-                                                <Button fx:id="clearEdgeLabelColorButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                                <Label text="Fill     " GridPane.rowIndex="5"/>
-                                                <ColorPicker fx:id="edgeLabelBackgroundColorPicker" prefWidth="140.0"
-                                                             GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                                    <tooltip>
-                                                        <Tooltip text="Edge labels fill color"/>
-                                                    </tooltip>
-                                                </ColorPicker>
-                                                <Button fx:id="clearEdgeLabelBackgroundColorButton" ellipsisString=""
-                                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                        minHeight="-Infinity" minWidth="-Infinity"
-                                                        mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
-                                                        style="-fx-background-color: transparent; -fx-border-style: null;"
-                                                        text="↻" GridPane.columnIndex="2" GridPane.rowIndex="5">
-                                                    <font>
-                                                        <Font size="10.0"/>
-                                                    </font>
-                                                    <opaqueInsets>
-                                                        <Insets/>
-                                                    </opaqueInsets>
-                                                    <tooltip>
-                                                        <Tooltip text="Revert to default settings"/>
-                                                    </tooltip>
-                                                </Button>
-                                            </children>
-                                        </GridPane>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion layoutX="10.0" layoutY="62.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="editPane" animated="false" text="Edit">
-                                    <content>
-                                        <VBox alignment="CENTER" spacing="5.0">
-                                            <GridPane>
-                                                <columnConstraints>
-                                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"
-                                                                       minWidth="10.0" prefWidth="100.0"/>
-                                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"
-                                                                       minWidth="10.0" prefWidth="100.0"/>
-                                                </columnConstraints>
-                                                <rowConstraints>
-                                                    <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                    vgrow="SOMETIMES"/>
-                                                    <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                    vgrow="SOMETIMES"/>
-                                                    <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                    vgrow="SOMETIMES"/>
-                                                    <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                    vgrow="SOMETIMES"/>
-                                                </rowConstraints>
-                                                <children>
-                                                    <Button fx:id="deleteThruNodesButton" layoutX="21.0" layoutY="23.0"
-                                                            mnemonicParsing="false" text="Del. Thru Nodes"
-                                                            GridPane.columnIndex="1">
-                                                        <tooltip>
-                                                            <Tooltip
-                                                                    text="Remove selected thru nodes (with both  indegree and outdegree 1)"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="reverseEdgesButton" layoutX="21.0" layoutY="23.0"
-                                                            mnemonicParsing="false" text="Reverse Edges"
-                                                            GridPane.rowIndex="1">
-                                                        <tooltip>
-                                                            <Tooltip text="Reverse the direction of selected edges"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="crossEdgesButton" layoutX="21.0" layoutY="53.0"
-                                                            mnemonicParsing="false" text="Cross Edges"
-                                                            GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                        <tooltip>
-                                                            <Tooltip
-                                                                    text="For a node of in- and outdegree 2, separate into two crossing edges"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="mergeNodesButton" layoutX="24.0" layoutY="53.0"
-                                                            mnemonicParsing="false" text="Merge Nodes">
-                                                        <tooltip>
-                                                            <Tooltip text="Merge all selected nodes into one"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="transferAcceptorButton" mnemonicParsing="false"
-                                                            text="Acceptor Edge" GridPane.columnIndex="1"
-                                                            GridPane.rowIndex="2">
-                                                        <tooltip>
-                                                            <Tooltip
-                                                                    text="Declare a reticulate in-edge to be the transfer acceptor edge"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="declareRootButton" mnemonicParsing="false"
-                                                            text="Declare Root" GridPane.rowIndex="2">
-                                                        <tooltip>
-                                                            <Tooltip
-                                                                    text="Declare the selected node as root, and direct edges away"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="induceButton" layoutX="24.0" layoutY="53.0"
-                                                            mnemonicParsing="false" text="Induce"
-                                                            GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                                        <tooltip>
-                                                            <Tooltip
-                                                                    text="Restrict to phylogeny induced by current selection"/>
-                                                        </tooltip>
-                                                    </Button>
-                                                    <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete"
-                                                            GridPane.rowIndex="3">
-                                                        <tooltip>
-                                                            <Tooltip text="Delete (selected) nodes and edges"/>
-                                                        </tooltip>
-                                                    </Button>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="36.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="edgeLabelsPane" animated="false" text="Edge Labels">
+                    <content>
+                        <GridPane hgap="5.0" vgap="3.0">
+                            <columnConstraints>
+                                <ColumnConstraints fillWidth="false" hgrow="NEVER"/>
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
+                                <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="-Infinity"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                                <Label text="Weight       "/>
+                                <Label text="Support     " GridPane.rowIndex="1"/>
+                                <Label text="Probability" GridPane.rowIndex="2"/>
+                                <Button fx:id="measureEdgeWeightsButton" mnemonicParsing="false" text="M"
+                                        GridPane.columnIndex="2">
+                                    <tooltip>
+                                        <Tooltip text="Set edge weights from coordinates"/>
+                                    </tooltip>
+                                </Button>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
+                                    <children>
+                                        <ToggleButton fx:id="showWeightToggleButton" mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Show edge weights / branch lengths"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <TextField fx:id="edgeWeightTextField" prefColumnCount="6">
+                                            <tooltip>
+                                                <Tooltip text="Set edge weight / branch length"/>
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
+                                      GridPane.rowIndex="1">
+                                    <children>
+                                        <ToggleButton fx:id="showSupportToggleButton" layoutX="84.0" layoutY="10.0"
+                                                      mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Show confidence or support values"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <TextField fx:id="edgeSupportTextField" prefColumnCount="6">
+                                            <tooltip>
+                                                <Tooltip text="Set edge support, e.g. bootstrap value"/>
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
+                                      GridPane.rowIndex="2">
+                                    <children>
+                                        <ToggleButton fx:id="showProbabilityToggleButton" layoutX="132.0" layoutY="10.0"
+                                                      mnemonicParsing="false" text="S">
+                                            <tooltip>
+                                                <Tooltip text="Show probabilities on reticulate edges"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <TextField fx:id="edgeProbabilityTextField" prefColumnCount="6">
+                                            <tooltip>
+                                                <Tooltip text="Set reticulate edge inheretence probability"/>
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="62.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="edgeLabelStylePane" animated="false" text="Edge Label Style">
+                    <content>
+                        <GridPane hgap="5.0" vgap="3.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="NEVER"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <ColumnConstraints hgrow="NEVER"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                            </rowConstraints>
+                            <children>
+                                <Label text="Font "/>
+                                <ChoiceBox fx:id="edgeLabelFontChoiceBox" prefWidth="140.0" GridPane.columnIndex="1">
+                                    <tooltip>
+                                        <Tooltip text="Edge labels font"/>
+                                    </tooltip>
+                                </ChoiceBox>
+                                <Button fx:id="clearEdgeLabelFontButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <Label text="Size " GridPane.rowIndex="2"/>
+                                <Button fx:id="clearEdgeLabelStyleButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="2">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
+                                      GridPane.rowIndex="2">
+                                    <children>
+                                        <MenuButton fx:id="edgeLabelSizeMenuButton" prefWidth="70.0">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels size"/>
+                                            </tooltip>
+                                        </MenuButton>
+                                        <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false" text="B">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels bold"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeLabelItalicButton" layoutX="84.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="I">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels italic"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="edgeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
+                                                mnemonicParsing="false" text="U">
+                                            <tooltip>
+                                                <Tooltip text="Edge labels underlined"/>
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <Label text="Stroke" GridPane.rowIndex="3"/>
+                                <ColorPicker fx:id="edgeLabelColorPicker" prefWidth="140.0" GridPane.columnIndex="1"
+                                             GridPane.rowIndex="3">
+                                    <tooltip>
+                                        <Tooltip text="Edge labels stroke color"/>
+                                    </tooltip>
+                                </ColorPicker>
+                                <Button fx:id="clearEdgeLabelColorButton" ellipsisString="" graphicTextGap="0.0"
+                                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                        minWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="3">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                                <Label text="Fill     " GridPane.rowIndex="5"/>
+                                <ColorPicker fx:id="edgeLabelBackgroundColorPicker" prefWidth="140.0"
+                                             GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <tooltip>
+                                        <Tooltip text="Edge labels fill color"/>
+                                    </tooltip>
+                                </ColorPicker>
+                                <Button fx:id="clearEdgeLabelBackgroundColorButton" ellipsisString=""
+                                        graphicTextGap="0.0" maxHeight="-Infinity" maxWidth="-Infinity"
+                                        minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
+                                        prefHeight="24.0" prefWidth="24.0"
+                                        style="-fx-background-color: transparent; -fx-border-style: null;" text="↻"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="5">
+                                    <font>
+                                        <Font size="10.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <tooltip>
+                                        <Tooltip text="Revert to default settings"/>
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="62.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="editPane" animated="false" text="Edit">
+                    <content>
+                        <VBox alignment="CENTER" spacing="5.0">
+                            <GridPane>
+                                <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                       prefWidth="100.0"/>
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                       prefWidth="100.0"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                </rowConstraints>
+                                <children>
+                                    <Button fx:id="deleteThruNodesButton" layoutX="21.0" layoutY="23.0"
+                                            mnemonicParsing="false" text="Del. Thru Nodes" GridPane.columnIndex="1">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="Remove selected thru nodes (with both  indegree and outdegree 1)"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="reverseEdgesButton" layoutX="21.0" layoutY="23.0"
+                                            mnemonicParsing="false" text="Reverse Edges" GridPane.rowIndex="1">
+                                        <tooltip>
+                                            <Tooltip text="Reverse the direction of selected edges"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="crossEdgesButton" layoutX="21.0" layoutY="53.0"
+                                            mnemonicParsing="false" text="Cross Edges" GridPane.columnIndex="1"
+                                            GridPane.rowIndex="1">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="For a node of in- and outdegree 2, separate into two crossing edges"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="mergeNodesButton" layoutX="24.0" layoutY="53.0"
+                                            mnemonicParsing="false" text="Merge Nodes">
+                                        <tooltip>
+                                            <Tooltip text="Merge all selected nodes into one"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="transferAcceptorButton" mnemonicParsing="false" text="Acceptor Edge"
+                                            GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                        <tooltip>
+                                            <Tooltip
+                                                    text="Declare a reticulate in-edge to be the transfer acceptor edge"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="declareRootButton" mnemonicParsing="false" text="Declare Root"
+                                            GridPane.rowIndex="2">
+                                        <tooltip>
+                                            <Tooltip text="Declare the selected node as root, and direct edges away"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="induceButton" layoutX="24.0" layoutY="53.0" mnemonicParsing="false"
+                                            text="Induce" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                        <tooltip>
+                                            <Tooltip text="Restrict to phylogeny induced by current selection"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete"
+                                            GridPane.rowIndex="3">
+                                        <tooltip>
+                                            <Tooltip text="Delete (selected) nodes and edges"/>
+                                        </tooltip>
+                                    </Button>
 
-                                                </children>
-                                            </GridPane>
-                                        </VBox>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion layoutX="10.0" layoutY="62.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
-                            <panes>
-                                <TitledPane fx:id="layoutPane" animated="false" text="Layout">
-                                    <content>
-                                        <VBox alignment="CENTER">
-                                            <GridPane hgap="5.0" vgap="5.0">
-                                                <rowConstraints>
-                                                    <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-                                                    <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-                                                </rowConstraints>
-                                                <columnConstraints>
-                                                    <ColumnConstraints hgrow="NEVER" minWidth="-Infinity"/>
-                                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                                                       prefWidth="100.0"/>
-                                                    <ColumnConstraints hgrow="NEVER" minWidth="-Infinity"/>
-                                                </columnConstraints>
-                                                <children>
-                                                    <Label minWidth="10.0" text="Layout"/>
-                                                    <Label layoutX="10.0" layoutY="17.0" text="Scaling"
-                                                           GridPane.rowIndex="1"/>
-                                                    <ChoiceBox fx:id="layoutCBox" prefWidth="140.0"
-                                                               GridPane.columnIndex="1"/>
-                                                    <ChoiceBox fx:id="scalingCBox" layoutX="110.0" layoutY="12.0"
-                                                               prefWidth="140.0" GridPane.columnIndex="1"
-                                                               GridPane.rowIndex="1"/>
-                                                    <Button fx:id="applyLayoutPhylogenyButton" mnemonicParsing="false"
-                                                            text="Apply" GridPane.columnIndex="2"
-                                                            GridPane.rowIndex="1"/>
-                                                </children>
-                                            </GridPane>
-                                        </VBox>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                        <Accordion layoutX="10.0" layoutY="541.0" nodeOrientation="LEFT_TO_RIGHT">
-                            <panes>
-                                <TitledPane fx:id="transformPane" animated="false" text="Transform">
-                                    <content>
-                                        <VBox alignment="CENTER">
-                                            <children>
-                                                <GridPane>
-                                                    <columnConstraints>
-                                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"
-                                                                           minWidth="10.0" prefWidth="100.0"/>
-                                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"
-                                                                           minWidth="10.0" prefWidth="100.0"/>
-                                                    </columnConstraints>
-                                                    <rowConstraints>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                                                        vgrow="SOMETIMES"/>
-                                                    </rowConstraints>
-                                                    <children>
-                                                        <Button fx:id="verticalFlipButton" layoutX="21.0" layoutY="23.0"
-                                                                mnemonicParsing="false" text="Vert. Flip"
-                                                                GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                                            <tooltip>
-                                                                <Tooltip text="Flip vertically"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="horizontalFlipButton" layoutX="24.0"
-                                                                layoutY="53.0" mnemonicParsing="false"
-                                                                text="Horiz. Flip" GridPane.rowIndex="2">
-                                                            <tooltip>
-                                                                <Tooltip text="Flip vertically"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="rotateRightButton" mnemonicParsing="false"
-                                                                text="Rotate Right" GridPane.columnIndex="1"
-                                                                GridPane.rowIndex="1">
-                                                            <tooltip>
-                                                                <Tooltip text="Rotate right"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="rotateLeftButton" layoutX="22.0" layoutY="102.0"
-                                                                mnemonicParsing="false" text="Rotate Left"
-                                                                GridPane.rowIndex="1">
-                                                            <tooltip>
-                                                                <Tooltip text="Rotate left"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <Button fx:id="layoutLabelsButton" mnemonicParsing="false"
-                                                                text="Layout Labels" GridPane.columnIndex="1"
-                                                                GridPane.rowIndex="3">
-                                                            <tooltip>
-                                                                <Tooltip text="Layout labels"/>
-                                                            </tooltip>
-                                                        </Button>
-                                                        <ToggleButton fx:id="resizeModeButton" mnemonicParsing="false"
-                                                                      text="Resize Mode" GridPane.rowIndex="3">
-                                                            <tooltip>
-                                                                <Tooltip text="Turn resize mode or off"/>
-                                                            </tooltip>
-                                                        </ToggleButton>
-                                                        <Button fx:id="zoomInButton" mnemonicParsing="false"
-                                                                text="Zoom In"/>
-                                                        <Button fx:id="zoomOutButton" mnemonicParsing="false"
-                                                                text="Zoom Out" GridPane.columnIndex="1"/>
+                                </children>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="62.0" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
+            <panes>
+                <TitledPane fx:id="layoutPane" animated="false" text="Layout">
+                    <content>
+                        <VBox alignment="CENTER">
+                            <GridPane hgap="5.0" vgap="5.0">
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                                </rowConstraints>
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="-Infinity"/>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="-Infinity"/>
+                                </columnConstraints>
+                                <children>
+                                    <Label minWidth="10.0" text="Layout"/>
+                                    <Label layoutX="10.0" layoutY="17.0" text="Scaling" GridPane.rowIndex="1"/>
+                                    <ChoiceBox fx:id="layoutCBox" prefWidth="140.0" GridPane.columnIndex="1"/>
+                                    <ChoiceBox fx:id="scalingCBox" layoutX="110.0" layoutY="12.0" prefWidth="140.0"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                    <Button fx:id="applyLayoutPhylogenyButton" mnemonicParsing="false" text="Apply"
+                                            GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                                </children>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <Accordion layoutX="10.0" layoutY="541.0" nodeOrientation="LEFT_TO_RIGHT">
+            <panes>
+                <TitledPane fx:id="transformPane" animated="false" text="Transform">
+                    <content>
+                        <VBox alignment="CENTER">
+                            <children>
+                                <GridPane>
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Button fx:id="verticalFlipButton" layoutX="21.0" layoutY="23.0"
+                                                mnemonicParsing="false" text="Vert. Flip" GridPane.columnIndex="1"
+                                                GridPane.rowIndex="2">
+                                            <tooltip>
+                                                <Tooltip text="Flip vertically"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="horizontalFlipButton" layoutX="24.0" layoutY="53.0"
+                                                mnemonicParsing="false" text="Horiz. Flip" GridPane.rowIndex="2">
+                                            <tooltip>
+                                                <Tooltip text="Flip vertically"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="rotateRightButton" mnemonicParsing="false" text="Rotate Right"
+                                                GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <tooltip>
+                                                <Tooltip text="Rotate right"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="rotateLeftButton" layoutX="22.0" layoutY="102.0"
+                                                mnemonicParsing="false" text="Rotate Left" GridPane.rowIndex="1">
+                                            <tooltip>
+                                                <Tooltip text="Rotate left"/>
+                                            </tooltip>
+                                        </Button>
+                                        <Button fx:id="layoutLabelsButton" mnemonicParsing="false" text="Layout Labels"
+                                                GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <tooltip>
+                                                <Tooltip text="Layout labels"/>
+                                            </tooltip>
+                                        </Button>
+                                        <ToggleButton fx:id="resizeModeButton" mnemonicParsing="false"
+                                                      text="Resize Mode" GridPane.rowIndex="3">
+                                            <tooltip>
+                                                <Tooltip text="Turn resize mode or off"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <Button fx:id="zoomInButton" mnemonicParsing="false" text="Zoom In"/>
+                                        <Button fx:id="zoomOutButton" mnemonicParsing="false" text="Zoom Out"
+                                                GridPane.columnIndex="1"/>
 
-                                                    </children>
-                                                </GridPane>
-                                            </children>
-                                        </VBox>
-                                    </content>
-                                </TitledPane>
-                            </panes>
-                        </Accordion>
-                    </children>
-                </VBox>
-            </content>
-        </ScrollPane>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
     </children>
-</StackPane>
+</VBox>

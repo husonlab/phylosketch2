@@ -130,10 +130,10 @@ public class MainWindowPresenter {
 		formatPaneView = new FormatPaneView(view, controller.getShowToolsButton().selectedProperty());
 		AnchorPane.setTopAnchor(formatPaneView.getRoot(), 10.0);
 		AnchorPane.setRightAnchor(formatPaneView.getRoot(), 20.0);
-		AnchorPane.setBottomAnchor(formatPaneView.getRoot(), 10.0);
 
 		controller.getCenterAnchorPane().getChildren().add(formatPaneView.getRoot());
 		formatPaneView.getRoot().setVisible(false);
+		formatPaneView.getRoot().managedProperty().bind(formatPaneView.getRoot().visibleProperty());
 		controller.getShowToolsButton().selectedProperty().bindBidirectional(formatPaneView.getRoot().visibleProperty());
 
 		{

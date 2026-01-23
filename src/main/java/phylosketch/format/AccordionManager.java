@@ -20,6 +20,7 @@
 
 package phylosketch.format;
 
+import javafx.application.Platform;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
@@ -34,15 +35,36 @@ import java.util.Queue;
  */
 public class AccordionManager {
 
-	public static void apply(Pane parentPane, Collection<Accordion> accordions, int maxOpenAccordions) {
+	public static void apply(Pane parentPane, Collection<Accordion> accordions) {
+
+
 		var openAccordions = new LinkedList<Accordion>();
 		for (var accordion : accordions) {
-			accordion.expandedPaneProperty().addListener((v, o, n) -> handleAccordionState(parentPane, accordion, n, openAccordions, maxOpenAccordions));
+			accordion.expandedPaneProperty().addListener((v, o, n) -> handleAccordionState(parentPane, accordion, n, openAccordions));
 		}
 		parentPane.requestLayout();
+
+		Platform.runLater(() -> {
+					parentPane.getScene().heightProperty().addListener((v, o, n) -> {
+						if (n.doubleValue() < o.doubleValue()) {
+							for (var accordion : accordions) {
+								accordion.setExpandedPane(null);
+							}
+						}
+						Platform.runLater(() -> {
+							for (var accordion : accordions) {
+								handleAccordionState(parentPane, accordion, accordion.getExpandedPane(), openAccordions);
+							}
+						});
+					});
+				}
+		);
 	}
 
-	private static void handleAccordionState(Pane parentPane, Accordion accordion, TitledPane newPane, Queue<Accordion> openAccordions, int maxOpenAccordions) {
+	private static void handleAccordionState(Pane parentPane, Accordion accordion, TitledPane newPane, Queue<Accordion> openAccordions) {
+		var maxOpenAccordions = (parentPane.getScene() == null ? 1 : Math.max(1,
+				(int) Math.ceil(Math.min(9, (parentPane.getScene().getHeight() - 200) / 250.0))));
+
 		if (newPane != null) {
 			if (!openAccordions.contains(accordion)) {
 				openAccordions.add(accordion);

@@ -269,9 +269,6 @@ public class FormatPaneController {
 	@FXML
 	private VBox vBox;
 
-	@FXML
-	private ScrollPane scrollPane;
-
 	private final DoubleProperty nodeSize = new SimpleDoubleProperty(this, "nodeSize", 1.0);
 	private final DoubleProperty nodeLabelSize = new SimpleDoubleProperty(this, "nodeLabelSize", 1.0);
 
@@ -281,52 +278,52 @@ public class FormatPaneController {
 	@FXML
 	private void initialize() {
 		Platform.runLater(() -> {
-		MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
-		MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
-		MaterialIcons.setIcon(nodeLabelUnderlineButton, MaterialIcons.format_underline);
+			MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
+			MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
+			MaterialIcons.setIcon(nodeLabelUnderlineButton, MaterialIcons.format_underline);
 
-		MaterialIcons.setIcon(edgeRectangularButton, MaterialIcons.keyboard_return, "-fx-scale-x: -1;-fx-scale-y: -1;", true);
-		MaterialIcons.setIcon(edgeStraightButton, MaterialIcons.arrow_right_alt);
-		MaterialIcons.setIcon(edgeCurvedButton, MaterialIcons.redo, "-fx-scale-y: -1;", true);
+			MaterialIcons.setIcon(edgeRectangularButton, MaterialIcons.keyboard_return, "-fx-scale-x: -1;-fx-scale-y: -1;", true);
+			MaterialIcons.setIcon(edgeStraightButton, MaterialIcons.arrow_right_alt);
+			MaterialIcons.setIcon(edgeCurvedButton, MaterialIcons.redo, "-fx-scale-y: -1;", true);
 
-		MaterialIcons.setIcon(edgeLabelBoldButton, MaterialIcons.format_bold);
-		MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
-		MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
+			MaterialIcons.setIcon(edgeLabelBoldButton, MaterialIcons.format_bold);
+			MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
+			MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
 
 			MaterialIcons.setIcon(swapSidesButton, MaterialIcons.import_export, "-fx-rotate: 90;", true);
 			swapSidesButton.setPrefHeight(18);
 
-		MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace, "", false);
+			MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace, "", false);
 
-		MaterialIcons.setIcon(measureEdgeWeightsButton, MaterialIcons.square_foot);
-		MaterialIcons.setIcon(showWeightToggleButton, MaterialIcons.visibility);
-		MaterialIcons.setIcon(showSupportToggleButton, MaterialIcons.visibility);
-		MaterialIcons.setIcon(showProbabilityToggleButton, MaterialIcons.visibility);
+			MaterialIcons.setIcon(measureEdgeWeightsButton, MaterialIcons.square_foot);
+			MaterialIcons.setIcon(showWeightToggleButton, MaterialIcons.visibility);
+			MaterialIcons.setIcon(showSupportToggleButton, MaterialIcons.visibility);
+			MaterialIcons.setIcon(showProbabilityToggleButton, MaterialIcons.visibility);
 
-		MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
+			MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
 
-		MaterialIcons.setIcon(clearNodeFillButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearNodeStrokeButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearNodeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearNodeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearNodeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearNodeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearEdgeColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearEdgeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearEdgeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearEdgeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
-		MaterialIcons.setIcon(clearEdgeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearNodeFillButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearNodeStrokeButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearNodeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearNodeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearNodeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearNodeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearEdgeColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearEdgeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearEdgeLabelStyleButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearEdgeLabelColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
+			MaterialIcons.setIcon(clearEdgeLabelBackgroundColorButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 
-		MaterialIcons.setIcon(applyLayoutPhylogenyButton, MaterialIcons.play_circle);
+			MaterialIcons.setIcon(applyLayoutPhylogenyButton, MaterialIcons.play_circle);
 
-		MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in, "", false);
-		MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out, "", false);
-		MaterialIcons.setIcon(verticalFlipButton, MaterialIcons.swap_vert, "", false);
-		MaterialIcons.setIcon(horizontalFlipButton, MaterialIcons.swap_horiz, "", false);
-		MaterialIcons.setIcon(rotateLeftButton, MaterialIcons.rotate_left, "", false);
-		MaterialIcons.setIcon(rotateRightButton, MaterialIcons.rotate_right, "", false);
-		MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
-		MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
+			MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in, "", false);
+			MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out, "", false);
+			MaterialIcons.setIcon(verticalFlipButton, MaterialIcons.swap_vert, "", false);
+			MaterialIcons.setIcon(horizontalFlipButton, MaterialIcons.swap_horiz, "", false);
+			MaterialIcons.setIcon(rotateLeftButton, MaterialIcons.rotate_left, "", false);
+			MaterialIcons.setIcon(rotateRightButton, MaterialIcons.rotate_right, "", false);
+			MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
+			MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 		});
 
 		EditableMenuButton.setup(nodeSizeMenuButton, List.of("1", "2", "3", "4", "5", "8", "10", "16", "24"), true, nodeSize);
@@ -356,8 +353,6 @@ public class FormatPaneController {
 
 		nodeShapeChoiceBox.getItems().addAll(NodeShape.Type.values());
 		nodeShapeChoiceBox.setValue(NodeShape.Type.Circle);
-
-		TouchScrollGuard.install(scrollPane, vBox, 8);
 	}
 
 	public ColorPicker getEdgeColorPicker() {
