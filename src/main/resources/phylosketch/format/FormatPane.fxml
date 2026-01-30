@@ -20,12 +20,11 @@
   ~
   -->
 
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT" styleClass="context-menu" prefWidth="250.0"
+<VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT" prefWidth="250.0" styleClass="context-menu"
       xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>

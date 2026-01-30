@@ -128,12 +128,14 @@ public class MainWindowPresenter {
 		});
 
 		formatPaneView = new FormatPaneView(view, controller.getShowToolsButton().selectedProperty());
+
 		AnchorPane.setTopAnchor(formatPaneView.getRoot(), 10.0);
 		AnchorPane.setRightAnchor(formatPaneView.getRoot(), 20.0);
 
 		controller.getCenterAnchorPane().getChildren().add(formatPaneView.getRoot());
 		formatPaneView.getRoot().setVisible(false);
 		formatPaneView.getRoot().managedProperty().bind(formatPaneView.getRoot().visibleProperty());
+
 		controller.getShowToolsButton().selectedProperty().bindBidirectional(formatPaneView.getRoot().visibleProperty());
 
 		{
@@ -156,11 +158,14 @@ public class MainWindowPresenter {
 
 		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> window.dirtyProperty().set(n.intValue() > 0));
 
-		view.minWidthProperty().bind(Bindings.createDoubleBinding(() ->
-				controller.getScrollPane().getViewportBounds().getWidth(), controller.getScrollPane().viewportBoundsProperty()));
+		if (false) { // todo: don't need this?
+			view.minWidthProperty().bind(Bindings.createDoubleBinding(() ->
+					controller.getScrollPane().getViewportBounds().getWidth(), controller.getScrollPane().viewportBoundsProperty()));
 
-		view.minHeightProperty().bind(Bindings.createDoubleBinding(() ->
-				controller.getScrollPane().getViewportBounds().getHeight(), controller.getScrollPane().viewportBoundsProperty()));
+			view.minHeightProperty().bind(Bindings.createDoubleBinding(() ->
+					controller.getScrollPane().getViewportBounds().getHeight(), controller.getScrollPane().viewportBoundsProperty()));
+		}
+
 		controller.getScrollPane().setContent(view);
 
 		controller.getQuitMenuItem().setOnAction((e) -> {

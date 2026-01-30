@@ -97,7 +97,7 @@ public class ShowEdgeValueCommand extends UndoableRedoableCommand {
 		redo.run();
 	}
 
-	private record Show(boolean weights, boolean support, boolean probability) {
+	public record Show(boolean weights, boolean support, boolean probability) {
 		public String makeLabel(DrawView view, Edge e) {
 			var graph = view.getGraph();
 			var buf = new StringBuilder();

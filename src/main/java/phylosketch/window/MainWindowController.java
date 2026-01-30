@@ -520,8 +520,8 @@ public class MainWindowController {
 		scrollPane.setFitToWidth(true);
 		scrollPane.setFitToHeight(true);
 		scrollPane.setPannable(true);
-		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+		//scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+		//scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 		scrollPane.setLockAspectRatio(true);
 		scrollPane.setRequireShiftOrControlToZoom(true);
 

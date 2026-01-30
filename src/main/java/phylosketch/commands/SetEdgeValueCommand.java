@@ -44,6 +44,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 	public enum What {Weight, Confidence, Probability}
 
 	final private Map<Integer, Double> edgeOldMap = new HashMap<>();
+	final private Map<Integer, String> edgeOldLabelMap = new HashMap<>();
 	final private Map<Integer, Double> edgeNewMap = new HashMap<>();
 
 	/**
@@ -58,15 +59,14 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 
 		var graph = view.getGraph();
 
-		if (view.getEdgeSelection().size() == 0)
-			view.getEdgeSelection().selectAll(view.getGraphFX().getEdgeList());
+		var edges = view.getSelectedOrAllEdges();
 
 		final Map<Node, RootPosition> nodeRootOrientationMap;
 		if (what == What.Weight && value == -1) {
 			nodeRootOrientationMap = new HashMap<>();
 			for (var component : ConnectedComponents.components(graph)) {
 				var rootLocation = RootPosition.compute(component);
-				for (var e : view.getEdgeSelection().getSelectedItems()) {
+				for (var e : edges) {
 					if (component.contains(e.getSource())) {
 						nodeRootOrientationMap.put(e.getSource(), rootLocation);
 					}
@@ -75,7 +75,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 		} else nodeRootOrientationMap = null;
 
 		var additionalToSelect = new ArrayList<Edge>();
-		for (var e : view.getEdgeSelection().getSelectedItems()) {
+		for (var e : edges) {
 			switch (what) {
 				case Weight -> {
 					var useValue = (value == -1 ? (int) Math.round(computeGraphicalEdgeLength(nodeRootOrientationMap.get(e.getSource()), e)) : value);
@@ -106,7 +106,13 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 					}
 				}
 			}
-			view.getEdgeSelection().getSelectedItems().addAll(additionalToSelect);
+			edgeOldLabelMap.put(e.getId(), DrawView.getLabel(e).getText());
+			if (!edges.containsAll(additionalToSelect)) { // do need to check this
+				for (var f : additionalToSelect) {
+					edgeOldLabelMap.put(f.getId(), DrawView.getLabel(f).getText());
+					view.getEdgeSelection().getSelectedItems().add(f);
+				}
+			}
 		}
 
 		if (!edgeNewMap.isEmpty()) {
@@ -133,6 +139,7 @@ public class SetEdgeValueCommand extends UndoableRedoableCommand {
 								graph.getEdgeProbabilities().remove(e);
 						}
 					}
+					DrawView.getLabel(e).setText(edgeOldLabelMap.get(entry.getKey()));
 				}
 			};
 

@@ -208,7 +208,7 @@
                             <Menu fx:id="captureMenu" mnemonicParsing="false" text="Capture">
 
                             </Menu>
-                            <Menu fx:id="labelsMenu" mnemonicParsing="false" text="Labels">
+                            <Menu mnemonicParsing="false" text="Labels">
                                 <MenuItem fx:id="labelLeavesABCMenuItem" text="Label Leaves A,B,C..."/>
                                 <MenuItem fx:id="labelLeaves123MenuItem" text="Label Leaves t1,t2,t3..."/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
