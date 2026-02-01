@@ -105,7 +105,12 @@ public class MainWindow implements IMainWindow {
         dirtyProperty().addListener(listener);
 
         scene = new Scene(root);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader().getResource("jloda/fx/icons/button.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("MainWindow.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader().getResource("jloda/resources/css/white_pane.css")).toExternalForm());
+
+        // don't attach to scene, as we don't want this to  affect dialogs
+        controller.getRootPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("clean.css")).toExternalForm());
     }
 
     @Override

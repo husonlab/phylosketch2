@@ -1,5 +1,5 @@
 /*
- * MainWindow.css Copyright (C) 2025 Daniel H. Huson
+ *  MainWindow.css Copyright (C) 2024 Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -15,48 +15,11 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-viewer-background {
+
+.viewer-background {
     -fx-background-color: white;
-}
-
-.scroll-pane {
-    -fx-background: white;
-}
-
-.rich-text-label {
-    -fx-fill: black;
-    -fx-background-color: transparent;
-}
-
-.graph-node {
-    -fx-stroke: null;
-    -fx-fill: black;
-}
-
-.graph-node-hollow {
-    -fx-stroke: black;
-    -fx-fill: white;
-}
-
-.graph-edge {
-    -fx-stroke: black;
-    -fx-fill: null;
-    -fx-stroke-line-cap: round;
-}
-
-.above-label {
-    -fx-fill: black;
-    -fx-text-fill: black;
-    -fx-background-color: rgba(255, 255, 255, 0.5);
-}
-
-.graph-special-edge {
-    -fx-stroke: darkorange;
-    -fx-fill: null;
-    -fx-stroke-line-cap: round;
 }
 
 .chart-pie {
@@ -69,12 +32,17 @@ viewer-background {
     -fx-min-height: 20;
 }
 
-.tool-bar {
-    -fx-background-color: derive(-fx-background, 0%);
+.table-view {
+    -fx-background-color: -fx-control-inner-background;
 }
 
-.scroll-bar .track {
+.table-view .column-header-background {
     -fx-background-color: derive(-fx-background, 0%);
+    -fx-border-color: derive(-fx-background, 0%);
+}
+
+.progress-indicator .text {
+    -fx-opacity: 0;
 }
 
 .scroll-bar .thumb {
@@ -89,16 +57,25 @@ viewer-background {
     -fx-opacity: 0;
 }
 
+.tool-bar {
+    -fx-background-insets: 0;
+    -fx-background-color: derive(-fx-base, 0%);
+    -fx-spacing: 10px;
+}
+
+#iceberg {
+    -fx-fill: transparent;
+    -fx-stroke: transparent;
+    -fx-stroke-width: 20;
+}
+
 .titled-pane > .title {
     -fx-padding: 1 6 1 6;
 }
 
-/*
 .titled-pane > .title > .text {
     -fx-font-size: 13px;
 }
-*/
 
-.titled-pane > .content {
-    -fx-padding: -5 -5 -5 -5; /* top right bottom left */
-}
+
+

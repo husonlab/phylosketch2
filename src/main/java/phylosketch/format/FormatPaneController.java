@@ -278,17 +278,17 @@ public class FormatPaneController {
 	@FXML
 	private void initialize() {
 		Platform.runLater(() -> {
-			MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
-			MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
-			MaterialIcons.setIcon(nodeLabelUnderlineButton, MaterialIcons.format_underline);
+			//MaterialIcons.setIcon(nodeLabelBoldButton, MaterialIcons.format_bold);
+			//MaterialIcons.setIcon(nodeLabelItalicButton, MaterialIcons.format_italic);
+			//MaterialIcons.setIcon(nodeLabelUnderlineButton, MaterialIcons.format_underline);
 
 			MaterialIcons.setIcon(edgeRectangularButton, MaterialIcons.keyboard_return, "-fx-scale-x: -1;-fx-scale-y: -1;", true);
 			MaterialIcons.setIcon(edgeStraightButton, MaterialIcons.arrow_right_alt);
 			MaterialIcons.setIcon(edgeCurvedButton, MaterialIcons.redo, "-fx-scale-y: -1;", true);
 
-			MaterialIcons.setIcon(edgeLabelBoldButton, MaterialIcons.format_bold);
-			MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
-			MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
+			//MaterialIcons.setIcon(edgeLabelBoldButton, MaterialIcons.format_bold);
+			//MaterialIcons.setIcon(edgeLabelItalicButton, MaterialIcons.format_italic);
+			//MaterialIcons.setIcon(edgeLabelUnderlineButton, MaterialIcons.format_underline);
 
 			MaterialIcons.setIcon(swapSidesButton, MaterialIcons.import_export, "-fx-rotate: 90;", true);
 			swapSidesButton.setPrefHeight(18);

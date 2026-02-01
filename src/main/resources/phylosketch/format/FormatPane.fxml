@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT" prefWidth="250.0" styleClass="context-menu"
-      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
         <AnchorPane nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
@@ -239,19 +239,29 @@
                                                 <Tooltip text="Node label font size"/>
                                             </tooltip>
                                         </MenuButton>
-                                        <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false" text="B">
+                                        <Button fx:id="nodeLabelBoldButton" mnemonicParsing="false" text="b"
+                                                textOverrun="CLIP">
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
                                             <tooltip>
                                                 <Tooltip text="Node labels bold"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="nodeLabelItalicButton" layoutX="84.0" layoutY="10.0"
-                                                mnemonicParsing="false" text="I">
+                                                mnemonicParsing="false" text="i" textOverrun="CLIP">
+                                            <font>
+                                                <Font name="System Font" size="12.0"/>
+                                            </font>
                                             <tooltip>
                                                 <Tooltip text="Node labels italic"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="nodeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
-                                                mnemonicParsing="false" text="U">
+                                                mnemonicParsing="false" text="u" underline="true" textOverrun="CLIP">
+                                            <font>
+                                                <Font size="12.0"/>
+                                            </font>
                                             <tooltip>
                                                 <Tooltip text="Node labels underlined"/>
                                             </tooltip>
@@ -546,19 +556,29 @@
                                                 <Tooltip text="Edge labels size"/>
                                             </tooltip>
                                         </MenuButton>
-                                        <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false" text="B">
+                                        <Button fx:id="edgeLabelBoldButton" mnemonicParsing="false" text="b"
+                                                textOverrun="CLIP">
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
                                             <tooltip>
                                                 <Tooltip text="Edge labels bold"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="edgeLabelItalicButton" layoutX="84.0" layoutY="10.0"
-                                                mnemonicParsing="false" text="I">
+                                                mnemonicParsing="false" text="i" textOverrun="CLIP">
+                                            <font>
+                                                <Font name="System Font" size="12.0"/>
+                                            </font>
                                             <tooltip>
                                                 <Tooltip text="Edge labels italic"/>
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="edgeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
-                                                mnemonicParsing="false" text="U">
+                                                mnemonicParsing="false" text="u" textOverrun="CLIP" underline="true">
+                                            <font>
+                                                <Font size="12.0"/>
+                                            </font>
                                             <tooltip>
                                                 <Tooltip text="Edge labels underlined"/>
                                             </tooltip>
