@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.graph.NodeArray;
+import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
 import jloda.phylogeny.layout.Averaging;
 import jloda.phylogeny.layout.EdgeType;
@@ -52,7 +53,12 @@ public class LayoutRootedPhylogeny {
 			else return EdgeType.tree;
 		};
 
+		if (phylogeny.hasReticulateEdges() && phylogeny.getLSAChildrenMap().size() < phylogeny.getNumberOfNodes())
+			LSAUtils.setLSAChildrenAndTransfersMap(phylogeny);
+
 		var nodePointAdaptor = new HashMap<Node, jloda.phylogeny.layout.Point2D>();
+
+		System.err.println(phylogeny.toBracketString(false) + ";");
 
 		jloda.phylogeny.layout.LayoutRootedPhylogeny.apply(phylogeny.getRoot(), IteratorUtils.asList(phylogeny.nodes()), IteratorUtils.asList(phylogeny.edges()),
 				inEdges, outEdges, source, target, weight, edgeType,
@@ -61,6 +67,7 @@ public class LayoutRootedPhylogeny {
 		for (var v : nodePointAdaptor.keySet()) {
 			var p = nodePointAdaptor.get(v);
 			nodePointMap.put(v, new Point2D(p.x(), p.y()));
+			System.err.println(v.getId() + ": " + nodePointMap.get(v));
 		}
 	}
 
