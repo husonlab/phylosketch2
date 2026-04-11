@@ -169,7 +169,7 @@ public class SetupPaneInteraction {
 			}
 
 			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !multiTouch.get()) {
-				if (me.getClickCount() == 2) {
+				if (me.getClickCount() == 2 || !ProgramProperties.isDesktop() && view.getGraphFX().isEmpty()) {
 					createNodePause.stop();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));

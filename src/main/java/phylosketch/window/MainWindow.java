@@ -22,10 +22,7 @@ package phylosketch.window;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,6 +34,7 @@ import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.StatementFilter;
 import jloda.fx.window.IMainWindow;
 import jloda.fx.window.MainWindowManager;
+import jloda.fx.window.SetupWindowMenu;
 import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
 import phylosketch.io.ExtensionFilters;
@@ -146,11 +144,17 @@ public class MainWindow implements IMainWindow {
         stage.show();
 
         empty.bind(drawView.getGraphFX().emptyProperty());
+
+        SetupWindowMenu.apply(this, controller.getWindowMenu());
     }
 
     @Override
     public boolean isEmpty() {
         return empty.get();
+    }
+
+    public ReadOnlyBooleanProperty emptyProperty() {
+        return empty;
     }
 
     @Override

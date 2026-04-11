@@ -6,14 +6,12 @@ import jloda.graph.Node;
 import jloda.graph.NodeArray;
 import jloda.phylo.LSAUtils;
 import jloda.phylo.PhyloTree;
+import jloda.phylogeny.dolayout.NetworkDisplacementOptimization;
 import jloda.phylogeny.layout.Averaging;
 import jloda.phylogeny.layout.EdgeType;
 import jloda.util.IteratorUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
@@ -53,12 +51,25 @@ public class LayoutRootedPhylogeny {
 			else return EdgeType.tree;
 		};
 
-		if (phylogeny.hasReticulateEdges() && phylogeny.getLSAChildrenMap().size() < phylogeny.getNumberOfNodes())
+		if (optimizeReticulateEdges) { // todo: if we don't do this, then transfer networks are not always optimized...
 			LSAUtils.setLSAChildrenAndTransfersMap(phylogeny);
+			var reticulateMap = new HashMap<Node, List<Node>>();
+			for (var e : phylogeny.edges()) {
+				if (phylogeny.isReticulateEdge(e) && !phylogeny.isTransferAcceptorEdge(e)) {
+					reticulateMap.computeIfAbsent(e.getSource(), k -> new ArrayList<>()).add(e.getTarget());
+					reticulateMap.computeIfAbsent(e.getTarget(), k -> new ArrayList<>()).add(e.getSource());
+				}
+			}
+			var result = NetworkDisplacementOptimization.apply(phylogeny.getRoot(), phylogeny.getLSAChildrenMap()::get,
+					reticulateMap::get, layout == jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Radial || layout == jloda.phylogeny.layout.LayoutRootedPhylogeny.Layout.Circular, () -> false);
+			phylogeny.getLSAChildrenMap().clear();
+			phylogeny.getLSAChildrenMap().putAll(result);
+			optimizeReticulateEdges = false;
+		}
 
 		var nodePointAdaptor = new HashMap<Node, jloda.phylogeny.layout.Point2D>();
 
-		System.err.println(phylogeny.toBracketString(false) + ";");
+		// System.err.println(phylogeny.toBracketString(false) + ";");
 
 		jloda.phylogeny.layout.LayoutRootedPhylogeny.apply(phylogeny.getRoot(), IteratorUtils.asList(phylogeny.nodes()), IteratorUtils.asList(phylogeny.edges()),
 				inEdges, outEdges, source, target, weight, edgeType,
@@ -67,7 +78,7 @@ public class LayoutRootedPhylogeny {
 		for (var v : nodePointAdaptor.keySet()) {
 			var p = nodePointAdaptor.get(v);
 			nodePointMap.put(v, new Point2D(p.x(), p.y()));
-			System.err.println(v.getId() + ": " + nodePointMap.get(v));
+			// System.err.println(v.getId() + ": " + nodePointMap.get(v));
 		}
 	}
 

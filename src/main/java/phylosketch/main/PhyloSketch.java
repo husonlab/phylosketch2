@@ -40,6 +40,7 @@ import phylosketch.io.PhyloSketchIO;
 import phylosketch.ocr.OCRService;
 import phylosketch.view.ZoomToFit;
 import phylosketch.window.MainWindow;
+import phylosketch.window.MainWindowPresenter;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class PhyloSketch extends Application {
 
     @Override
     public void init() {
+        MainWindowPresenter.SUPPORTS_CAPTURE = true;
         OCR.setOCRService(new OCRService());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             OCR.getOCRService().shutdown();
