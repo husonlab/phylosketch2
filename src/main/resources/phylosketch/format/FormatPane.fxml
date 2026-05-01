@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT" prefWidth="250.0" styleClass="context-menu"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
         <AnchorPane nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
@@ -258,7 +258,7 @@
                                             </tooltip>
                                         </Button>
                                         <Button fx:id="nodeLabelUnderlineButton" layoutX="132.0" layoutY="10.0"
-                                                mnemonicParsing="false" text="u" underline="true" textOverrun="CLIP">
+                                                mnemonicParsing="false" text="u" textOverrun="CLIP" underline="true">
                                             <font>
                                                 <Font size="12.0"/>
                                             </font>
@@ -653,6 +653,7 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                 </rowConstraints>
                                 <children>
                                     <Button fx:id="deleteThruNodesButton" layoutX="21.0" layoutY="23.0"
@@ -696,15 +697,22 @@
                                         </tooltip>
                                     </Button>
                                     <Button fx:id="induceButton" layoutX="24.0" layoutY="53.0" mnemonicParsing="false"
-                                            text="Induce" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            text="Induce" GridPane.rowIndex="3">
                                         <tooltip>
                                             <Tooltip text="Restrict to phylogeny induced by current selection"/>
                                         </tooltip>
                                     </Button>
                                     <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete"
-                                            GridPane.rowIndex="3">
+                                            GridPane.rowIndex="4">
                                         <tooltip>
                                             <Tooltip text="Delete (selected) nodes and edges"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="contractBlobsButton" layoutX="40.0" layoutY="102.0"
+                                            mnemonicParsing="false" text="Contract Blobs" GridPane.columnIndex="1"
+                                            GridPane.rowIndex="3">
+                                        <tooltip>
+                                            <Tooltip text="Contract biconnected components"/>
                                         </tooltip>
                                     </Button>
 

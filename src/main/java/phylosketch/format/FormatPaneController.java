@@ -267,6 +267,9 @@ public class FormatPaneController {
 	private Button zoomOutButton;
 
 	@FXML
+	private Button contractBlobsButton;
+
+	@FXML
 	private VBox vBox;
 
 	private final DoubleProperty nodeSize = new SimpleDoubleProperty(this, "nodeSize", 1.0);
@@ -567,6 +570,10 @@ public class FormatPaneController {
 
 	public Button getInduceButton() {
 		return induceButton;
+	}
+
+	public Button getContractBlobsButton() {
+		return contractBlobsButton;
 	}
 
 	public ChoiceBox<LayoutRootedPhylogeny.Layout> getLayoutCBox() {

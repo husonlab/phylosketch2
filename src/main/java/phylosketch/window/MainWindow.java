@@ -33,7 +33,6 @@ import jloda.fx.util.MemoryUsage;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.StatementFilter;
 import jloda.fx.window.IMainWindow;
-import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SetupWindowMenu;
 import jloda.phylo.PhyloTree;
 import jloda.util.FileUtils;
@@ -133,8 +132,6 @@ public class MainWindow implements IMainWindow {
         stage.setY(screenY);
         stage.setWidth(width);
         stage.setHeight(height);
-
-        stage.titleProperty().addListener(e -> MainWindowManager.getInstance().fireChanged());
 
         presenter = new MainWindowPresenter(this);
 

@@ -24,8 +24,10 @@ import com.install4j.api.launcher.ApplicationLauncher;
 import com.install4j.api.update.ApplicationDisplayMode;
 import com.install4j.api.update.UpdateChecker;
 import jloda.fx.util.ProgramProperties;
-import jloda.fx.window.NotificationManager;
+import jloda.fx.windownotifications.WindowNotifications;
 import jloda.util.Basic;
+import jloda.util.StringUtils;
+import phylosketch.window.MainWindow;
 
 import java.util.concurrent.Executors;
 
@@ -40,19 +42,19 @@ public class CheckForUpdate {
 	/**
 	 * check for update, download and install, if present
 	 */
-	public static void apply() {
+	public static void apply(MainWindow mainWindow) {
 		try {
 			final var applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
 			final var updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
 			final var possibleUpdate = updateDescriptor.getPossibleUpdateEntry();
 			if (possibleUpdate == null) {
-				NotificationManager.showInformation("Installed version is up-to-date");
+				WindowNotifications.showInfo(mainWindow.getController().getCenterAnchorPane(), "Up-to-date or update currently unavailable");
 			} else {
 				if (!ProgramProperties.isUseGUI()) {
-					NotificationManager.showInformation("New version available: " + possibleUpdate.getNewVersion() + "\nPlease download from: " + programURL);
+					System.err.println("New version available: " + possibleUpdate.getNewVersion() + "\nPlease download from: " + programURL);
 				} else {
 					final Runnable runnable = () -> {
-						System.err.println("Update available: " + possibleUpdate.getNewVersion());
+						WindowNotifications.showInfo(mainWindow.getController().getCenterAnchorPane(), "Update available: " + possibleUpdate.getNewVersion());
 						ApplicationLauncher.launchApplicationInProcess(applicationId, null,
 								new ApplicationLauncher.Callback() {
 									public void exited(int exitValue) {
@@ -71,7 +73,7 @@ public class CheckForUpdate {
 			}
 		} catch (Exception e) {
 			Basic.caught(e);
-			NotificationManager.showInformation("Failed to check for updates: " + e);
+			WindowNotifications.showError(mainWindow.getController().getCenterAnchorPane(), "Failed to check for updates: " + StringUtils.fromCamelCase(e.getClass().getSimpleName()).toLowerCase() + ": " + e.getMessage());
 		}
 	}
 }

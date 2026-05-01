@@ -459,7 +459,7 @@ public class MainWindowPresenter {
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
-		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply());
+		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply(window));
 		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(window.dirtyProperty()));
 
 		SwipeUtils.setConsumeSwipes(controller.getRootPane());
@@ -588,6 +588,9 @@ public class MainWindowPresenter {
 
 		formatPaneView.getController().getInduceButton().setOnAction(controller.getInduceMenuItem().getOnAction());
 		formatPaneView.getController().getInduceButton().disableProperty().bind(controller.getInduceMenuItem().disableProperty());
+
+		formatPaneView.getController().getContractBlobsButton().setOnAction(e -> view.getUndoManager().doAndAdd(new ContractBiConnectedComponentsCommand(view)));
+		formatPaneView.getController().getContractBlobsButton().disableProperty().bind(view.getGraphFX().emptyProperty());
 
 		setupLayout(controller, formatPaneView.getController());
 		setupLayoutScalingPhylogeny(window, controller, formatPaneView.getController());
