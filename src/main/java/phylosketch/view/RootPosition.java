@@ -92,9 +92,7 @@ public record RootPosition(phylosketch.view.RootPosition.Side side, Point2D loca
 				}
 			}
 		}
-		var rootPosition = new RootPosition(side, rootPoint);
-		System.err.println(rootPosition);
-		return rootPosition;
+		return new RootPosition(side, rootPoint);
 	}
 
 	private static double zScore(double value, Collection<Double> values) {
