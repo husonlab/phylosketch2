@@ -27,10 +27,7 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -76,6 +73,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static phylosketch.utils.LabelUtils.getInOrder;
 
 /**
  * setup all control bindings
@@ -326,8 +325,13 @@ public class MainWindowPresenter {
 		MainWindowManager.useDarkThemeProperty().addListener(e -> controller.getOutlineEdgesMenuItem().setSelected(false));
 
 		controller.getCopyMenuItem().setOnAction(e -> {
-			if (view.getSelectedOrAllNodes().size() == 1) {
-				ClipboardUtils.putString(DrawView.getLabel(view.getSelectedOrAllNodes().iterator().next()).getRawText());
+			var scene = window.getStage().getScene();
+			if (scene != null && scene.getFocusOwner() instanceof TextInputControl tic) {
+				tic.copy();              // native text-field copy, restored
+			} else if (!view.getSelectedOrAllNodes().isEmpty() && view.getSelectedOrAllNodes().size() < view.getGraphFX().getNodeList().size()) {
+				var rootPosition = RootPosition.compute(view.getGraphFX().getNodeList());
+				var list = getInOrder(rootPosition, view.getSelectedOrAllNodes());
+				ClipboardUtils.putString(StringUtils.toString(list, "\n"));
 			} else
 				ClipboardUtils.putString(NewickUtils.toBracketString(view));
 		});

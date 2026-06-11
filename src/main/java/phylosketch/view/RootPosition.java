@@ -21,7 +21,6 @@
 package phylosketch.view;
 
 import javafx.geometry.Point2D;
-import jloda.fx.util.GeometryUtilsFX;
 import jloda.graph.Node;
 
 import java.util.Collection;
@@ -45,82 +44,57 @@ public record RootPosition(phylosketch.view.RootPosition.Side side, Point2D loca
 	public static RootPosition compute(Collection<Node> nodes) {
 		var minX = nodes.stream().mapToDouble(DrawView::getX).min().orElse(0.0);
 		var maxX = nodes.stream().mapToDouble(DrawView::getX).max().orElse(0.0);
-		var width = (maxX - minX);
 		var minY = nodes.stream().mapToDouble(DrawView::getY).min().orElse(0.0);
 		var maxY = nodes.stream().mapToDouble(DrawView::getY).max().orElse(0.0);
-		var height = (maxY - minY);
 
-		var averageRootX = nodes.stream().filter(v -> v.getInDegree() == 0).mapToDouble(DrawView::getX).average().orElse(0.0);
-		var averageRootY = nodes.stream().filter(v -> v.getInDegree() == 0).mapToDouble(DrawView::getY).average().orElse(0.0);
+		var averageRootX = nodes.stream().filter(v -> v.getInDegree() == 0)
+				.mapToDouble(DrawView::getX).average().orElse(0.5 * (minX + maxX));
+		var averageRootY = nodes.stream().filter(v -> v.getInDegree() == 0)
+				.mapToDouble(DrawView::getY).average().orElse(0.5 * (minY + maxY));
+		var rootPoint = new Point2D(averageRootX, averageRootY);
 
 		Side side;
-
 		if (nodes.size() <= 1) {
 			side = Side.Center;
 		} else {
-			if (true) {
-				var countLeft = 0;
-				var countRight = 0;
-				var countTop = 0;
-				var countBottom = 0;
-
-				for (var v : nodes) {
-					if (v.isLeaf()) {
-						var pv = DrawView.getPoint(v);
-						for (var u : v.parents()) {
-							var pu = DrawView.getPoint(u);
-							var angle = GeometryUtilsFX.computeAngle(pv.subtract(pu));
-							if (angle > 45 && angle <= 135) {
-								countTop++;
-							} else if (angle > 135 && angle <= 225) {
-								countRight++;
-							} else if (angle > 225 && angle <= 315) {
-								countBottom++;
-							} else {
-								countLeft++;
-							}
-
+			var sumX = 0.0;
+			var sumY = 0.0;
+			var count = 0;
+			for (var v : nodes) {
+				if (v.isLeaf()) {
+					var pv = DrawView.getPoint(v);
+					for (var u : v.parents()) {
+						var dir = pv.subtract(DrawView.getPoint(u)); // parent -> leaf
+						var len = dir.magnitude();
+						if (len > 0) {
+							sumX += dir.getX() / len; // unit vector
+							sumY += dir.getY() / len;
+							count++;
 						}
 					}
 				}
-				if (countLeft > 2 * countRight && countLeft > 2 * countBottom & countLeft > 2 * countTop) {
-					side = Side.Left;
-				} else if (countRight > 2 * countLeft && countRight > 2 * countTop && countRight > 2 * countBottom) {
-					side = Side.Right;
-				} else if (countTop > 2 * countBottom && countTop > 2 * countLeft && countTop > 2 * countRight) {
-					side = Side.Top;
-				} else if (countBottom > 2 * countTop && countBottom > 2 * countLeft && countBottom > 2 * countRight) {
-					side = Side.Bottom;
-				} else side = Side.Center;
+			}
+			if (count == 0) {
+				side = Side.Center;
 			} else {
-				var xValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getX).toList();
-				var averageLeafX = xValues.stream().mapToDouble(d -> d).average().orElse(0.0);
-				var yValues = nodes.stream().filter(v -> v.getOutDegree() == 0).map(DrawView::getY).toList();
-				var averageLeafY = yValues.stream().mapToDouble(d -> d).average().orElse(0.0);
+				var meanX = sumX / count;
+				var meanY = sumY / count;
+				var concentration = Math.hypot(meanX, meanY); // ~1 aligned, ~0 radial
 
-				if (averageRootX > minX + 0.1 * width && averageRootX < maxX - 0.1 * width
-					&& averageRootY > minY + 0.1 * height && averageRootY < maxY - 0.1 * height) {
+				final double MIN_CONCENTRATION = 0.5; // tune
+				if (concentration < MIN_CONCENTRATION) {
 					side = Side.Center;
+				} else if (Math.abs(meanX) >= Math.abs(meanY)) {
+					side = (meanX > 0) ? Side.Left : Side.Right; // leaves right => root left
 				} else {
-
-					var zScoreX = zScore(averageRootX, xValues);
-					var zScoreY = zScore(averageRootY, yValues);
-
-					if (Math.abs(zScoreX) > Math.abs(zScoreY)) {
-						if (averageLeafX - averageRootX > 0)
-							side = Side.Left;
-						else
-							side = Side.Right;
-					} else {
-						if (averageLeafY - averageRootY > 0)
-							side = Side.Top;
-						else
-							side = Side.Bottom;
-					}
+					// JavaFX: +y points DOWN the screen
+					side = (meanY > 0) ? Side.Top : Side.Bottom;  // leaves below => root on top
 				}
 			}
 		}
-		return new RootPosition(side, new Point2D(averageRootX, averageRootY));
+		var rootPosition = new RootPosition(side, rootPoint);
+		System.err.println(rootPosition);
+		return rootPosition;
 	}
 
 	private static double zScore(double value, Collection<Double> values) {
