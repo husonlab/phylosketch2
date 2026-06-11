@@ -74,20 +74,37 @@ public class MergeNodesCommand extends UndoableRedoableCommand {
 				var blobNodes = new ArrayList<>(nodeIds.stream().map(id -> view.getGraph().findNodeById(id)).filter(Objects::nonNull).toList());
 
 				// if there is a label on an isolated node, then place it on the non-isolated one
-				if (blobNodes.size() == 2 && blobNodes.stream().anyMatch(v -> v.getDegree() == 0 && !DrawView.getLabel(v).getRawText().isBlank())
-					&& blobNodes.stream().anyMatch(v -> v.getDegree() > 0 && DrawView.getLabel(v).getRawText().isBlank())) {
-					blobNodes.sort(Comparator.comparingInt(Node::getDegree));
-					var v = blobNodes.get(0);
-					var w = blobNodes.get(1);
+				// if exactly two nodes and one is an isolated, labeled node, merge its label into the other
+				if (blobNodes.size() == 2) {
+					// A: the isolated node carrying a label;  B: the connected node we keep
+					var a = blobNodes.stream()
+							.filter(v -> v.getDegree() == 0 && !DrawView.getLabel(v).getRawText().isBlank())
+							.findAny().orElse(null);
+					var b = (blobNodes.get(0) == a ? blobNodes.get(1) : blobNodes.get(0));
+					if (a != null && b != null) {
+						var aText = DrawView.getLabel(a).getText();
 
-					var vLabel = DrawView.getLabel(v).getText();
-					var rootPosition = RootPosition.compute(ConnectedComponents.component(w));
-					compositeCommand = new CompositeCommand("merge",
-							new SetNodeLabelsCommand(view, rootPosition, List.of(w), vLabel),
-							new DeleteCommand(view, List.of(v), List.of()));
-					if (compositeCommand.isRedoable())
-						compositeCommand.redo();
-					return;
+						String mergedLabel;
+						if (DrawView.getLabel(b).getRawText().isBlank()) {
+							mergedLabel = aText; // B has no label yet: just move A's label over (old behaviour)
+						} else {
+							var bText = DrawView.getLabel(b).getText();
+							var pa = DrawView.getPoint(a);
+							var pb = DrawView.getPoint(b);
+							// A's label comes first if A is to the left of, or above, B
+							// (JavaFX y grows downward, so "above" == smaller y)
+							var aFirst = pa.getX() < pb.getX() || pa.getY() < pb.getY();
+							mergedLabel = aFirst ? aText + " " + bText : bText + " " + aText;
+						}
+
+						var rootPosition = RootPosition.compute(ConnectedComponents.component(b));
+						compositeCommand = new CompositeCommand("merge",
+								new SetNodeLabelsCommand(view, rootPosition, List.of(b), mergedLabel),
+								new DeleteCommand(view, List.of(a), List.of()));
+						if (compositeCommand.isRedoable())
+							compositeCommand.redo();
+						return;
+					}
 				}
 
 				var centerNode = getCenterNode(blobNodes);
