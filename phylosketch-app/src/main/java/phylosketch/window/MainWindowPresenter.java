@@ -82,6 +82,7 @@ import static phylosketch.utils.LabelUtils.getInOrder;
  */
 public class MainWindowPresenter {
 	public static boolean SUPPORTS_CAPTURE = false;
+	public static boolean SUPPORTS_HELP_WINDOW = false;
 
 	private final MainWindow window;
 	private final FindToolBar findToolBar;
@@ -532,7 +533,7 @@ public class MainWindowPresenter {
 		controller.getPasteButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Sketch));
 		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
 
-		if (SUPPORTS_CAPTURE)
+		if (SUPPORTS_HELP_WINDOW)
 			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
 
 		controller.getLoadCaptureImageItem().setOnAction(e -> {

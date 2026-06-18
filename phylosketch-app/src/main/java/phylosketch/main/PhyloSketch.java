@@ -59,6 +59,7 @@ public class PhyloSketch extends Application {
     @Override
     public void init() {
         MainWindowPresenter.SUPPORTS_CAPTURE = true;
+        MainWindowPresenter.SUPPORTS_HELP_WINDOW = true;
         OCR.setOCRService(new OCRService());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             OCR.getOCRService().shutdown();
