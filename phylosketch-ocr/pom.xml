@@ -26,25 +26,27 @@
     <groupId>org.husonlab</groupId>
     <artifactId>phylosketch-ocr</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>PhyloSketch OCR API</name>
+    <description>Platform-neutral OCR contract (OcrProvider, OcrWord, OCRService) for PhyloSketch.
+        Implementations are supplied by phylosketch-ocr-tesseract (desktop) and
+        phylosketch-ocr-vision (iOS) and discovered via ServiceLoader.
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
-        <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <javafx.version>22.0.2</javafx.version>
-        <javafx.plugin.version>0.0.8</javafx.plugin.version>
     </properties>
+
     <dependencies>
+        <!-- Image, Rectangle2D, Platform; module javafx.graphics also contains javafx.geometry / scene.image -->
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx</artifactId>
-            <version>${javafx.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-web</artifactId>
+            <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
@@ -52,24 +54,8 @@
             <artifactId>javafx-swing</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>tesseract-platform</artifactId>
-            <version>5.5.1-1.5.12</version>
-        </dependency>
-        <!-- Leptonica bindings -->
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>leptonica-platform</artifactId>
-            <version>1.85.0-1.5.12</version>
-        </dependency>
-        <!-- JavaCPP -->
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>javacpp</artifactId>
-            <version>1.5.12</version>
-        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -77,23 +63,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <excludeGroupIds>org.openjfx</excludeGroupIds>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
 </project>

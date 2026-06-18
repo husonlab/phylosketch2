@@ -1,2 +1,0 @@
-PhyloSketch2 - Interactively sketch, capture and layout phylogenies
-Author: Daniel Huson, 2025

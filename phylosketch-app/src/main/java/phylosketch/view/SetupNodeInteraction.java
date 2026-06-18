@@ -1,0 +1,179 @@
+/*
+ * SetupNodeInteraction.java Copyright (C) 2025 Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+package phylosketch.view;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.collections.ListChangeListener;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Shape;
+import jloda.fx.util.ProgramProperties;
+import phylosketch.commands.MoveNodesEdgesCommand;
+
+import java.util.ArrayList;
+
+/**
+ * node interaction
+ * Daniel Huson, 9.2024
+ */
+public class SetupNodeInteraction {
+	private static double mouseDownX;
+	private static double mouseDownY;
+
+	private static double mouseX;
+	private static double mouseY;
+
+	public static boolean inMove = false;
+
+	private static MoveNodesEdgesCommand moveNodesEdgesCommand;
+
+	/**
+	 * setup node interactions
+	 * Note that creation of new nodes is setup in SetupPaneInteraction
+	 *
+	 * @param view
+	 */
+	public static void apply(DrawView view, BooleanProperty resizeMode, DragLineBoxSupport dragLineBoxSupport, ReadOnlyBooleanProperty multiTouch) {
+		var hDragLine = dragLineBoxSupport.hDragLine();
+		var vDragLine = dragLineBoxSupport.vDragLine();
+		var box = dragLineBoxSupport.box();
+
+		var nodesToDrag = new ArrayList<jloda.graph.Node>();
+
+		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
+			while (c.next()) {
+				if (c.wasAdded()) {
+					for (javafx.scene.Node n : c.getAddedSubList()) {
+						if (n instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
+							shape.setOnMouseClicked(me -> {
+								if (!multiTouch.get() && me.isStillSincePress() && !me.isControlDown()) {
+									if (ProgramProperties.isDesktop() && me.isShiftDown()) {
+										view.getNodeSelection().toggleSelection(v);
+									} else if (!view.getNodeSelection().isSelected(v)) {
+										if (ProgramProperties.isDesktop()) {
+											view.getEdgeSelection().clearSelection();
+											view.getNodeSelection().clearSelection();
+										}
+										view.getNodeSelection().select(v);
+									}
+								}
+								me.consume();
+							});
+
+							shape.setOnMousePressed(me -> {
+								nodesToDrag.clear();
+								if (!multiTouch.get()) {
+									if (!view.getNodeSelection().isSelected(v)) {
+										nodesToDrag.add(v);
+									} else {
+										nodesToDrag.addAll(view.getNodeSelection().getSelectedItems());
+									}
+
+									inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
+									if (inMove) {
+										mouseDownX = me.getSceneX();
+										mouseDownY = me.getSceneY();
+										mouseX = mouseDownX;
+										mouseY = mouseDownY;
+										moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
+										me.consume();
+									}
+								}
+							});
+
+							shape.setOnMouseDragged(me -> {
+								if (!multiTouch.get() && inMove) {
+									if (false && !view.getNodeSelection().isSelected(v)) {
+										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
+											view.getNodeSelection().clearSelection();
+											view.getEdgeSelection().clearSelection();
+										}
+										view.getNodeSelection().select(v);
+									}
+
+									var previous = view.sceneToLocal(mouseX, mouseY);
+									var location = view.sceneToLocal(me.getSceneX(), me.getSceneY());
+									if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
+										var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
+										// todo: show node moving:
+										moveNodesEdgesCommand.moveNodesAndEdges(d.getX(), d.getY());
+									}
+									mouseX = me.getSceneX();
+									mouseY = me.getSceneY();
+
+									if (true) {
+										var hasX = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getX()).anyMatch(x -> Math.abs(location.getX() - x) <= 1);
+										var hasY = view.getGraph().nodeStream().mapToDouble(u -> DrawView.getPoint(u).getY()).anyMatch(y -> Math.abs(location.getY() - y) <= 1);
+										if (hasX) {
+											if (!view.getOtherGroup().getChildren().contains(hDragLine))
+												view.getOtherGroup().getChildren().add(hDragLine);
+										} else
+											view.getOtherGroup().getChildren().remove(hDragLine);
+
+										if (hasY) {
+											if (!view.getOtherGroup().getChildren().contains(vDragLine))
+												view.getOtherGroup().getChildren().add(vDragLine);
+										} else
+											view.getOtherGroup().getChildren().remove(vDragLine);
+									}
+								}
+							});
+
+							shape.setOnMouseReleased(me -> {
+								if (inMove) {
+									if (!multiTouch.get()) {
+										if (moveNodesEdgesCommand.isUndoable())
+											view.getUndoManager().add(moveNodesEdgesCommand);
+									}
+									me.consume();
+									inMove = false;
+									moveNodesEdgesCommand = null;
+								}
+								view.getOtherGroup().getChildren().remove(hDragLine);
+								view.getOtherGroup().getChildren().remove(vDragLine);
+							});
+
+							shape.setOnMouseEntered(me -> {
+								var color = (shape.getFill() != null ? shape.getFill() : (shape.getStroke() != null ? shape.getStroke() : Color.GRAY));
+								var hoverShadow = new HoverShadow(color, 5);
+								hoverShadow.setOffsetY(0);
+								if (shape.getEffect() != null) {
+									hoverShadow.setInput(shape.getEffect());
+								}
+								shape.setEffect(hoverShadow);
+							});
+
+							shape.setOnMouseExited(me -> {
+								if (shape.getEffect() instanceof HoverShadow hoverShadow && hoverShadow.getInput() != null) {
+									shape.setEffect(hoverShadow.getInput());
+								} else {
+									shape.setEffect(null);
+								}
+							});
+						}
+					}
+				}
+			}
+		});
+	}
+}

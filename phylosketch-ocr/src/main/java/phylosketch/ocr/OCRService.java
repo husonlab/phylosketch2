@@ -19,137 +19,103 @@
 
 package phylosketch.ocr;
 
-
-import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import org.bytedeco.javacpp.IntPointer;
-import org.bytedeco.tesseract.TessBaseAPI;
-import phylosketch.ocr.utils.PngEncoderFX;
-import phylosketch.ocr.utils.TessdataManager;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
-import static org.bytedeco.leptonica.global.leptonica.*;
-import static org.bytedeco.tesseract.global.tesseract.RIL_WORD;
+import java.util.Objects;
+import java.util.ServiceLoader;
 
 /**
- * OCR using Tesseract
+ * Front door for OCR. Locates the best available {@link OcrProvider} (Tesseract on desktop,
+ * Apple Vision on iOS) and delegates to it. The public API is unchanged from the original
+ * Tesseract-only version, so existing call sites do not need to change.
+ * <p>
+ * OCR back-ends are not thread-safe (Tesseract in particular keeps mutable native state), so
+ * this class serializes access. Call it off the JavaFX Application Thread.
+ *
  * Daniel Huson, 11.2025
  */
 public class OCRService {
-	private TessBaseAPI tesseract;
-
+	private OcrProvider provider;
+	private boolean resolved;
 
 	/**
-	 * get words in an image
+	 * Get the words in an image.
 	 *
 	 * @param image the image
-	 * @return the words
+	 * @return the words, in image pixel coordinates (origin top-left)
+	 * @throws IOException on recognition failure, or if no provider is available here
 	 */
-	public List<OcrWord> getWords(Image image) throws IOException {
-		if (tesseract == null) {
-			tesseract = createAPI();
-		}
-		var tempFile = File.createTempFile("image" + System.currentTimeMillis(), ".png");
-		System.err.println(tempFile.getAbsolutePath());
-		tempFile.deleteOnExit();
-
-		save(image, tempFile);
-		return getWords(tempFile.toString());
-	}
-
-	public boolean isAvailable() {
-		return true;
-	}
-
-	public void shutdown() {
-		if (tesseract != null) {
-			tesseract.close();
-			tesseract = null;
-		}
-	}
-
-	private void save(Image image, File file) throws IOException {
-		if (file.exists())
-			Files.delete(file.toPath());
-		var bytes = new PngEncoderFX(image, true, PngEncoderFX.FILTER_NONE, 9).pngEncode();
-		try (var outs = new FileOutputStream(file)) {
-			outs.write(bytes);
-		}
+	public synchronized List<OcrWord> getWords(Image image) throws IOException {
+		var p = provider();
+		if (p == null)
+			throw new IOException("No OCR provider is available on this platform");
+		return p.getWords(image);
 	}
 
 	/**
-	 * get words in an image
-	 *
-	 * @param imagePath the image path
-	 * @return the words
+	 * Is OCR available on this platform?
 	 */
-	private static List<OcrWord> getWords(String imagePath) throws IOException {
-		var words = new ArrayList<OcrWord>();
-		try (var api = createAPI(); var image = pixRead(imagePath)) {
-			int width = pixGetWidth(image);
-			int height = pixGetHeight(image);
-
-			if (width == 0 || height == 0) {
-				throw new IOException("Invalid image");
-			}
-
-			api.SetImage(image);
-
-			if (api.Recognize(null) != 0) {
-				throw new IOException("Recognition failed");
-			}
-
-			try (var ri = api.GetIterator()) {
-				if (ri != null) {
-					do {
-						try (IntPointer left = new IntPointer(1);
-							 IntPointer top = new IntPointer(1);
-							 IntPointer right = new IntPointer(1);
-							 IntPointer bottom = new IntPointer(1)) {
-
-							ri.BoundingBox(RIL_WORD, left, top, right, bottom);
-
-							var word = ri.GetUTF8Text(RIL_WORD);
-
-							if (word != null) {
-								var text = word.getString();
-								float confidence = ri.Confidence(RIL_WORD);
-								words.add(new OcrWord(text, confidence, new Rectangle2D(Math.min(left.get(), right.get()), Math.min(top.get(), bottom.get()), Math.abs(right.get() - left.get()), Math.abs(top.get() - bottom.get()))));
-							}
-						}
-					} while (ri.Next(RIL_WORD));
-				}
-			}
-		}
-		return words;
+	public synchronized boolean isAvailable() {
+		return provider() != null;
 	}
 
-	private static TessBaseAPI createAPI() throws IOException {
-		var tessDataDir = TessdataManager.getTessdataDir();
-		System.setProperty("TESSDATA_PREFIX", tessDataDir.toString());
-
-		var api = new TessBaseAPI();
-		if (api.Init(tessDataDir.getAbsolutePath(), "eng") != 0) {
-			api.close();
-			throw new RuntimeException("Could not initialize Tesseract.");
-		}
-
-		api.SetVariable("user_words_suffix", "organism_names.txt");
-		api.SetVariable("load_system_dawg", "F"); // Disable the default system dictionary
-		api.SetVariable("load_freq_dawg", "F"); // Disable the frequency dictionary
-		api.SetVariable("user_words", "tessdata/organism_names.txt");
-		api.SetVariable("user_words_file", "tessdata/organism_names.txt");
-		// todo: the white prevents words in quotes, so disabled for now
-		if (false)
-			api.SetVariable("tessedit_char_whitelist", "`'\"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+='()[],. ");
-		return api;
+	/**
+	 * Name of the active provider ("Tesseract", "AppleVision", or "none").
+	 */
+	public synchronized String providerName() {
+		var p = provider();
+		return p == null ? "none" : p.name();
 	}
 
+	/**
+	 * Release native resources held by the active provider.
+	 */
+	public synchronized void shutdown() {
+		if (provider != null) {
+			provider.shutdown();
+			provider = null;
+		}
+		resolved = false;
+	}
 
+	private OcrProvider provider() {
+		if (!resolved) {
+			resolved = true;
+			provider = locate();
+		}
+		return provider;
+	}
+
+	/**
+	 * Find the highest-priority provider that reports itself available. Any provider whose
+	 * native back-end fails to load is skipped rather than allowed to abort the search; this
+	 * is what lets the same launcher code run on a device that only has one of the back-ends.
+	 */
+	private static OcrProvider locate() {
+		return ServiceLoader.load(OcrProvider.class).stream()
+				.map(OCRService::tryGet)
+				.filter(Objects::nonNull)
+				.filter(OCRService::tryIsAvailable)
+				.max(Comparator.comparingInt(OcrProvider::priority))
+				.orElse(null);
+	}
+
+	private static OcrProvider tryGet(ServiceLoader.Provider<OcrProvider> p) {
+		try {
+			return p.get();
+		} catch (Throwable t) { // e.g. UnsatisfiedLinkError / NoClassDefFoundError on the wrong platform
+			return null;
+		}
+	}
+
+	private static boolean tryIsAvailable(OcrProvider p) {
+		try {
+			return p.isAvailable();
+		} catch (Throwable t) {
+			return false;
+		}
+	}
 }
