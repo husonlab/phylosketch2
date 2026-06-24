@@ -43,6 +43,7 @@ import jloda.fx.dialog.SetParameterDialog;
 import jloda.fx.find.FindToolBar;
 import jloda.fx.find.Searcher;
 import jloda.fx.qr.QRViewUtils;
+import jloda.fx.service.UpdateService;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.*;
@@ -59,8 +60,8 @@ import phylosketch.commands.*;
 import phylosketch.format.FormatPaneController;
 import phylosketch.format.FormatPaneView;
 import phylosketch.io.*;
-import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
+import phylosketch.main.Version;
 import phylosketch.utils.Clusters;
 import phylosketch.utils.GraphUtils;
 import phylosketch.view.*;
@@ -467,8 +468,9 @@ public class MainWindowPresenter {
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
-		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply(window));
-		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(document.dirtyProperty()));
+		var updaterService = UpdateService.get();
+		controller.getCheckForUpdatesMenuItem().setOnAction(e -> updaterService.checkForUpdates(window.getStage(), Version.HOME_URL, Version.NAME, Version.VERSION));
+		controller.getCheckForUpdatesMenuItem().disableProperty().bind(updaterService.disabledProperty().or(MainWindowManager.getInstance().sizeProperty().greaterThan(1)).or(window.getDocument().dirtyProperty()));
 
 		SwipeUtils.setConsumeSwipes(controller.getRootPane());
 

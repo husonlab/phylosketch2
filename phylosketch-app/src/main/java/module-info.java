@@ -1,4 +1,6 @@
 module phylosketch {
+	uses jloda.fx.service.UpdateService;
+
 	requires transitive jloda_core;
 	requires transitive jloda_fx;
 	requires transitive jloda_phylogeny;
