@@ -27,6 +27,7 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -66,9 +67,11 @@ import phylosketch.utils.Clusters;
 import phylosketch.utils.GraphUtils;
 import phylosketch.view.*;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -538,8 +541,14 @@ public class MainWindowPresenter {
 		controller.getPasteButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Sketch));
 		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
 
-		if (false && SUPPORTS_HELP_WINDOW) {
-			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
+		if (SUPPORTS_HELP_WINDOW) {
+			controller.getShowHelpWindow().setOnAction(e -> {
+				try {
+					Desktop.getDesktop().browse(new URI(Version.WEBSITE_URL));
+				} catch (Exception ex) {
+					WindowNotifications.showInfo(controller.getCenterPane(), "Show Help failed: " + ex.getMessage());
+				}
+			});
 		}
 
 		controller.getLoadCaptureImageItem().setOnAction(e -> {
