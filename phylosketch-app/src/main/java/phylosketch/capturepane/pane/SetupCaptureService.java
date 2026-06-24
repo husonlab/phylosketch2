@@ -28,6 +28,8 @@ import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
+import jloda.fx.windownotifications.WindowNotifications;
+import jloda.util.Basic;
 import phylosketch.capturepane.capture.CaptureService;
 import phylosketch.capturepane.capture.Point;
 import phylosketch.capturepane.capture.Segment;
@@ -53,7 +55,10 @@ public class SetupCaptureService {
 	 * @return the service
 	 */
 	public static CaptureService apply(MainWindowController controller, DrawView view, CapturePane capturePane) {
-		final CaptureService service = new CaptureService();
+		final CaptureService service = new CaptureService(e -> {
+			Basic.caught(e);
+			WindowNotifications.showWarning(controller.getCenterAnchorPane(), "Image capture failed: " + e.getMessage());
+		});
 		final SelectionModel<OcrWord> wordSelection = new SetSelectionModel<>();
 		final SelectionModel<Segment> pathSelection = new SetSelectionModel<>();
 

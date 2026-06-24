@@ -251,7 +251,7 @@ public final class PhyloImageAnalyzer {
 			borderSamples += 2;
 		}
 
-		// Left and right borders
+		// Left and getRight borders
 		for (int y = 0; y < height; y += step) {
 			Color left = reader.getColor(0, y);
 			Color right = reader.getColor(width - 1, y);

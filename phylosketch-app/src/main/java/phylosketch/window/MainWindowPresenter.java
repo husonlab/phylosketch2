@@ -81,10 +81,12 @@ import static phylosketch.utils.LabelUtils.getInOrder;
  * Daniel Huson, 9.2024
  */
 public class MainWindowPresenter {
+	public static boolean SUPPORTS_MENUS = false;
 	public static boolean SUPPORTS_CAPTURE = false;
 	public static boolean SUPPORTS_HELP_WINDOW = false;
 
 	private final MainWindow window;
+	private final Document document;
 	private final FindToolBar findToolBar;
 	private final FormatPaneView formatPaneView;
 	private final CapturePane capturePane;
@@ -96,6 +98,7 @@ public class MainWindowPresenter {
 
 	public MainWindowPresenter(MainWindow window) {
 		this.window = window;
+		this.document = window.getDocument();
 		view = window.getDrawView();
 		controller = window.getController();
 
@@ -156,15 +159,7 @@ public class MainWindowPresenter {
 
 		ModificationSupport.setup(view, controller);
 
-		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> window.dirtyProperty().set(n.intValue() > 0));
-
-		if (false) { // todo: don't need this?
-			view.minWidthProperty().bind(Bindings.createDoubleBinding(() ->
-					controller.getScrollPane().getViewportBounds().getWidth(), controller.getScrollPane().viewportBoundsProperty()));
-
-			view.minHeightProperty().bind(Bindings.createDoubleBinding(() ->
-					controller.getScrollPane().getViewportBounds().getHeight(), controller.getScrollPane().viewportBoundsProperty()));
-		}
+		view.getUndoManager().undoStackSizeProperty().addListener((v, o, n) -> document.setDirty(n.intValue() > 0));
 
 		controller.getScrollPane().setContent(view);
 
@@ -179,6 +174,12 @@ public class MainWindowPresenter {
 		controller.getAboutMenuItem().setOnAction(e -> SplashScreen.showSplash(Duration.ofSeconds(30)));
 
 		controller.getNewMenuItem().setOnAction(e -> NewWindow.apply());
+
+		controller.getNewFromClipboardMenuItem().setOnAction(e -> {
+			var newWindow = NewWindow.apply();
+			newWindow.getController().getPasteMenuItem().fire();
+		});
+
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
 		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, true, true, view.modeProperty(), controller.getModeMenuButton());
@@ -254,8 +255,10 @@ public class MainWindowPresenter {
 			}
 		});
 
-		RecentFilesManager.getInstance().setFileOpener(FileOpenManager.getFileOpener());
-		RecentFilesManager.getInstance().setupMenu(controller.getRecentFilesMenu());
+		if (SUPPORTS_MENUS) {
+			RecentFilesManager.getInstance().setFileOpener(FileOpenManager.getFileOpener());
+			RecentFilesManager.getInstance().setupMenu(controller.getRecentFilesMenu());
+		}
 
 		window.getStage().setOnCloseRequest((e) -> {
 			if (view.getGraph().getNumberOfNodes() > 0) {
@@ -279,7 +282,7 @@ public class MainWindowPresenter {
 		});
 
 		controller.getSaveMenuItem().setOnAction(e -> Save.showSaveDialog(window));
-		controller.getSaveMenuItem().disableProperty().bind(window.dirtyProperty().not());
+		controller.getSaveMenuItem().disableProperty().bind(document.dirtyProperty().not());
 		//controller.getSaveButton().setOnAction(controller.getSaveAsMenuItem().getOnAction());
 		//controller.getSaveButton().disableProperty().bind(controller.getSaveAsMenuItem().disableProperty());
 
@@ -287,7 +290,7 @@ public class MainWindowPresenter {
 		controller.getPrintMenuItem().setOnAction((e) -> {
 			jloda.fx.print.Print.print(window.getStage(), window.getDrawView());
 		});
-		controller.getPrintMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getPrintMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getUndoMenuItem().setOnAction(e -> view.getUndoManager().undo());
 		controller.getUndoMenuItem().textProperty().bind(view.getUndoManager().undoNameProperty());
@@ -299,16 +302,16 @@ public class MainWindowPresenter {
 
 		controller.getClearMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getGraph().getNodesAsList(),
 				Collections.emptyList())));
-		controller.getClearMenuItem().disableProperty().bind(window.emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
+		controller.getClearMenuItem().disableProperty().bind(document.emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
 
 		controller.getZoomInMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.1, 1.1));
-		controller.getZoomInMenuItem().disableProperty().bind(window.emptyProperty().and(capturePane.hasImageProperty().not()));
+		controller.getZoomInMenuItem().disableProperty().bind(document.emptyProperty().and(capturePane.hasImageProperty().not()));
 		controller.getZoomOutMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1));
 		controller.getZoomOutMenuItem().disableProperty().bind(controller.getZoomInMenuItem().disableProperty());
 		controller.getZoomToFitMenuItem().setOnAction(e -> ZoomToFit.apply(window));
-		controller.getZoomToFitMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getZoomToFitMenuItem().disableProperty().bind(document.emptyProperty());
 
-		window.emptyProperty().addListener((v, o, n) -> {
+		document.emptyProperty().addListener((v, o, n) -> {
 			if (n)
 				ZoomToFit.apply(window);
 		});
@@ -318,7 +321,7 @@ public class MainWindowPresenter {
 				view.setMode(DrawView.Mode.View);
 			view.showOutlinesProperty().set(n);
 		});
-		controller.getOutlineEdgesMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getOutlineEdgesMenuItem().disableProperty().bind(document.emptyProperty());
 		view.modeProperty().addListener((v, o, n) -> {
 			if (n != DrawView.Mode.View && view.isShowOutlines())
 				controller.getOutlineEdgesMenuItem().setSelected(false);
@@ -336,31 +339,31 @@ public class MainWindowPresenter {
 			} else
 				ClipboardUtils.putString(NewickUtils.toBracketString(view));
 		});
-		controller.getCopyMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getCopyMenuItem().disableProperty().bind(document.emptyProperty());
 
-		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(window.getFileName(), window.getStage(), window.getDrawView()));
-		controller.getExportImageMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(document.getFileName(), window.getStage(), window.getDrawView()));
+		controller.getExportImageMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getExportNewickMenuItem().setOnAction(e -> ExportNewick.apply(window));
-		controller.getExportNewickMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getExportNewickMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getCopyImageMenuItem().setOnAction(e -> ClipboardUtils.putImage(view));
-		controller.getCopyImageMenuItem().disableProperty().bind(window.emptyProperty().and(capturePane.hasImageProperty().not()));
+		controller.getCopyImageMenuItem().disableProperty().bind(document.emptyProperty().and(capturePane.hasImageProperty().not()));
 
 		controller.getLabelLeavesABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "ABC", "leaves", true)));
-		controller.getLabelLeavesABCMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getLabelLeavesABCMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getLabelLeaves123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "t1t2t3", "leaves", true)));
-		controller.getLabelLeaves123MenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getLabelLeaves123MenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getLabelLeavesMenuItem().setOnAction(c -> LabelLeaves.labelLeaves(window.getStage(), view));
-		controller.getLabelLeavesMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getLabelLeavesMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getLabelInternalABCMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "ABC", "internal", true)));
-		controller.getLabelInternalABCMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getLabelInternalABCMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getLabelInternal123MenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "t1t2t3", "internal", true)));
-		controller.getLabelInternal123MenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getLabelInternal123MenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getClearLabelsMenuItem().setOnAction(c -> view.getUndoManager().doAndAdd(new SetNodeLabelsCommand(view, "none", "all", true)));
 		controller.getClearLabelsMenuItem().disableProperty().bind(Bindings.isEmpty(view.getNodeLabelsGroup().getChildren()));
@@ -433,11 +436,11 @@ public class MainWindowPresenter {
 				(controller.getResizeModeCheckMenuItem().selectedProperty()
 						.or(view.modeProperty().isEqualTo(DrawView.Mode.Sketch))
 						.or(view.modeProperty().isEqualTo(DrawView.Mode.Move))
-				).not().or(window.emptyProperty())
+				).not().or(document.emptyProperty())
 		);
 
 		controller.getLayoutLabelMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new LayoutLabelsCommand(view, null, view.getSelectedOrAllNodes())));
-		controller.getLayoutLabelMenuItem().disableProperty().bind(window.emptyProperty());
+		controller.getLayoutLabelMenuItem().disableProperty().bind(document.emptyProperty());
 
 		var isRotatingOrFlipping = new SimpleBooleanProperty(this, "isRotatingOrFlipping", false);
 
@@ -445,7 +448,7 @@ public class MainWindowPresenter {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), false, isRotatingOrFlipping));
 		});
-		controller.getRotateLeftMenuItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).or(window.emptyProperty().or(isRotatingOrFlipping)));
+		controller.getRotateLeftMenuItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).or(document.emptyProperty().or(isRotatingOrFlipping)));
 		controller.getRotateRightMenuItem().setOnAction(e -> {
 			allowResize.set(false);
 			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), true, isRotatingOrFlipping));
@@ -465,7 +468,7 @@ public class MainWindowPresenter {
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply(window));
-		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(window.dirtyProperty()));
+		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(document.dirtyProperty()));
 
 		SwipeUtils.setConsumeSwipes(controller.getRootPane());
 
@@ -480,10 +483,10 @@ public class MainWindowPresenter {
 
 		QRViewUtils.setup(controller.getCenterAnchorPane(), updateProperty, () -> NewickUtils.toBracketString(view, 4296),
 				qrImageView, controller.getShowQRCode().selectedProperty());
-		controller.getShowQRCode().disableProperty().bind(window.emptyProperty());
+		controller.getShowQRCode().disableProperty().bind(document.emptyProperty());
 
 		NewickPane.setup(controller.getCenterAnchorPane(), updateProperty, () -> NewickUtils.toBracketString(view, 4296), controller.getShowNewick().selectedProperty());
-		controller.getShowNewick().disableProperty().bind(window.emptyProperty());
+		controller.getShowNewick().disableProperty().bind(document.emptyProperty());
 
 		controller.getSetWindowSizeMenuItem().setOnAction(e -> {
 			var result = SetParameterDialog.apply(window.getStage(), "Enter size (width x height)",
@@ -533,8 +536,9 @@ public class MainWindowPresenter {
 		controller.getPasteButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Sketch));
 		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
 
-		if (SUPPORTS_HELP_WINDOW)
+		if (false && SUPPORTS_HELP_WINDOW) {
 			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
+		}
 
 		controller.getLoadCaptureImageItem().setOnAction(e -> {
 			if (SUPPORTS_CAPTURE) {
@@ -562,10 +566,10 @@ public class MainWindowPresenter {
 		var factor = new SimpleDoubleProperty(1.0);
 
 		controller.getIncreaseFontSizeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, Double.MAX_VALUE, null)));
-		controller.getIncreaseFontSizeMenuItem().disableProperty().bind(window.emptyProperty().or(factor.greaterThanOrEqualTo(10.0)));
+		controller.getIncreaseFontSizeMenuItem().disableProperty().bind(document.emptyProperty().or(factor.greaterThanOrEqualTo(10.0)));
 
 		controller.getDecreaseFontSizeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new NodeLabelFormatCommand(view, view.getSelectedOrAllNodes(), NodeLabelFormatCommand.Which.size, null, Double.MIN_VALUE, null)));
-		controller.getDecreaseFontSizeMenuItem().disableProperty().bind(window.emptyProperty().or(factor.lessThanOrEqualTo(0.1)));
+		controller.getDecreaseFontSizeMenuItem().disableProperty().bind(document.emptyProperty().or(factor.lessThanOrEqualTo(0.1)));
 
 		controller.getAddLSAEdgeMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new AddLSAEdgesCommand(view)));
 		controller.getAddLSAEdgeMenuItem().disableProperty().bind(Bindings.createBooleanBinding(() -> view.getGraph().nodeStream().filter(v -> v.getInDegree() == 0).count() != 1, view.getGraphFX().lastUpdateProperty()));
@@ -604,8 +608,8 @@ public class MainWindowPresenter {
 			setupModeHints(view, getCapturePane());
 		}
 
-		controller.getMoveModeItem().disableProperty().bind(window.emptyProperty());
-		controller.getViewModeItem().disableProperty().bind(window.emptyProperty());
+		controller.getMoveModeItem().disableProperty().bind(document.emptyProperty());
+		controller.getViewModeItem().disableProperty().bind(document.emptyProperty());
 	}
 
 	public void loadContent(String fileName, String content) {
@@ -697,7 +701,7 @@ public class MainWindowPresenter {
 				view.getUndoManager().doAndAdd(new LayoutPhylogenyCommand(view, layout.get(), scaling.get()));
 			}
 		});
-		formatController.getApplyLayoutPhylogenyButton().disableProperty().bind(window.emptyProperty().or(scaling.isNull()).or(layout.isNull()));
+		formatController.getApplyLayoutPhylogenyButton().disableProperty().bind(window.getDocument().emptyProperty().or(scaling.isNull()).or(layout.isNull()));
 		controller.getLayoutPhylogenyMenuItem().setOnAction(formatController.getApplyLayoutPhylogenyButton().getOnAction());
 		controller.getLayoutPhylogenyMenuItem().disableProperty().bind(formatController.getApplyLayoutPhylogenyButton().disableProperty());
 

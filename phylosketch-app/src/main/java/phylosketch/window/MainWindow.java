@@ -22,7 +22,8 @@ package phylosketch.window;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -35,7 +36,6 @@ import jloda.fx.util.StatementFilter;
 import jloda.fx.window.IMainWindow;
 import jloda.fx.window.SetupWindowMenu;
 import jloda.phylo.PhyloTree;
-import jloda.util.FileUtils;
 import phylosketch.io.ExtensionFilters;
 import phylosketch.io.FileOpener;
 import phylosketch.view.DrawView;
@@ -53,17 +53,13 @@ public class MainWindow implements IMainWindow {
     private final Scene scene;
 
     private final MainWindowController controller;
-
     private MainWindowPresenter presenter;
 
     private final FlowPane statusPane;
 
-    private final StringProperty fileName = new SimpleStringProperty("Untitled");
-    private final BooleanProperty dirty = new SimpleBooleanProperty(false);
+    private final Document document = new Document();
 
-    private final BooleanProperty empty = new SimpleBooleanProperty(this, "empty", true);
-
-    private final StringProperty name = new SimpleStringProperty(this, "name", "Untitled");
+    private final StringProperty titleDisplayName = new SimpleStringProperty(this, "titleDisplayName", "Untitled");
 
     private final DrawView drawView = new DrawView();
 
@@ -94,12 +90,14 @@ public class MainWindow implements IMainWindow {
         FileOpenManager.setFileOpener(new FileOpener());
 
         final InvalidationListener listener = (e -> {
-            name.set(getFileName() == null ? "Untitled" : FileUtils.getFileNameWithoutPathOrSuffix(getFileName()));
+            titleDisplayName.set(document.getName());
             if (getStage() != null)
-                getStage().setTitle(getName() + (isDirty() ? "*" : "") + " - " + ProgramProperties.getProgramName());
+                getStage().setTitle(getTitleDisplayName() + (document.isDirty() ? "*" : "") + " - " + ProgramProperties.getProgramName());
         });
-        fileNameProperty().addListener(listener);
-        dirtyProperty().addListener(listener);
+        document.nameProperty().addListener(listener);
+        document.dirtyProperty().addListener(listener);
+
+        document.nameProperty().addListener((v, o, n) -> drawView.getGraph().setName(n));
 
         scene = new Scene(root);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader().getResource("jloda/fx/icons/button.css")).toExternalForm());
@@ -140,19 +138,17 @@ public class MainWindow implements IMainWindow {
 
         stage.show();
 
-        empty.bind(drawView.getGraphFX().emptyProperty());
+        document.emptyProperty().bind(drawView.getGraphFX().emptyProperty());
 
-        SetupWindowMenu.apply(this, controller.getWindowMenu());
+        if (MainWindowPresenter.SUPPORTS_MENUS)
+            SetupWindowMenu.apply(this, controller.getWindowMenu());
     }
 
     @Override
     public boolean isEmpty() {
-        return empty.get();
+        return document.isEmpty();
     }
 
-    public ReadOnlyBooleanProperty emptyProperty() {
-        return empty;
-    }
 
     @Override
     public void close() {
@@ -172,39 +168,15 @@ public class MainWindow implements IMainWindow {
         return statusPane;
     }
 
-    public String getName() {
-        return name.get();
+    public Document getDocument() {
+        return document;
     }
 
-    public StringProperty nameProperty() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name.set(name);
+    public String getTitleDisplayName() {
+        return titleDisplayName.get();
     }
 
     public DrawView getDrawView() {
         return drawView;
-    }
-
-    public String getFileName() {
-        return fileName.get();
-    }
-
-    public void setFileName(String fileName) {
-        fileNameProperty().set(fileName);
-    }
-
-    public StringProperty fileNameProperty() {
-        return fileName;
-    }
-
-    public boolean isDirty() {
-        return dirty.get();
-    }
-
-    public BooleanProperty dirtyProperty() {
-        return dirty;
     }
 }

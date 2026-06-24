@@ -27,6 +27,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.*;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.effect.BlurType;
@@ -101,6 +102,7 @@ public class DrawView extends Pane {
 	private final UndoManager undoManager = new UndoManager();
 
 	public DrawView() {
+		setOpaqueInsets(new Insets(2, 2, 2, 2));
 		mode.addListener((v, o, n) -> movable.set(n == Mode.Sketch || n == Mode.Move));
 		movable.set(mode.get() == Mode.Sketch || mode.get() == Mode.Move);
 

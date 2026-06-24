@@ -35,6 +35,8 @@ public class SetupHelpWindow {
 	private static Stage helpStage;
 
 	public static void apply(MainWindow window, CheckMenuItem showHelpWindow) {
+		System.err.println("Setting up help window");
+
 		if (helpStage == null) {
 			var helpView = new HelpView();
 			helpStage = new Stage();

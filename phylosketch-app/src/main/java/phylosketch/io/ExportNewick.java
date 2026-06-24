@@ -42,7 +42,7 @@ public class ExportNewick {
 		final var previousFile = new File(ProgramProperties.get("NewickExport", ""));
 		if (previousFile.isFile()) {
 			fileChooser.setInitialDirectory(previousFile.getParentFile());
-			fileChooser.setInitialFileName(mainWindow.getName());
+			fileChooser.setInitialFileName(mainWindow.getTitleDisplayName());
 		}
 		fileChooser.setSelectedExtensionFilter(ExtensionFilters.newick());
 		fileChooser.getExtensionFilters().addAll(ExtensionFilters.newick(), ExtensionFilters.createText());

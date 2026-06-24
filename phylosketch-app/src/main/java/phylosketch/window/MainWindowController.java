@@ -24,6 +24,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
@@ -34,7 +35,7 @@ import jloda.fx.control.ZoomableScrollPane;
 import jloda.fx.icons.MaterialIcons;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.ProgramProperties;
-import jloda.fx.util.RunAfterAWhile;
+import phylosketch.utils.ResponsiveToolBar;
 import phylosketch.view.DrawView;
 
 public class MainWindowController {
@@ -157,6 +158,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem newMenuItem;
+
+	@FXML
+	private MenuItem newFromClipboardMenuItem;
 
 	@FXML
 	private MenuItem openMenuItem;
@@ -442,7 +446,7 @@ public class MainWindowController {
 	private CheckMenuItem outlineEdgesMenuItem;
 
 	@FXML
-	private GridPane toolbarGrid;
+	private HBox toolBarPlaceholder;
 
 	@FXML
 	private HBox leftBox;
@@ -459,6 +463,7 @@ public class MainWindowController {
 
 	private final ToggleGroup scalingToggleGroup = new ToggleGroup();
 
+	private ResponsiveToolBar toolBar;
 
 	@FXML
 	private void initialize() {
@@ -484,12 +489,10 @@ public class MainWindowController {
 
 		modeMenuButton.setText("");
 
-		toolbarGrid.widthProperty().addListener(e -> RunAfterAWhile.applyInFXThread(toolbarGrid, this::updateToolbarLayout));
-
 		increaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("+", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 		decreaseFontSizeMenuItem.setAccelerator(new KeyCharacterCombination("-", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_ANY));
 
-		// if we are running on MacOS, put the specific menu items in the right places
+		// if we are running on MacOS, put the specific menu items in the getRight places
 		if (ProgramProperties.isMacOS()) {
 			getMenuBar().setUseSystemMenuBar(true);
 			fileMenu.getItems().remove(getQuitMenuItem());
@@ -582,25 +585,31 @@ public class MainWindowController {
 		cladogramEarlyMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.EarlyBranching);
 		cladogramLateMenuItem.setUserData(jloda.phylogeny.layout.LayoutRootedPhylogeny.Scaling.LateBranching);
 
-		Platform.runLater(this::updateToolbarLayout);
+		{
+			toolBar = new ResponsiveToolBar();
+			toolBar.getChildren().addAll(leftBox, rightBox); // reparents them out of the placeholder
+			replace(toolBarPlaceholder, toolBar);            // put the real bar where the placeholder was
+		}
 	}
 
-	public void updateToolbarLayout() {
-		var wrap = (toolbarGrid.getWidth() <= Math.max(leftBox.prefWidth(-1) + rightBox.prefWidth(-1), 350));
-		if (!wrap) {
-			// Wide: right group in row 0, col 1
-			GridPane.setRowIndex(rightBox, 0);
-			GridPane.setColumnIndex(rightBox, 1);
-			GridPane.setColumnSpan(rightBox, 1);
+	public static void replace(Node oldNode, Node newNode) {
+		var parent = oldNode.getParent();
+		if (parent == null)
+			throw new IllegalStateException("node has no parent");
 
-			rightBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-			} else {
-			// Narrow: move right group to row 1, col 0 spanning both columns
-			GridPane.setRowIndex(rightBox, 1);
-			GridPane.setColumnIndex(rightBox, 0);
-			GridPane.setColumnSpan(rightBox, 2);
+		// carry over layout constraints (anchors, grow, row/col, margin) held in the property map
+		newNode.getProperties().putAll(oldNode.getProperties());
 
-			rightBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+		if (parent instanceof BorderPane bp) {
+			if (bp.getTop() == oldNode) bp.setTop(newNode);
+			else if (bp.getBottom() == oldNode) bp.setBottom(newNode);
+			else if (bp.getLeft() == oldNode) bp.setLeft(newNode);
+			else if (bp.getRight() == oldNode) bp.setRight(newNode);
+			else if (bp.getCenter() == oldNode) bp.setCenter(newNode);
+		} else if (parent instanceof Pane pane) {
+			pane.getChildren().set(pane.getChildren().indexOf(oldNode), newNode);
+		} else {
+			throw new IllegalStateException("unsupported parent: " + parent.getClass());
 		}
 	}
 
@@ -626,7 +635,6 @@ public class MainWindowController {
 		});
 		modeProperty.set(DrawView.Mode.View);
 		Platform.runLater(() -> modeProperty.set(DrawView.Mode.Sketch));
-
 	}
 
 	private void relayout() {
@@ -743,6 +751,10 @@ public class MainWindowController {
 
 	public MenuItem getNewMenuItem() {
 		return newMenuItem;
+	}
+
+	public MenuItem getNewFromClipboardMenuItem() {
+		return newFromClipboardMenuItem;
 	}
 
 	public MenuItem getOpenMenuItem() {
@@ -1113,10 +1125,6 @@ public class MainWindowController {
 		return centerPane;
 	}
 
-	public GridPane getToolbarGrid() {
-		return toolbarGrid;
-	}
-
 	public HBox getLeftBox() {
 		return leftBox;
 	}
@@ -1143,5 +1151,9 @@ public class MainWindowController {
 
 	public RadioMenuItem getMoveModeItem() {
 		return moveModeItem;
+	}
+
+	public ResponsiveToolBar getToolBar() {
+		return toolBar;
 	}
 }

@@ -28,11 +28,10 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import jloda.fx.util.AService;
-import jloda.fx.window.NotificationManager;
-import jloda.util.Basic;
 import phylosketch.ocr.OcrWord;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * captures segments and words from a picture of a phylogentic tree or network
@@ -65,10 +64,9 @@ public class CaptureService extends AService<Boolean> {
 	/**
 	 * constructor
 	 */
-	public CaptureService() {
+	public CaptureService(Consumer<Throwable> exceptionConsumer) {
 		setOnFailed(e -> {
-			Basic.caught(getException());
-			NotificationManager.showError("Image capture failed: " + getException());
+			exceptionConsumer.accept(getException());
 		});
 
 		setCallable(() -> {
@@ -118,7 +116,7 @@ public class CaptureService extends AService<Boolean> {
 				allWords.clear();
 				allWords.addAll(OCR.getWords(greyScaleImage));
 				words.clear();
-				words.addAll(CaptureWords.joinConsecutiveWords(CaptureWords.filter(allWords, parameters.getMinWordLength(), parameters.getMinTextHeight(),
+				words.addAll(CaptureWords.joinConsecutiveWords(CaptureWords.filter(allWords, parameters.getMinWordConfidence(), parameters.getMinWordLength(), parameters.getMinTextHeight(),
 						parameters.getMaxTextHeight()), parameters.isMustStartAlphaNumeric(), parameters.isMustEndAlphaNumeric(), parameters.isMustContainLetter()));
 				theStatus = WORDS;
 				updatePhase(theStatus);

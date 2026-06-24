@@ -110,6 +110,7 @@ public class DrawUtils {
 
 	public static void createWordShapes(List<OcrWord> wordList, SelectionModel<OcrWord> selection, Supplier<Boolean> canSelect, Group group) {
 		group.getChildren().clear();
+
 		for (var word : wordList) {
 			var bbox = word.boundingBox();
 			var rectangle = new Rectangle(bbox.getMinX(), bbox.getMinY(), bbox.getWidth(), bbox.getHeight());

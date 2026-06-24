@@ -28,9 +28,7 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 
 /**
- * Front door for OCR. Locates the best available {@link OcrProvider} (Tesseract on desktop,
- * Apple Vision on iOS) and delegates to it. The public API is unchanged from the original
- * Tesseract-only version, so existing call sites do not need to change.
+ * Front door for OCR. Locates the best available {@link OcrProvider} and delegates to it.
  * <p>
  * OCR back-ends are not thread-safe (Tesseract in particular keeps mutable native state), so
  * this class serializes access. Call it off the JavaFX Application Thread.
@@ -63,7 +61,7 @@ public class OCRService {
 	}
 
 	/**
-	 * Name of the active provider ("Tesseract", "AppleVision", or "none").
+	 * Name of the active provider.
 	 */
 	public synchronized String providerName() {
 		var p = provider();
@@ -92,7 +90,7 @@ public class OCRService {
 	/**
 	 * Find the highest-priority provider that reports itself available. Any provider whose
 	 * native back-end fails to load is skipped rather than allowed to abort the search; this
-	 * is what lets the same launcher code run on a device that only has one of the back-ends.
+	 * lets the same launcher code run on a device that only has one of the back-ends.
 	 */
 	private static OcrProvider locate() {
 		return ServiceLoader.load(OcrProvider.class).stream()

@@ -69,7 +69,7 @@ public class PathReshape {
 	}
 
 	/**
-	 * computes scaling factors for different indices ranging 1 for the given index and 0 for the left- and rightmost
+	 * computes scaling factors for different indices ranging 1 for the given index and 0 for the getLeft- and rightmost
 	 * points
 	 *
 	 * @param path  the path

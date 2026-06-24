@@ -91,7 +91,7 @@ public class MergeNodesCommand extends UndoableRedoableCommand {
 							var bText = DrawView.getLabel(b).getText();
 							var pa = DrawView.getPoint(a);
 							var pb = DrawView.getPoint(b);
-							// A's label comes first if A is to the left of, or above, B
+							// A's label comes first if A is to the getLeft of, or above, B
 							// (JavaFX y grows downward, so "above" == smaller y)
 							var aFirst = pa.getX() < pb.getX() || pa.getY() < pb.getY();
 							mergedLabel = aFirst ? aText + " " + bText : bText + " " + aText;

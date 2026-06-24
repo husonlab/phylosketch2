@@ -85,7 +85,7 @@ public record RootPosition(phylosketch.view.RootPosition.Side side, Point2D loca
 				if (concentration < MIN_CONCENTRATION) {
 					side = Side.Center;
 				} else if (Math.abs(meanX) >= Math.abs(meanY)) {
-					side = (meanX > 0) ? Side.Left : Side.Right; // leaves right => root left
+					side = (meanX > 0) ? Side.Left : Side.Right; // leaves getRight => root getLeft
 				} else {
 					// JavaFX: +y points DOWN the screen
 					side = (meanY > 0) ? Side.Top : Side.Bottom;  // leaves below => root on top

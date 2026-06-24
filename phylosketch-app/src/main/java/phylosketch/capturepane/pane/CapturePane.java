@@ -94,10 +94,13 @@ public class CapturePane extends HBox {
 		mainPane.getChildren().addAll(imageView);
 		showCapture.addListener((v, o, n) -> {
 			if (n) {
-				mainPane.getChildren().addAll(pathsGroup, wordsGroup);
+				if (!mainPane.getChildren().contains(pathsGroup))
+					mainPane.getChildren().remove(pathsGroup);
+				if (!mainPane.getChildren().contains(wordsGroup))
+					mainPane.getChildren().add(wordsGroup);
 				view.getOtherGroup().getChildren().add(rootGroup);
 			} else {
-				ScrollPaneUtils.runRemoveAndKeepScrollPositions(view, () -> {
+				ScrollPaneUtils.runRemoveAndKeepScrollPositions(controller.getScrollPane(), () -> {
 					mainPane.getChildren().removeAll(pathsGroup, wordsGroup);
 					view.getOtherGroup().getChildren().remove(rootGroup);
 				});

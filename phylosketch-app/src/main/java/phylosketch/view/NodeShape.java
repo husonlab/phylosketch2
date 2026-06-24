@@ -124,16 +124,16 @@ public class NodeShape extends Polygon {
 		double h = size / 2.0;
 		getPoints().addAll(
 				0.0, -h,   // top
-				-h, h,    // bottom left
-				h, h     // bottom right
+				-h, h,    // bottom getLeft
+				h, h     // bottom getRight
 		);
 	}
 
 	private void buildTriangleDown() {
 		double h = size / 2.0;
 		getPoints().addAll(
-				-h, -h,    // top left
-				h, -h,    // top right
+				-h, -h,    // top getLeft
+				h, -h,    // top getRight
 				0.0, h    // bottom
 		);
 	}
@@ -142,9 +142,9 @@ public class NodeShape extends Polygon {
 		double h = size / 2.0;
 		getPoints().addAll(
 				0.0, -h,   // top
-				h, 0.0,  // right
+				h, 0.0,  // getRight
 				0.0, h,   // bottom
-				-h, 0.0   // left
+				-h, 0.0   // getLeft
 		);
 	}
 

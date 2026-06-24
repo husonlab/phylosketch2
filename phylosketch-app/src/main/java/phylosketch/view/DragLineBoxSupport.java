@@ -34,7 +34,7 @@ import phylosketch.paths.PathUtils;
 
 /**
  * sets up drag lines (for showing when there is alignment with other nodes) and the bounding box that is required
- * to ensure that we don't fly off to the left or up when drawing or dragging
+ * to ensure that we don't fly off to the getLeft or up when drawing or dragging
  *
  * @param hDragLine
  * @param vDragLine
@@ -46,7 +46,7 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 
 	/**
 	 * sets up drag lines (for showing when there is alignment with other nodes) and the bounding box that is required
-	 * to ensure that we don't fly off to the left or up when drawing or dragging
+	 * to ensure that we don't fly off to the getLeft or up when drawing or dragging
 	 *
 	 * @param view the view
 	 * @return the drag lines and boc

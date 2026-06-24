@@ -303,5 +303,17 @@ public class PhyloSketchIO {
 		// todo: set to true if radial layout
 		view.setHorizontalLabels(false);
 	}
+
+	public static String getName(File file) {
+		var name = "";
+		try {
+			var gmlInfo = GraphGML.readGMLInfo(new FileReader(file));
+			name = gmlInfo.label();
+		} catch (Exception ignored) {
+		}
+		if (name != null && !name.isBlank())
+			return name;
+		else return FileUtils.getFileNameWithoutPathOrSuffix(file.getName());
+	}
 }
 

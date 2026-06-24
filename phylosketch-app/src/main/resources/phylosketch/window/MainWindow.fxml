@@ -20,6 +20,7 @@
   ~
   -->
 
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
@@ -45,6 +46,13 @@
                                     <MenuItem fx:id="newMenuItem" mnemonicParsing="false" text="New...">
                                         <accelerator>
                                             <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP"
+                                                                shortcut="UP"/>
+                                        </accelerator>
+                                    </MenuItem>
+                                    <MenuItem fx:id="newFromClipboardMenuItem" mnemonicParsing="false"
+                                              text="New from Clipboard...">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="DOWN"
                                                                 shortcut="UP"/>
                                         </accelerator>
                                     </MenuItem>
@@ -353,11 +361,8 @@
                             </Menu>
                         </menus>
                     </MenuBar>
-                    <GridPane fx:id="toolbarGrid" hgap="3" styleClass="toolbar" vgap="3">
-                        <columnConstraints>
-                            <ColumnConstraints hgrow="ALWAYS"/>
-                            <ColumnConstraints hgrow="NEVER"/>
-                        </columnConstraints>
+
+                    <HBox fx:id="toolBarPlaceholder" spacing="8.0">
                         <children>
                             <HBox fx:id="leftBox" alignment="CENTER_LEFT" spacing="6" GridPane.columnIndex="0"
                                   GridPane.rowIndex="0">
@@ -578,10 +583,7 @@
                                 </children>
                             </HBox>
                         </children>
-                        <rowConstraints>
-                            <RowConstraints/>
-                        </rowConstraints>
-                    </GridPane>
+                    </HBox>
                 </children>
             </VBox>
         </top>

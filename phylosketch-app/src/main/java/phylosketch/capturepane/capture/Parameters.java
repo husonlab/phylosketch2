@@ -38,7 +38,8 @@ public class Parameters {
 	private final DoubleProperty minDustExtent = new SimpleDoubleProperty(null, "minDustExtent", 20);
 	private final BooleanProperty mustStartAlphaNumeric = new SimpleBooleanProperty(null, "mustStartAlphaNumeric", true);
 	private final BooleanProperty mustEndAlphaNumeric = new SimpleBooleanProperty(null, "mustEndAlphaNumeric", true);
-	private final List<Property<?>> all = List.of(minDistanceNodes, minWordLength, mustContainLetter, minTextHeight, maxTextHeight, mustStartAlphaNumeric, mustEndAlphaNumeric, maxDustDistance, minDustExtent);
+	private final DoubleProperty minWordConfidence = new SimpleDoubleProperty(null, "minWordConfidence", 50.0);
+	private final List<Property<?>> all = List.of(minDistanceNodes, minWordLength, mustContainLetter, minTextHeight, maxTextHeight, mustStartAlphaNumeric, mustEndAlphaNumeric, minWordConfidence, maxDustDistance, minDustExtent);
 
 	public Parameters() {
 	}
@@ -113,6 +114,14 @@ public class Parameters {
 
 	public IntegerProperty minWordLengthProperty() {
 		return minWordLength;
+	}
+
+	public double getMinWordConfidence() {
+		return minWordConfidence.get();
+	}
+
+	public DoubleProperty minWordConfidenceProperty() {
+		return minWordConfidence;
 	}
 
 	public List<Property<?>> getAll() {

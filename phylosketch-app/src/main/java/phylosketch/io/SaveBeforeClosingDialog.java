@@ -36,7 +36,7 @@ public class SaveBeforeClosingDialog {
      * @return true if doesn't need saving or saved, false else
      */
     public static Result apply(MainWindow mainWindow) {
-        if (!mainWindow.isDirty()) {
+        if (!mainWindow.getDocument().isDirty()) {
             return Result.close;
         } else {
             mainWindow.getStage().toFront();

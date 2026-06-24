@@ -26,6 +26,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import jloda.fx.util.ClipboardUtils;
+import jloda.fx.util.SelectionEffectBlue;
 import jloda.util.FileUtils;
 import jloda.util.StringUtils;
 
@@ -43,6 +44,7 @@ import static jloda.fx.util.ClipboardUtils.isTextFile;
 public class SetupImport {
 	public static void apply(Pane pane, MenuItem pasteMenuItem, BiConsumer<String, String> fileNameContentConsumer, Consumer<Image> imageConsumer) {
 		var dragOver = new SimpleBooleanProperty(false);
+		dragOver.addListener((v, o, n) -> pane.setEffect(n ? SelectionEffectBlue.getInstance() : null));
 
 		pane.setOnDragOver(e -> {
 			var db = e.getDragboard();

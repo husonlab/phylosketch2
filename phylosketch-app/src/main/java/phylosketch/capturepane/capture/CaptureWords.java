@@ -21,12 +21,12 @@
 package phylosketch.capturepane.capture;
 
 import javafx.geometry.Rectangle2D;
-import jloda.graph.Graph;
-import jloda.graph.Node;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.ocr.OcrWord;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -42,12 +42,12 @@ public class CaptureWords {
 	 * @param maxTextHeight the max word bounding box height
 	 * @return the list of filtered words
 	 */
-	public static List<OcrWord> filter(Collection<OcrWord> words, int minWordLength, double minTextHeight, double maxTextHeight) {
+	public static List<OcrWord> filter(Collection<OcrWord> words, double minWordConfidence, int minWordLength, double minTextHeight, double maxTextHeight) {
 		var list = new ArrayList<OcrWord>();
 
 		for (var word : words) {
 			var box = word.boundingBox();
-			if (word.text().length() >= minWordLength && word.confidence() >= minTextHeight && box.getHeight() <= maxTextHeight && word.text().matches(".*[a-zA-Z0-9].*")) {
+			if (ProgramProperties.isIOS() || word.text().length() >= minWordLength && word.confidence() >= minWordConfidence && box.getHeight() >= minTextHeight && box.getHeight() <= maxTextHeight && word.text().matches(".*[a-zA-Z0-9].*")) {
 				list.add(word);
 			}
 		}
@@ -56,90 +56,104 @@ public class CaptureWords {
 
 
 	/**
-	 * join pairs of consecutive words
+	 * Join consecutive words on the same line into multi-word labels, merging across small
+	 * horizontal gaps (same label) but not across large gaps or different lines (different nodes).
 	 *
 	 * @param words input words
-	 * @return joined pairs
-	 * todo: join more than two words
+	 * @return joined words in reading order (top-to-bottom, getLeft-to-getRight)
 	 */
-	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words, boolean mustStartWithAlphaNumeric, boolean mustEndWithAlphaNumeric, boolean mustContainLetter) {
-		var graph = new Graph();
+	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words, boolean mustStartWithAlphaNumeric,
+													 boolean mustEndWithAlphaNumeric, boolean mustContainLetter) {
+		if (words == null || words.isEmpty())
+			return new ArrayList<>();
 
-		for (var word : words) {
-			graph.newNode(word);
+		// smallest vertical overlap (as a fraction of text height) to count two words as the same line
+		final double SAME_LINE_OVERLAP = 0.4;
+		// largest horizontal gap (as a multiple of text height) still treated as one label
+		final double GAP_FACTOR = 0.8;
+
+		// 1. clean: strip surrounding whitespace / control chars, drop blanks  <-- fixes the empty-with-Vision case
+		var cleaned = new ArrayList<OcrWord>();
+		for (var w : words) {
+			var text = (w.text() == null ? "" : w.text().strip());
+			if (!text.isEmpty())
+				cleaned.add(text.equals(w.text()) ? w : new OcrWord(text, w.confidence(), w.boundingBox()));
 		}
-		for (var v : graph.nodes()) {
-			var vWord = (OcrWord) v.getInfo();
-			var bboxI = vWord.boundingBox();
-			for (var w : graph.nodes(v)) {
-				var wWord = (OcrWord) w.getInfo();
-				var bboxJ = wWord.boundingBox();
-				var dx = bboxJ.getMinX() - (bboxI.getMaxX());
-				if (intersect(bboxI.getMinY(), bboxI.getMaxY(), bboxJ.getMinY(), bboxJ.getMaxY()) && dx >= 0 && dx <= 20) {
-					graph.newEdge(v, w, dx);
+
+		// 2. group into lines by vertical overlap, processing top-to-bottom
+		cleaned.sort(Comparator.comparingDouble(w -> w.boundingBox().getMinY()));
+		var lines = new ArrayList<List<OcrWord>>();
+		for (var w : cleaned) {
+			var wb = w.boundingBox();
+			List<OcrWord> target = null;
+			for (var line : lines) {
+				var lMinY = line.stream().mapToDouble(u -> u.boundingBox().getMinY()).min().orElse(0);
+				var lMaxY = line.stream().mapToDouble(u -> u.boundingBox().getMaxY()).max().orElse(0);
+				var overlap = Math.max(0, Math.min(wb.getMaxY(), lMaxY) - Math.max(wb.getMinY(), lMinY));
+				var denom = Math.min(wb.getHeight(), lMaxY - lMinY);
+				if (denom > 0 && overlap >= SAME_LINE_OVERLAP * denom) {
+					target = line;
+					break;
 				}
 			}
-		}
-
-		var list = new ArrayList<OcrWord>();
-
-		if (true) {
-			var changed = true;
-			while (changed) {
-				changed = false;
-				var start = graph.nodeStream().filter(v -> v.getInDegree() == 0).findAny();
-				if (start.isPresent()) {
-					var v = start.get();
-					var path = new ArrayList<Node>();
-					path.add(v);
-					while (v.getOutDegree() == 1) {
-						v = v.getFirstOutEdge().getTarget();
-						path.add(v);
-					}
-
-					if (path.size() == 1) {
-						list.add((OcrWord) path.get(0).getInfo());
-					} else {
-						var buf = new StringBuilder();
-						for (var w : path) {
-							if (!buf.isEmpty()) {
-								buf.append(' ');
-							}
-							buf.append(((OcrWord) w.getInfo()).text());
-						}
-						var minX = Double.MAX_VALUE;
-						var maxX = Double.MIN_VALUE;
-						var minY = Double.MAX_VALUE;
-						var maxY = Double.MIN_VALUE;
-						for (var w : path) {
-							var bbox = ((OcrWord) w.getInfo()).boundingBox();
-							minX = Math.min(minX, bbox.getMinX());
-							maxX = Math.max(maxX, bbox.getMaxX());
-							minY = Math.min(minY, bbox.getMinY());
-							maxY = Math.max(maxY, bbox.getMaxY());
-						}
-						var confidence = (float) path.stream().mapToDouble(w -> ((OcrWord) w.getInfo()).confidence()).average().orElse(0.0);
-						var rect = new Rectangle2D(minX, minY, maxX - minX, maxY - minY);
-						list.add(new OcrWord(buf.toString(), confidence, rect));
-					}
-					for (var w : path) {
-						graph.deleteNode(w);
-					}
-					changed = true;
-				}
+			if (target == null) {
+				target = new ArrayList<>();
+				lines.add(target);
 			}
+			target.add(w);
 		}
 
-		// add all remaining words
-		for (var w : graph.nodes()) {
-			list.add((OcrWord) w.getInfo());
+		// 3. within each line, sort getLeft-to-getRight and merge across small gaps
+		var result = new ArrayList<OcrWord>();
+		for (var line : lines) {
+			line.sort(Comparator.comparingDouble(w -> w.boundingBox().getMinX()));
+			var group = new ArrayList<OcrWord>();
+			for (var w : line) {
+				if (!group.isEmpty()) {
+					var prev = group.get(group.size() - 1).boundingBox();
+					var cur = w.boundingBox();
+					var gap = cur.getMinX() - prev.getMaxX();
+					var height = Math.min(prev.getHeight(), cur.getHeight());
+					if (gap > GAP_FACTOR * height) {   // big gap -> different label / node
+						result.add(merge(group));
+						group = new ArrayList<>();
+					}
+				}
+				group.add(w);
+			}
+			if (!group.isEmpty())
+				result.add(merge(group));
 		}
 
-		return new ArrayList<>(list.stream().filter(w -> !(mustContainLetter && !containsLetter(w)
-														   || mustStartWithAlphaNumeric && !startsAlphaNumeric(w)
-														   || mustEndWithAlphaNumeric && !endsAlphaNumeric(w))).toList());
+		// 4. same filter as before (now seeing cleaned text, so it no longer drops everything)
+		return new ArrayList<>(result.stream().filter(w -> !(mustContainLetter && !containsLetter(w)
+															 || mustStartWithAlphaNumeric && !startsAlphaNumeric(w)
+															 || mustEndWithAlphaNumeric && !endsAlphaNumeric(w))).toList());
 	}
 
+	private static OcrWord merge(List<OcrWord> group) {
+		if (group.size() == 1)
+			return group.get(0);
+		var buf = new StringBuilder();
+		var minX = Double.POSITIVE_INFINITY;
+		var minY = Double.POSITIVE_INFINITY;
+		var maxX = Double.NEGATIVE_INFINITY;
+		var maxY = Double.NEGATIVE_INFINITY;
+		var confidence = 0.0;
+		for (var w : group) {
+			if (!buf.isEmpty())
+				buf.append(' ');
+			buf.append(w.text());
+			var b = w.boundingBox();
+			minX = Math.min(minX, b.getMinX());
+			minY = Math.min(minY, b.getMinY());
+			maxX = Math.max(maxX, b.getMaxX());
+			maxY = Math.max(maxY, b.getMaxY());
+			confidence += w.confidence();
+		}
+		return new OcrWord(buf.toString(), (float) (confidence / group.size()),
+				new Rectangle2D(minX, minY, maxX - minX, maxY - minY));
+	}
 	private static boolean containsLetter(OcrWord word) {
 		return word.text().chars().anyMatch(Character::isLetter);
 	}

@@ -85,7 +85,7 @@ public class SetupCaptureMenuItems {
 		});
 		controller.getClearCaptureImageItem().disableProperty().bind(capturePane.hasImageProperty().not());
 
-		controller.getSaveCaptureImageItem().setOnAction(e -> ExportImageDialog.show(window.getFileName(), window.getStage(), capturePane.getImageView()));
+		controller.getSaveCaptureImageItem().setOnAction(e -> ExportImageDialog.show(window.getDocument().getFileName(), window.getStage(), capturePane.getImageView()));
 		controller.getSaveCaptureImageItem().disableProperty().bind(capturePane.hasImageProperty().not());
 
 		var settingPane = capturePane.getPropertySettingPane();

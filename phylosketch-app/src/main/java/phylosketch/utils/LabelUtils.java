@@ -14,7 +14,7 @@ public class LabelUtils {
 	public static List<String> getInOrder(RootPosition rootPosition, Collection<Node> selectedNodes) {
 		Comparator<Node> order = switch (rootPosition.side()) {
 			case Left, Right -> Comparator.comparingDouble(DrawView::getY);   // top to bottom
-			case Top, Bottom -> Comparator.comparingDouble(DrawView::getX);   // left to right
+			case Top, Bottom -> Comparator.comparingDouble(DrawView::getX);   // getLeft to getRight
 			case Center -> Comparator.comparingDouble(v ->               // around the root
 					GeometryUtilsFX.computeAngle(DrawView.getPoint(v).subtract(rootPosition.location())));
 		};

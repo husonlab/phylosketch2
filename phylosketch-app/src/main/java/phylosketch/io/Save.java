@@ -25,6 +25,7 @@ import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RecentFilesManager;
 import jloda.util.FileUtils;
 import phylosketch.window.MainWindow;
+import phylosketch.window.NameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,27 +55,44 @@ public class Save {
     public static boolean showSaveDialog(MainWindow window) {
         var fileChooser = new FileChooser();
         fileChooser.setTitle("Save File - " + ProgramProperties.getProgramVersion());
-        var currentFile = new File(window.getFileName());
+
+		var document = window.getDocument();
+		String fileName;
+		if (document.isNameAuto()) {
+			fileName = NameUtils.toFilenameSlug(NameUtils.deriveDocumentName(window));
+		} else {
+			fileName = document.getFileName();
+		}
+		var dir = new File(document.getFileName()).getParentFile();
 		fileChooser.getExtensionFilters().addAll(ExtensionFilters.phyloSketch(), ExtensionFilters.createText());
 
-        if (!currentFile.isDirectory()) {
-            fileChooser.setInitialDirectory(currentFile.getParentFile());
-			fileChooser.setInitialFileName(FileUtils.getFileNameWithoutPathOrSuffix(currentFile.getPath()));
+		if (dir != null && dir.exists()) {
+			fileChooser.setInitialDirectory(dir);
         } else {
-            var tmp = new File(ProgramProperties.get("SaveFileDir", ""));
-            if (tmp.isDirectory()) {
-                fileChooser.setInitialDirectory(tmp);
+			var lastDir = new File(ProgramProperties.get("SaveFileDir", ""));
+			if (lastDir.isDirectory()) {
+				fileChooser.setInitialDirectory(lastDir);
             }
         }
+		fileChooser.setInitialFileName(FileUtils.getFileNameWithoutPathOrSuffix(fileName));
 
-        var selectedFile = fileChooser.showSaveDialog(window.getStage());
-
+		var selectedFile = fileChooser.showSaveDialog(window.getStage());
         if (selectedFile != null) {
             Save.apply(selectedFile, window);
             ProgramProperties.put("SaveFileDir", selectedFile.getParent());
             RecentFilesManager.getInstance().insertRecentFile(selectedFile.getPath());
-			window.fileNameProperty().set(selectedFile.getPath());
-			window.dirtyProperty().set(false);
+			var newFileName = FileUtils.getFileNameWithoutPathOrSuffix(selectedFile.getName());
+			var derivedName = NameUtils.deriveDocumentName(window);
+			var slugName = NameUtils.toFilenameSlug(derivedName);
+			if (newFileName.equals(slugName)) {
+				document.setName(derivedName);
+				document.setNameAuto(true);
+			} else {
+				document.setName(newFileName);
+				document.setNameAuto(false);
+			}
+			document.setFileName(selectedFile.getPath());
+			document.setDirty(false);
             return true;
         } else
             return false;

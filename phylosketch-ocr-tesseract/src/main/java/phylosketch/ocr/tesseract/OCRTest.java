@@ -58,12 +58,12 @@ public class OCRTest {
 		}
 
 		var ocr = new OCRService();
-		System.out.println("Provider: " + ocr.providerName());
+		System.err.println("Provider: " + ocr.providerName());
 
 		var words = ocr.getWords(image);
-		System.out.println("=== WORDS FOUND (" + words.size() + ") ===");
+		System.err.println("=== WORDS FOUND (" + words.size() + ") ===");
 		for (var w : words) {
-			System.out.println(w);
+			System.err.println(w);
 		}
 
 		ocr.shutdown();

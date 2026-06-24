@@ -24,7 +24,9 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
-import jloda.fx.util.RunAfterAWhile;
+import jloda.fx.control.ZoomableScrollPane;
+
+import static phylosketch.view.ZoomToFit.clamp;
 
 /**
  * scroll pane utils
@@ -39,6 +41,36 @@ public class ScrollPaneUtils {
 	 * @param runRemove   the code that removes items from the content pane
 	 */
 	public static void runRemoveAndKeepScrollPositions(Node contentPane, Runnable runRemove) {
+		if (false) // only remove
+			runRemove.run();
+		else {
+			var scrollPane = findScrollPane(contentPane);
+			if (scrollPane == null) {
+				runRemove.run();
+				return;
+			}
+			var group = (scrollPane instanceof ZoomableScrollPane z) ? z.getContentGroup() : scrollPane.getContent();
+			var inner = group.getBoundsInLocal();
+			var vp = scrollPane.getViewportBounds();
+			// content point currently shown at the viewport's top-getLeft, captured before removal
+			var anchorX = inner.getMinX() + scrollPane.getHvalue() * Math.max(0, inner.getWidth() - vp.getWidth());
+			var anchorY = inner.getMinY() + scrollPane.getVvalue() * Math.max(0, inner.getHeight() - vp.getHeight());
+
+			runRemove.run();
+
+			Platform.runLater(() -> {
+				scrollPane.layout();
+				var b = group.getBoundsInLocal();
+				var v = scrollPane.getViewportBounds();
+				if (b.getWidth() > v.getWidth())
+					scrollPane.setHvalue(clamp((anchorX - b.getMinX()) / (b.getWidth() - v.getWidth())));
+				if (b.getHeight() > v.getHeight())
+					scrollPane.setVvalue(clamp((anchorY - b.getMinY()) / (b.getHeight() - v.getHeight())));
+			});
+		}
+	}
+
+	private static ScrollPane findScrollPane(Node contentPane) {
 		var parent = (Parent) contentPane;
 		while (parent != null) {
 			if (parent instanceof ScrollPane sp) {
@@ -46,26 +78,8 @@ public class ScrollPaneUtils {
 			} else
 				parent = parent.getParent();
 		}
-		if (parent instanceof ScrollPane scrollPane) {
-			var hValue = scrollPane.getHvalue();
-			var vValue = scrollPane.getVvalue();
-
-			runRemove.run();
-
-			Platform.runLater(() -> {
-				scrollPane.setHvalue(hValue);
-				scrollPane.setVvalue(vValue);
-			});
-			Platform.runLater(() -> {
-				scrollPane.setHvalue(hValue);
-				scrollPane.setVvalue(vValue);
-			});
-			RunAfterAWhile.applyInFXThread(runRemove, () -> {
-				scrollPane.setHvalue(hValue);
-				scrollPane.setVvalue(vValue);
-			});
-		} else {
-			runRemove.run();
-		}
+		if (parent instanceof ScrollPane scrollPane)
+			return scrollPane;
+		else return null;
 	}
 }

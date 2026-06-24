@@ -84,7 +84,7 @@ public final class PathTransforms {
 
 	/**
 	 * Flip a path horizontally across the vertical line x = cx.
-	 * (i.e. mirror left/right around cx)
+	 * (i.e. mirror getLeft/getRight around cx)
 	 */
 	public static Path flipHorizontal(Path src, double cx) {
 		Path dst = new Path();
