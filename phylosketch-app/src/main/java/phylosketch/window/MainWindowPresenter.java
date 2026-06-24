@@ -542,7 +542,7 @@ public class MainWindowPresenter {
 		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
 
 		if (SUPPORTS_HELP_WINDOW) {
-			controller.getShowUserManualMenuItem().setOnAction(e -> {
+			controller.getOpenOnlineUserManualInBrowserMenuItem().setOnAction(e -> {
 				try {
 					Desktop.getDesktop().browse(new URI(Version.WEBSITE_URL));
 				} catch (Exception ex) {
