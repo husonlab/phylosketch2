@@ -355,8 +355,8 @@
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About..."/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
-                                    <CheckMenuItem fx:id="showHelpWindow" mnemonicParsing="false"
-                                                   text="Help Window..."/>
+                                    <MenuItem fx:id="showUserManualMenuItem" mnemonicParsing="false"
+                                              text="Online User Manual..."/>
                                 </items>
                             </Menu>
                         </menus>

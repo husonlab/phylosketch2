@@ -19,8 +19,6 @@ module phylosketch {
 	requires phylosketch.ocr;
 
 	opens phylosketch.format;
-	opens phylosketch.help;
-	opens phylosketch.help.figs;
 	opens phylosketch.main;
 	opens phylosketch.view;
 	opens phylosketch.window;

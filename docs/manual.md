@@ -1,3 +1,7 @@
+# PhyloSketch App User Manual
+
+## Daniel Huson, June 2026
+
 # Introduction
 
 PhyloSketch App (also known as PhyloSketch2) is an application for
