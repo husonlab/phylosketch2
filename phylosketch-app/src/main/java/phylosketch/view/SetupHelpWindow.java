@@ -23,8 +23,8 @@ package phylosketch.view;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.stage.Stage;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.help.HelpView;
-import phylosketch.main.Version;
 import phylosketch.window.MainWindow;
 
 /**
@@ -44,7 +44,7 @@ public class SetupHelpWindow {
 				event.consume();
 				helpStage.hide();
 			});
-			helpStage.setTitle("Help - " + Version.SHORT_DESCRIPTION);
+			helpStage.setTitle("Help - " + ProgramProperties.getProgramVersion());
 			helpStage.setScene(new Scene(helpView.getPane()));
 			helpStage.setX(window.getStage().getX() + 50);
 			helpStage.setY(window.getStage().getY() + 50);
