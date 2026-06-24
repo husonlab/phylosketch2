@@ -1,6 +1,4 @@
 module phylosketch {
-	requires com.install4j.runtime;
-
 	requires transitive jloda_core;
 	requires transitive jloda_fx;
 	requires transitive jloda_phylogeny;

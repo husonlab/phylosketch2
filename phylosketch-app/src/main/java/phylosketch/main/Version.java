@@ -24,4 +24,6 @@ public class Version {
 	static public final String NAME = "PhyloSketch";
 	static public final String SHORT_DESCRIPTION = "PhyloSketch (version 2.2.13, built 11 Jun 2026)";
 	public static final String SUFFIX = ".psketch";
+	static public String HOME_URL = "https://github.com/husonlab/phylosketch2";
+
 }

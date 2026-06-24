@@ -86,11 +86,6 @@
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.install4j</groupId>
-            <artifactId>install4j-runtime</artifactId>
-            <version>11.0.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.16</version>
@@ -165,10 +160,6 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-        </repository>
-        <repository>
-            <id>ej-technologies</id>
-            <url>https://maven.ej-technologies.com/repository</url>
         </repository>
     </repositories>
 </project>

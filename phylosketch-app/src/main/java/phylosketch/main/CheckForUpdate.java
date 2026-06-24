@@ -20,16 +20,8 @@
 
 package phylosketch.main;
 
-import com.install4j.api.launcher.ApplicationLauncher;
-import com.install4j.api.update.ApplicationDisplayMode;
-import com.install4j.api.update.UpdateChecker;
-import jloda.fx.util.ProgramProperties;
-import jloda.fx.windownotifications.WindowNotifications;
-import jloda.util.Basic;
-import jloda.util.StringUtils;
+import jloda.fx.dialog.MessageInternalDialog;
 import phylosketch.window.MainWindow;
-
-import java.util.concurrent.Executors;
 
 /**
  * check for update
@@ -43,37 +35,11 @@ public class CheckForUpdate {
 	 * check for update, download and install, if present
 	 */
 	public static void apply(MainWindow mainWindow) {
-		try {
-			final var applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
-			final var updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
-			final var possibleUpdate = updateDescriptor.getPossibleUpdateEntry();
-			if (possibleUpdate == null) {
-				WindowNotifications.showInfo(mainWindow.getController().getCenterAnchorPane(), "Up-to-date or update currently unavailable");
-			} else {
-				if (!ProgramProperties.isUseGUI()) {
-					System.err.println("New version available: " + possibleUpdate.getNewVersion() + "\nPlease download from: " + programURL);
-				} else {
-					final Runnable runnable = () -> {
-						WindowNotifications.showInfo(mainWindow.getController().getCenterAnchorPane(), "Update available: " + possibleUpdate.getNewVersion());
-						ApplicationLauncher.launchApplicationInProcess(applicationId, null,
-								new ApplicationLauncher.Callback() {
-									public void exited(int exitValue) {
-										System.err.println("Exit value: " + exitValue);
-									}
-
-									public void prepareShutdown() {
-										ProgramProperties.store();
-									}
-								},
-								ApplicationLauncher.WindowMode.FRAME, null);
-					};
-					//SwingUtilities.invokeLater(runnable);
-					Executors.newSingleThreadExecutor().submit(runnable);
-				}
-			}
-		} catch (Exception e) {
-			Basic.caught(e);
-			WindowNotifications.showError(mainWindow.getController().getCenterAnchorPane(), "Failed to check for updates: " + StringUtils.fromCamelCase(e.getClass().getSimpleName()).toLowerCase() + ": " + e.getMessage());
-		}
+		var text = """
+				%s updates have moved to GitHub.
+				Please download the latest release from: %s
+				""".formatted(Version.NAME, Version.HOME_URL);
+		var dialog = new MessageInternalDialog(mainWindow.getController().getCenterAnchorPane(), "Updates have moved", text);
+		dialog.show();
 	}
 }
