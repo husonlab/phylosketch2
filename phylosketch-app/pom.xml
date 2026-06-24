@@ -119,6 +119,7 @@
                     <archive>
                         <manifest>
                             <mainClass>${main.class}</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>
