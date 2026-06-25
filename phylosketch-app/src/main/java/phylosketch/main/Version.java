@@ -22,8 +22,19 @@ package phylosketch.main;
 
 public class Version {
 	static public final String NAME = "PhyloSketch";
-	static public final String SHORT_DESCRIPTION = "PhyloSketch (version 2.2.13, built 11 Jun 2026)";
 	public static final String SUFFIX = ".psketch";
 	static public String HOME_URL = "https://github.com/husonlab/phylosketch2";
+
+	public static final String VERSION = resolveVersion();
+	public static final String SHORT_DESCRIPTION = NAME + " (version " + VERSION + ") - License GPL v3";
+
+	static public final String WEBSITE_URL = "https://husonlab.github.io/phylosketch2/manual.html";
+
+	public static String resolveVersion() {
+		var pkg = Version.class.getPackage();
+		var v = (pkg != null) ? pkg.getImplementationVersion() : null;
+		return (v != null && !v.isBlank()) ? v : "dev";
+	}
+
 
 }

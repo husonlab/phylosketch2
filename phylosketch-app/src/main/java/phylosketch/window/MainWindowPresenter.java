@@ -27,6 +27,7 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,6 +44,7 @@ import jloda.fx.dialog.SetParameterDialog;
 import jloda.fx.find.FindToolBar;
 import jloda.fx.find.Searcher;
 import jloda.fx.qr.QRViewUtils;
+import jloda.fx.service.UpdateService;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.*;
@@ -59,15 +61,17 @@ import phylosketch.commands.*;
 import phylosketch.format.FormatPaneController;
 import phylosketch.format.FormatPaneView;
 import phylosketch.io.*;
-import phylosketch.main.CheckForUpdate;
 import phylosketch.main.NewWindow;
+import phylosketch.main.Version;
 import phylosketch.utils.Clusters;
 import phylosketch.utils.GraphUtils;
 import phylosketch.view.*;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -467,8 +471,9 @@ public class MainWindowPresenter {
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
 
-		controller.getCheckForUpdatesMenuItem().setOnAction(e -> CheckForUpdate.apply(window));
-		controller.getCheckForUpdatesMenuItem().disableProperty().bind(MainWindowManager.getInstance().sizeProperty().greaterThan(1).or(document.dirtyProperty()));
+		var updaterService = UpdateService.get();
+		controller.getCheckForUpdatesMenuItem().setOnAction(e -> updaterService.checkForUpdates(window.getStage(), Version.HOME_URL, Version.NAME, Version.VERSION));
+		controller.getCheckForUpdatesMenuItem().disableProperty().bind(updaterService.disabledProperty().or(MainWindowManager.getInstance().sizeProperty().greaterThan(1)).or(window.getDocument().dirtyProperty()));
 
 		SwipeUtils.setConsumeSwipes(controller.getRootPane());
 
@@ -536,8 +541,14 @@ public class MainWindowPresenter {
 		controller.getPasteButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Sketch));
 		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
 
-		if (false && SUPPORTS_HELP_WINDOW) {
-			SetupHelpWindow.apply(window, controller.getShowHelpWindow());
+		if (SUPPORTS_HELP_WINDOW) {
+			controller.getOpenOnlineUserManualInBrowserMenuItem().setOnAction(e -> {
+				try {
+					Desktop.getDesktop().browse(new URI(Version.WEBSITE_URL));
+				} catch (Exception ex) {
+					WindowNotifications.showInfo(controller.getCenterPane(), "Show Help failed: " + ex.getMessage());
+				}
+			});
 		}
 
 		controller.getLoadCaptureImageItem().setOnAction(e -> {

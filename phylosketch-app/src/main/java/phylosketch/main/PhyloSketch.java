@@ -147,7 +147,7 @@ public class PhyloSketch extends Application {
         if (showSplash)
             SplashScreen.showSplash(Duration.ofSeconds(3));
         try {
-            primaryStage.setTitle("Untitled - " + ProgramProperties.getProgramName());
+            primaryStage.setTitle("Untitled - " + ProgramProperties.getProgramVersion());
             NotificationManager.setShowNotifications(false);
 
             final var window = new MainWindow();

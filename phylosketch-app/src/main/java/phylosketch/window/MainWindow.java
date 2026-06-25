@@ -92,7 +92,7 @@ public class MainWindow implements IMainWindow {
         final InvalidationListener listener = (e -> {
             titleDisplayName.set(document.getName());
             if (getStage() != null)
-                getStage().setTitle(getTitleDisplayName() + (document.isDirty() ? "*" : "") + " - " + ProgramProperties.getProgramName());
+                getStage().setTitle(getTitleDisplayName() + (document.isDirty() ? "*" : "") + " - " + ProgramProperties.getProgramVersion());
         });
         document.nameProperty().addListener(listener);
         document.dirtyProperty().addListener(listener);

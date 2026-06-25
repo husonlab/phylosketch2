@@ -55,7 +55,7 @@ public class MainWindowController {
 	private MenuItem checkForUpdatesMenuItem;
 
 	@FXML
-	private CheckMenuItem showHelpWindow;
+	private MenuItem openOnlineUserManualInBrowserMenuItem;
 
 	@FXML
 	private MenuItem clearMenuItem;
@@ -1041,8 +1041,8 @@ public class MainWindowController {
 		return setWindowSizeMenuItem;
 	}
 
-	public CheckMenuItem getShowHelpWindow() {
-		return showHelpWindow;
+	public MenuItem getOpenOnlineUserManualInBrowserMenuItem() {
+		return openOnlineUserManualInBrowserMenuItem;
 	}
 
 	public MenuButton getCaptureMenuButton() {

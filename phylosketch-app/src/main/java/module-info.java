@@ -1,4 +1,6 @@
 module phylosketch {
+	uses jloda.fx.service.UpdateService;
+
 	requires transitive jloda_core;
 	requires transitive jloda_fx;
 	requires transitive jloda_phylogeny;
@@ -17,8 +19,6 @@ module phylosketch {
 	requires phylosketch.ocr;
 
 	opens phylosketch.format;
-	opens phylosketch.help;
-	opens phylosketch.help.figs;
 	opens phylosketch.main;
 	opens phylosketch.view;
 	opens phylosketch.window;
