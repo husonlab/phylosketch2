@@ -128,27 +128,27 @@ public class MoveNodesEdgesCommand extends UndoableRedoableCommand {
 		newEdgeMap.clear();
 		var nodeIds = oldNodeMap.keySet();
 		for (var e : view.getGraph().edges()) {
-			if (nodeIds.contains(e.getSource().getId()) || nodeIds.contains(e.getTarget().getId())) {
+			var sourceMoves = nodeIds.contains(e.getSource().getId());
+			var targetMoves = nodeIds.contains(e.getTarget().getId());
+			if (sourceMoves || targetMoves) {
 				var path = DrawView.getPath(e);
-				if (nodeIds.contains(e.getSource().getId()) && nodeIds.contains(e.getTarget().getId())) {
+				if (sourceMoves && targetMoves) {
 					var elements = PathTransforms.translate(path, dx, dy).getElements();
-					newEdgeMap.put(e.getId(), path.copy());
 					path.getElements().setAll(elements);
-				} else if (nodeIds.contains(e.getSource().getId())) {
-					var index = 0;
+				} else if (sourceMoves) {
 					var tmp = path.copyToFreeform();
-					PathReshape.apply(tmp, index, dx, dy);
+					PathReshape.apply(tmp, 0, dx, dy);
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
-					newEdgeMap.put(e.getId(), path);
-				} else if (nodeIds.contains(e.getTarget().getId())) {
+				} else { // target only
 					var index = path.getElements().size() - 1;
 					var tmp = path.copyToFreeform();
 					PathReshape.apply(tmp, index, dx, dy);
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
-					newEdgeMap.put(e.getId(), path);
 				}
+				// independent snapshot of the UPDATED path, never the live reference
+				newEdgeMap.put(e.getId(), path.copy());
 			}
 		}
 	}

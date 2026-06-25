@@ -66,20 +66,16 @@ public class PathUtils {
 	public static PathElement copyElement(PathElement element) {
 		if (element instanceof MoveTo m) {
 			return new MoveTo(m.getX(), m.getY());
-		}
-		if (element instanceof LineTo l) {
+		} else if (element instanceof LineTo l) {
 			return new LineTo(l.getX(), l.getY());
-		}
-		if (element instanceof QuadCurveTo q) {
+		} else if (element instanceof QuadCurveTo q) {
 			return new QuadCurveTo(q.getControlX(), q.getControlY(), q.getX(), q.getY());
-		}
-		if (element instanceof CubicCurveTo c) {
+		} else if (element instanceof CubicCurveTo c) {
 			return new CubicCurveTo(
 					c.getControlX1(), c.getControlY1(),
 					c.getControlX2(), c.getControlY2(),
 					c.getX(), c.getY());
-		}
-		if (element instanceof ArcTo a) {
+		} else if (element instanceof ArcTo a) {
 			ArcTo arc = new ArcTo();
 			arc.setX(a.getX());
 			arc.setY(a.getY());
@@ -89,12 +85,9 @@ public class PathUtils {
 			arc.setLargeArcFlag(a.isLargeArcFlag());
 			arc.setSweepFlag(a.isSweepFlag());
 			return arc;
-		}
-		if (element instanceof ClosePath) {
+		} else if (element instanceof ClosePath) {
 			return new ClosePath();
-		}
-
-		throw new IllegalArgumentException("Unknown PathElement: " + element);
+		} else throw new IllegalArgumentException("Unknown PathElement: " + element);
 	}
 
 	public static List<Point2D> extractPoints(Path path) {
