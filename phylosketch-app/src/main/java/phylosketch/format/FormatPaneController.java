@@ -206,6 +206,9 @@ public class FormatPaneController {
 	private Button deleteButton;
 
 	@FXML
+	private Button duplicateButton;
+
+	@FXML
 	private Button transferAcceptorButton;
 
 	@FXML
@@ -297,6 +300,8 @@ public class FormatPaneController {
 			swapSidesButton.setPrefHeight(18);
 
 			MaterialIcons.setIcon(deleteButton, MaterialIcons.backspace, "", false);
+
+			MaterialIcons.setIcon(duplicateButton, MaterialIcons.copy, "", false);
 
 			MaterialIcons.setIcon(measureEdgeWeightsButton, MaterialIcons.square_foot);
 			MaterialIcons.setIcon(showWeightToggleButton, MaterialIcons.visibility);
@@ -618,6 +623,10 @@ public class FormatPaneController {
 
 	public Button getDeleteButton() {
 		return deleteButton;
+	}
+
+	public Button getDuplicateButton() {
+		return duplicateButton;
 	}
 
 	public TitledPane getNodeStylePane() {

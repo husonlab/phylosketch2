@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <VBox fx:id="vBox" nodeOrientation="LEFT_TO_RIGHT" prefWidth="250.0" styleClass="context-menu"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="phylosketch.format.FormatPaneController">
     <children>
         <AnchorPane nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
@@ -713,6 +713,12 @@
                                             GridPane.rowIndex="3">
                                         <tooltip>
                                             <Tooltip text="Contract biconnected components"/>
+                                        </tooltip>
+                                    </Button>
+                                    <Button fx:id="duplicateButton" mnemonicParsing="false" text="Duplicate"
+                                            GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                        <tooltip>
+                                            <Tooltip text="Delete (selected) nodes and edges"/>
                                         </tooltip>
                                     </Button>
 

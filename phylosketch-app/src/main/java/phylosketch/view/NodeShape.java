@@ -57,6 +57,10 @@ public class NodeShape extends Polygon {
 		setSize(size); // will also call updateShape()
 	}
 
+	public NodeShape(NodeShape other) {
+		this(other.getType(), other.getSize());
+	}
+
 	public Type getType() {
 		return type;
 	}

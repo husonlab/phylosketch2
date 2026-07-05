@@ -58,9 +58,6 @@ public class MainWindowController {
 	private MenuItem openOnlineUserManualInBrowserMenuItem;
 
 	@FXML
-	private MenuItem clearMenuItem;
-
-	@FXML
 	private MenuItem applyModificationMenuItem;
 
 	@FXML
@@ -98,6 +95,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem cutMenuItem;
+
+	@FXML
+	private MenuItem duplicateMenuItem;
 
 	@FXML
 	private Button zoomOutButton;
@@ -656,10 +656,6 @@ public class MainWindowController {
 		return checkForUpdatesMenuItem;
 	}
 
-	public MenuItem getClearMenuItem() {
-		return clearMenuItem;
-	}
-
 	public MenuItem getCloseMenuItem() {
 		return closeMenuItem;
 	}
@@ -674,6 +670,10 @@ public class MainWindowController {
 
 	public MenuItem getCopyImageMenuItem() {
 		return copyImageMenuItem;
+	}
+
+	public MenuItem getDuplicateMenuItem() {
+		return duplicateMenuItem;
 	}
 
 	public MenuItem getCutMenuItem() {

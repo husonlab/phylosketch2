@@ -143,15 +143,20 @@
                                                                 shortcut="UP"/>
                                         </accelerator>
                                     </MenuItem>
+                                    <MenuItem fx:id="duplicateMenuItem" mnemonicParsing="false" text="Duplicate">
+                                        <accelerator>
+                                            <KeyCodeCombination alt="UP" code="D" control="UP" meta="DOWN"
+                                                                shift="UP" shortcut="UP"/>
+                                        </accelerator>
+                                    </MenuItem>
+                                    <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="deleteMenuItem" mnemonicParsing="false" text="Delete">
                                         <accelerator>
                                             <KeyCodeCombination alt="UP" code="BACK_SPACE" control="UP" meta="DOWN"
                                                                 shift="UP" shortcut="UP"/>
                                         </accelerator>
                                     </MenuItem>
-                                    <SeparatorMenuItem mnemonicParsing="false"/>
-                                    <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" text="Clear">
-                                    </MenuItem>
+
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="applyModificationMenuItem" mnemonicParsing="false" text="Apply">
                                         <accelerator>

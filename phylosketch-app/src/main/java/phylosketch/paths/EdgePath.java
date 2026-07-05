@@ -68,6 +68,11 @@ public class EdgePath extends Path {
 		result.setStraight(start, end);
 	}
 
+	public EdgePath(EdgePath that) {
+		PathUtils.copy(that, this);
+		setType(that.getType());
+	}
+
 	public EdgePath copy() {
 		var result = new EdgePath();
 		PathUtils.copy(this, result);

@@ -25,12 +25,9 @@ import phylosketch.window.MainWindow;
 
 /**
  * check for update
- * Daniel Huson, 5.2018
+ * Daniel Huson, 6.2026
  */
 public class CheckForUpdate {
-	public static final String programURL = "https://software-ab.cs.uni-tuebingen.de/download/phylosketch2";
-	public static final String applicationId = "1691242391";
-
 	/**
 	 * check for update, download and install, if present
 	 */

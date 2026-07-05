@@ -73,7 +73,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -96,7 +95,6 @@ public class MainWindowPresenter {
 	private final CapturePane capturePane;
 	private final MainWindowController controller;
 	private final DrawView view;
-
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 
@@ -303,11 +301,6 @@ public class MainWindowPresenter {
 		controller.getRedoMenuItem().textProperty().bind(view.getUndoManager().redoNameProperty());
 		controller.getRedoMenuItem().disableProperty().bind(view.getUndoManager().redoableProperty().not());
 
-
-		controller.getClearMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DeleteCommand(view, view.getGraph().getNodesAsList(),
-				Collections.emptyList())));
-		controller.getClearMenuItem().disableProperty().bind(document.emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
-
 		controller.getZoomInMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.1, 1.1));
 		controller.getZoomInMenuItem().disableProperty().bind(document.emptyProperty().and(capturePane.hasImageProperty().not()));
 		controller.getZoomOutMenuItem().setOnAction(e -> controller.getScrollPane().zoomBy(1.0 / 1.1, 1.1));
@@ -345,7 +338,11 @@ public class MainWindowPresenter {
 		});
 		controller.getCopyMenuItem().disableProperty().bind(document.emptyProperty());
 
+		controller.getDuplicateMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DuplicateCommand(view, controller.getResizeModeCheckMenuItem().selectedProperty())));
+		controller.getDuplicateMenuItem().disableProperty().bind(document.emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
+
 		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(document.getFileName(), window.getStage(), window.getDrawView()));
+
 		controller.getExportImageMenuItem().disableProperty().bind(document.emptyProperty());
 
 		controller.getExportNewickMenuItem().setOnAction(e -> ExportNewick.apply(window));
@@ -458,7 +455,6 @@ public class MainWindowPresenter {
 			view.getUndoManager().doAndAdd(new RotateCommand(view, view.getSelectedOrAllNodes(), true, isRotatingOrFlipping));
 		});
 		controller.getRotateRightMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
-
 
 		controller.getFlipHorizontalMenuItem().setOnAction(e -> {
 			allowResize.set(false);
@@ -596,6 +592,9 @@ public class MainWindowPresenter {
 
 		formatPaneView.getController().getDeleteButton().setOnAction(e -> controller.getDeleteMenuItem().fire());
 		formatPaneView.getController().getDeleteButton().disableProperty().bind(controller.getDeleteMenuItem().disableProperty());
+
+		formatPaneView.getController().getDuplicateButton().setOnAction(e -> controller.getDuplicateMenuItem().fire());
+		formatPaneView.getController().getDuplicateButton().disableProperty().bind(controller.getDuplicateMenuItem().disableProperty());
 
 		formatPaneView.getController().getDeleteThruNodesButton().setOnAction(controller.getDeleteThruNodesMenuItem().getOnAction());
 		formatPaneView.getController().getDeleteThruNodesButton().disableProperty().bind(controller.getDeleteThruNodesMenuItem().disableProperty());
