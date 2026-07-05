@@ -164,8 +164,13 @@
                                         </ToggleButton>
                                     </children>
                                 </HBox>
-                                <TextField fx:id="nodeLabelTextField" prefColumnCount="10" promptText="Enter label"
-                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <children>
+                                        <TextField fx:id="nodeLabelTextField" prefColumnCount="10"
+                                                   promptText="Enter label" HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="deleteNodeLabelButton" mnemonicParsing="false" text="X"/>
+                                    </children>
+                                </HBox>
                             </children>
                         </GridPane>
                     </content>

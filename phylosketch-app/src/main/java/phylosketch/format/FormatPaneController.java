@@ -188,6 +188,9 @@ public class FormatPaneController {
 	private TextField nodeLabelTextField;
 
 	@FXML
+	private Button deleteNodeLabelButton;
+
+	@FXML
 	private Button declareRootButton;
 
 	@FXML
@@ -246,8 +249,10 @@ public class FormatPaneController {
 
 	@FXML
 	private TitledPane nodeStylePane;
+
 	@FXML
 	private TitledPane nodeLabelsPane;
+
 	@FXML
 	private TitledPane nodeLabelsStylePane;
 	@FXML
@@ -310,6 +315,7 @@ public class FormatPaneController {
 
 			MaterialIcons.setIcon(uniqueLabelsToggleButton, MaterialIcons.flash_on);
 
+			MaterialIcons.setIcon(deleteNodeLabelButton, MaterialIcons.clear);
 			MaterialIcons.setIcon(clearNodeFillButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 			MaterialIcons.setIcon(clearNodeStrokeButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
 			MaterialIcons.setIcon(clearNodeLabelFontButton, MaterialIcons.refresh, "-fx-font-size: 12;-fx-text-fill: gray;", true);
@@ -707,5 +713,9 @@ public class FormatPaneController {
 
 	public DoubleProperty nodeSizeProperty() {
 		return nodeSize;
+	}
+
+	public Button getDeleteNodeLabelButton() {
+		return deleteNodeLabelButton;
 	}
 }

@@ -33,6 +33,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.CompositeCommand;
+import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.RunAfterAWhile;
 import jloda.util.NumberUtils;
@@ -42,6 +43,7 @@ import phylosketch.view.DrawView;
 import phylosketch.view.LineType;
 import phylosketch.view.NodeShape;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -80,6 +82,22 @@ public class FormatPanePresenter {
 			}
 		});
 		setupTriggerOnEnter(controller.getNodeLabelTextField());
+
+		controller.getDeleteNodeLabelButton().setOnAction(e -> {
+			if (canUpdate) {
+				var oldText = controller.getNodeLabelTextField().getText();
+				var selectedNodes = new ArrayList<>(view.getSelectedOrAllNodes());
+				view.getUndoManager().doAndAdd(new CompositeCommand("delete label", new SetNodeLabelsCommand(view, null, view.getSelectedOrAllNodes(), null),
+						UndoableRedoableCommand.create("", () -> {
+							controller.getNodeLabelTextField().setText(oldText);
+							Platform.runLater(() -> view.getNodeSelection().setSelected(selectedNodes));
+						}, () -> {
+							controller.getNodeLabelTextField().setText("");
+							Platform.runLater(() -> view.getNodeSelection().setSelected(selectedNodes));
+						})));
+			}
+		});
+		controller.getDeleteNodeLabelButton().disableProperty().bind(controller.getNodeLabelTextField().textProperty().isEmpty());
 
 		view.getNodeSelection().getSelectedItems().addListener((InvalidationListener) e -> {
 			if (canUpdate) {
