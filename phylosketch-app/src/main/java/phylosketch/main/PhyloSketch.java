@@ -67,6 +67,7 @@ public class PhyloSketch extends Application {
             ProgramProperties.store();
         }));
         ProgramProperties.setUseGUI(true);
+        ProgramProperties.setHostServices(getHostServices());
     }
 
     /**

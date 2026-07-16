@@ -27,7 +27,6 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -67,11 +66,9 @@ import phylosketch.utils.Clusters;
 import phylosketch.utils.GraphUtils;
 import phylosketch.view.*;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
@@ -538,13 +535,7 @@ public class MainWindowPresenter {
 		controller.getPasteButton().managedProperty().bind(controller.getPasteButton().visibleProperty());
 
 		if (SUPPORTS_HELP_WINDOW) {
-			controller.getOpenOnlineUserManualInBrowserMenuItem().setOnAction(e -> {
-				try {
-					Desktop.getDesktop().browse(new URI(Version.WEBSITE_URL));
-				} catch (Exception ex) {
-					WindowNotifications.showInfo(controller.getCenterPane(), "Show Help failed: " + ex.getMessage());
-				}
-			});
+			controller.getOpenOnlineUserManualInBrowserMenuItem().setOnAction(e -> ProgramProperties.getHostServices().showDocument(Version.WEBSITE_URL));
 		}
 
 		controller.getLoadCaptureImageItem().setOnAction(e -> {

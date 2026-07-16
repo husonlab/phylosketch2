@@ -35,6 +35,4 @@ public class Version {
 		var v = (pkg != null) ? pkg.getImplementationVersion() : null;
 		return (v != null && !v.isBlank()) ? v : "dev";
 	}
-
-
 }
