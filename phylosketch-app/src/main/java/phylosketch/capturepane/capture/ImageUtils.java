@@ -20,6 +20,7 @@
 
 package phylosketch.capturepane.capture;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -171,6 +172,89 @@ public class ImageUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * rotate an image by 90 degrees
+	 *
+	 * @param image     the image
+	 * @param clockwise true for clockwise, false for counter-clockwise
+	 * @return the rotated image (dimensions swapped)
+	 */
+	public static Image rotate90(Image image, boolean clockwise) {
+		var w = (int) image.getWidth();
+		var h = (int) image.getHeight();
+		var reader = image.getPixelReader();
+		var out = new WritableImage(h, w);
+		var writer = out.getPixelWriter();
+		for (var y = 0; y < h; y++) {
+			for (var x = 0; x < w; x++) {
+				var argb = reader.getArgb(x, y);
+				if (clockwise) // (x,y) -> (h-1-y, x)
+					writer.setArgb(h - 1 - y, x, argb);
+				else // (x,y) -> (y, w-1-x)
+					writer.setArgb(y, w - 1 - x, argb);
+			}
+		}
+		return out;
+	}
+
+	/**
+	 * map an axis-aligned box from a 90-degree-rotated image back to the original image's coordinates
+	 *
+	 * @param b         box in the rotated image
+	 * @param clockwise the direction the image had been rotated by (as passed to rotate90)
+	 * @param origW     width of the original (unrotated) image
+	 * @param origH     height of the original (unrotated) image
+	 * @return the axis-aligned box in original-image coordinates
+	 */
+	public static Rectangle2D unrotateBox(Rectangle2D b, boolean clockwise, int origW, int origH) {
+		var rx1 = b.getMinX();
+		var ry1 = b.getMinY();
+		var rx2 = b.getMaxX();
+		var ry2 = b.getMaxY();
+		double ax, ay, bx, by;
+		if (clockwise) { // inverse of (x,y)->(h-1-y, x): x=ry, y=origH-1-rx
+			ax = ry1;
+			ay = origH - 1 - rx1;
+			bx = ry2;
+			by = origH - 1 - rx2;
+		} else { // inverse of (x,y)->(y, w-1-x): x=origW-1-ry, y=rx
+			ax = origW - 1 - ry1;
+			ay = rx1;
+			bx = origW - 1 - ry2;
+			by = rx2;
+		}
+		var minX = Math.min(ax, bx);
+		var minY = Math.min(ay, by);
+		return new Rectangle2D(minX, minY, Math.abs(ax - bx), Math.abs(ay - by));
+	}
+
+	/**
+	 * erase (set to background) all pixels of a binary matrix that lie inside any of the given boxes,
+	 * optionally padded. Used to remove label ink before skeletonization so that label strokes are not
+	 * traced as spurious nodes and edges.
+	 *
+	 * @param matrix the binary matrix, indexed [y][x]
+	 * @param boxes  boxes in image (pixel) coordinates
+	 * @param pad    number of pixels to grow each box by on every side
+	 */
+	public static void maskRegions(int[][] matrix, Iterable<Rectangle2D> boxes, int pad) {
+		var height = matrix.length;
+		if (height == 0)
+			return;
+		var width = matrix[0].length;
+		for (var box : boxes) {
+			var x0 = Math.max(0, (int) Math.floor(box.getMinX()) - pad);
+			var y0 = Math.max(0, (int) Math.floor(box.getMinY()) - pad);
+			var x1 = Math.min(width - 1, (int) Math.ceil(box.getMaxX()) + pad);
+			var y1 = Math.min(height - 1, (int) Math.ceil(box.getMaxY()) + pad);
+			for (var y = y0; y <= y1; y++) {
+				for (var x = x0; x <= x1; x++) {
+					matrix[y][x] = 0;
+				}
+			}
+		}
 	}
 
 	public static Image cropImage(Image input, int x, int y, int width, int height) {

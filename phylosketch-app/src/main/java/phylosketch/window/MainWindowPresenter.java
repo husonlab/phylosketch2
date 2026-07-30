@@ -71,7 +71,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static phylosketch.utils.LabelUtils.getInOrder;
@@ -541,9 +541,10 @@ public class MainWindowPresenter {
 		controller.getLoadCaptureImageItem().setOnAction(e -> {
 			if (SUPPORTS_CAPTURE) {
 				if (window.isEmpty()) {
-					loadImageDialog(window.getStage(), image -> {
+					loadImageDialog(window.getStage(), (image, file) -> {
 						window.getDrawView().setMode(DrawView.Mode.Capture);
 						window.getPresenter().getCapturePane().setImage(image);
+						nameDocumentAfterImageFile(window, file);
 					});
 				} else {
 					var newWindow = NewWindow.apply();
@@ -662,7 +663,7 @@ public class MainWindowPresenter {
 		return capturePane;
 	}
 
-	public static void loadImageDialog(Stage stage, Consumer<Image> imageConsumer) {
+	public static void loadImageDialog(Stage stage, BiConsumer<Image, File> imageConsumer) {
 		var fileChooser = new FileChooser();
 		var dir = ProgramProperties.get("LoadImageDirectory", "");
 		if (FileUtils.isDirectory(dir))
@@ -676,11 +677,31 @@ public class MainWindowPresenter {
 		var file = fileChooser.showOpenDialog(stage);
 		if (file != null && file.exists()) {
 			var image = new Image(file.toURI().toString());
-			imageConsumer.accept(image);
+			imageConsumer.accept(image, file);
 			if (!file.getParent().isBlank()) {
 				ProgramProperties.put("LoadImageDirectory", file.getParent());
 			}
 		}
+	}
+
+	/**
+	 * name a (new, empty) document after the image file it is capturing from, so that it gets a more
+	 * informative title than "Untitled" and a sensible default save location next to the image.
+	 *
+	 * @param window the window
+	 * @param file   the image file
+	 */
+	private static void nameDocumentAfterImageFile(MainWindow window, File file) {
+		if (file == null)
+			return;
+		var base = FileUtils.getFileNameWithoutPathOrSuffix(file.getName());
+		if (base == null || base.isBlank())
+			return;
+		var document = window.getDocument();
+		document.setName(base);
+		document.setNameAuto(false);
+		var parent = file.getParent();
+		document.setFileName(new File(parent != null ? parent : "", base + ".psketch").getPath());
 	}
 
 	private static void setupLayoutScalingPhylogeny(MainWindow window, MainWindowController controller, FormatPaneController formatController) {

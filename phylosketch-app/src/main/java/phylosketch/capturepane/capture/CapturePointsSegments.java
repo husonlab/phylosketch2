@@ -36,10 +36,17 @@ public class CapturePointsSegments {
 		Skeletonization.apply(matrix);
 
 		var points = detectEndPoints(matrix);
-		points.addAll(detectBranchPoints(matrix));
+		var branchPoints = detectBranchPoints(matrix);
 
+		// Merge only branch points that lie very close to one another. Tightly-clustered internal
+		// junctions (e.g. the near-root spine of a compact rectangular tree) otherwise over-mark the
+		// skeleton, so their short connecting edges collapse to zero length, get dropped as "too short",
+		// and whole clades lose their path to the root. Endpoints (leaves) are never merged here, so no
+		// leaf can be lost.
 		if (minDistancePoints > 0)
-			points = ProcessingUtils.removeClosePoints(points, minDistancePoints);
+			branchPoints = ProcessingUtils.removeClosePoints(branchPoints, minDistancePoints);
+
+		points.addAll(branchPoints);
 
 		var sorted = new ArrayList<>(ProcessingUtils.findPaths(progress, matrix, points));
 		sorted.sort((a, b) -> -Double.compare(a.first().distance(a.last()), b.first().distance(b.last())));

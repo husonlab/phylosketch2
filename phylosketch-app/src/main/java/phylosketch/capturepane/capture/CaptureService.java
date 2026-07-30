@@ -29,8 +29,10 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import jloda.fx.util.AService;
 import phylosketch.ocr.OcrWord;
+import phylosketch.view.RootPosition;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -51,6 +53,9 @@ public class CaptureService extends AService<Boolean> {
 	private Image inputImage;
 	private Image skeletonImage;
 	private Image greyScaleImage;
+
+	private RootPosition.Side rootSide = RootPosition.Side.Left;
+	private boolean wordsCaptured = false;
 
 	private final ArrayList<OcrWord> allWords = new ArrayList<>();
 	private final ArrayList<OcrWord> words = new ArrayList<>();
@@ -93,31 +98,30 @@ public class CaptureService extends AService<Boolean> {
 			if (getGoal() >= SEGMENTS && theStatus < SEGMENTS) {
 				var matrix = ImageUtils.convertToBinaryArray(getInputImage());
 
-				if (true) {
-					if (ImageUtils.tooMuchBlack(matrix, 0.30)) {
-						throw new RuntimeException("Image has too much foreground");
-					}
+				if (ImageUtils.tooMuchBlack(matrix, 0.30)) {
+					throw new RuntimeException("Image has too much foreground");
 				}
+
+				// Capture the words first so we can erase their boxes from the image before tracing. Otherwise
+				// label strokes get skeletonized and traced into spurious ("ghost") nodes and edges. This works
+				// for every orientation, including the tall/narrow boxes of rotated top/bottom labels, where the
+				// old segment-level word-box test could not reliably catch them.
+				captureWords();
+				ImageUtils.maskRegions(matrix, allWords.stream().map(OcrWord::boundingBox).toList(), 2);
+
 				Skeletonization.apply(matrix);
 
-				if (true)
-					DotConnector.apply(matrix);
+				DotConnector.apply(matrix);
 
 				skeletonImage = ImageUtils.convertToImage(matrix, Color.HOTPINK);
 
-				CapturePointsSegments.apply(getProgressListener(), matrix, 0, endPoints, segments);
+				CapturePointsSegments.apply(getProgressListener(), matrix, (int) Math.round(parameters.getMinDistanceNodes()), endPoints, segments);
 				theStatus = SEGMENTS;
 				updatePhase(theStatus);
 			}
 
 			if (getGoal() >= WORDS && theStatus < WORDS) {
-				greyScaleImage = ImageUtils.convertToGrayScale(getInputImage());
-
-				allWords.clear();
-				allWords.addAll(OCR.getWords(greyScaleImage));
-				words.clear();
-				words.addAll(CaptureWords.joinConsecutiveWords(CaptureWords.filter(allWords, parameters.getMinWordConfidence(), parameters.getMinWordLength(), parameters.getMinTextHeight(),
-						parameters.getMaxTextHeight()), parameters.isMustStartAlphaNumeric(), parameters.isMustEndAlphaNumeric(), parameters.isMustContainLetter()));
+				captureWords();
 				theStatus = WORDS;
 				updatePhase(theStatus);
 			}
@@ -145,6 +149,83 @@ public class CaptureService extends AService<Boolean> {
 			}
 			return true;
 		});
+	}
+
+	/**
+	 * run OCR and populate the word lists. Idempotent within a run (guarded by {@code wordsCaptured}) so it
+	 * can be called from the SEGMENTS phase (to mask label boxes out of the image before tracing) and again
+	 * from the WORDS phase without repeating the work.
+	 * <p>
+	 * Leaf labels on top/bottom-rooted trees are usually rotated 90 degrees, which horizontal OCR cannot read,
+	 * and the whole word pipeline (height filter, line grouping) assumes horizontal text. So we run the pipeline
+	 * on a rotated copy where the labels are horizontal, then map the boxes back. We try both rotations (the
+	 * CW/CCW ambiguity) plus no rotation, and keep whichever reads the most text (highest summed confidence).
+	 */
+	private void captureWords() throws Exception {
+		if (wordsCaptured)
+			return;
+
+		greyScaleImage = ImageUtils.convertToGrayScale(getInputImage());
+		var origW = (int) greyScaleImage.getWidth();
+		var origH = (int) greyScaleImage.getHeight();
+
+		var rotations = (rootSide == RootPosition.Side.Top || rootSide == RootPosition.Side.Bottom)
+				? new int[]{0, 1, -1} : new int[]{0};
+
+		List<OcrWord> bestAll = List.of();
+		List<OcrWord> bestWords = List.of();
+		var bestScore = -1.0;
+		Exception ocrError = null;
+		for (var rot : rotations) {
+			var image = (rot == 0) ? greyScaleImage : ImageUtils.rotate90(greyScaleImage, rot > 0);
+			List<OcrWord> raw;
+			try {
+				raw = OCR.getWords(image);
+			} catch (Exception ex) {
+				ocrError = ex;
+				continue;
+			}
+			// Keep low-confidence and short words through the merge: a faint genus abbreviation ("V.") or a
+			// mid-confidence species word (e.g. "chungii@24") must not be dropped before it can join its
+			// label, or the label collapses to fragments and the leading "V." is then lost to the trailing-".
+			// rule. Pre-filter only by text height (removes non-text boxes); apply the confidence and length
+			// thresholds to the MERGED label instead, using its averaged confidence.
+			//
+			// The height gate is RELATIVE to the median detected box height, not the absolute
+			// [minTextHeight, maxTextHeight] parameters: on a large, small-text capture the absolute gate
+			// discards most real words (their glyph boxes are well under minTextHeight=10px), which is what
+			// limited big top/bottom trees to ~1/4 of their labels. A relative gate adapts to any text size.
+			var rawHeights = raw.stream().mapToDouble(w -> w.boundingBox().getHeight()).sorted().toArray();
+			var medianRawHeight = (rawHeights.length == 0 ? 1.0 : rawHeights[rawHeights.length / 2]);
+			var shaped = CaptureWords.filter(raw, 0, 1, 0.4 * medianRawHeight, 2.5 * medianRawHeight);
+			var joined = CaptureWords.joinConsecutiveWords(shaped, parameters.isMustStartAlphaNumeric(), parameters.isMustEndAlphaNumeric(), parameters.isMustContainLetter()).stream()
+					.filter(w -> w.confidence() >= parameters.getMinWordConfidence() && w.text().length() >= parameters.getMinWordLength())
+					.toList();
+			// Score each rotation by confidence WEIGHTED BY TEXT LENGTH. A wrong rotation turns the tree's
+			// branch lines into many tiny junk "words" (single characters); at high resolution there can be
+			// hundreds of them, and a plain confidence sum lets them out-vote the rotation that actually reads
+			// the (fewer but far longer) real labels. Weighting by character count makes the real rotation win.
+			var score = joined.stream().mapToDouble(w -> w.confidence() * Math.max(1, w.text().replaceAll("\\s+", "").length())).sum();
+			if (score > bestScore) {
+				bestScore = score;
+				if (rot == 0) {
+					bestAll = raw;
+					bestWords = joined;
+				} else {
+					var cw = rot > 0;
+					bestAll = raw.stream().map(w -> new OcrWord(w.text(), w.confidence(), ImageUtils.unrotateBox(w.boundingBox(), cw, origW, origH))).toList();
+					bestWords = joined.stream().map(w -> new OcrWord(w.text(), w.confidence(), ImageUtils.unrotateBox(w.boundingBox(), cw, origW, origH))).toList();
+				}
+			}
+		}
+		if (bestScore < 0 && ocrError != null)
+			throw ocrError;
+
+		allWords.clear();
+		allWords.addAll(bestAll);
+		words.clear();
+		words.addAll(bestWords);
+		wordsCaptured = true;
 	}
 
 	public static Rectangle2D shrink(Rectangle2D rect, int inset) {
@@ -175,6 +256,8 @@ public class CaptureService extends AService<Boolean> {
 		updatePhase(getInputImage() != null ? IMAGE : NONE);
 		greyScaleImage = null;
 		words.clear();
+		allWords.clear();
+		wordsCaptured = false;
 		endPoints.clear();
 		segments.clear();
 	}
@@ -204,6 +287,15 @@ public class CaptureService extends AService<Boolean> {
 
 	public Image getInputImage() {
 		return inputImage;
+	}
+
+	/**
+	 * set the side on which the root lies; used to decide whether leaf labels may be rotated 90 degrees
+	 *
+	 * @param rootSide the root side
+	 */
+	public void setRootSide(RootPosition.Side rootSide) {
+		this.rootSide = rootSide;
 	}
 
 	/**

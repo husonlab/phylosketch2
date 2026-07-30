@@ -67,8 +67,15 @@ public class QuadraticCurveCommand extends UndoableRedoableCommand {
 					var id = e.getId();
 					oldEdgeMap.put(id, path.copy());
 
-					var first = PathUtils.getCoordinates(path.getElements().get(0));
-					var last = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
+					// Orient the endpoints by the edge direction: 'first' is the source (parent) end and
+					// 'last' the target (child) end. Captured edges into internal nodes can have their path
+					// stored target->source, which is invisible for freeform/smooth edges but would flip the
+					// curve corner. Anchoring 'first' to the source node makes this direction-robust.
+					var p0 = PathUtils.getCoordinates(path.getElements().get(0));
+					var pN = PathUtils.getCoordinates(path.getElements().get(path.getElements().size() - 1));
+					var sourcePos = DrawView.getPoint(e.getSource());
+					var first = (p0.distance(sourcePos) <= pN.distance(sourcePos)) ? p0 : pN;
+					var last = (first == p0) ? pN : p0;
 
 					var points = switch (nodeRootLocationMap.get(e.getSource()).side()) {
 						case Top, Bottom -> List.of(first, new Point2D(last.getX(), first.getY()), last);

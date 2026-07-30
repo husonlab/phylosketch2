@@ -50,10 +50,13 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 
 		var nodeOldLayoutMap = new HashMap<Integer, Point2D>();
 		var nodeNewLayoutMap = new HashMap<Integer, Point2D>();
+		var nodeOldRotateMap = new HashMap<Integer, Double>();
+		var nodeNewRotateMap = new HashMap<Integer, Double>();
 
 		for (var v : nodes) {
 			if (v.getInfo() instanceof RichTextLabel label) {
 				nodeOldLayoutMap.put(v.getId(), new Point2D(label.getLayoutX(), label.getLayoutY()));
+				nodeOldRotateMap.put(v.getId(), label.getRotate());
 			}
 		}
 
@@ -65,6 +68,8 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 						var label = DrawView.getLabel(v);
 						label.setLayoutX(entry.getValue().getX());
 						label.setLayoutY(entry.getValue().getY());
+						label.setRotate(nodeOldRotateMap.getOrDefault(entry.getKey(), 0.0));
+						label.ensureUpright();
 					}
 				}
 			};
@@ -85,9 +90,11 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 							}
 						}
 						for (var v : nodes) {
-							var label = DrawView.getLabel(v);
-							var layout = computeLabelLayout(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
-							nodeNewLayoutMap.put(v.getId(), layout);
+							if (v.getInfo() instanceof RichTextLabel label) {
+								var placement = computePlacement(nodeRootLocationMap.getOrDefault(v, rootPosition), v, label);
+								nodeNewLayoutMap.put(v.getId(), new Point2D(placement[0], placement[1]));
+								nodeNewRotateMap.put(v.getId(), placement[2]);
+							}
 						}
 					}
 					for (var entry : nodeNewLayoutMap.entrySet()) {
@@ -96,6 +103,8 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 							var label = DrawView.getLabel(v);
 							label.setLayoutX(entry.getValue().getX());
 							label.setLayoutY(entry.getValue().getY());
+							label.setRotate(nodeNewRotateMap.getOrDefault(entry.getKey(), 0.0));
+							label.ensureUpright();
 						}
 					}
 				} catch (Exception e) {
@@ -105,6 +114,32 @@ public class LayoutLabelsCommand extends UndoableRedoableCommand {
 		} else {
 			undo = null;
 			redo = null;
+		}
+	}
+
+	/**
+	 * compute both the layout offset and the rotation of a node's label. For Top/Bottom-rooted trees the
+	 * label is turned 90 degrees and placed above (Bottom-rooted) or below (Top-rooted) the node, mirroring
+	 * the way circular layouts rotate their labels; all other sides keep horizontal labels (rotation 0).
+	 *
+	 * @return {layoutX, layoutY, rotate}
+	 */
+	private static double[] computePlacement(RootPosition rootPosition, Node v, RichTextLabel label) {
+		if (rootPosition != null && (rootPosition.side() == RootPosition.Side.Top || rootPosition.side() == RootPosition.Side.Bottom)) {
+			label.applyCss();
+			// Bottom-rooted: leaves are above the root, so labels sit above the node (pointing up);
+			// Top-rooted: labels sit below the node (pointing down).
+			var dirY = (rootPosition.side() == RootPosition.Side.Bottom) ? -1.0 : 1.0;
+			var angle = GeometryUtilsFX.computeAngle(0, dirY);
+			var gap = 8.0;
+			var cx = -0.5 * label.getWidth();  // center the label on the node
+			var cy = -0.5 * label.getHeight();
+			var shift = 0.5 * label.getWidth() + gap; // move it out so its near edge clears the node
+			var move = GeometryUtilsFX.translateByAngle(cx, cy, angle, shift);
+			return new double[]{move.getX(), move.getY(), angle};
+		} else {
+			var p = computeLabelLayout(rootPosition, v, label);
+			return new double[]{p.getX(), p.getY(), 0.0};
 		}
 	}
 

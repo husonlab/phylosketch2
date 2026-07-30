@@ -67,10 +67,11 @@ public class CaptureWords {
 		if (words == null || words.isEmpty())
 			return new ArrayList<>();
 
-		// smallest vertical overlap (as a fraction of text height) to count two words as the same line
-		final double SAME_LINE_OVERLAP = 0.4;
-		// largest horizontal gap (as a multiple of text height) still treated as one label
-		final double GAP_FACTOR = 0.8;
+		// largest horizontal gap (as a multiple of text height) still treated as one label. Generous, because
+		// a detected line is normally a single label: we only want to split genuinely far-apart words (e.g. two
+		// leaves that happen to share a row), not the ordinary space before a specimen code or after a genus
+		// abbreviation.
+		final double GAP_FACTOR = 2.0;
 
 		// 1. clean: strip surrounding whitespace / control chars, drop blanks  <-- fixes the empty-with-Vision case
 		var cleaned = new ArrayList<OcrWord>();
@@ -80,27 +81,24 @@ public class CaptureWords {
 				cleaned.add(text.equals(w.text()) ? w : new OcrWord(text, w.confidence(), w.boundingBox()));
 		}
 
-		// 2. group into lines by vertical overlap, processing top-to-bottom
-		cleaned.sort(Comparator.comparingDouble(w -> w.boundingBox().getMinY()));
+		// 2. group into lines by y-CENTER proximity, processing top-to-bottom. Using each word's center
+		//    (rather than the growing union of the line's box extents) keeps densely-stacked label lines from
+		//    absorbing one another's words: even when neighbouring lines' boxes touch, their centers are a
+		//    full line apart. This is what lets large, tightly-spaced top/bottom captures group correctly.
+		var heights = cleaned.stream().mapToDouble(w -> w.boundingBox().getHeight()).sorted().toArray();
+		var medianHeight = (heights.length == 0 ? 1.0 : heights[heights.length / 2]);
+		var lineTolerance = 0.6 * medianHeight; // a word joins the current line if its center is within this
+		cleaned.sort(Comparator.comparingDouble(CaptureWords::centerY));
 		var lines = new ArrayList<List<OcrWord>>();
+		var lineCenterY = 0.0;
 		for (var w : cleaned) {
-			var wb = w.boundingBox();
-			List<OcrWord> target = null;
-			for (var line : lines) {
-				var lMinY = line.stream().mapToDouble(u -> u.boundingBox().getMinY()).min().orElse(0);
-				var lMaxY = line.stream().mapToDouble(u -> u.boundingBox().getMaxY()).max().orElse(0);
-				var overlap = Math.max(0, Math.min(wb.getMaxY(), lMaxY) - Math.max(wb.getMinY(), lMinY));
-				var denom = Math.min(wb.getHeight(), lMaxY - lMinY);
-				if (denom > 0 && overlap >= SAME_LINE_OVERLAP * denom) {
-					target = line;
-					break;
-				}
+			var yc = centerY(w);
+			if (lines.isEmpty() || Math.abs(yc - lineCenterY) > lineTolerance) {
+				lines.add(new ArrayList<>());
 			}
-			if (target == null) {
-				target = new ArrayList<>();
-				lines.add(target);
-			}
-			target.add(w);
+			var line = lines.get(lines.size() - 1);
+			line.add(w);
+			lineCenterY = line.stream().mapToDouble(CaptureWords::centerY).average().orElse(yc);
 		}
 
 		// 3. within each line, sort getLeft-to-getRight and merge across small gaps
@@ -113,7 +111,10 @@ public class CaptureWords {
 					var prev = group.get(group.size() - 1).boundingBox();
 					var cur = w.boundingBox();
 					var gap = cur.getMinX() - prev.getMaxX();
-					var height = Math.min(prev.getHeight(), cur.getHeight());
+					// scale by the TALLER of the two boxes: a short token such as the genus abbreviation "V."
+					// otherwise shrinks the threshold so its trailing space looks like a label break and it
+					// gets severed (then discarded by the trailing-"." rule).
+					var height = Math.max(prev.getHeight(), cur.getHeight());
 					if (gap > GAP_FACTOR * height) {   // big gap -> different label / node
 						result.add(merge(group));
 						group = new ArrayList<>();
@@ -154,6 +155,12 @@ public class CaptureWords {
 		return new OcrWord(buf.toString(), (float) (confidence / group.size()),
 				new Rectangle2D(minX, minY, maxX - minX, maxY - minY));
 	}
+
+	private static double centerY(OcrWord word) {
+		var b = word.boundingBox();
+		return 0.5 * (b.getMinY() + b.getMaxY());
+	}
+
 	private static boolean containsLetter(OcrWord word) {
 		return word.text().chars().anyMatch(Character::isLetter);
 	}

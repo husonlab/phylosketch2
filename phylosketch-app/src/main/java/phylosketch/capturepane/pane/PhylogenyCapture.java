@@ -199,9 +199,12 @@ public class PhylogenyCapture {
 				for (var word : words) {
 					var bbox = word.boundingBox();
 
-					// make sure position is acceptable
+					// make sure position is acceptable. In every case we test the edge of the label box
+					// that is nearest to the leaf (the "attachment" edge) and require the leaf to lie within
+					// the label's extent along the perpendicular axis. The four cases are exact mirror images.
 					switch (rootPosition.side()) {
 						case Left -> {
+							// root left, leaf to the right of it, label to the right of the leaf: near edge is minX
 							if (bbox.getMinX() < leafPos.getX() - delta)
 								continue;
 							if (leafPos.getY() < bbox.getMinY() - delta || leafPos.getY() > bbox.getMaxY() + delta)
@@ -209,19 +212,22 @@ public class PhylogenyCapture {
 
 						}
 						case Right -> {
-							if (bbox.getMinX() > leafPos.getX() + delta)
+							// root right, leaf to the left of it, label to the left of the leaf: near edge is maxX
+							if (bbox.getMaxX() > leafPos.getX() + delta)
 								continue;
 							if (leafPos.getY() < bbox.getMinY() - delta || leafPos.getY() > bbox.getMaxY() + delta)
 								continue;
 						}
 						case Bottom -> {
-							if (bbox.getMinY() < leafPos.getY() - delta)
+							// root bottom, leaf above it, label above the leaf: near edge is maxY
+							if (bbox.getMaxY() > leafPos.getY() + delta)
 								continue;
 							if (leafPos.getX() < bbox.getMinX() - delta || leafPos.getX() > bbox.getMaxX() + delta)
 								continue;
 						}
 						case Top -> {
-							if (bbox.getMinY() > leafPos.getY() + delta)
+							// root top, leaf below it, label below the leaf: near edge is minY
+							if (bbox.getMinY() < leafPos.getY() - delta)
 								continue;
 							if (leafPos.getX() < bbox.getMinX() - delta || leafPos.getX() > bbox.getMaxX() + delta)
 								continue;

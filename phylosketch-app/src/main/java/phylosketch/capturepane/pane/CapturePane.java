@@ -201,6 +201,7 @@ public class CapturePane extends HBox {
 		else {
 			if (captureService.getInputImage() != getImageView().getImage())
 				captureService.setInputImage(getImageView().getImage());
+			captureService.setRootSide(getRootSide());
 			captureService.run(goal);
 		}
 	}
