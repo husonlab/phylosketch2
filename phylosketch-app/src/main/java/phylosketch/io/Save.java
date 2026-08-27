@@ -21,6 +21,7 @@
 package phylosketch.io;
 
 import javafx.stage.FileChooser;
+import jloda.fx.util.FileChooserManager;
 import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RecentFilesManager;
 import jloda.util.FileUtils;
@@ -69,17 +70,14 @@ public class Save {
 		if (dir != null && dir.exists()) {
 			fileChooser.setInitialDirectory(dir);
         } else {
-			var lastDir = new File(ProgramProperties.get("SaveFileDir", ""));
-			if (lastDir.isDirectory()) {
-				fileChooser.setInitialDirectory(lastDir);
-            }
+			FileChooserManager.applyInitialDirectory(fileChooser, "SaveFileDir");
         }
 		fileChooser.setInitialFileName(FileUtils.getFileNameWithoutPathOrSuffix(fileName));
 
 		var selectedFile = fileChooser.showSaveDialog(window.getStage());
         if (selectedFile != null) {
             Save.apply(selectedFile, window);
-            ProgramProperties.put("SaveFileDir", selectedFile.getParent());
+            FileChooserManager.rememberDirectory(selectedFile, "SaveFileDir");
             RecentFilesManager.getInstance().insertRecentFile(selectedFile.getPath());
 			var newFileName = FileUtils.getFileNameWithoutPathOrSuffix(selectedFile.getName());
 			var derivedName = NameUtils.deriveDocumentName(window);
