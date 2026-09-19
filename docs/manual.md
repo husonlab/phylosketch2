@@ -1,6 +1,6 @@
 # PhyloSketch App User Manual
 
-## Daniel Huson, June 2026
+## Daniel Huson, September 2026
 
 # Introduction
 
@@ -87,9 +87,6 @@ alt="image" />
 
 ## Capture Mode
 
-Capture mode is currently not supported in the iOS release due to lack
-of a Tesseract Java library that is native iOS.
-
 <img src="figs/capture-mode.png" style="width:0.16667in" alt="image" />
 
 - Use this mode when capturing a phylogeny from a background image.
@@ -174,9 +171,6 @@ Select nodes or edges based on their properties:
   active window.
 
 ## Run Capture Menu Button
-
-Capture mode is currently not supported in the iOS release due to lack
-of a Tesseract Java library that is native iOS.
 
 When a background image has been loaded, these items support capturing a
 tree or network from that image.
@@ -293,6 +287,8 @@ This panel provides options for labeling nodes:
 
 - You can use HTML-like tags for styling text (e.g., `<i>`, `<b>`,
   `<sub>`, `<sup>`).
+
+- **Delete Label** (X) - Remove the labels from the selected nodes (or from all nodes, if none are selected).
 
 ## Node Labels Formatting Panel
 
@@ -502,7 +498,7 @@ The *File* menu contains the usual file-related items:
 - **Export** - Open the export submenu for saving data in different
   formats.
 
-- **Image…** - Export the current canvas as an image file.
+- **Image…** - Export the current tree or network as an image file (PNG, PDF, or SVG), cropped tightly to its content.
 
 - **Newick…** - Export the current tree or network in Newick format.
 
@@ -528,10 +524,12 @@ The *Edit* menu items are:
 
 - **Copy** - Copy the selected items to the clipboard.
 
-- **Copy Image** - Copy an image of the current canvas to the clipboard.
+- **Copy Image** - Copy an image of the current tree or network to the clipboard, cropped tightly to its content.
 
 - **Paste** - Insert the contents of the clipboard into the current
   document.
+
+- **Duplicate** - Create a copy of the selected nodes and edges.
 
 - **Delete** - Remove the selected nodes and/or edges.
 
