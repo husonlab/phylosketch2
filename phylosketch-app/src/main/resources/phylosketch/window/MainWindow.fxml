@@ -427,7 +427,7 @@
                                             <MenuItem fx:id="selectLeavesMenuItem" text="Leaves">
                                                 <accelerator>
                                                     <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP"
-                                                                        shift="UP" shortcut="DOWN"/>
+                                                                        shift="DOWN" shortcut="DOWN"/>
                                                 </accelerator>
                                             </MenuItem>
                                             <MenuItem fx:id="selectRootsMenuItem" text="Roots"/>
@@ -568,6 +568,9 @@
                                             <MenuItem fx:id="copyExportMenuItem" mnemonicParsing="false" text="Copy"/>
                                             <MenuItem fx:id="copyImageExportMenuItem" mnemonicParsing="false"
                                                       text="Copy Image"/>
+                                            <SeparatorMenuItem mnemonicParsing="false"/>
+                                            <MenuItem fx:id="exportImageExportMenuItem" mnemonicParsing="false"
+                                                      text="Export Image..."/>
                                             <MenuItem fx:id="exportExportMenuItem" mnemonicParsing="false"
                                                       text="Export data..."/>
                                             <SeparatorMenuItem mnemonicParsing="false"/>

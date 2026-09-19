@@ -45,8 +45,8 @@ import jloda.fx.find.Searcher;
 import jloda.fx.qr.QRViewUtils;
 import jloda.fx.service.UpdateService;
 import jloda.fx.undo.UndoableRedoableCommand;
-import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.*;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
@@ -338,7 +338,7 @@ public class MainWindowPresenter {
 		controller.getDuplicateMenuItem().setOnAction(e -> view.getUndoManager().doAndAdd(new DuplicateCommand(view, controller.getResizeModeCheckMenuItem().selectedProperty())));
 		controller.getDuplicateMenuItem().disableProperty().bind(document.emptyProperty().or(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch)));
 
-		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(document.getFileName(), window.getStage(), window.getDrawView()));
+		controller.getExportImageMenuItem().setOnAction(e -> ExportImageDialog.show(document.getFileName(), window.getStage(), window.getDrawView(), true));
 
 		controller.getExportImageMenuItem().disableProperty().bind(document.emptyProperty());
 

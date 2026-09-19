@@ -85,6 +85,9 @@ public class MainWindowController {
 	private MenuItem copyImageExportMenuItem;
 
 	@FXML
+	private MenuItem exportImageExportMenuItem;
+
+	@FXML
 	private MenuItem exportExportMenuItem;
 
 	@FXML
@@ -542,6 +545,9 @@ public class MainWindowController {
 
 		copyImageExportMenuItem.setOnAction(e->copyImageMenuItem.getOnAction().handle(e));
 		copyImageExportMenuItem.disableProperty().bind(copyImageMenuItem.disableProperty());
+
+		exportImageExportMenuItem.setOnAction(e -> exportImageMenuItem.getOnAction().handle(e));
+		exportImageExportMenuItem.disableProperty().bind(exportImageMenuItem.disableProperty());
 
 		centerPane.getChildren().add(scrollPane);
 
