@@ -24,6 +24,7 @@ import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Edge;
 import jloda.graph.Node;
+import jloda.phylo.PhyloTree;
 import jloda.util.CollectionUtils;
 import phylosketch.paths.PathUtils;
 import phylosketch.view.DrawView;
@@ -62,14 +63,37 @@ public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 			};
 
 			redo = () -> {
-				var u = view.getGraph().findNodeById(vId);
+				var graph = view.getGraph();
+				var u = graph.findNodeById(vId);
 
 				var e = u.getFirstInEdge();
 				var f = u.getFirstOutEdge();
 
+				// carry the edge values over to the new edge when suppressing the di-vertex:
+				// weights add up, confidences take the minimum and probabilities multiply;
+				// if only one edge has a value, that value is used
+				final var newWeight = combinedWeight(graph, e, f);
+				final var newConfidence = combinedConfidence(graph, e, f);
+				final var newProbability = combinedProbability(graph, e, f);
+
+				// carry over which of these values were being displayed on the replaced edges
+				var eText = (DrawView.getLabel(e) != null ? DrawView.getLabel(e).getText() : "");
+				var fText = (DrawView.getLabel(f) != null ? DrawView.getLabel(f).getText() : "");
+				final var showWeight = newWeight != null && (ShowEdgeValueCommand.hasWeights(eText) || ShowEdgeValueCommand.hasWeights(fText));
+				final var showSupport = newConfidence != null && (ShowEdgeValueCommand.hasSupport(eText) || ShowEdgeValueCommand.hasSupport(fText));
+				final var showProbability = newProbability != null && (ShowEdgeValueCommand.hasProbability(eText) || ShowEdgeValueCommand.hasProbability(fText));
+
 				var strokeWidth = Math.abs(0.5 * (DrawView.getPath(e).getStrokeWidth() + DrawView.getPath(f).getStrokeWidth()));
 				Consumer<Edge> styleEdges = h -> {
 					DrawView.getPath(h).setStrokeWidth(strokeWidth);
+					if (newWeight != null)
+						graph.setWeight(h, newWeight);
+					if (newConfidence != null)
+						graph.setConfidence(h, newConfidence);
+					if (newProbability != null)
+						graph.setProbability(h, newProbability);
+					if (showWeight || showSupport || showProbability)
+						view.setLabel(h, new ShowEdgeValueCommand.Show(showWeight, showSupport, showProbability).makeLabel(view, h));
 				};
 
 
@@ -118,6 +142,54 @@ public class RemoveThruNodesCommand extends UndoableRedoableCommand {
 			undo = null;
 			redo = null;
 		}
+	}
+
+	/**
+	 * weight for the new edge: the sum if both edges have a weight, otherwise the one present value, or null if neither has one
+	 */
+	private static Double combinedWeight(PhyloTree graph, Edge e, Edge f) {
+		var he = graph.hasEdgeWeights() && graph.getEdgeWeights().get(e) != null;
+		var hf = graph.hasEdgeWeights() && graph.getEdgeWeights().get(f) != null;
+		if (he && hf)
+			return graph.getWeight(e) + graph.getWeight(f);
+		else if (he)
+			return graph.getWeight(e);
+		else if (hf)
+			return graph.getWeight(f);
+		else
+			return null;
+	}
+
+	/**
+	 * confidence for the new edge: the minimum if both edges have a confidence, otherwise the one present value, or null if neither has one
+	 */
+	private static Double combinedConfidence(PhyloTree graph, Edge e, Edge f) {
+		var he = graph.hasEdgeConfidences() && graph.getEdgeConfidences().get(e) != null;
+		var hf = graph.hasEdgeConfidences() && graph.getEdgeConfidences().get(f) != null;
+		if (he && hf)
+			return Math.min(graph.getConfidence(e), graph.getConfidence(f));
+		else if (he)
+			return graph.getConfidence(e);
+		else if (hf)
+			return graph.getConfidence(f);
+		else
+			return null;
+	}
+
+	/**
+	 * probability for the new edge: the product if both edges have a probability, otherwise the one present value, or null if neither has one
+	 */
+	private static Double combinedProbability(PhyloTree graph, Edge e, Edge f) {
+		var he = graph.hasEdgeProbabilities() && graph.getEdgeProbabilities().get(e) != null;
+		var hf = graph.hasEdgeProbabilities() && graph.getEdgeProbabilities().get(f) != null;
+		if (he && hf)
+			return graph.getProbability(e) * graph.getProbability(f);
+		else if (he)
+			return graph.getProbability(e);
+		else if (hf)
+			return graph.getProbability(f);
+		else
+			return null;
 	}
 
 	@Override

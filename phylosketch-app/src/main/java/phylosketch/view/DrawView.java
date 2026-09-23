@@ -423,7 +423,9 @@ public class DrawView extends Pane {
 		InvalidationListener listener = a -> RunAfterAWhile.applyInFXThread(updateLabelLocation, updateLabelLocation);
 		path.getElements().addListener((InvalidationListener) a -> updateLabelLocation.run());
 		path.typeProperty().addListener(listener);
-		label.textProperty().addListener(listener);
+		// position immediately on a text change (e.g. a label first becoming non-blank), so it does not
+		// briefly render at the origin before the debounced re-layout moves it to the edge midpoint
+		label.textProperty().addListener((InvalidationListener) a -> updateLabelLocation.run());
 		listener.invalidated(null);
 		edgeLabelsGroup.getChildren().add(label);
 		label.applyCss();
