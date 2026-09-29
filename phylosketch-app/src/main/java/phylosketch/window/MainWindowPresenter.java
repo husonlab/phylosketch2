@@ -147,7 +147,7 @@ public class MainWindowPresenter {
 			});
 		}
 
-		var dragLineBoxSupport = DragLineBoxSupport.setup(view, getCapturePane());
+		var dragLineBoxSupport = DragLineBoxSupport.setup(view, this::getCapturePane); // the capture pane is created below
 
 		var multiTouch = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view);
 		SetupPaneInteraction.apply(view, controller, dragLineBoxSupport, allowResize, multiTouch);

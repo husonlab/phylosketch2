@@ -32,6 +32,8 @@ import jloda.fx.util.RunAfterAWhile;
 import phylosketch.capturepane.pane.CapturePane;
 import phylosketch.paths.PathUtils;
 
+import java.util.function.Supplier;
+
 /**
  * sets up drag lines (for showing when there is alignment with other nodes) and the bounding box that is required
  * to ensure that we don't fly off to the getLeft or up when drawing or dragging
@@ -48,10 +50,11 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 	 * sets up drag lines (for showing when there is alignment with other nodes) and the bounding box that is required
 	 * to ensure that we don't fly off to the getLeft or up when drawing or dragging
 	 *
-	 * @param view the view
+	 * @param view        the view
+	 * @param capturePane the capture pane, asked for when the box is updated, as it does not exist yet when this is set up
 	 * @return the drag lines and boc
 	 */
-	public static DragLineBoxSupport setup(DrawView view, CapturePane capturePane) {
+	public static DragLineBoxSupport setup(DrawView view, Supplier<CapturePane> capturePane) {
 		var box = new Rectangle(-MARGIN, -MARGIN, 2 * MARGIN, 2 * MARGIN);
 		box.setMouseTransparent(true);
 		box.setFill(Color.TRANSPARENT);
@@ -60,9 +63,9 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 
 		Runnable updateBox = () -> {
 			var minX = Double.MAX_VALUE;
-			var maxX = Double.MIN_VALUE;
+			var maxX = -Double.MAX_VALUE;
 			var minY = Double.MAX_VALUE;
-			var maxY = Double.MIN_VALUE;
+			var maxY = -Double.MAX_VALUE;
 
 			for (var v : view.getGraph().nodes()) {
 				var local = view.getLocation(v);
@@ -72,13 +75,13 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 				maxY = Math.max(maxY, local.getY());
 			}
 
-			if (capturePane.isShowCapture()) {
-				var sceneBox = capturePane.getMainPane().localToScene(capturePane.getMainPane().getBoundsInLocal());
+			if (capturePane.get() != null && capturePane.get().isShowCapture()) {
+				var sceneBox = capturePane.get().getMainPane().localToScene(capturePane.get().getMainPane().getBoundsInLocal());
 				var local = view.sceneToLocal(sceneBox);
 				minX = Math.min(minX, local.getMinX());
 				maxX = Math.max(maxX, local.getMaxX());
 				minY = Math.min(minY, local.getMinY());
-				maxY = Math.max(maxY, local.getMaxX());
+				maxY = Math.max(maxY, local.getMaxY());
 			}
 
 			for (var f : view.getGraph().edges()) {
@@ -91,16 +94,20 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 				}
 			}
 
+			if (minX > maxX || minY > maxY) { // nothing to enclose: back to the initial box around the origin
+				minX = maxX = minY = maxY = 0;
+			}
 			box.setX(minX - MARGIN);
 			box.setY(minY - MARGIN);
 			box.setWidth(maxX - minX + 2 * MARGIN);
 			box.setHeight(maxY - minY + 2 * MARGIN);
-			view.setPrefWidth(box.getWidth());
-			view.setPrefHeight(box.getHeight());
+			// the view is not given the size of the box: it starts at the origin, so that would cut off a drawing that
+			// lies far from it. As a child of the view, the box is enclosed by the size the view computes anyway
 		};
 
-		view.getUndoManager().undoStackSizeProperty().addListener(e -> RunAfterAWhile.apply(updateBox, updateBox));
-		view.getNodesGroup().getChildren().addListener((InvalidationListener) e -> RunAfterAWhile.apply(updateBox, updateBox));
+		// the box is part of the scene, so it is changed on the FX thread
+		view.getUndoManager().undoStackSizeProperty().addListener(e -> RunAfterAWhile.applyInFXThread(updateBox, updateBox));
+		view.getNodesGroup().getChildren().addListener((InvalidationListener) e -> RunAfterAWhile.applyInFXThread(updateBox, updateBox));
 
 		var hDragLine = createDragLine(true);
 		hDragLine.setId("h-drag-line");
