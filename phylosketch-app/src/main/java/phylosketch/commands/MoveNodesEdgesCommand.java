@@ -141,8 +141,9 @@ public class MoveNodesEdgesCommand extends UndoableRedoableCommand {
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
 				} else { // target only
-					var index = path.getElements().size() - 1;
 					var tmp = path.copyToFreeform();
+					// the end of the freeform copy, which has more points than a straight, rectangular or curved path
+					var index = tmp.getElements().size() - 1;
 					PathReshape.apply(tmp, index, dx, dy);
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
