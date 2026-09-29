@@ -95,6 +95,8 @@ public class MainWindowPresenter {
 
 	private final BooleanProperty allowResize = new SimpleBooleanProperty(this, "enableResize", false);
 
+	private final NodeGrid grid = new NodeGrid();
+
 	public MainWindowPresenter(MainWindow window) {
 		this.window = window;
 		this.document = window.getDocument();
@@ -151,7 +153,7 @@ public class MainWindowPresenter {
 
 		var multiTouch = MultiTouchGestureMonitor.setup(controller.getScrollPane(), view);
 		SetupPaneInteraction.apply(view, controller, dragLineBoxSupport, allowResize, multiTouch);
-		SetupNodeInteraction.apply(view, controller.getResizeModeCheckMenuItem().selectedProperty(), dragLineBoxSupport, multiTouch);
+		SetupNodeInteraction.apply(view, controller.getResizeModeCheckMenuItem().selectedProperty(), dragLineBoxSupport, multiTouch, grid);
 		SetupNodeLabelInteraction.apply(view, multiTouch);
 		SetupEdgeInteraction.apply(view, controller.getResizeModeCheckMenuItem().selectedProperty(), multiTouch);
 		SetupEdgeLabelInteraction.apply(view, multiTouch);
@@ -304,6 +306,21 @@ public class MainWindowPresenter {
 		controller.getZoomOutMenuItem().disableProperty().bind(controller.getZoomInMenuItem().disableProperty());
 		controller.getZoomToFitMenuItem().setOnAction(e -> ZoomToFit.apply(window));
 		controller.getZoomToFitMenuItem().disableProperty().bind(document.emptyProperty());
+
+		// The grid, to make it easy to pull a phylogeny into a rectilinear drawing by hand: switching it on snaps all
+		// nodes to the grid, as one edit that can be undone, and while it is on, dragged nodes move in grid steps.
+		// As switching it on is an edit, that needs the Sketch or Move mode; switching it off does not
+		controller.getUseGridCheckMenuItem().selectedProperty().bindBidirectional(grid.snapProperty());
+		controller.getUseGridCheckMenuItem().setOnAction(e -> {
+			if (grid.isSnap())
+				view.getUndoManager().doAndAdd(new SnapToGridCommand(view, grid));
+		});
+		controller.getUseGridCheckMenuItem().disableProperty().bind(
+				(grid.snapProperty()
+						.or(view.modeProperty().isEqualTo(DrawView.Mode.Sketch))
+						.or(view.modeProperty().isEqualTo(DrawView.Mode.Move))
+				).not().or(document.emptyProperty())
+		);
 
 		document.emptyProperty().addListener((v, o, n) -> {
 			if (n)
@@ -463,6 +480,14 @@ public class MainWindowPresenter {
 			view.getUndoManager().doAndAdd(new FlipCommand(view, view.getSelectedOrAllNodes(), false, isRotatingOrFlipping));
 		});
 		controller.getFlipVerticalMenuItem().disableProperty().bind(controller.getRotateLeftMenuItem().disableProperty());
+
+		var isRectilinearLayoutRunning = new SimpleBooleanProperty(this, "isRectilinearLayoutRunning", false);
+		controller.getRectilinearLayoutMenuItem().setOnAction(e -> {
+			allowResize.set(false);
+			RectilinearLayoutCommand.apply(view, grid, isRectilinearLayoutRunning);
+		});
+		controller.getRectilinearLayoutMenuItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Move))
+				.or(document.emptyProperty()).or(isRectilinearLayoutRunning));
 
 		var updaterService = UpdateService.get();
 		controller.getCheckForUpdatesMenuItem().setOnAction(e -> updaterService.checkForUpdates(window.getStage(), Version.HOME_URL, Version.NAME, Version.VERSION));
@@ -765,6 +790,11 @@ public class MainWindowPresenter {
 		formatController.getRotateRightButton().setOnAction(controller.getRotateRightMenuItem().getOnAction());
 		formatController.getHorizontalFlipButton().setOnAction(controller.getFlipHorizontalMenuItem().getOnAction());
 		formatController.getVerticalFlipButton().setOnAction(controller.getFlipVerticalMenuItem().getOnAction());
+		formatController.getGridToggleButton().selectedProperty().bindBidirectional(controller.getUseGridCheckMenuItem().selectedProperty());
+		formatController.getGridToggleButton().setOnAction(controller.getUseGridCheckMenuItem().getOnAction());
+		formatController.getGridToggleButton().disableProperty().bind(controller.getUseGridCheckMenuItem().disableProperty());
+		formatController.getRectilinearLayoutButton().setOnAction(controller.getRectilinearLayoutMenuItem().getOnAction());
+		formatController.getRectilinearLayoutButton().disableProperty().bind(controller.getRectilinearLayoutMenuItem().disableProperty());
 		formatController.getResizeModeButton().selectedProperty().bindBidirectional(controller.getResizeModeCheckMenuItem().selectedProperty());
 		formatController.getLayoutLabelsButton().setOnAction(controller.getLayoutLabelMenuItem().getOnAction());
 		formatController.getZoomInButton().setOnAction(controller.getZoomInMenuItem().getOnAction());

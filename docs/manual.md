@@ -458,6 +458,16 @@ phylogenetic tree or network:
 
 - **Vert. Flip** - Reflect the phylogeny across a horizontal axis.
 
+- **Grid** - Toggle the grid. Switching it on snaps all nodes to a grid,
+  no two onto the same point, and while it is on, dragged nodes move in
+  grid steps, which makes it easy to tidy up a drawing by hand.
+
+- **Rectilinear** - Redraw the phylogeny on the grid, with straight
+  edges that run horizontally or vertically where possible and
+  diagonally otherwise, with few crossings and room for labels. This
+  switches the grid on, so that the drawing can then be adjusted by
+  hand.
+
 - **Resize Mode** - Toggle an interactive mode that allows resizing the
   layout by direct manipulation.
 
@@ -476,9 +486,51 @@ phylogenetic tree or network:
 
 ## Transforming Nodes and Edges
 
-- In Transform Mode, drag nodes to move them.
+- In Transform Mode, drag nodes to move them. If the grid is on, they
+  move in grid steps (see below).
 
 - Drag on edges to adjust their shape and control points.
+
+## Grid and Rectilinear Layout
+
+The grid makes it easy to tidy up a drawing by hand, and the rectilinear
+layout does it for you. Both are available in Edit Mode and in Transform
+Mode.
+
+- **Use Grid** (*View* menu, or **Grid** in the Transform panel) snaps
+  all nodes to a grid, no two onto the same point. Edges follow their
+  nodes: rectangular edges stay rectangular, and the horizontal and
+  vertical stretches of hand-drawn edges stay horizontal and vertical.
+
+- While the grid is on, a dragged node moves from grid point to grid
+  point. If it is selected, the other selected nodes move with it,
+  keeping their offsets to it.
+
+- The spacing of the grid is chosen for the drawing, at half the typical
+  length of an edge, so that nodes joined by a typical edge end up two
+  grid steps apart. A drawing that was saved while on the grid keeps its
+  grid when it is opened again and the grid is switched on.
+
+- Switching the grid on can be undone, which also switches it off again.
+  Switching it off leaves all nodes where they are.
+
+- **Rectilinear Layout** (*Layout* menu, or **Rectilinear** in the
+  Transform panel) redraws the whole phylogeny on the grid. All edges
+  become straight lines, running horizontally or vertically where
+  possible and diagonally otherwise, with few crossings and with room
+  for the labels, which are placed away from the edges. The drawing stays
+  where it was, the grid is switched on, so that the result can then be
+  adjusted by hand, and the whole layout can be undone in one step.
+
+- The rectilinear layout stops after at most two seconds, which
+  suffices for phylogenies of a hundred nodes or so; within that time,
+  the same drawing always gives the same result. It treats the edges as
+  lines between nodes, without regard to where the root is; use *Draw
+  Phylogeny* to get back a conventional drawing.
+
+- Only dragging uses the grid. New nodes, and nodes moved by rotating,
+  flipping, resizing or *Draw Phylogeny*, can lie off the grid; switch
+  the grid off and on again to snap them.
 
 # Menus (Desktop only)
 
@@ -580,6 +632,10 @@ available:
 
 - **Flip Vertical** - Flip the tree or network vertically.
 
+- **Rectilinear Layout** - Redraw the tree or network on the grid, so
+  that edges run horizontally or vertically where possible and
+  diagonally otherwise, and switch the grid on.
+
 - **Resize Mode** - Enable or disable resize mode, allowing the layout
   to be resized and repositioned.
 
@@ -624,6 +680,9 @@ and layout of the canvas:
 
 - **Zoom To Fit** - Adjust the zoom level to fit the entire phylogeny
   within the window.
+
+- **Use Grid** - Snap all nodes to a grid; while it is on, dragged
+  nodes move in grid steps.
 
 - **Enter Full Screen** - Switch the application to full-screen mode for
   an immersive view.

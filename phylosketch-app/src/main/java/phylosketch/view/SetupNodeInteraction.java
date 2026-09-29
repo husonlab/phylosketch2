@@ -28,6 +28,7 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import jloda.fx.util.ProgramProperties;
+import jloda.util.Single;
 import phylosketch.commands.MoveNodesEdgesCommand;
 
 import java.util.ArrayList;
@@ -52,13 +53,16 @@ public class SetupNodeInteraction {
 	 * Note that creation of new nodes is setup in SetupPaneInteraction
 	 *
 	 * @param view
+	 * @param grid while it is on, dragged nodes move in grid steps
 	 */
-	public static void apply(DrawView view, BooleanProperty resizeMode, DragLineBoxSupport dragLineBoxSupport, ReadOnlyBooleanProperty multiTouch) {
+	public static void apply(DrawView view, BooleanProperty resizeMode, DragLineBoxSupport dragLineBoxSupport, ReadOnlyBooleanProperty multiTouch, NodeGrid grid) {
 		var hDragLine = dragLineBoxSupport.hDragLine();
 		var vDragLine = dragLineBoxSupport.vDragLine();
 		var box = dragLineBoxSupport.box();
 
 		var nodesToDrag = new ArrayList<jloda.graph.Node>();
+		// where the mouse would have taken the grabbed node, were it not for the grid
+		var dragPoint = new Single<Point2D>();
 
 		view.getNodesGroup().getChildren().addListener((ListChangeListener<? super Node>) c -> {
 			while (c.next()) {
@@ -96,6 +100,7 @@ public class SetupNodeInteraction {
 										mouseX = mouseDownX;
 										mouseY = mouseDownY;
 										moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
+										dragPoint.set(view.getLocation(v));
 										me.consume();
 									}
 								}
@@ -115,8 +120,17 @@ public class SetupNodeInteraction {
 									var location = view.sceneToLocal(me.getSceneX(), me.getSceneY());
 									if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
 										var d = new Point2D(location.getX() - previous.getX(), location.getY() - previous.getY());
-										// todo: show node moving:
-										moveNodesEdgesCommand.moveNodesAndEdges(d.getX(), d.getY());
+										if (grid.isSnap()) {
+											// in grid steps: the grabbed node goes to the grid point nearest to where the mouse would
+											// have taken it, and the other dragged nodes keep their offsets to it
+											dragPoint.set(dragPoint.get().add(d));
+											d = grid.snap(dragPoint.get()).subtract(view.getLocation(v));
+											if (d.getX() != 0 || d.getY() != 0)
+												moveNodesEdgesCommand.moveNodesAndEdges(d.getX(), d.getY());
+										} else {
+											// todo: show node moving:
+											moveNodesEdgesCommand.moveNodesAndEdges(d.getX(), d.getY());
+										}
 									}
 									mouseX = me.getSceneX();
 									mouseY = me.getSceneY();

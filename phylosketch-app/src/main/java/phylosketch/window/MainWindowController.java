@@ -305,6 +305,9 @@ public class MainWindowController {
 	private MenuItem zoomToFitMenuItem;
 
 	@FXML
+	private CheckMenuItem useGridCheckMenuItem;
+
+	@FXML
 	private Button undoButton;
 
 	@FXML
@@ -435,6 +438,9 @@ public class MainWindowController {
 
 	@FXML
 	private MenuItem flipVerticalMenuItem;
+
+	@FXML
+	private MenuItem rectilinearLayoutMenuItem;
 
 	@FXML
 	private MenuButton modeMenuButton;
@@ -847,6 +853,10 @@ public class MainWindowController {
 		return zoomToFitMenuItem;
 	}
 
+	public CheckMenuItem getUseGridCheckMenuItem() {
+		return useGridCheckMenuItem;
+	}
+
 	public ZoomableScrollPane getScrollPane() {
 		return scrollPane;
 	}
@@ -985,6 +995,10 @@ public class MainWindowController {
 
 	public MenuItem getFlipVerticalMenuItem() {
 		return flipVerticalMenuItem;
+	}
+
+	public MenuItem getRectilinearLayoutMenuItem() {
+		return rectilinearLayoutMenuItem;
 	}
 
 	public MenuButton getModeMenuButton() {

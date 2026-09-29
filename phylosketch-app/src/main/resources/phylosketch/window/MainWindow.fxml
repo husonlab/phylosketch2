@@ -265,6 +265,8 @@
                                                             shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="rectilinearLayoutMenuItem" mnemonicParsing="false"
+                                          text="Rectilinear Layout"/>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
                                 <CheckMenuItem fx:id="resizeModeCheckMenuItem" mnemonicParsing="false"
                                                text="Resize Mode">
@@ -336,6 +338,7 @@
                                                                 shortcut="DOWN"/>
                                         </accelerator>
                                     </MenuItem>
+                                    <CheckMenuItem fx:id="useGridCheckMenuItem" mnemonicParsing="false" text="Use Grid"/>
                                     <SeparatorMenuItem mnemonicParsing="false"/>
                                     <MenuItem fx:id="fullScreenMenuItem" mnemonicParsing="false"
                                               text="Enter Full Screen">

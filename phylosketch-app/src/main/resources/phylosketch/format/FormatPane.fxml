@@ -782,6 +782,7 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                     </rowConstraints>
                                     <children>
                                         <Button fx:id="verticalFlipButton" layoutX="21.0" layoutY="23.0"
@@ -809,14 +810,28 @@
                                                 <Tooltip text="Rotate left"/>
                                             </tooltip>
                                         </Button>
+                                        <ToggleButton fx:id="gridToggleButton" mnemonicParsing="false" text="Grid"
+                                                      GridPane.rowIndex="3">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Snap nodes to a grid: aligns all nodes, and dragged nodes then move in grid steps"/>
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <Button fx:id="rectilinearLayoutButton" mnemonicParsing="false"
+                                                text="Rectilinear" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Rectilinear layout: move the nodes on the grid so that edges run horizontally, vertically or diagonally, with few crossings"/>
+                                            </tooltip>
+                                        </Button>
                                         <Button fx:id="layoutLabelsButton" mnemonicParsing="false" text="Layout Labels"
-                                                GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                GridPane.columnIndex="1" GridPane.rowIndex="4">
                                             <tooltip>
                                                 <Tooltip text="Layout labels"/>
                                             </tooltip>
                                         </Button>
                                         <ToggleButton fx:id="resizeModeButton" mnemonicParsing="false"
-                                                      text="Resize Mode" GridPane.rowIndex="3">
+                                                      text="Resize Mode" GridPane.rowIndex="4">
                                             <tooltip>
                                                 <Tooltip text="Turn resize mode or off"/>
                                             </tooltip>

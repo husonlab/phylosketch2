@@ -239,6 +239,12 @@ public class FormatPaneController {
 	private Button rotateRightButton;
 
 	@FXML
+	private ToggleButton gridToggleButton;
+
+	@FXML
+	private Button rectilinearLayoutButton;
+
+	@FXML
 	private Button layoutLabelsButton;
 
 	@FXML
@@ -336,6 +342,8 @@ public class FormatPaneController {
 			MaterialIcons.setIcon(horizontalFlipButton, MaterialIcons.swap_horiz, "", false);
 			MaterialIcons.setIcon(rotateLeftButton, MaterialIcons.rotate_left, "", false);
 			MaterialIcons.setIcon(rotateRightButton, MaterialIcons.rotate_right, "", false);
+			MaterialIcons.setIcon(gridToggleButton, MaterialIcons.grid_on, "", false);
+			MaterialIcons.setIcon(rectilinearLayoutButton, MaterialIcons.straighten, "", false);
 			MaterialIcons.setIcon(layoutLabelsButton, MaterialIcons.text_rotation_none, "", false);
 			MaterialIcons.setIcon(resizeModeButton, MaterialIcons.grid_goldenratio, "", false);
 		});
@@ -613,6 +621,14 @@ public class FormatPaneController {
 
 	public Button getRotateRightButton() {
 		return rotateRightButton;
+	}
+
+	public ToggleButton getGridToggleButton() {
+		return gridToggleButton;
+	}
+
+	public Button getRectilinearLayoutButton() {
+		return rectilinearLayoutButton;
 	}
 
 	public Button getLayoutLabelsButton() {
