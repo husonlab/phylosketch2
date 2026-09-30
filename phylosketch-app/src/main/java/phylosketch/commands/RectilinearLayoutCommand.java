@@ -28,8 +28,8 @@ import jloda.fx.util.AService;
 import jloda.fx.util.GeometryUtilsFX;
 import jloda.fx.window.NotificationManager;
 import jloda.graph.Node;
+import jloda.graph.layout.RectilinearLayout;
 import phylosketch.paths.EdgePath;
-import phylosketch.utils.RectilinearLayout;
 import phylosketch.view.DrawView;
 import phylosketch.view.NodeGrid;
 
