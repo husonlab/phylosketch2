@@ -20,8 +20,7 @@ The program runs on MacOS X, Linux and Windows, and is also designed for touch-s
 
 More details are presented in the [User Manual](https://husonlab.github.io/phylosketch2/manual.html), which is also available as a [pdf](https://husonlab.github.io/phylosketch2/manual.pdf).
 
-See this manuscript for some algorithmic details and please cite it, if you use the program: Daniel H. Huson, Sketch, capture and layout phylogenies, to appear in: PLoS Computational Biology [bioRxiv](https://doi.org/10.1101/2025.04.01.646633).
-
+See this manuscript for some algorithmic details and please cite it, if you use the program: Huson DH (2025) Sketch, capture and layout phylogenies. PLOS Computational Biology 21(12): e1013805. https://doi.org/10.1371/journal.pcbi.1013805
 
 
 ## Phylogeny capture
