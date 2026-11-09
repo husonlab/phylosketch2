@@ -26,7 +26,7 @@ import org.bytedeco.javacpp.IntPointer;
 import org.bytedeco.tesseract.TessBaseAPI;
 import phylosketch.ocr.OcrProvider;
 import phylosketch.ocr.OcrWord;
-import phylosketch.ocr.utils.PngEncoderFX;
+import phylosketch.ocr.utils.PngWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class TesseractOcrProvider implements OcrProvider {
 
 		// Encode the JavaFX image to PNG in memory and let Leptonica read it directly,
 		// avoiding the temp-file round trip the original used.
-		var bytes = new PngEncoderFX(image, true, PngEncoderFX.FILTER_NONE, 9).pngEncode();
+		var bytes = PngWriter.encode(image);
 
 		var words = new ArrayList<OcrWord>();
 		try (var data = new BytePointer(bytes); var pix = pixReadMem(data, bytes.length)) {

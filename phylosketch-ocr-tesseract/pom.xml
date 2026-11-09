@@ -46,7 +46,7 @@
     </properties>
 
     <dependencies>
-        <!-- the platform-neutral OCR API (OcrProvider, OcrWord, OCRService, PngEncoderFX) -->
+        <!-- the platform-neutral OCR API (OcrProvider, OcrWord, OCRService, PngWriter) -->
         <dependency>
             <groupId>org.husonlab</groupId>
             <artifactId>phylosketch-ocr</artifactId>

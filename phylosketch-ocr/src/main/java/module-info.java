@@ -8,7 +8,7 @@
  * and discovered at runtime via {@link java.util.ServiceLoader}.
  */
 module phylosketch.ocr {
-	requires javafx.graphics;          // Image, Rectangle2D, Platform; also covers PngEncoderFX
+	requires javafx.graphics;          // Image, Rectangle2D, Platform; also covers PngWriter
 
 	exports phylosketch.ocr;
 	exports phylosketch.ocr.utils;

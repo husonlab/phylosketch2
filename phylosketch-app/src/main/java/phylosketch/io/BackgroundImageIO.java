@@ -22,7 +22,7 @@ package phylosketch.io;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import jloda.fx.thirdparty.PngEncoderFX;
+import jloda.fx.util.PngWriter;
 
 import java.io.*;
 import java.util.Base64;
@@ -41,7 +41,7 @@ public class BackgroundImageIO {
 	 */
 	public static void save(ImageView imageView, Writer w) throws IOException {
 		if (imageView.getImage() != null) {
-			var bytes = PngEncoderFX.encode(imageView.getImage());
+			var bytes = PngWriter.encode(imageView.getImage());
 			var encoded = Base64.getEncoder().encodeToString(bytes);
 			w.write("[Image: %.0f %.0f %.0f %.0f %s]\n".formatted(imageView.getX(), imageView.getY(), imageView.getFitWidth(), imageView.getFitHeight(), encoded));
 		}
