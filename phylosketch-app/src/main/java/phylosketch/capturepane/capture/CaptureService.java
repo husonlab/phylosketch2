@@ -99,7 +99,7 @@ public class CaptureService extends AService<Boolean> {
 				var matrix = ImageUtils.convertToBinaryArray(getInputImage());
 
 				if (ImageUtils.tooMuchBlack(matrix, 0.30)) {
-					throw new RuntimeException("Image has too much foreground");
+					throw new UnsuitableImageException("This image cannot be captured: too much of it is dark. Capture needs a drawing with dark lines on a light background.");
 				}
 
 				// Capture the words first so we can erase their boxes from the image before tracing. Otherwise
@@ -365,5 +365,15 @@ public class CaptureService extends AService<Boolean> {
 
 	public Parameters getParameters() {
 		return parameters;
+	}
+
+	/**
+	 * thrown when the input image is not one that can be captured, such as a photo that is mostly dark. This is not
+	 * a program error: the message is meant to be shown to the user as is
+	 */
+	public static class UnsuitableImageException extends Exception {
+		public UnsuitableImageException(String message) {
+			super(message);
+		}
 	}
 }

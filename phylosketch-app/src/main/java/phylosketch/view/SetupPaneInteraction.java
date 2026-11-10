@@ -214,6 +214,14 @@ public class SetupPaneInteraction {
 
 		view.setOnMouseDragged(me -> {
 			createNodePause.stop();
+			if (SetupNodeInteraction.inMove) {
+				// A node is being moved. Its drag events also arrive here, and on a touch screen the pane may have seen
+				// the start of the gesture as well, when the finger went down on the edge of the node. Moving a node
+				// must never open the selection rectangle.
+				inRubberBandSelection.set(false);
+				me.consume();
+				return;
+			}
 			var location = view.sceneToLocal(me.getSceneX(), me.getSceneY());
 			if (inDrawingEdge.get()) {
 				if (!multiTouch.get()) {

@@ -555,6 +555,10 @@ public class MainWindowController {
 		exportImageExportMenuItem.setOnAction(e -> exportImageMenuItem.getOnAction().handle(e));
 		exportImageExportMenuItem.disableProperty().bind(exportImageMenuItem.disableProperty());
 
+		// this item of the export button had no action; it exports the phylogeny in Newick format, as File > Export does
+		exportExportMenuItem.setOnAction(e -> exportNewickMenuItem.getOnAction().handle(e));
+		exportExportMenuItem.disableProperty().bind(exportNewickMenuItem.disableProperty());
+
 		centerPane.getChildren().add(scrollPane);
 
 		centerAnchorPane.setMinWidth(AnchorPane.USE_PREF_SIZE);
@@ -674,6 +678,10 @@ public class MainWindowController {
 
 	public MenuItem getExportExportMenuItem() {
 		return exportExportMenuItem;
+	}
+
+	public MenuItem getExportImageExportMenuItem() {
+		return exportImageExportMenuItem;
 	}
 
 	public MenuItem getCopyMenuItem() {

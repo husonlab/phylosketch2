@@ -95,6 +95,7 @@ public class SetupNodeInteraction {
 
 									inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 									if (inMove) {
+										SetupPaneInteraction.inRubberBandSelection.set(false); // moving a node never selects
 										mouseDownX = me.getSceneX();
 										mouseDownY = me.getSceneY();
 										mouseX = mouseDownX;

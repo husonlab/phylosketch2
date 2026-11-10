@@ -575,7 +575,7 @@
                                             <MenuItem fx:id="exportImageExportMenuItem" mnemonicParsing="false"
                                                       text="Export Image..."/>
                                             <MenuItem fx:id="exportExportMenuItem" mnemonicParsing="false"
-                                                      text="Export data..."/>
+                                                      text="Export Newick..."/>
                                             <SeparatorMenuItem mnemonicParsing="false"/>
                                             <CheckMenuItem fx:id="showNewick" mnemonicParsing="false"
                                                            text="Show Newick"/>

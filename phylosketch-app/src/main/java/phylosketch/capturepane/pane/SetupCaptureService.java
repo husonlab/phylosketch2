@@ -56,8 +56,12 @@ public class SetupCaptureService {
 	 */
 	public static CaptureService apply(MainWindowController controller, DrawView view, CapturePane capturePane) {
 		final CaptureService service = new CaptureService(e -> {
-			Basic.caught(e);
-			WindowNotifications.showWarning(controller.getCenterAnchorPane(), "Image capture failed: " + e.getMessage());
+			if (e instanceof CaptureService.UnsuitableImageException) { // a bad image, not a program error
+				WindowNotifications.showWarning(controller.getCenterAnchorPane(), e.getMessage());
+			} else {
+				Basic.caught(e);
+				WindowNotifications.showWarning(controller.getCenterAnchorPane(), "Image capture failed: " + e.getMessage());
+			}
 		});
 		final SelectionModel<OcrWord> wordSelection = new SetSelectionModel<>();
 		final SelectionModel<Segment> pathSelection = new SetSelectionModel<>();
