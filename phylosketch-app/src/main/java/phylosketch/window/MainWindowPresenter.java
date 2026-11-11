@@ -820,8 +820,12 @@ public class MainWindowPresenter {
 									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Move mode: Click and drag on nodes, edges and labels to move them.");
 							case View ->
 									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "View mode: View the phylogeny without editing.");
-							case Sketch ->
-									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: To creat a node, double-click on the pane. Then press-drag to create edges.");
+							case Sketch -> {
+								if (ProgramProperties.isDesktop())
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Double-click on pane to create a node. Then press-drag to create edges.");
+								else
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Tap on pane to create a node. Then press-drag to create edges.");
+							}
 						}
 					}
 				});
