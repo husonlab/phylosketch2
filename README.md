@@ -11,9 +11,8 @@ The program runs on MacOS X, Linux and Windows, and is also designed for touch-s
 ## Installation
 
 * The MacOS X, Linux and Windows are available from here: [software-ab.cs.uni-tuebingen.de](https://software-ab.cs.uni-tuebingen.de/download/phylosketch2/welcome.html).
-* The iOS App is available for testing via Apple TestFlight. If you are interested in
-  beta testing, then please contact the author for an invitation.
-  ~~* Download and install the PhyloSketch app from the App Store or Google Play.~~
+* PhyloSketch is also available as an app for iPhone and iPad: see the [PhyloSketch App page](https://husonlab.github.io/mobile-apps/phylosketch.html)
+  for a description of the app and how to get it.
 * Open the app and grant any necessary permissions for accessing storage, if prompted.
 
 ## User Manual and publication
