@@ -30,7 +30,7 @@ import java.util.List;
 public class ExtensionFilters {
 	private final static FileChooser.ExtensionFilter phyloSketch = new FileChooser.ExtensionFilter("PhyloSketch file", "*.psketch", "*.psketch.gz");
 	private final static FileChooser.ExtensionFilter newick = new FileChooser.ExtensionFilter("Newick file", "*.nwk", "*.newick", "*.new", "*.tree", "*.tre", "*.trees", "*.treefile");
-	private final static FileChooser.ExtensionFilter nexusPhyloSketch1 = new FileChooser.ExtensionFilter("Nexus file (by PhyloSketch1)", "*.nexus");
+	private final static FileChooser.ExtensionFilter nexusPhyloSketch1 = new FileChooser.ExtensionFilter("Nexus file (trees, or by PhyloSketch1)", "*.nexus", "*.nex", "*.nxs");
 	private final static FileChooser.ExtensionFilter text = new FileChooser.ExtensionFilter("Text file", "*.txt");
 	private final static FileChooser.ExtensionFilter any = new FileChooser.ExtensionFilter("Any file", "*.*");
 	private final static List<FileChooser.ExtensionFilter> allSupported = createAllSupported();

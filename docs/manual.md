@@ -542,7 +542,8 @@ The *File* menu contains the usual file-related items:
 
 - **Open…** - Open an existing document (file suffix `.psketch`).
   Additionally, you can import a tree or network from a file in Newick
-  format (file suffix `.new`, `.tre` or similar) or from a file created
+  format (file suffix `.new`, `.tre` or similar), from a Nexus file that
+  contains trees (file suffix `.nex` or `.nexus`) or from a file created
   by PhyloSketch1 (file suffix `.nexus`).
 
 - **Recent** - Access a list of recently opened files.
