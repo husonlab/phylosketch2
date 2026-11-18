@@ -55,7 +55,9 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 	 * @return the drag lines and boc
 	 */
 	public static DragLineBoxSupport setup(DrawView view, Supplier<CapturePane> capturePane) {
-		var box = new Rectangle(-MARGIN, -MARGIN, 2 * MARGIN, 2 * MARGIN);
+		// in an empty document, the box lies at the origin and not around it: a box that reaches into negative
+		// coordinates shifts the whole view, and the first node would then jump as soon as the box is put around it
+		var box = new Rectangle(0, 0, 2 * MARGIN, 2 * MARGIN);
 		box.setMouseTransparent(true);
 		box.setFill(Color.TRANSPARENT);
 		box.setStroke(Color.TRANSPARENT);
@@ -94,8 +96,8 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 				}
 			}
 
-			if (minX > maxX || minY > maxY) { // nothing to enclose: back to the initial box around the origin
-				minX = maxX = minY = maxY = 0;
+			if (minX > maxX || minY > maxY) { // nothing to enclose: back to the initial box at the origin
+				minX = maxX = minY = maxY = MARGIN;
 			}
 			box.setX(minX - MARGIN);
 			box.setY(minY - MARGIN);

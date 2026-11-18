@@ -164,6 +164,24 @@ public class MainWindowPresenter {
 
 		controller.getScrollPane().setContent(view);
 
+		// The view is as large as its content needs, and a press outside the view does not reach it. So the view
+		// covers at least the visible part of the scroll pane: a node can be created and a selection opened anywhere
+		// in it, also in an empty document, whose view would otherwise be a small square at the top left
+		{
+			var scrollPane = controller.getScrollPane();
+			InvalidationListener coverViewport = e -> {
+				var viewport = scrollPane.getViewportBounds();
+				if (viewport != null && scrollPane.getZoomX() > 0 && scrollPane.getZoomY() > 0) {
+					view.setMinWidth(Math.max(0, Math.floor(viewport.getWidth() / scrollPane.getZoomX()) - 1));
+					view.setMinHeight(Math.max(0, Math.floor(viewport.getHeight() / scrollPane.getZoomY()) - 1));
+				}
+			};
+			scrollPane.viewportBoundsProperty().addListener(coverViewport);
+			scrollPane.zoomXProperty().addListener(coverViewport);
+			scrollPane.zoomYProperty().addListener(coverViewport);
+			coverViewport.invalidated(null);
+		}
+
 		controller.getQuitMenuItem().setOnAction((e) -> {
 			while (MainWindowManager.getInstance().size() > 0) {
 				final MainWindow aWindow = (MainWindow) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);

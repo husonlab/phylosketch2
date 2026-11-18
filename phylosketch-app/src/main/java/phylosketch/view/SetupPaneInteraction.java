@@ -59,6 +59,8 @@ public class SetupPaneInteraction {
 
 	private final static Path path = new Path();
 
+	private final static double TAP_TOLERANCE = 12; // how far a finger may move during a tap, in pixels
+
 	static {
 		path.getStyleClass().add("graph-edge");
 	}
@@ -273,6 +275,15 @@ public class SetupPaneInteraction {
 		view.setOnMouseReleased(me -> {
 			createNodePause.stop();
 			view.setCursor(Cursor.DEFAULT);
+
+			// On a touch screen, a tap creates the first node of a document (see the click handler). A finger rarely
+			// stays put, though: iOS reports a drag after a movement of three points, and the click that follows a drag
+			// does not go to the view. So a press that is released close to where it started counts as a tap as well
+			if (!ProgramProperties.isDesktop() && !me.isStillSincePress() && !multiTouch.get() && view.getMode() == DrawView.Mode.Sketch
+				&& view.getGraphFX().isEmpty() && Math.hypot(me.getScreenX() - mouseDownX, me.getScreenY() - mouseDownY) <= TAP_TOLERANCE) {
+				var location = view.screenToLocal(mouseDownX, mouseDownY);
+				view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
+			}
 
 			if (inDrawingEdge.get()) {
 				view.getEdgesGroup().getChildren().remove(path);
