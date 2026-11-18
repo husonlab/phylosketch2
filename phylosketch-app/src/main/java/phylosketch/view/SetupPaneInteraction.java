@@ -171,7 +171,9 @@ public class SetupPaneInteraction {
 			}
 
 			if (view.getMode() == DrawView.Mode.Sketch && me.isStillSincePress() && !multiTouch.get()) {
-				if (me.getClickCount() == 2 || !ProgramProperties.isDesktop() && view.getGraphFX().isEmpty()) {
+				// the graph itself is asked whether it is empty: the release handler may just have created the first node,
+				// and the graphFX learns of that only later
+				if (me.getClickCount() == 2 || !ProgramProperties.isDesktop() && view.getGraph().getNumberOfNodes() == 0) {
 					createNodePause.stop();
 					var location = view.screenToLocal(me.getScreenX(), me.getScreenY());
 					view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
@@ -280,7 +282,7 @@ public class SetupPaneInteraction {
 			// stays put, though: iOS reports a drag after a movement of three points, and the click that follows a drag
 			// does not go to the view. So a press that is released close to where it started counts as a tap as well
 			if (!ProgramProperties.isDesktop() && !me.isStillSincePress() && !multiTouch.get() && view.getMode() == DrawView.Mode.Sketch
-				&& view.getGraphFX().isEmpty() && Math.hypot(me.getScreenX() - mouseDownX, me.getScreenY() - mouseDownY) <= TAP_TOLERANCE) {
+				&& view.getGraph().getNumberOfNodes() == 0 && Math.hypot(me.getScreenX() - mouseDownX, me.getScreenY() - mouseDownY) <= TAP_TOLERANCE) {
 				var location = view.screenToLocal(mouseDownX, mouseDownY);
 				view.getUndoManager().doAndAdd(new CreateNodeCommand(view, location, null));
 			}
