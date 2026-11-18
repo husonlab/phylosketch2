@@ -22,6 +22,7 @@ package phylosketch.commands;
 
 import javafx.geometry.Point2D;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.view.DrawView;
 
 /**
@@ -54,6 +55,10 @@ public class CreateNodeCommand extends UndoableRedoableCommand {
 			if (label != null)
 				view.setLabel(v, label);
 			newNodeId = v.getId();
+			// On a touch screen, dragging a selected node moves it and dragging any other node draws an edge. A node
+			// that has just been sketched is where the next edge usually starts, so it is not left selected
+			if (!ProgramProperties.isDesktop())
+				view.getNodeSelection().clearSelection(v);
 		};
 	}
 

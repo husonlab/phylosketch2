@@ -842,7 +842,7 @@ public class MainWindowPresenter {
 								if (ProgramProperties.isDesktop())
 									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Double-click on pane to create a node. Then press-drag to create edges.");
 								else
-									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Tap on pane to create a node. Then press-drag to create edges.");
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Tap on pane to create a node. Then press-drag to create edges. To move a node, tap it and then drag it.");
 							}
 						}
 					}

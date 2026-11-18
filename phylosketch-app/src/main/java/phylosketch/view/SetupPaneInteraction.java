@@ -59,7 +59,7 @@ public class SetupPaneInteraction {
 
 	private final static Path path = new Path();
 
-	private final static double TAP_TOLERANCE = 12; // how far a finger may move during a tap, in pixels
+	final static double TAP_TOLERANCE = 12; // how far a finger may move during a tap, in pixels
 
 	static {
 		path.getStyleClass().add("graph-edge");

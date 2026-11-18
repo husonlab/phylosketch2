@@ -25,6 +25,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoManager;
+import jloda.fx.util.ProgramProperties;
 
 public class LabelUtils {
 	private static double mouseDownX;
@@ -48,6 +49,13 @@ public class LabelUtils {
 		});
 		label.setOnMouseDragged(e -> {
 			if (allow.get() && !label.getRawText().isBlank()) {
+				// on a touch screen a tap rarely stays put: the label only starts to move once the finger has left the
+				// area of a tap, and it then catches up with it
+				if (!wasDragged && !ProgramProperties.isDesktop()
+					&& Math.hypot(e.getScreenX() - mouseDownX, e.getScreenY() - mouseDownY) <= SetupPaneInteraction.TAP_TOLERANCE) {
+					e.consume();
+					return;
+				}
 				var previous = pane.screenToLocal(mouseX, mouseY);
 				var current = pane.screenToLocal(e.getScreenX(), e.getScreenY());
 				var delta = new Point2D(current.getX() - previous.getX(), current.getY() - previous.getY());

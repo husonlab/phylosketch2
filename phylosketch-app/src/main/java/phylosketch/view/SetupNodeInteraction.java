@@ -45,6 +45,7 @@ public class SetupNodeInteraction {
 	private static double mouseY;
 
 	public static boolean inMove = false;
+	private static boolean moveStarted = false; // has the drag left the dead zone around the press?
 
 	private static MoveNodesEdgesCommand moveNodesEdgesCommand;
 
@@ -93,7 +94,12 @@ public class SetupNodeInteraction {
 										nodesToDrag.addAll(view.getNodeSelection().getSelectedItems());
 									}
 
-									inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
+									// In Move mode a drag moves the node. In Sketch mode a drag on a node draws an edge, unless shift is
+									// down or, on a touch screen, the node is selected: there, "tap to select, then drag" moves the
+									// selected nodes, so that the mode need not be changed to move something
+									inMove = (view.getMode() == DrawView.Mode.Move)
+											 || (view.getMode() == DrawView.Mode.Sketch && (me.isShiftDown() || !ProgramProperties.isDesktop() && view.getNodeSelection().isSelected(v)));
+									moveStarted = false;
 									if (inMove) {
 										SetupPaneInteraction.inRubberBandSelection.set(false); // moving a node never selects
 										mouseDownX = me.getSceneX();
@@ -109,6 +115,16 @@ public class SetupNodeInteraction {
 
 							shape.setOnMouseDragged(me -> {
 								if (!multiTouch.get() && inMove) {
+									if (!moveStarted) {
+										// on a touch screen a tap rarely stays put: the nodes only start to move once the finger has
+										// left the area of a tap, and they then catch up with it
+										if (ProgramProperties.isDesktop() || Math.hypot(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY) > SetupPaneInteraction.TAP_TOLERANCE)
+											moveStarted = true;
+										else {
+											me.consume();
+											return;
+										}
+									}
 									if (false && !view.getNodeSelection().isSelected(v)) {
 										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
