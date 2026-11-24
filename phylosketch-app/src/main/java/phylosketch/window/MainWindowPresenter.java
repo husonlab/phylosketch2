@@ -201,7 +201,11 @@ public class MainWindowPresenter {
 
 		controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
-		new StateToggleButton<>(List.of(DrawView.Mode.values()), MainWindowController::getIcon, true, true, view.modeProperty(), controller.getModeMenuButton());
+		// on a touch screen there is no Move mode: in Sketch mode, a selected node, edge or label is moved by dragging it
+		var modes = (ProgramProperties.isDesktop() ? List.of(DrawView.Mode.values()) : java.util.Arrays.stream(DrawView.Mode.values()).filter(m -> m != DrawView.Mode.Move).toList());
+		if (!ProgramProperties.isDesktop())
+			controller.getMoveModeItem().setVisible(false);
+		new StateToggleButton<>(modes, MainWindowController::getIcon, true, true, view.modeProperty(), controller.getModeMenuButton());
 		//controller.getModeMenuButton().setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		controller.setupModeMenu(view.modeProperty());
 		for (var item : controller.getModeMenuButton().getItems()) {
@@ -842,7 +846,7 @@ public class MainWindowPresenter {
 								if (ProgramProperties.isDesktop())
 									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Double-click on pane to create a node. Then press-drag to create edges.");
 								else
-									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Tap on pane to create a node. Then press-drag to create edges. To move a node, tap it and then drag it.");
+									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Sketch mode: Tap on pane to create a node. Then press-drag to create edges. To move a node or label or to reshape an edge, tap it and then drag it.");
 							}
 						}
 					}

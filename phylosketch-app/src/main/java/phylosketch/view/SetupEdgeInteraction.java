@@ -43,6 +43,9 @@ import static phylosketch.paths.PathUtils.getCoordinates;
  */
 public class SetupEdgeInteraction {
 	private static boolean inMove;
+	private static boolean moveStarted;
+	private static double mouseDownX;
+	private static double mouseDownY;
 
 	private static int pathIndex;
 	private static List<PathElement> originalElements;
@@ -67,7 +70,8 @@ public class SetupEdgeInteraction {
 						if (n instanceof EdgePath path && path.getUserData() instanceof jloda.graph.Edge e) {
 
 							path.setOnContextMenuRequested(a -> {
-								if (!multiTouch.get() && view.getEdgeSelection().isSelected(e) && view.getMode() == DrawView.Mode.Move) {
+								if (!multiTouch.get() && view.getEdgeSelection().isSelected(e)
+										&& (view.getMode() == DrawView.Mode.Move || !ProgramProperties.isDesktop() && view.getMode() == DrawView.Mode.Sketch)) {
 									var resizeItem = new CheckMenuItem("Resize Mode");
 									resizeItem.setSelected(resizeMode.get());
 									resizeItem.setOnAction(d -> resizeMode.set(!resizeMode.get()));
@@ -101,14 +105,20 @@ public class SetupEdgeInteraction {
 								if (!multiTouch.get()) {
 									var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
 									if (path.isPointOnStroke(local.getX(), local.getY())) {
-										inMove = (view.getMode() == DrawView.Mode.Move) || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
+										// In Move mode a drag reshapes the edge. In Sketch mode a drag on an edge draws a new edge from there,
+										// unless shift is down or, on a touch screen, the edge is selected: "tap to select, then drag"
+										// reshapes it, as it moves a selected node
+										inMove = (view.getMode() == DrawView.Mode.Move)
+												 || (view.getMode() == DrawView.Mode.Sketch && (me.isShiftDown() || !ProgramProperties.isDesktop() && view.getEdgeSelection().isSelected(e)));
+										moveStarted = false;
 
 										if (inMove) {
 											pathIndex = findIndex(path, local);
 											originalElements = new ArrayList<>(path.getElements());
 											originalType = path.getType();
-											mouseX = me.getSceneX();
-											mouseY = me.getSceneY();
+											mouseX = mouseDownX = me.getSceneX();
+											mouseY = mouseDownY = me.getSceneY();
+											SetupPaneInteraction.inRubberBandSelection.set(false); // reshaping an edge never selects
 											me.consume();
 										} else
 											pathIndex = -1;
@@ -117,6 +127,16 @@ public class SetupEdgeInteraction {
 							});
 							path.setOnMouseDragged(me -> {
 								if (!multiTouch.get() && inMove) {
+									if (!moveStarted) {
+										// on a touch screen a tap rarely stays put: the edge is only reshaped once the finger has left the
+										// area of a tap
+										if (ProgramProperties.isDesktop() || Math.hypot(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY) > SetupPaneInteraction.TAP_TOLERANCE)
+											moveStarted = true;
+										else {
+											me.consume();
+											return;
+										}
+									}
 									if (!view.getEdgeSelection().isSelected(e)) {
 										if (ProgramProperties.isDesktop() && !me.isShiftDown()) {
 											view.getNodeSelection().clearSelection();
@@ -140,7 +160,7 @@ public class SetupEdgeInteraction {
 							});
 							path.setOnMouseReleased(me -> {
 								if (!multiTouch.get() && inMove) {
-									if (pathIndex != -1 && !me.isStillSincePress()) {
+									if (pathIndex != -1 && moveStarted && !me.isStillSincePress()) {
 										var theOriginalElements = originalElements;
 										var refinedElements = PathNormalize.apply(path, 2, 5);
 										path.getElements().setAll(refinedElements);

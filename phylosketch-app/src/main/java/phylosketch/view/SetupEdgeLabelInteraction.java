@@ -33,7 +33,7 @@ public class SetupEdgeLabelInteraction {
 										}
 										view.getEdgeSelection().toggleSelection(e);
 									});
-									LabelUtils.makeDraggable(label, allowMove, view, view.getUndoManager());
+									LabelUtils.makeDraggable(label, allowMove, () -> view.getEdgeSelection().isSelected(e), view, view.getUndoManager());
 
 								}
 							}

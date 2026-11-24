@@ -27,14 +27,27 @@ import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ProgramProperties;
 
+import java.util.function.BooleanSupplier;
+
 public class LabelUtils {
 	private static double mouseDownX;
 	private static double mouseDownY;
 	private static double mouseX;
 	private static double mouseY;
 	private static boolean wasDragged;
+	private static boolean mayDrag;
 
-	public static void makeDraggable(RichTextLabel label, ReadOnlyBooleanProperty allow, Pane pane, UndoManager undoManager) {
+	/**
+	 * makes a label draggable
+	 *
+	 * @param label       the label
+	 * @param allow       dragging is allowed at all
+	 * @param isSelected  is the node or edge that the label belongs to selected? On a touch screen, only the label of a
+	 *                    selected item is dragged ("tap to select, then drag"); a drag on any other label does nothing
+	 * @param pane        the pane that contains the label
+	 * @param undoManager the undo manager
+	 */
+	public static void makeDraggable(RichTextLabel label, ReadOnlyBooleanProperty allow, BooleanSupplier isSelected, Pane pane, UndoManager undoManager) {
 
 		label.setOnMousePressed(e -> {
 			if (!label.getRawText().isBlank()) {
@@ -43,12 +56,13 @@ public class LabelUtils {
 				mouseX = e.getScreenX();
 				mouseY = e.getScreenY();
 				wasDragged = false;
+				mayDrag = (ProgramProperties.isDesktop() || isSelected.getAsBoolean());
 				e.consume();
 			}
 
 		});
 		label.setOnMouseDragged(e -> {
-			if (allow.get() && !label.getRawText().isBlank()) {
+			if (allow.get() && mayDrag && !label.getRawText().isBlank()) {
 				// on a touch screen a tap rarely stays put: the label only starts to move once the finger has left the
 				// area of a tap, and it then catches up with it
 				if (!wasDragged && !ProgramProperties.isDesktop()
