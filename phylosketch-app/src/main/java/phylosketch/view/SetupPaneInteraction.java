@@ -323,6 +323,16 @@ public class SetupPaneInteraction {
 		});
 	}
 
+	/**
+	 * gives up the edge that is being drawn: the press that started it has turned out to be a hold (see HoldToMove)
+	 */
+	static void cancelDrawingEdge(DrawView view) {
+		view.getEdgesGroup().getChildren().remove(path);
+		path.getElements().clear();
+		inDrawingEdge.set(false);
+		view.setCursor(Cursor.DEFAULT);
+	}
+
 	public static boolean isGoodPath(Path path) {
 		Point2D first = null;
 		for (var element : path.getElements()) {

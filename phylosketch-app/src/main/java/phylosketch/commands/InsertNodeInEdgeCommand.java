@@ -23,6 +23,7 @@ package phylosketch.commands;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.window.MainWindowManager;
 import jloda.graph.Edge;
 import phylosketch.paths.PathUtils;
@@ -83,6 +84,9 @@ public class InsertNodeInEdgeCommand extends UndoableRedoableCommand {
 
 			var v = view.createNode(location, nodeId);
 			nodeId = v.getId();
+			// on a touch screen, a node that has just been sketched is not left selected
+			if (!ProgramProperties.isDesktop())
+				view.getNodeSelection().clearSelection(v);
 
 			var source = view.getGraph().findNodeById(sourceId);
 			var target = view.getGraph().findNodeById(targetId);

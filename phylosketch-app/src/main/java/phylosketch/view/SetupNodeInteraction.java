@@ -49,6 +49,8 @@ public class SetupNodeInteraction {
 
 	private static MoveNodesEdgesCommand moveNodesEdgesCommand;
 
+	private static final double LIFT_SCALE = 1.8; // how much a node grows while it is lifted (see HoldToMove)
+
 	/**
 	 * setup node interactions
 	 * Note that creation of new nodes is setup in SetupPaneInteraction
@@ -70,6 +72,9 @@ public class SetupNodeInteraction {
 				if (c.wasAdded()) {
 					for (javafx.scene.Node n : c.getAddedSubList()) {
 						if (n instanceof Shape shape && shape.getUserData() instanceof jloda.graph.Node v) {
+							if (!ProgramProperties.isDesktop())
+								HoldToMove.install(shape);
+
 							shape.setOnMouseClicked(me -> {
 								if (!multiTouch.get() && me.isStillSincePress() && !me.isControlDown()) {
 									if (ProgramProperties.isDesktop() && me.isShiftDown()) {
@@ -95,32 +100,49 @@ public class SetupNodeInteraction {
 									}
 
 									// In Move mode a drag moves the node. In Sketch mode a drag on a node draws an edge, unless shift is
-									// down or, on a touch screen, the node is selected: there, "tap to select, then drag" moves the
-									// selected nodes, so that the mode need not be changed to move something
+									// down. On a touch screen, the node is moved in Sketch mode by holding it until it is lifted and
+									// then dragging it (see HoldToMove), so that the mode need not be changed to move something
 									inMove = (view.getMode() == DrawView.Mode.Move)
-											 || (view.getMode() == DrawView.Mode.Sketch && (me.isShiftDown() || !ProgramProperties.isDesktop() && view.getNodeSelection().isSelected(v)));
+											 || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 									moveStarted = false;
+									mouseDownX = me.getSceneX();
+									mouseDownY = me.getSceneY();
+									mouseX = mouseDownX;
+									mouseY = mouseDownY;
 									if (inMove) {
 										SetupPaneInteraction.inRubberBandSelection.set(false); // moving a node never selects
-										mouseDownX = me.getSceneX();
-										mouseDownY = me.getSceneY();
-										mouseX = mouseDownX;
-										mouseY = mouseDownY;
 										moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
 										dragPoint.set(view.getLocation(v));
 										me.consume();
+									} else if (!ProgramProperties.isDesktop() && view.getMode() == DrawView.Mode.Sketch) {
+										HoldToMove.press(shape, me, () -> !multiTouch.get() && v.getOwner() != null, () -> {
+											// the press has also started an edge in the pane, which is given up
+											SetupPaneInteraction.cancelDrawingEdge(view);
+											SetupPaneInteraction.inRubberBandSelection.set(false);
+											inMove = true;
+											moveStarted = false;
+											moveNodesEdgesCommand = new MoveNodesEdgesCommand(view, nodesToDrag, null);
+											dragPoint.set(view.getLocation(v));
+											shape.setScaleX(LIFT_SCALE);
+											shape.setScaleY(LIFT_SCALE);
+										}, () -> {
+											shape.setScaleX(1);
+											shape.setScaleY(1);
+										});
 									}
 								}
 							});
 
 							shape.setOnMouseDragged(me -> {
+								HoldToMove.drag(me);
 								if (!multiTouch.get() && inMove) {
 									if (!moveStarted) {
 										// on a touch screen a tap rarely stays put: the nodes only start to move once the finger has
 										// left the area of a tap, and they then catch up with it
-										if (ProgramProperties.isDesktop() || Math.hypot(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY) > SetupPaneInteraction.TAP_TOLERANCE)
+										if (ProgramProperties.isDesktop() || Math.hypot(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY) > SetupPaneInteraction.TAP_TOLERANCE) {
 											moveStarted = true;
-										else {
+											HoldToMove.setMoved();
+										} else {
 											me.consume();
 											return;
 										}
@@ -173,18 +195,23 @@ public class SetupNodeInteraction {
 							shape.setOnMouseReleased(me -> {
 								if (inMove) {
 									if (!multiTouch.get()) {
-										if (moveNodesEdgesCommand.isUndoable())
+										if (moveStarted && moveNodesEdgesCommand.isUndoable())
 											view.getUndoManager().add(moveNodesEdgesCommand);
 									}
 									me.consume();
 									inMove = false;
 									moveNodesEdgesCommand = null;
 								}
+								HoldToMove.release(shape);
 								view.getOtherGroup().getChildren().remove(hDragLine);
 								view.getOtherGroup().getChildren().remove(vDragLine);
 							});
 
 							shape.setOnMouseEntered(me -> {
+								// a finger does not hover: on a touch screen the shadow would come up on the press and flicker
+								// as a dragged node catches up with the finger
+								if (!ProgramProperties.isDesktop())
+									return;
 								var color = (shape.getFill() != null ? shape.getFill() : (shape.getStroke() != null ? shape.getStroke() : Color.GRAY));
 								var hoverShadow = new HoverShadow(color, 5);
 								hoverShadow.setOffsetY(0);
@@ -195,6 +222,8 @@ public class SetupNodeInteraction {
 							});
 
 							shape.setOnMouseExited(me -> {
+								if (!ProgramProperties.isDesktop())
+									return;
 								if (shape.getEffect() instanceof HoverShadow hoverShadow && hoverShadow.getInput() != null) {
 									shape.setEffect(hoverShadow.getInput());
 								} else {

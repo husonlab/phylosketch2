@@ -56,6 +56,8 @@ public class SetupEdgeInteraction {
 
 	private static boolean insideEdge;
 
+	private static final double LIFT_WIDTH = 2; // how much wider an edge is drawn while it is lifted (see HoldToMove)
+
 	/**
 	 * setup edge interactions
 	 * Note that interactive creation of new edges ist setup in SetupPaneInteraction
@@ -68,6 +70,8 @@ public class SetupEdgeInteraction {
 				if (c.wasAdded()) {
 					for (Node n : c.getAddedSubList()) {
 						if (n instanceof EdgePath path && path.getUserData() instanceof jloda.graph.Edge e) {
+							if (!ProgramProperties.isDesktop())
+								HoldToMove.install(path);
 
 							path.setOnContextMenuRequested(a -> {
 								if (!multiTouch.get() && view.getEdgeSelection().isSelected(e)
@@ -106,11 +110,29 @@ public class SetupEdgeInteraction {
 									var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
 									if (path.isPointOnStroke(local.getX(), local.getY())) {
 										// In Move mode a drag reshapes the edge. In Sketch mode a drag on an edge draws a new edge from there,
-										// unless shift is down or, on a touch screen, the edge is selected: "tap to select, then drag"
-										// reshapes it, as it moves a selected node
+										// unless shift is down. On a touch screen, the edge is reshaped in Sketch mode by holding it until
+										// it is lifted and then dragging it (see HoldToMove), as a node is moved
 										inMove = (view.getMode() == DrawView.Mode.Move)
-												 || (view.getMode() == DrawView.Mode.Sketch && (me.isShiftDown() || !ProgramProperties.isDesktop() && view.getEdgeSelection().isSelected(e)));
+												 || (view.getMode() == DrawView.Mode.Sketch && me.isShiftDown());
 										moveStarted = false;
+										if (!inMove && !ProgramProperties.isDesktop() && view.getMode() == DrawView.Mode.Sketch) {
+											var sceneX = me.getSceneX();
+											var sceneY = me.getSceneY();
+											var strokeWidth = path.getStrokeWidth();
+											HoldToMove.press(path, me, () -> !multiTouch.get() && e.getOwner() != null, () -> {
+												// the press has also started an edge in the pane, which is given up
+												SetupPaneInteraction.cancelDrawingEdge(view);
+												SetupPaneInteraction.inRubberBandSelection.set(false);
+												inMove = true;
+												moveStarted = false;
+												pathIndex = findIndex(path, local);
+												originalElements = new ArrayList<>(path.getElements());
+												originalType = path.getType();
+												mouseX = mouseDownX = sceneX;
+												mouseY = mouseDownY = sceneY;
+												path.setStrokeWidth(strokeWidth + LIFT_WIDTH);
+											}, () -> path.setStrokeWidth(strokeWidth));
+										}
 
 										if (inMove) {
 											pathIndex = findIndex(path, local);
@@ -126,13 +148,15 @@ public class SetupEdgeInteraction {
 								} else inMove = false;
 							});
 							path.setOnMouseDragged(me -> {
+								HoldToMove.drag(me);
 								if (!multiTouch.get() && inMove) {
 									if (!moveStarted) {
 										// on a touch screen a tap rarely stays put: the edge is only reshaped once the finger has left the
 										// area of a tap
-										if (ProgramProperties.isDesktop() || Math.hypot(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY) > SetupPaneInteraction.TAP_TOLERANCE)
+										if (ProgramProperties.isDesktop() || Math.hypot(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY) > SetupPaneInteraction.TAP_TOLERANCE) {
 											moveStarted = true;
-										else {
+											HoldToMove.setMoved();
+										} else {
 											me.consume();
 											return;
 										}
@@ -172,8 +196,11 @@ public class SetupEdgeInteraction {
 									me.consume();
 									inMove = false;
 								}
+								HoldToMove.release(path);
 							});
 							path.setOnMouseEntered(me -> {
+								if (!ProgramProperties.isDesktop())
+									return; // a finger does not hover
 								var local = path.sceneToLocal(me.getSceneX(), me.getSceneY());
 								if (path.isPointOnStroke(local.getX(), local.getY())) {
 									var hoverShadow = new HoverShadow(path.getStroke(), 3);

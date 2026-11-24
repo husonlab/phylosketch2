@@ -55,8 +55,7 @@ public class CreateNodeCommand extends UndoableRedoableCommand {
 			if (label != null)
 				view.setLabel(v, label);
 			newNodeId = v.getId();
-			// On a touch screen, dragging a selected node moves it and dragging any other node draws an edge. A node
-			// that has just been sketched is where the next edge usually starts, so it is not left selected
+			// on a touch screen, a node that has just been sketched is not left selected
 			if (!ProgramProperties.isDesktop())
 				view.getNodeSelection().clearSelection(v);
 		};

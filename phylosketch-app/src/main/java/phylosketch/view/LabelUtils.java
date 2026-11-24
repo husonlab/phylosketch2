@@ -27,8 +27,6 @@ import jloda.fx.control.RichTextLabel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ProgramProperties;
 
-import java.util.function.BooleanSupplier;
-
 public class LabelUtils {
 	private static double mouseDownX;
 	private static double mouseDownY;
@@ -37,17 +35,20 @@ public class LabelUtils {
 	private static boolean wasDragged;
 	private static boolean mayDrag;
 
+	private static final double LIFT_SCALE = 1.2; // how much a label grows while it is lifted (see HoldToMove)
+
 	/**
-	 * makes a label draggable
+	 * makes a label draggable. On a touch screen, a label is dragged only after it has been held until it is lifted
+	 * (see HoldToMove); any other drag on a label does nothing
 	 *
 	 * @param label       the label
 	 * @param allow       dragging is allowed at all
-	 * @param isSelected  is the node or edge that the label belongs to selected? On a touch screen, only the label of a
-	 *                    selected item is dragged ("tap to select, then drag"); a drag on any other label does nothing
 	 * @param pane        the pane that contains the label
 	 * @param undoManager the undo manager
 	 */
-	public static void makeDraggable(RichTextLabel label, ReadOnlyBooleanProperty allow, BooleanSupplier isSelected, Pane pane, UndoManager undoManager) {
+	public static void makeDraggable(RichTextLabel label, ReadOnlyBooleanProperty allow, Pane pane, UndoManager undoManager) {
+		if (!ProgramProperties.isDesktop())
+			HoldToMove.install(label);
 
 		label.setOnMousePressed(e -> {
 			if (!label.getRawText().isBlank()) {
@@ -56,12 +57,23 @@ public class LabelUtils {
 				mouseX = e.getScreenX();
 				mouseY = e.getScreenY();
 				wasDragged = false;
-				mayDrag = (ProgramProperties.isDesktop() || isSelected.getAsBoolean());
+				mayDrag = ProgramProperties.isDesktop();
+				if (!mayDrag) {
+					HoldToMove.press(label, e, allow::get, () -> {
+						mayDrag = true;
+						label.setScaleX(LIFT_SCALE);
+						label.setScaleY(LIFT_SCALE);
+					}, () -> {
+						label.setScaleX(1);
+						label.setScaleY(1);
+					});
+				}
 				e.consume();
 			}
 
 		});
 		label.setOnMouseDragged(e -> {
+			HoldToMove.drag(e);
 			if (allow.get() && mayDrag && !label.getRawText().isBlank()) {
 				// on a touch screen a tap rarely stays put: the label only starts to move once the finger has left the
 				// area of a tap, and it then catches up with it
@@ -76,6 +88,7 @@ public class LabelUtils {
 				label.setLayoutX(label.getLayoutX() + delta.getX());
 				label.setLayoutY(label.getLayoutY() + delta.getY());
 				wasDragged = true;
+				HoldToMove.setMoved();
 				mouseX = e.getScreenX();
 				mouseY = e.getScreenY();
 			}
@@ -98,6 +111,7 @@ public class LabelUtils {
 					label.setLayoutY(label.getLayoutY() + delta.getY());
 				});
 			}
+			HoldToMove.release(label);
 			e.consume();
 		});
 	}

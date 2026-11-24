@@ -35,7 +35,7 @@ public class SetupNodeLabelInteraction {
 									label.setLayoutX(labelLayout.getX());
 									label.setLayoutY(labelLayout.getY());
 
-									LabelUtils.makeDraggable(label, allowMove, () -> view.getNodeSelection().isSelected(v), view, view.getUndoManager());
+									LabelUtils.makeDraggable(label, allowMove, view, view.getUndoManager());
 								}
 							}
 						}
