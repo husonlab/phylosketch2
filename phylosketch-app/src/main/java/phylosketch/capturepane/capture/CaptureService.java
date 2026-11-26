@@ -185,6 +185,7 @@ public class CaptureService extends AService<Boolean> {
 				ocrError = ex;
 				continue;
 			}
+			raw = BranchEnds.removeFromWords(image, raw);
 			// Keep low-confidence and short words through the merge: a faint genus abbreviation ("V.") or a
 			// mid-confidence species word (e.g. "chungii@24") must not be dropped before it can join its
 			// label, or the label collapses to fragments and the leading "V." is then lost to the trailing-".
