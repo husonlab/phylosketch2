@@ -120,7 +120,8 @@ public class SetupResize {
 
 		rectangle.setOnMouseReleased(me -> {
 			if (!multiTouch.get()) {
-				if (moveNodesEdgesCommand.isUndoable())
+				// a press that is released without a drag has moved nothing: it is not redoable, and not added
+				if (moveNodesEdgesCommand.isUndoable() && moveNodesEdgesCommand.isRedoable())
 					view.getUndoManager().add(moveNodesEdgesCommand);
 				moveNodesEdgesCommand = null;
 				me.consume();
@@ -159,7 +160,8 @@ public class SetupResize {
 
 		resizeHandle.setOnMouseReleased(me -> {
 			if (!multiTouch.get()) {
-				if (scaleNodesEdgesCommand.isUndoable()) {
+				// likewise a press on the handle that has scaled nothing
+				if (scaleNodesEdgesCommand.isUndoable() && scaleNodesEdgesCommand.isRedoable()) {
 					view.getUndoManager().add(scaleNodesEdgesCommand);
 				}
 				scaleNodesEdgesCommand = null;

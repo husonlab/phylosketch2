@@ -113,11 +113,11 @@ public class ScaleNodesEdgesCommand extends UndoableRedoableCommand {
 	}
 
 	public void scaleNodesAndEdges(double dx, double dy) {
-		newNodeMap.clear();
-
 		var nodes = oldNodeMap.keySet().stream().map(id -> view.getGraph().findNodeById(id)).collect(Collectors.toSet());
 
 		if (dx != 0 || dy != 0) {
+			// a step that changes nothing leaves alone what redo needs: with shift down, a step straight to the right or straight down is one
+			newNodeMap.clear();
 			var oldBBox = BBox.compute(nodes);
 			var newBBox = new BBox(oldBBox.xMin(), oldBBox.yMin(), oldBBox.xMax() + dx, oldBBox.yMax() + dy);
 

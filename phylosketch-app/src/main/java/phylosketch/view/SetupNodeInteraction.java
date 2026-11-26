@@ -196,7 +196,8 @@ public class SetupNodeInteraction {
 							shape.setOnMouseReleased(me -> {
 								if (inMove) {
 									if (!multiTouch.get()) {
-										if (moveStarted && moveNodesEdgesCommand.isUndoable())
+										// with the grid on, a drag of less than half a grid step moves nothing: it is not redoable, and not added
+										if (moveStarted && moveNodesEdgesCommand.isUndoable() && moveNodesEdgesCommand.isRedoable())
 											view.getUndoManager().add(moveNodesEdgesCommand);
 									}
 									me.consume();
