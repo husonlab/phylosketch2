@@ -168,7 +168,8 @@ public class ScaleNodesEdgesCommand extends UndoableRedoableCommand {
 					var elements = PathNormalize.apply(tmp, 2, 5);
 					path.set(elements, EdgePath.Type.Freeform);
 				}
-				newEdgeMap.put(eId, path);
+				// independent snapshot of the UPDATED path, never the live reference: redo would set the path to itself, which empties it
+				newEdgeMap.put(eId, path.copy());
 			}
 		}
 	}
