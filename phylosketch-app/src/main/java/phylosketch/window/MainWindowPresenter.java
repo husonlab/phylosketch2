@@ -656,6 +656,8 @@ public class MainWindowPresenter {
 		if (SUPPORTS_CAPTURE) {
 			setupModeHints(view, getCapturePane());
 		}
+		if (!ProgramProperties.isDesktop())
+			HoldToMove.installFeedback(controller.getCenterPane());
 
 		controller.getMoveModeItem().disableProperty().bind(document.emptyProperty());
 		controller.getViewModeItem().disableProperty().bind(document.emptyProperty());

@@ -125,6 +125,7 @@ public class SetupNodeInteraction {
 											dragPoint.set(view.getLocation(v));
 											shape.setScaleX(LIFT_SCALE);
 											shape.setScaleY(LIFT_SCALE);
+											HoldToMove.showCaption(nodesToDrag.size() == 1 ? "Move node" : "Move %d nodes".formatted(nodesToDrag.size()));
 										}, () -> {
 											shape.setScaleX(1);
 											shape.setScaleY(1);

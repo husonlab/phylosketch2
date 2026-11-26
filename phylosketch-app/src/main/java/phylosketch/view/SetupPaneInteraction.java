@@ -232,6 +232,8 @@ public class SetupPaneInteraction {
 					if (!path.getElements().isEmpty()) {
 						if (!view.getEdgesGroup().getChildren().contains(path))
 							view.getEdgesGroup().getChildren().add(path);
+						if (!HoldToMove.isPending()) // while a finger is being held on an item, it is not yet a drag
+							HoldToMove.showCaption("Create edge");
 
 						if (location.getX() >= box.getX() && location.getY() >= box.getY()) {
 							path.getElements().add(new LineTo(location.getX(), location.getY()));
@@ -255,6 +257,7 @@ public class SetupPaneInteraction {
 				} else {
 					path.getElements().clear();
 					inDrawingEdge.set(false);
+					HoldToMove.hideCaption();
 				}
 			} else if (inRubberBandSelection.get()) {
 				if (!multiTouch.get()) {
@@ -288,6 +291,7 @@ public class SetupPaneInteraction {
 			}
 
 			if (inDrawingEdge.get()) {
+				HoldToMove.hideCaption();
 				view.getEdgesGroup().getChildren().remove(path);
 				if (!path.getElements().isEmpty()) {
 					if (isGoodPath(path)) {

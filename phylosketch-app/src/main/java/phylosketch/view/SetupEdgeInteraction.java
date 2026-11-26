@@ -131,6 +131,7 @@ public class SetupEdgeInteraction {
 												mouseX = mouseDownX = sceneX;
 												mouseY = mouseDownY = sceneY;
 												path.setStrokeWidth(strokeWidth + LIFT_WIDTH);
+												HoldToMove.showCaption("Reshape edge");
 											}, () -> path.setStrokeWidth(strokeWidth));
 										}
 

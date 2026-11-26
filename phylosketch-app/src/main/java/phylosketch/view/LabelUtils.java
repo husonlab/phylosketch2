@@ -63,6 +63,7 @@ public class LabelUtils {
 						mayDrag = true;
 						label.setScaleX(LIFT_SCALE);
 						label.setScaleY(LIFT_SCALE);
+						HoldToMove.showCaption("Move label");
 					}, () -> {
 						label.setScaleX(1);
 						label.setScaleY(1);

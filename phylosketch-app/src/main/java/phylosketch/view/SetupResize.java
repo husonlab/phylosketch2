@@ -28,8 +28,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import jloda.fx.icons.MaterialIcons;
+import jloda.fx.util.ProgramProperties;
 import phylosketch.commands.MoveNodesEdgesCommand;
 import phylosketch.commands.ScaleNodesEdgesCommand;
 import phylosketch.paths.BBox;
@@ -40,6 +42,9 @@ import phylosketch.utils.ScrollPaneUtils;
  * Daniel Huson, 9.2024
  */
 public class SetupResize {
+
+	private static final int ICON_SIZE = ProgramProperties.isDesktop() ? 18 : 24;
+	private static final int HANDLE_SIZE = ProgramProperties.isDesktop() ? 28 : 56;
 
 	private static double mouseDownX;
 	private static double mouseDownY;
@@ -52,7 +57,12 @@ public class SetupResize {
 
 	public static void apply(DrawView view, BooleanProperty resizeMode, ReadOnlyBooleanProperty multiTouch) {
 		final var rectangle = new Rectangle();
-		final var resizeHandle = MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90;");
+		// the icon alone is too small a target for a finger, so it sits in a larger transparent pane that takes the press
+		final var resizeHandle = new StackPane(MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-rotate: 90; -fx-font-size: %d;".formatted(ICON_SIZE)));
+		resizeHandle.setMinSize(HANDLE_SIZE, HANDLE_SIZE);
+		resizeHandle.setPrefSize(HANDLE_SIZE, HANDLE_SIZE);
+		resizeHandle.setMaxSize(HANDLE_SIZE, HANDLE_SIZE);
+		resizeHandle.setPickOnBounds(true);
 
 		rectangle.setStyle("-fx-stroke-dash-array: 3 3;-fx-fill: transparent;-fx-stroke: gray;");
 
@@ -164,7 +174,8 @@ public class SetupResize {
 		rectangle.setY(bbox.yMin() - 12);
 		rectangle.setWidth(bbox.width() + 24);
 		rectangle.setHeight(bbox.height() + 24);
-		resizeHandle.setTranslateX(rectangle.getX() + rectangle.getWidth());
-		resizeHandle.setTranslateY(rectangle.getY() + rectangle.getHeight());
+		// the icon stays just outside the corner of the rectangle, the pane around it reaches over the corner
+		resizeHandle.setTranslateX(rectangle.getX() + rectangle.getWidth() - 0.5 * (HANDLE_SIZE - ICON_SIZE));
+		resizeHandle.setTranslateY(rectangle.getY() + rectangle.getHeight() - 0.5 * (HANDLE_SIZE - ICON_SIZE));
 	}
 }
