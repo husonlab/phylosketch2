@@ -218,6 +218,11 @@ public class DrawView extends Pane {
 	}
 
 	public void clear() {
+		// first empty what refers to nodes and edges, while they still exist: a deleted edge that is left in the arrow
+		// map cannot be compared, and the map throws once enough later edges with the same id have been put into it
+		nodeSelection.clearSelection();
+		edgeSelection.clearSelection();
+		edgeArrowMap.clear();
 		graph.clear();
 		for (var child : world.getChildren()) {
 			if (child instanceof Group group && group != otherGroup)
