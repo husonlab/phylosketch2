@@ -600,7 +600,7 @@ public class MainWindowPresenter {
 					}
 				}
 		);
-		controller.getLoadCaptureImageItem().disableProperty().bind(view.modeProperty().isNotEqualTo(DrawView.Mode.Sketch).and(view.modeProperty().isNotEqualTo(DrawView.Mode.Capture)));
+		// never disabled, whatever the mode: if this document is not empty, the image is loaded into a new window
 
 		controller.getFindAgainMenuItem().setOnAction(e -> {
 			if (false)
