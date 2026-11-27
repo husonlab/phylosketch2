@@ -26,5 +26,8 @@ See this manuscript for some algorithmic details and please cite it, if you use 
 
 Here is a short video illustrating how the program can help you to capture a phylogenetic tree or network from an image (using an image from an image that was produced by Esther Julien):
 
-https://github.com/user-attachments/assets/830f0509-7fa0-4bd9-a7ca-d4b1f875a663
+
+https://github.com/user-attachments/assets/97be5b2f-6f31-4982-8b0d-0e061c021103
+
+
 
