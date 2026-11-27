@@ -20,12 +20,14 @@
 
 package phylosketch.capturepane.pane;
 
+import javafx.application.Platform;
 import javafx.collections.SetChangeListener;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.ImageView;
 import jloda.fx.selection.SelectionModel;
 import jloda.fx.selection.SetSelectionModel;
+import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.BasicFX;
 import jloda.fx.util.SelectionEffectBlue;
 import jloda.fx.windownotifications.WindowNotifications;
@@ -128,9 +130,33 @@ public class SetupCaptureService {
 				DrawUtils.createWordShapes(words, wordSelection, () -> true, capturePane.getWordsGroup());
 			}
 			if (service.getPhase() == CaptureService.PHYLOGENY) {
-				var rootLocation = screenToImage(capturePane.getRootLocationOnScreen(), capturePane.getImageView());
-				view.getUndoManager().add(phylogenyCapture.apply(view, rootLocation, capturePane.getRootSide(), segments, words));
+				var root = capturePane.getRootLocation();
+				// in the coordinates of the pane, as the segments and the words are
+				var rootLocation = (root == null ? null : imageToPaneCoordinates(capturePane.getImageView(), root.getX(), root.getY()));
+				var numberOfNodes = view.getGraph().getNumberOfNodes();
+				var numberOfEdges = view.getGraph().getNumberOfEdges();
+				var command = phylogenyCapture.apply(view, rootLocation, capturePane.getRootSide(), segments, words);
 				capturePane.reset();
+				if (command != null) {
+					var nodes = view.getGraph().getNumberOfNodes() - numberOfNodes;
+					var edges = view.getGraph().getNumberOfEdges() - numberOfEdges;
+					if (edges <= 0 && nodes <= 1) { // nothing but the root: take it back and stay in Capture mode
+						Platform.runLater(command::undo); // later, because the layout of the labels is done later, and it is to find its nodes
+						WindowNotifications.showWarning(controller.getCenterAnchorPane(), "Capture found nothing. Check that the root marker is on the root of the tree.");
+					} else {
+						// one step in the undo list: the phylogeny, and the change to Sketch mode, in which it is completed by hand
+						view.getUndoManager().add(UndoableRedoableCommand.create("capture", () -> {
+							command.undo();
+							view.setMode(DrawView.Mode.Capture);
+							capturePane.setShowRootTool(true);
+						}, () -> {
+							command.redo();
+							view.setMode(DrawView.Mode.Sketch);
+						}));
+						view.setMode(DrawView.Mode.Sketch);
+						WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Captured %d nodes and %d edges. Sketch mode is now on, to complete the phylogeny by hand. Undo takes the capture back.".formatted(nodes, edges));
+					}
+				}
 			}
 		});
 		return service;

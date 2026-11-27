@@ -128,7 +128,7 @@ public class SpurRemoval {
 	/**
 	 * for each pixel of ink, its distance to the nearest background pixel, counting steps to any of the eight neighbours
 	 */
-	private static int[][] distanceToBackground(int[][] ink) {
+	static int[][] distanceToBackground(int[][] ink) {
 		var height = ink.length;
 		var width = ink[0].length;
 		var distance = new int[height][width];

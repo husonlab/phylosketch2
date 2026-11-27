@@ -220,6 +220,9 @@ public class MainWindowPresenter {
 
 		capturePane = new CapturePane(view, controller);
 		SetupCaptureMenuItems.apply(window, controller, capturePane);
+		// a picture behind the drawing has room around it, as the drawing has, from the moment it is shown
+		capturePane.hasImageProperty().addListener((v, o, n) -> Platform.runLater(dragLineBoxSupport.updateBox()));
+		capturePane.showCaptureProperty().addListener((v, o, n) -> Platform.runLater(dragLineBoxSupport.updateBox()));
 
 		ChangeListener<DrawView.Mode> listener = (v, o, n) -> {
 			if (n == DrawView.Mode.Sketch) {
@@ -835,10 +838,9 @@ public class MainWindowPresenter {
 							case Capture -> WindowNotifications.show(controller.getCenterAnchorPane(), """
 									Capture mode: To capture a phylogeny from an image:
 									(1) Use the Load Image item to load an image, or paste one into the window.
-									(2) Use the Place Root item to show the root locator, drag it to the root.
-									(3) Click on the root locator to set the relative position of the root (left, right, etc)
-									(4) Use the Capture Phylogeny item to run the capture algorithm.
-									(5) Set the mode to Sketch and improve the capture interactively.
+									(2) The root marker is put where the root is likely to be. If it is not on the root, drag it there.
+									(3) If the direction in which the tree grows is not the one shown (left to right, etc), set it.
+									(4) Press Capture. The mode then changes to Sketch, in which you can improve the capture.
 									""", WindowNotifications.MessageType.INFO);
 							case Move ->
 									WindowNotifications.showInfo(controller.getCenterAnchorPane(), "Move mode: Click and drag on nodes, edges and labels to move them.");

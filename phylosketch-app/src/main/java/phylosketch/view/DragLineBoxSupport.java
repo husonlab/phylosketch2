@@ -31,6 +31,7 @@ import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.RunAfterAWhile;
 import phylosketch.capturepane.pane.CapturePane;
 import phylosketch.paths.PathUtils;
+import phylosketch.utils.ScrollPaneUtils;
 
 import java.util.function.Supplier;
 
@@ -40,9 +41,13 @@ import java.util.function.Supplier;
  *
  * @param hDragLine
  * @param vDragLine
- * @param box       Daniel Huson, 10.2025
+ * @param box
+ * @param updateBox puts the box around what there is now, without moving what is seen. The box follows the drawing
+ *                  by itself, a moment after each change; this is for a change that it does not hear of, such as a
+ *                  picture that is shown or hidden
+ *                  Daniel Huson, 10.2025
  */
-public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) {
+public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box, Runnable updateBox) {
 	private final static double DRAG_LINE_SIZE = 50;
 	private final static double MARGIN = ProgramProperties.isDesktop() ? 200 : 100;
 
@@ -77,7 +82,9 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 				maxY = Math.max(maxY, local.getY());
 			}
 
-			if (capturePane.get() != null && capturePane.get().isShowCapture()) {
+			// a picture that is shown behind the drawing has room around it as well, in whatever mode: the box then stays as
+			// it is when the mode changes, as it does at the end of a capture, and nothing moves on the screen
+			if (capturePane.get() != null && capturePane.get().hasImageProperty().get() && capturePane.get().getScene() != null) {
 				var sceneBox = capturePane.get().getMainPane().localToScene(capturePane.get().getMainPane().getBoundsInLocal());
 				var local = view.sceneToLocal(sceneBox);
 				minX = Math.min(minX, local.getMinX());
@@ -99,10 +106,21 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 			if (minX > maxX || minY > maxY) { // nothing to enclose: back to the initial box at the origin
 				minX = maxX = minY = maxY = MARGIN;
 			}
-			box.setX(minX - MARGIN);
-			box.setY(minY - MARGIN);
-			box.setWidth(maxX - minX + 2 * MARGIN);
-			box.setHeight(maxY - minY + 2 * MARGIN);
+			var x = minX - MARGIN;
+			var y = minY - MARGIN;
+			var width = maxX - minX + 2 * MARGIN;
+			var height = maxY - minY + 2 * MARGIN;
+			if (x != box.getX() || y != box.getY() || width != box.getWidth() || height != box.getHeight()) {
+				// what is seen stays where it is: the box is updated a moment after the change that calls for it, and a box
+				// that grows or shrinks at the left or at the top would otherwise move the drawing, and a picture
+				// behind it, under the eyes of the user, for example just after a capture
+				ScrollPaneUtils.runRemoveAndKeepScrollPositions(view, () -> {
+					box.setX(x);
+					box.setY(y);
+					box.setWidth(width);
+					box.setHeight(height);
+				});
+			}
 			// the view is not given the size of the box: it starts at the origin, so that would cut off a drawing that
 			// lies far from it. As a child of the view, the box is enclosed by the size the view computes anyway
 		};
@@ -132,7 +150,7 @@ public record DragLineBoxSupport(Line hDragLine, Line vDragLine, Rectangle box) 
 		view.addEventHandler(MouseEvent.MOUSE_MOVED, movedOrDraggedHandler);
 		view.addEventHandler(MouseEvent.MOUSE_DRAGGED, movedOrDraggedHandler);
 
-		return new DragLineBoxSupport(hDragLine, vDragLine, box);
+		return new DragLineBoxSupport(hDragLine, vDragLine, box, updateBox);
 
 	}
 

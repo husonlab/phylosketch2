@@ -94,8 +94,32 @@ alt="image" />
 - Capture nodes, edges, and labels present in the image, assisted by
   image-analysis and OCR.
 
-Usually, after initial capture, Edit Mode is used to interactively
-complete and refine the captured tree or network.
+When an image has been loaded and nothing has been drawn or captured
+yet, the *root marker* is shown on the image: a ring with an arrow. The
+program puts it where the root of the tree or network is likely to be,
+points its arrow in the direction in which the tree is likely to grow,
+and scrolls the image so that the marker can be seen. A bar at the top
+of the window shows the direction and a *Capture* button.
+
+- If the marker is not on the root, drag it there. Dropped near a line,
+  it takes that line, and its ring is filled. Capture needs the root on
+  a line, so the *Capture* button of the bar can only be pressed while
+  the marker is on one.
+
+- If the direction is not the right one, choose it in the bar: *Left to
+  right*, *Top to bottom*, *Right to left*, *Bottom to top*, or *Radial*
+  for a drawing that grows from its center. Clicking the marker also
+  changes the direction.
+
+- Press *Capture*.
+
+When the capture is done, the program changes to Edit (Sketch) Mode, in
+which the captured tree or network is completed and refined; the image
+stays in the background. *Undo* takes the capture back and returns to
+Capture Mode, with the marker where it was.
+
+The marker keeps its size on the screen when the image is zoomed.
+Showing, moving and turning the marker are not steps in the undo list.
 
 # Tool Bar Overview
 
@@ -175,24 +199,31 @@ Select nodes or edges based on their properties:
 When a background image has been loaded, these items support capturing a
 tree or network from that image.
 
-Pressing the Run Capture menu button once attempts to locate the root in
-the background image. Pressing it again performs the capture using the
-current parameters. Alternatively, use the following menu items
-explicitly:
+Pressing the Run Capture menu button performs the capture using the
+current parameters, as the *Capture* button of the bar does. If the root
+marker is hidden, pressing the button shows the marker first.
+Alternatively, use the following menu items explicitly:
 
 #### Load Image…
 
-Import an image to use as a background for the network.
+Import an image to use as a background for the network. If the document
+is not empty, the image is loaded into a new window.
 
 #### Place Root
 
-Locate the root in the background image as preparation for network
-capture.
+Show or hide the root marker. When the marker is shown for the first
+time, it is put where the root is likely to be.
+
+#### Direction
+
+Set the direction in which the tree or network grows: *Left to right*,
+*Top to bottom*, *Right to left*, *Bottom to top* or *Radial*.
 
 #### Capture Phylogeny
 
 Extract phylogenetic structure from the image, converting it into a
-graph representation.
+graph representation. Unlike the *Capture* button of the bar, this item
+can also be used while the root marker is not on a line.
 
 #### Remove Image
 

@@ -500,17 +500,17 @@
                                             <SeparatorMenuItem mnemonicParsing="false"/>
                                             <CheckMenuItem fx:id="showCaptureRootLocationItem" mnemonicParsing="false"
                                                            text="Place Root"/>
-                                            <Menu fx:id="rootSideMenu" text="Root Side">
+                                            <Menu fx:id="rootSideMenu" text="Direction">
                                                 <RadioMenuItem fx:id="leftRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Left"/>
+                                                               text="Left to right"/>
                                                 <RadioMenuItem fx:id="topRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Top"/>
+                                                               text="Top to bottom"/>
                                                 <RadioMenuItem fx:id="rightRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Right"/>
+                                                               text="Right to left"/>
                                                 <RadioMenuItem fx:id="bottomRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Bottom"/>
+                                                               text="Bottom to top"/>
                                                 <RadioMenuItem fx:id="centerRootSideMenuItem" mnemonicParsing="false"
-                                                               text="Center"/>
+                                                               text="Radial"/>
                                             </Menu>
                                             <CheckMenuItem fx:id="capturePhylogenyItem" mnemonicParsing="false"
                                                            text="Capture Phylogeny"/>

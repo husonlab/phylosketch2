@@ -20,148 +20,124 @@
 
 package phylosketch.capturepane.pane;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
+import javafx.scene.Cursor;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import jloda.fx.icons.MaterialIcons;
-import phylosketch.view.DrawView;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.transform.Scale;
 import phylosketch.view.RootPosition;
 
 /**
- * setup root selection tool
- * Daniel Huson, 1.2025
+ * the root marker: marks the root of the drawing in the picture and shows which way the drawing grows
+ * <p>
+ * The marker is a ring around the root with an arrow that points the way the drawing grows, or four arrows if it
+ * grows from the center. The ring is filled when the marker is on a line. The origin of the marker is the root, and
+ * the marker is moved by its translation. It is drawn in the zoomed view, so that it stays on the root, but keeps
+ * its size on the screen whatever the zoom: zoomed out far enough to see a large picture, a marker that shrank
+ * with the picture could no longer be seen, let alone touched. It can be pressed in an area the size of a finger.
+ * Dragging moves it, a click turns it to the next side. Neither is a step in the undo list: where the marker is
+ * says how to capture, it is not part of the document.
+ * Daniel Huson, 1.2025, 11.2026
  */
-public class RootTool extends StackPane {
-	private static double mouseX;
-	private static double mouseY;
-	private static double oldHBoxTranslateX;
-	private static double oldHBoxTranslateY;
+public class RootTool extends Group {
+	private static final double RING_RADIUS = 8;
+	private static final double TOUCH_RADIUS = 22;
+	private static final double ARROW_START = 14;
+	private static final double ARROW_END = 38;
+	private static final double ARROW_HEAD = 8;
 
-	private final Circle rootCircle;
+	private static final String OUTLINE = "-fx-stroke: white; -fx-fill: white;";
+	private static final String ACCENT = "-fx-stroke: -fx-accent; -fx-fill: -fx-accent;";
 
 	private final ObjectProperty<RootPosition.Side> rootSide = new SimpleObjectProperty<>(this, "rootSide", null);
+	private final BooleanProperty onLine = new SimpleBooleanProperty(this, "onLine", false);
+
+	private final Scale scale = new Scale(1, 1, 0, 0);
+
+	private Runnable onDropped;
+
+	private double mouseX;
+	private double mouseY;
+	private double oldTranslateX;
+	private double oldTranslateY;
+	private boolean dragged;
 
 	/**
-	 * constructs the root selection tool
-	 *
-	 * @param view draw view
+	 * constructs the root marker
 	 */
-	public RootTool(DrawView view) {
-		var shadow = new DropShadow();
-		shadow.setRadius(5);
-		shadow.setOffsetX(3);
-		shadow.setOffsetY(3);
-		shadow.setColor(Color.gray(0.4));
+	public RootTool() {
+		getTransforms().add(scale);
 
-		var grid = new GridPane();
-		grid.setHgap(3);
-		grid.setVgap(3);
-		grid.setAlignment(Pos.CENTER);
-		getChildren().setAll(grid);
+		var touchArea = new Circle(TOUCH_RADIUS);
+		touchArea.setStyle("-fx-fill: transparent;");
 
-		{
-			rootCircle = new Circle(5);
-			rootCircle.setStyle("-fx-stroke: red;-fx-fill: transparent;-fx-stroke-width: 2;");
-			var stack = new StackPane(rootCircle);
-			StackPane.setAlignment(rootCircle, Pos.CENTER);
-			stack.setEffect(shadow);
-			grid.add(stack, 1, 1);
-		}
+		var halo = new Circle(RING_RADIUS);
+		halo.setStyle("-fx-stroke: white; -fx-fill: transparent; -fx-stroke-width: 7;");
+		var ring = new Circle(RING_RADIUS);
+		ring.setStyle("-fx-stroke: -fx-accent; -fx-fill: transparent; -fx-stroke-width: 3;");
+		var disc = new Circle(RING_RADIUS);
+		disc.setStyle("-fx-fill: -fx-accent; -fx-stroke: transparent;");
+		disc.visibleProperty().bind(onLine);
+		var center = new Circle(2);
+		center.setStyle("-fx-fill: white; -fx-stroke: transparent;");
+		center.visibleProperty().bind(onLine);
 
-		{
-			var rootLabel = new Label("Root");
-			rootLabel.setStyle("-fx-text-fill: red;-fx-font-size: 18;");
-			var stack = new StackPane(rootLabel);
-			StackPane.setAlignment(rootLabel, Pos.BOTTOM_LEFT);
-			stack.setEffect(shadow);
-			grid.add(stack, 2, 0);
+		// an arrow for each way that the drawing can grow, shown for the side that the root is on, all four for the center
+		var right = createArrow(1, 0);
+		right.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Left).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+		var left = createArrow(-1, 0);
+		left.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Right).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+		var down = createArrow(0, 1);
+		down.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Top).or(rootSide.isEqualTo(RootPosition.Side.Center)));
+		var up = createArrow(0, -1);
+		up.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Bottom).or(rootSide.isEqualTo(RootPosition.Side.Center)));
 
-			rootSide.addListener((v, o, n) -> {
-				Tooltip.install(RootTool.this, new Tooltip("Assuming root is at " + n.name().toLowerCase() + ", click to change"));
-				rootLabel.setText("Root at " + n.name().toLowerCase());
-			});
-		}
+		getChildren().setAll(touchArea, right, left, down, up, halo, ring, disc, center);
 
-		{
-			var rootLeftArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 45;-fx-text-fill: red;-fx-font-size: 24;");
-			rootLeftArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Left).or(rootSide.isEqualTo(RootPosition.Side.Center)));
-			var stack = new StackPane(rootLeftArrow);
-			StackPane.setAlignment(rootLeftArrow, Pos.CENTER_LEFT);
-			stack.setEffect(shadow);
-			grid.add(stack, 2, 1);
-		}
-
-		{
-			var rootRightArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 225;-fx-text-fill: red;-fx-font-size: 24;");
-			rootRightArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Right).or(rootSide.isEqualTo(RootPosition.Side.Center)));
-
-			var stack = new StackPane(rootRightArrow);
-			StackPane.setAlignment(rootRightArrow, Pos.CENTER_LEFT);
-			stack.setEffect(shadow);
-			grid.add(stack, 0, 1);
-		}
-
-		{
-			var rootBottomArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 315;-fx-text-fill: red;-fx-font-size: 24;");
-			rootBottomArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Bottom).or(rootSide.isEqualTo(RootPosition.Side.Center)));
-			rootBottomArrow.setEffect(shadow);
-			var stack = new StackPane(rootBottomArrow);
-			StackPane.setAlignment(rootBottomArrow, Pos.CENTER_LEFT);
-			stack.setEffect(shadow);
-			grid.add(stack, 1, 0);
-		}
-
-		{
-			var rootTopArrow = (Label) MaterialIcons.graphic(MaterialIcons.rocket_launch, "-fx-rotate: 135;-fx-text-fill: red;-fx-font-size: 24;");
-			rootTopArrow.visibleProperty().bind(rootSide.isEqualTo(RootPosition.Side.Top).or(rootSide.isEqualTo(RootPosition.Side.Center)));
-			var stack = new StackPane(rootTopArrow);
-			StackPane.setAlignment(rootTopArrow, Pos.CENTER_LEFT);
-			stack.setEffect(shadow);
-			grid.add(stack, 1, 2);
-		}
+		Tooltip.install(this, new Tooltip("Root marker: drag it onto the root of the tree. Click it to change the direction in which the tree grows"));
+		setCursor(Cursor.OPEN_HAND);
 
 		rootSide.set(RootPosition.Side.Left);
 
 		setOnMousePressed(e -> {
 			mouseX = e.getScreenX();
 			mouseY = e.getScreenY();
-			oldHBoxTranslateX = getTranslateX();
-			oldHBoxTranslateY = getTranslateY();
+			oldTranslateX = getTranslateX();
+			oldTranslateY = getTranslateY();
+			dragged = false;
 			e.consume();
 		});
 
 		setOnMouseDragged(e -> {
-			var prev = screenToLocal(new Point2D(mouseX, mouseY));
-			var loc = screenToLocal(new Point2D(e.getScreenX(), e.getScreenY()));
-			var delta = loc.subtract(prev);
-			setTranslateX(getTranslateX() + delta.getX());
-			setTranslateY(getTranslateY() + delta.getY());
-			mouseX = e.getScreenX();
-			mouseY = e.getScreenY();
+			if (getParent() != null) {
+				var prev = getParent().screenToLocal(mouseX, mouseY);
+				var loc = getParent().screenToLocal(e.getScreenX(), e.getScreenY());
+				if (prev != null && loc != null) {
+					setTranslateX(oldTranslateX + loc.getX() - prev.getX());
+					setTranslateY(oldTranslateY + loc.getY() - prev.getY());
+					dragged = true;
+				}
+			}
 			e.consume();
 		});
 
 		setOnMouseReleased(e -> {
-			if (!e.isStillSincePress()) {
-				var oldX = oldHBoxTranslateX;
-				var oldY = oldHBoxTranslateY;
-				var newX = getTranslateX();
-				var newY = getTranslateY();
-				view.getUndoManager().doAndAdd("root location", () -> {
-					setTranslateX(oldX);
-					setTranslateY(oldY);
-				}, () -> {
-					setTranslateX(newX);
-					setTranslateY(newY);
-				});
+			if (dragged) {
+				dragged = false;
+				if (e.isStillSincePress()) { // a click with an unsteady hand: not a move
+					setTranslateX(oldTranslateX);
+					setTranslateY(oldTranslateY);
+				} else if (onDropped != null)
+					onDropped.run();
 			}
 			e.consume();
 		});
@@ -180,8 +156,54 @@ public class RootTool extends StackPane {
 		});
 	}
 
+	/**
+	 * an arrow that starts beside the ring and points away from it, white underneath so that it shows on any picture
+	 */
+	private static Node createArrow(double dx, double dy) {
+		var arrow = new Group();
+		for (var outline : new boolean[]{true, false}) {
+			var shaft = new Line(dx * ARROW_START, dy * ARROW_START, dx * (ARROW_END - ARROW_HEAD), dy * (ARROW_END - ARROW_HEAD));
+			shaft.setStyle((outline ? OUTLINE : ACCENT) + "-fx-stroke-width: " + (outline ? 7 : 3) + ";");
+			shaft.setStrokeLineCap(StrokeLineCap.ROUND);
+			// the head: its tip, and the two corners of its base, which lies across the arrow
+			var head = new Polygon(dx * ARROW_END, dy * ARROW_END,
+					dx * (ARROW_END - ARROW_HEAD - 2) - dy * (ARROW_HEAD - 2), dy * (ARROW_END - ARROW_HEAD - 2) + dx * (ARROW_HEAD - 2),
+					dx * (ARROW_END - ARROW_HEAD - 2) + dy * (ARROW_HEAD - 2), dy * (ARROW_END - ARROW_HEAD - 2) - dx * (ARROW_HEAD - 2));
+			head.setStyle((outline ? OUTLINE : ACCENT) + "-fx-stroke-width: " + (outline ? 4 : 0) + "; -fx-stroke-line-join: round;");
+			arrow.getChildren().addAll(shaft, head);
+		}
+		arrow.setMouseTransparent(true);
+		return arrow;
+	}
+
+	/**
+	 * sets the zoom of the view that the marker is drawn in, so that the marker can undo it and keep its size on the screen
+	 *
+	 * @param zoom the zoom of the view
+	 */
+	public void setZoom(double zoom) {
+		if (zoom > 0) {
+			scale.setX(1.0 / zoom);
+			scale.setY(1.0 / zoom);
+		}
+	}
+
+	/**
+	 * sets what is to be run when the user has dragged the marker and let go of it
+	 */
+	public void setOnDropped(Runnable onDropped) {
+		this.onDropped = onDropped;
+	}
+
+	/**
+	 * is the marker being dragged? As long as it is, it is not to be put anywhere else
+	 */
+	public boolean isDragging() {
+		return dragged;
+	}
+
 	public Point2D getRootLocationOnScreen() {
-		return rootCircle.localToScreen(0, 0);
+		return localToScreen(0, 0);
 	}
 
 	public RootPosition.Side getRootSide() {
@@ -194,5 +216,30 @@ public class RootTool extends StackPane {
 
 	public ObjectProperty<RootPosition.Side> rootSideProperty() {
 		return rootSide;
+	}
+
+	public boolean isOnLine() {
+		return onLine.get();
+	}
+
+	public void setOnLine(boolean onLine) {
+		this.onLine.set(onLine);
+	}
+
+	public BooleanProperty onLineProperty() {
+		return onLine;
+	}
+
+	/**
+	 * the way the drawing grows for a root on the given side, in words
+	 */
+	public static String getDirection(RootPosition.Side side) {
+		return switch (side) {
+			case Left -> "Left to right";
+			case Right -> "Right to left";
+			case Top -> "Top to bottom";
+			case Bottom -> "Bottom to top";
+			case Center -> "Radial";
+		};
 	}
 }

@@ -61,9 +61,9 @@ public class SetupCaptureMenuItems {
 		Platform.runLater(() -> {
 			captureMenuButton.getGraphic().setOnMouseClicked(e -> {
 				if (!capturePane.getRootGroup().isVisible())
-					controller.getShowCaptureRootLocationItem().fire();
+					capturePane.setShowRootTool(true);
 				else
-					controller.getCapturePhylogenyItem().fire();
+					capturePane.run(CaptureService.PHYLOGENY);
 				e.consume();
 			});
 			captureMenuButton.getGraphic().setOnMousePressed(Event::consume);
@@ -108,17 +108,10 @@ public class SetupCaptureMenuItems {
 			}
 		});
 
-		controller.getShowCaptureRootLocationItem().setOnAction(e -> {
-			var showing = capturePane.getRootGroup().isVisible();
-			view.getUndoManager().doAndAdd("show root location", () -> capturePane.getRootGroup().setVisible(showing), () -> capturePane.getRootGroup().setVisible(!showing));
-		});
+		// showing the root marker, moving it and turning it are not steps in the undo list: they say how to capture, they do not change the document
+		controller.getShowCaptureRootLocationItem().setOnAction(e -> capturePane.setShowRootTool(!capturePane.getRootGroup().isVisible()));
 		controller.getShowCaptureRootLocationItem().disableProperty().bind(canSetup.not());
 		capturePane.hasRootLocationProperty().addListener((v, o, n) -> controller.getShowCaptureRootLocationItem().setSelected(n));
-
-		capturePane.rootSideProperty().addListener((v, o, n) -> {
-			if (!view.getUndoManager().isPerformingUndoOrRedo())
-				view.getUndoManager().add("root side", () -> capturePane.setRootSide(o), () -> capturePane.setRootSide(n));
-		});
 
 		controller.getLeftRootSideMenuItem().selectedProperty().addListener((v, o, n) -> {
 			if (n)
@@ -167,7 +160,8 @@ public class SetupCaptureMenuItems {
 		controller.getCaptureLinesItem().setOnAction(e -> view.getUndoManager().doAndAdd("capture", capturePane::reset, () -> capturePane.run(CaptureService.DUSTED)));
 		controller.getCaptureLinesItem().disableProperty().bind(capturePane.hasRootLocationProperty().not().or(canCapture.not()));
 
-		controller.getCapturePhylogenyItem().setOnAction(e -> view.getUndoManager().doAndAdd("capture", capturePane::reset, () -> capturePane.run(CaptureService.PHYLOGENY)));
+		// the step in the undo list is added when the phylogeny has been captured, see SetupCaptureService
+		controller.getCapturePhylogenyItem().setOnAction(e -> capturePane.run(CaptureService.PHYLOGENY));
 		controller.getCapturePhylogenyItem().disableProperty().bind(capturePane.hasRootLocationProperty().not().or(canCapture.not()));
 
 		// controller.getCaptureMenuButton().visibleProperty().bind(view.modeProperty().isEqualTo(DrawView.Mode.Capture));
@@ -195,11 +189,5 @@ public class SetupCaptureMenuItems {
 		};
 		view.modeProperty().addListener(showImageListener);
 		capturePane.hasImageProperty().addListener(showImageListener);
-
-		capturePane.getRootGroup().visibleProperty().addListener((v, o, n) -> {
-			if (n) {
-				controller.getScrollPane().ensureVisible(capturePane.getRootGroup());
-			}
-		});
 	}
 }
