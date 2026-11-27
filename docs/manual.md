@@ -765,17 +765,8 @@ This example shows the (complicated) published drawing of a network
 obtained using the *rectangular cladogram algorithm*:
 
 <div class="center">
-
-|                                                             |
-|:-----------------------------------------------------------:|
-| <img src="figs/Lescroart2023FigS12E.png" style="height:5cm" 
-                       alt="image" />                        |
-
-|                                                                    |
-|:------------------------------------------------------------------:|
-| <img src="figs/Lescroart2023FigS12E-layout.png" style="height:5cm" 
-                           alt="image" />                           |
-
+<img src="figs/Lescroart2023FigS12E.png" style="height:5cm" alt="image" />                 
+<img src="figs/Lescroart2023FigS12E-layout.png" style="height:5cm" alt="image" />                 
 </div>
 
 Here we show a captured hybridization network ((Barley et al. 2022),
@@ -783,15 +774,8 @@ Fig. 2) and a combining view obtained using the *rectangular cladogram
 algorithm*:
 
 <div class="center">
-
-|                                                                        |
-|:----------------------------------------------------------------------:|
-| <img src="figs/lizards-capture.png" style="height:10cm" alt="image" /> |
-
-|                                                                       |
-|:---------------------------------------------------------------------:|
-| <img src="figs/lizards-layout.png" style="height:10cm" alt="image" /> |
-
+<img src="figs/lizards-capture.png" style="height:10cm" alt="image" /> 
+<img src="figs/lizards-layout.png" style="height:10cm" alt="image" /> 
 </div>
 
 # Example files
