@@ -111,6 +111,14 @@ public class BranchEnds {
 			}
 
 			var replacement = readAgain(image, reader, minX, minY, maxX, maxY);
+			// the second reading may come back without a short word that the first had, such as the "N." of
+			// "N. confucianus": then the first is kept, without its dashes
+			if (!replacement.isEmpty() && countLettersAndDigits(replacement) < countLettersAndDigits(group)) {
+				var pos = result.indexOf(word);
+				result.remove(word);
+				result.add(Math.min(pos, result.size()), new OcrWord(stripDashes(text), word.confidence(), box));
+				continue;
+			}
 			if (replacement.isEmpty()) {
 				// could not be read again: at least remove the dash from the text and from the box
 				group.clear();
@@ -122,6 +130,28 @@ public class BranchEnds {
 			var pos = result.indexOf(word);
 			result.removeAll(group);
 			result.addAll(Math.min(pos, result.size()), replacement);
+		}
+		return result;
+	}
+
+	/**
+	 * removes the dashes at the start and end of the text of each word that also has a letter or digit. Where a
+	 * label stands in a dashed line, or a branch runs up to it and was not found in the image above, the dash is
+	 * not part of the label, and a label that starts or ends with one is rejected as a whole
+	 *
+	 * @param words the words
+	 * @return the words, those with such dashes replaced
+	 */
+	public static List<OcrWord> stripDashes(List<OcrWord> words) {
+		var result = new ArrayList<OcrWord>(words.size());
+		for (var word : words) {
+			var text = word.text();
+			if (text != null && text.chars().anyMatch(Character::isLetterOrDigit)) {
+				var stripped = stripDashes(text.strip());
+				if (!stripped.equals(text))
+					word = new OcrWord(stripped, word.confidence(), word.boundingBox());
+			}
+			result.add(word);
 		}
 		return result;
 	}
@@ -223,6 +253,10 @@ public class BranchEnds {
 		if (words.stream().noneMatch(w -> w.text().chars().anyMatch(Character::isLetterOrDigit)))
 			words.clear();
 		return words;
+	}
+
+	private static long countLettersAndDigits(List<OcrWord> words) {
+		return words.stream().mapToLong(w -> w.text() == null ? 0 : w.text().chars().filter(Character::isLetterOrDigit).count()).sum();
 	}
 
 	private static String stripDashes(String text) {

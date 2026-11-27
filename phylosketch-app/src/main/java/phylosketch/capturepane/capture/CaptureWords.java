@@ -64,14 +64,27 @@ public class CaptureWords {
 	 */
 	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words, boolean mustStartWithAlphaNumeric,
 													 boolean mustEndWithAlphaNumeric, boolean mustContainLetter) {
+		return joinConsecutiveWords(words, mustStartWithAlphaNumeric, mustEndWithAlphaNumeric, mustContainLetter, 2.0);
+	}
+
+	/**
+	 * Join consecutive words on the same line into multi-word labels, merging across small
+	 * horizontal gaps (same label) but not across large gaps or different lines (different nodes).
+	 *
+	 * @param words     input words
+	 * @param gapFactor largest horizontal gap (as a multiple of text height) still treated as one label. Generous
+	 *                  (2) where a line is normally a single label: we only want to split genuinely far-apart words
+	 *                  (e.g. two leaves that happen to share a row), not the ordinary space before a specimen code or
+	 *                  after a genus abbreviation. Less where the labels of neighbouring leaves stand side by side
+	 *                  in one line, as below a tree with the root at the top
+	 * @return joined words in reading order (top-to-bottom, getLeft-to-getRight)
+	 */
+	public static List<OcrWord> joinConsecutiveWords(List<OcrWord> words, boolean mustStartWithAlphaNumeric,
+													 boolean mustEndWithAlphaNumeric, boolean mustContainLetter, double gapFactor) {
 		if (words == null || words.isEmpty())
 			return new ArrayList<>();
 
-		// largest horizontal gap (as a multiple of text height) still treated as one label. Generous, because
-		// a detected line is normally a single label: we only want to split genuinely far-apart words (e.g. two
-		// leaves that happen to share a row), not the ordinary space before a specimen code or after a genus
-		// abbreviation.
-		final double GAP_FACTOR = 2.0;
+		final double GAP_FACTOR = gapFactor;
 
 		// 1. clean: strip surrounding whitespace / control chars, drop blanks  <-- fixes the empty-with-Vision case
 		var cleaned = new ArrayList<OcrWord>();
@@ -165,12 +178,39 @@ public class CaptureWords {
 		return word.text().chars().anyMatch(Character::isLetter);
 	}
 
+	private static final String OPENING = "([{'\"‘“";
+	private static final String CLOSING = ")]}'\"’”";
+
+	/**
+	 * does the label start with a letter or digit, or with a bracket or quotation mark that is closed later in it,
+	 * as in "(Homo) sapiens" or "'himalayanus'"?
+	 */
 	private static boolean startsAlphaNumeric(OcrWord word) {
-		return !word.text().isEmpty() && Character.isLetterOrDigit(word.text().charAt(0));
+		var text = word.text();
+		if (text.isEmpty())
+			return false;
+		if (Character.isLetterOrDigit(text.charAt(0)))
+			return true;
+		var which = OPENING.indexOf(text.charAt(0));
+		return which >= 0 && text.indexOf(CLOSING.charAt(which), 1) > 0 && text.chars().anyMatch(Character::isLetterOrDigit);
 	}
 
+	/**
+	 * does the label end with a letter or digit, or with a bracket or quotation mark that was opened earlier in it,
+	 * as in "Ocelot (Brazil)", or with the full stop of an abbreviation, as in "sp. nov."? Rejecting those loses
+	 * the whole label
+	 */
 	private static boolean endsAlphaNumeric(OcrWord word) {
-		return !word.text().isEmpty() && Character.isLetterOrDigit(word.text().charAt(word.text().length() - 1));
+		var text = word.text();
+		if (text.isEmpty())
+			return false;
+		var last = text.charAt(text.length() - 1);
+		if (Character.isLetterOrDigit(last))
+			return true;
+		if (last == '.')
+			return text.length() >= 3 && Character.isLetter(text.charAt(text.length() - 2)) && Character.isLetter(text.charAt(text.length() - 3));
+		var which = CLOSING.indexOf(last);
+		return which >= 0 && text.lastIndexOf(OPENING.charAt(which), text.length() - 2) >= 0 && text.chars().anyMatch(Character::isLetterOrDigit);
 	}
 
 	private static boolean intersect(double minI, double maxI, double minJ, double maxJ) {

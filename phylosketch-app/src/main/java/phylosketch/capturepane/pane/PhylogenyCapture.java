@@ -24,6 +24,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import jloda.fx.undo.CompositeCommand;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.graph.Node;
@@ -54,10 +55,19 @@ public class PhylogenyCapture {
 	private final BooleanProperty runReroot = new SimpleBooleanProperty(this, "runReroot", true);
 	private final BooleanProperty showArrows = new SimpleBooleanProperty(this, "showArrows", true);
 	private final BooleanProperty rescueOrphanLabels = new SimpleBooleanProperty(this, "rescueOrphanLabels", true);
+	private final BooleanProperty removeStrayLines = new SimpleBooleanProperty(this, "removeStrayLines", true);
 
-	private final List<Property<?>> parameters = List.of(removeThruNodes, fixCrossingEdges, layoutLabels, runReroot, showArrows, rescueOrphanLabels);
+	private final List<Property<?>> parameters = List.of(removeThruNodes, fixCrossingEdges, layoutLabels, runReroot, showArrows, rescueOrphanLabels, removeStrayLines);
 
-	public UndoableRedoableCommand apply(DrawView view, Point2D rootLocation, RootPosition.Side rootSide, List<Segment> segments, List<OcrWord> words) {
+	// segments hang together if an end of one lies within this distance of the other: what DrawEdgeCommand joins
+	private static final double JOIN_DISTANCE = 10;
+	// lines that do not hang together with the root are another tree if they have at least this many open ends...
+	private static final int MIN_ENDS_OF_TREE = 3;
+	// ... and are at least this large, as a proportion of the size of what hangs together with the root
+	private static final double MIN_SIZE_OF_TREE = 0.25;
+
+	public UndoableRedoableCommand apply(DrawView view, Point2D rootLocation, RootPosition.Side rootSide, List<Segment> segments0, List<OcrWord> words) {
+		var segments = (removeStrayLines.get() && rootLocation != null ? removeStrayLines(segments0, rootLocation) : segments0);
 		var originalNodes = IteratorUtils.asList(view.getGraph().nodes());
 		var originalEdges = IteratorUtils.asSet(view.getGraph().edges());
 
@@ -150,6 +160,127 @@ public class PhylogenyCapture {
 
 	public List<Property<?>> getAll() {
 		return parameters;
+	}
+
+	/**
+	 * keeps the segments that hang together with the root, and of the others only those that look like a tree of
+	 * their own: a scale bar, a bracket, the frame of a legend or what is left of a title is neither
+	 *
+	 * @param segments     all segments
+	 * @param rootLocation the root
+	 * @return the segments to make edges from
+	 */
+	static List<Segment> removeStrayLines(List<Segment> segments, Point2D rootLocation) {
+		var n = segments.size();
+		if (n < 2)
+			return segments;
+		var boxes = new ArrayList<Rectangle2D>(n);
+		for (var segment : segments)
+			boxes.add(segment.computeBoundingBox());
+
+		// which segments hang together
+		var group = new int[n];
+		for (var i = 0; i < n; i++)
+			group[i] = i;
+		for (var i = 0; i < n; i++) {
+			for (var j = i + 1; j < n; j++) {
+				if (group[i] != group[j] && near(boxes.get(i), boxes.get(j)) && (touches(segments.get(i), segments.get(j)) || touches(segments.get(j), segments.get(i)))) {
+					var from = group[j];
+					var to = group[i];
+					for (var k = 0; k < n; k++) {
+						if (group[k] == from)
+							group[k] = to;
+					}
+				}
+			}
+		}
+
+		// the group of the root: that of the segment nearest to it
+		var rootGroup = -1;
+		var best = Double.MAX_VALUE;
+		for (var i = 0; i < n; i++) {
+			for (var p : segments.get(i).points()) {
+				var distance = p.distance(rootLocation);
+				if (distance < best) {
+					best = distance;
+					rootGroup = group[i];
+				}
+			}
+		}
+		var rootSize = size(segments, group, rootGroup);
+
+		var result = new ArrayList<Segment>();
+		for (var i = 0; i < n; i++) {
+			var g = group[i];
+			if (g == rootGroup || (countOpenEnds(segments, group, g) >= MIN_ENDS_OF_TREE && size(segments, group, g) >= MIN_SIZE_OF_TREE * rootSize))
+				result.add(segments.get(i));
+		}
+		return result;
+	}
+
+	private static boolean near(Rectangle2D a, Rectangle2D b) {
+		return a.getMinX() <= b.getMaxX() + JOIN_DISTANCE && b.getMinX() <= a.getMaxX() + JOIN_DISTANCE && a.getMinY() <= b.getMaxY() + JOIN_DISTANCE && b.getMinY() <= a.getMaxY() + JOIN_DISTANCE;
+	}
+
+	/**
+	 * does an end of the first segment lie on the second, or near it?
+	 */
+	private static boolean touches(Segment a, Segment b) {
+		for (var end : List.of(a.first(), a.last())) {
+			for (var p : b.points()) {
+				if (end.distance(p) <= JOIN_DISTANCE)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * the diagonal of the bounding box of a group of segments
+	 */
+	private static double size(List<Segment> segments, int[] group, int g) {
+		var minX = Double.MAX_VALUE;
+		var minY = Double.MAX_VALUE;
+		var maxX = -Double.MAX_VALUE;
+		var maxY = -Double.MAX_VALUE;
+		for (var i = 0; i < group.length; i++) {
+			if (group[i] == g) {
+				for (var p : segments.get(i).points()) {
+					minX = Math.min(minX, p.x());
+					maxX = Math.max(maxX, p.x());
+					minY = Math.min(minY, p.y());
+					maxY = Math.max(maxY, p.y());
+				}
+			}
+		}
+		return Math.hypot(maxX - minX, maxY - minY);
+	}
+
+	/**
+	 * the number of ends of segments of a group at which no other segment of the group ends or passes
+	 */
+	private static int countOpenEnds(List<Segment> segments, int[] group, int g) {
+		var count = 0;
+		for (var i = 0; i < group.length; i++) {
+			if (group[i] != g)
+				continue;
+			for (var end : List.of(segments.get(i).first(), segments.get(i).last())) {
+				var open = true;
+				for (var j = 0; j < group.length && open; j++) {
+					if (j != i && group[j] == g) {
+						for (var p : segments.get(j).points()) {
+							if (end.distance(p) <= JOIN_DISTANCE) {
+								open = false;
+								break;
+							}
+						}
+					}
+				}
+				if (open)
+					count++;
+			}
+		}
+		return count;
 	}
 
 	private static boolean doThenAdd(UndoableRedoableCommand command, List<UndoableRedoableCommand> commands) {
@@ -259,6 +390,39 @@ public class PhylogenyCapture {
 				words.remove(bestWord);
 				doThenAdd(new SetNodeLabelsCommand(view, rootPosition, List.of(bestLeaf.getSecond()), bestWord.text()), commands);
 			} else break;
+		}
+		// a label that is left over and stands right next to a node that is not a leaf is the label of that node: the
+		// name of a clade. The node must be the only one that near
+		{
+			var inner = new ArrayList<Node>();
+			for (var v : nodes) {
+				if (!v.isLeaf() && (DrawView.getLabel(v) == null || DrawView.getLabel(v).getRawText().isBlank()))
+					inner.add(v);
+			}
+			for (var word : new ArrayList<>(words)) {
+				var bbox = word.boundingBox();
+				Node best = null;
+				var bestDistance = Double.MAX_VALUE;
+				var secondDistance = Double.MAX_VALUE;
+				for (var v : inner) {
+					var p = DrawView.getPoint(v);
+					var dx = Math.max(0, Math.max(bbox.getMinX() - p.getX(), p.getX() - bbox.getMaxX()));
+					var dy = Math.max(0, Math.max(bbox.getMinY() - p.getY(), p.getY() - bbox.getMaxY()));
+					var distance = Math.hypot(dx, dy);
+					if (distance < bestDistance) {
+						secondDistance = bestDistance;
+						bestDistance = distance;
+						best = v;
+					} else if (distance < secondDistance)
+						secondDistance = distance;
+				}
+				var reach = Math.max(8, 0.8 * Math.min(bbox.getWidth(), bbox.getHeight()));
+				if (best != null && bestDistance <= reach && secondDistance > 1.5 * bestDistance + 3) {
+					inner.remove(best);
+					words.remove(word);
+					doThenAdd(new SetNodeLabelsCommand(view, rootPosition, List.of(best), word.text()), commands);
+				}
+			}
 		}
 		if (rescueOrphans) {
 			if (!words.isEmpty()) {
